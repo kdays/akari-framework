@@ -37,6 +37,10 @@ h2{font-size: 14px;margin: 6px 0;}
 		<p>如果您不了解这个消息，可以将其消息发给网站管理员处理</p>
 	</div>
 
+<!--
+EOT;
+if(!empty($trace)){print <<<EOT
+-->
 	<div id="trace">
 		<h2>调试信息</h2>
 		<ul id="trace_log">
@@ -51,6 +55,18 @@ EOT;
 -->
 		</ul>
 		</div>
+<!--
+EOT;
+}else{print <<<EOT
+-->
+	<div id="trace">
+		<h2>调试日志</h2>
+		<p>这是一个致命错误，无法生成跟踪日志</p>
+	</div>
+<!--
+EOT;
+}print <<<EOT
+-->
 	
 	<div style='text-align:center'>Akari Framework</div>
 	</div>

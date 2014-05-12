@@ -13,7 +13,7 @@ Class ExceptionProcessor{
 
 	public function processException(Exception $ex){
 		if(!isset($this->handler))	throw $ex;
-		if(ob_get_level() !== 0)	ob_end_clean();
+		if(ob_get_level() > 0)	ob_end_clean();
 
 		$this->handler->handleException($ex);
 	}
@@ -26,6 +26,7 @@ Class ExceptionProcessor{
     	$e = error_get_last(); 
     	if($e){
     		if($e['type'] == E_ERROR){
+    			if(ob_get_level() > 0)	ob_end_clean();
     			$this->handler->handleFatal($e['type'], $e['message'], $e['file'], $e['line']);
     		}
     	}

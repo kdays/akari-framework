@@ -1,6 +1,7 @@
 <?php
 Class DefaultExceptionHandler{
 	public function handleException(Exception $ex){
+		header('HTTP/1.1 500 Internal Server Error');
 		$trace = $ex->getTrace();
 		if (@$trace[0]['file'] == '') {
 			unset($trace[0]);
@@ -9,11 +10,13 @@ Class DefaultExceptionHandler{
 		$file = @$trace[0]['file'];
 		$line = @$trace[0]['line'];
 
+		Logging::_logErr($ex->getMessage()."\t(".$file.":".$line.")");
 		$this->msg($ex->getMessage(), $file, $line, $trace, $ex->getCode());
 	}
 
 	public function handleFatal($error, $message, $file, $line){
-		$this->msg($message, $file, $line, debug_backtrace(), $error);
+		Logging::_logFatal($message."\t(".$file.":".$line.")");
+		$this->msg($message, $file, $line, array(), $error);
 	}
 
 	/**
