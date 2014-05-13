@@ -47,7 +47,7 @@ function deletedir($path){
 			while(($fp = readdir($dp)) !== false){
 				if($fp != "." && $fp != ".."){
 					if(is_dir("$path/$fp")){
-						deletefolder("$path/$fp");
+						deletedir("$path/$fp");
 					}else{
 						unlink("$path/$fp");
 					}

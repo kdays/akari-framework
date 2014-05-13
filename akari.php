@@ -163,6 +163,7 @@ Class akari{
 			"Request" => "system/http/Request",
 			"Cookie" => "system/http/Cookie",
 			"Session" => "system/http/Session",
+			"MobileDevice" => "system/http/MobileDevice",
 
 			"Logging" => "system/log/Logging",
 			"FileLogger" => "system/log/FileLogger",

@@ -40,7 +40,7 @@ Class TemplateHelper{
 	}
 
 	
-	function command_parse($str){
+	public static function command_parse($str){
 		$str = str_replace("$", "_#_", $str);
 		$str = explode(" ", $str);
 		$command = array_shift($str);
@@ -127,5 +127,6 @@ function TH_module($id, $data = ''){
 	}
 
 	$clsObj = $clsName::getInstance();
-	$clsObj->run($data);
+
+	return $clsObj->run($data);
 }
