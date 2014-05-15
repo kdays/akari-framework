@@ -1,4 +1,6 @@
 <?php
+!defined("AKARI_PATH") && exit;
+
 Class Model{
 	public function __log($msg){
 		Logging::_log($msg);

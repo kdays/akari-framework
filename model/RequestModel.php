@@ -1,4 +1,5 @@
 <?php
+!defined("AKARI_PATH") && exit;
 
 Class RequestModel extends Model{
 	public function __construct(){

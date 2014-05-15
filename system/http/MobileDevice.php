@@ -1,4 +1,6 @@
 <?php
+!defined("AKARI_PATH") && exit;
+
 Class MobileDevice{
 	private $userAgent;
 

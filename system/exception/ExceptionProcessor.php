@@ -25,9 +25,10 @@ Class ExceptionProcessor{
     public function processFatal(){
     	$e = error_get_last(); 
     	if($e){
-    		if($e['type'] == E_ERROR){
+    		if($e['type'] == E_ERROR || $e['type'] == E_PARSE || $e['type'] == E_CORE_ERROR){
     			if(ob_get_level() > 0)	ob_end_clean();
     			$this->handler->handleFatal($e['type'], $e['message'], $e['file'], $e['line']);
+    			//throw new Exception($e['message'], $e['type'], 0, $e['file'], $e['line']);
     		}
     	}
     }

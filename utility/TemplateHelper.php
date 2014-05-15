@@ -84,11 +84,11 @@ Class TemplateHelper{
 		}
 	}
 	
-	function addquote($var) {
+	public static function addquote($var) {
 		return str_replace("\\\"", "\"", preg_replace("/\[([a-zA-Z0-9_\-\.\x7f-\xff]+)\]/s", "['\\1']", $var));
 	}
 	
-	function command_lang($str){
+	public static function command_lang($str){
 		$command = explode(" ", $str);
 		$langid = array_shift($command);
 		if(empty($command)){

@@ -1,4 +1,6 @@
 <?php
+!defined("AKARI_PATH") && exit;
+
 Class pagesModule{
 	protected static $m;
 	public static function getInstance(){

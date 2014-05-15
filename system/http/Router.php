@@ -40,7 +40,6 @@ Class Router{
 		switch($config->uriMode){
 			case AKARI_URI_AUTO:
 				$uri = $this->request->getPathInfo();
-			
 				if(empty($uri)){
 					if(isset($_GET['uri']))	$uri = $_GET['uri'];
 					if(empty($uri)){
@@ -58,7 +57,18 @@ Class Router{
 			case AKARI_URI_REQUESTURI:
 				$uri = $this->clearURI($this->request->getRequestURI());break;
 		}
-		
+
+		$urlInfo = parse_url(Context::$appConfig->appBaseURL);
+
+		// 如果基础站点URL不是根目录时
+        if (isset($urlInfo['path']) && $urlInfo['path'] != '/') {
+            $uriPrefix = rtrim($urlInfo['path'], '/');
+            $uriPrefixLength = strlen($uriPrefix);
+            if (substr($uri, 0, $uriPrefixLength) === $uriPrefix) {
+                $uri = substr($uri, $uriPrefixLength);
+            }
+        }
+
 		$uri = preg_replace('/\/+/', '/', $uri); //把多余的//替换掉..
 		
 		if(!$uri || $uri == '/' || $uri == '/'.Context::$appEntryName){

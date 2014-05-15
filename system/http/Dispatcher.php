@@ -56,7 +56,7 @@ Class Dispatcher{
                 $filename = array_pop($list);
                 $name = implode(DIRECTORY_SEPARATOR, $list);
 
-                $path = $basePath.$name."/".$filename.".php";
+                $path = $basePath.$name.DIRECTORY_SEPARATOR.$filename.".php";
                 if(file_exists($path)){
                     return $path;
                 }
@@ -64,16 +64,14 @@ Class Dispatcher{
         }
 
         //首先检查是否有类似名称的
-        $path = $basePath.array_shift($list).".php";
-        if(file_exists($path)){
+        if(file_exists($path = $basePath.array_shift($list).".php")){
             return $path;
         }
 
-        if($count == 1){
-            $path = $basePath."default.php";
-            if(file_exists($path))  return $path;
+        if($count == 1 && file_exists($path = $basePath."default.php")){
+             return $path;
         }
-        
+
         return FALSE;
     }
 }

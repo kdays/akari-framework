@@ -1,7 +1,7 @@
 <?php
 Class DefaultExceptionHandler{
 	public function handleException(Exception $ex){
-		header('HTTP/1.1 500 Internal Server Error');
+		HttpStatus::setStatus(HttpStatus::CODE_InternalServerError);
 		$trace = $ex->getTrace();
 		if (@$trace[0]['file'] == '') {
 			unset($trace[0]);
@@ -37,7 +37,11 @@ Class DefaultExceptionHandler{
 		}
 		$file = str_replace(Context::$appBasePath, '', $file);
 		
-		require(AKARI_PATH."template/error_trace.htm");exit;
+		if(CLI_MODE){
+			fwrite(STDOUT, date('[Y-m-d H:i:s] '). $message ."($file:$line)". PHP_EOL);
+		}else{
+			require(AKARI_PATH."template/error_trace.htm");exit;
+		}
 	}
 
 	/**

@@ -124,7 +124,7 @@ Class akari{
 			HookRules::getInstance()->commitAfterRule();
 		}else{
 			if(Context::$mode == FALSE){
-				Header('HTTP/1.0 404 Not Found');
+				HttpStatus::setStatus(HttpStatus::CODE_NotFound);
     			echo file_get_contents(AKARI_PATH."template/404.htm");
     			$this->stop();
 			}
@@ -164,6 +164,7 @@ Class akari{
 			"Cookie" => "system/http/Cookie",
 			"Session" => "system/http/Session",
 			"MobileDevice" => "system/http/MobileDevice",
+			"HttpStatus" => "system/http/HttpStatus",
 
 			"Logging" => "system/log/Logging",
 			"FileLogger" => "system/log/FileLogger",

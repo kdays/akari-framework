@@ -1,4 +1,5 @@
 <?php
+!defined("AKARI_PATH") && exit;
 
 Class DatabaseModel extends Model{
 	public $db;

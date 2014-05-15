@@ -1,4 +1,6 @@
 <?php
+!defined("AKARI_PATH") && exit;
+
 Class HookRules{
 	protected static $h;
 
