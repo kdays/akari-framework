@@ -4,7 +4,11 @@
 Class Dispatcher{
 	private $config;
 	private static $r;
-
+    
+	/**
+	 * 单例
+	 * @return Dispatcher
+	 */
 	public static function getInstance() {
         if (self::$r == null) {
             self::$r = new self();
@@ -12,10 +16,19 @@ Class Dispatcher{
         return self::$r;
     }
     
+    /**
+     * 构造函数
+     */
     private function __construct(){
     	$this->config = Context::$appConfig;
     }
-
+    
+    /**
+     * CLI模式下 任务路径的分发
+     * 
+     * @param string $URI uri路径
+     * @return boolean|string
+     */
     public function invokeTask($URI = ''){
         $list = explode("/", $URI);
         $taskName = array_shift($list);
@@ -28,7 +41,14 @@ Class Dispatcher{
 
         return $path;
     }
-
+    
+    /**
+     * 通常请求下的分配路径
+     * 
+     * @param string $URI URI路径
+     * @throws Exception
+     * @return string|boolean
+     */
     public function invoke($URI = ''){
         $list = explode("/", $URI);
         $basePath = Context::$appBasePath."/app/action/";
@@ -47,7 +67,7 @@ Class Dispatcher{
         $count = count($list);
 
         if($count > 10){
-            throw new Exception("Invild URI");
+            throw new Exception("invalid URI");
         }
 
         // 如果有子目录的操作会处理发送最近一个
@@ -57,6 +77,11 @@ Class Dispatcher{
                 $name = implode(DIRECTORY_SEPARATOR, $list);
 
                 $path = $basePath.$name.DIRECTORY_SEPARATOR.$filename.".php";
+                if(file_exists($path)){
+                    return $path;
+                }
+
+                $path = $basePath.$name.DIRECTORY_SEPARATOR."default.php";
                 if(file_exists($path)){
                     return $path;
                 }

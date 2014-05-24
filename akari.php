@@ -5,7 +5,8 @@
  */
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
-define("AKARI_VERSION", "2014.05.02");
+define("AKARI_VERSION", "2014.05.24");
+define("AKARI_NAME", "KDays Akari Framework v2 (Largo)");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 
@@ -22,11 +23,20 @@ Class Context{
 	public static $appEntryPath = null;
 
 	public static $mode = FALSE;
-
+    
+	/**
+	 * 注册类库载入
+	 * @param string $nsName 名字
+	 * @param string $nsPath 路径
+	 */
 	public static function register($nsName, $nsPath){
 		self::$nsPaths[$nsName] = $nsPath;
 	}
-
+    
+	/**
+	 * 自动载入用方法
+	 * @param string $cls 类名
+	 */
 	public static function autoload($cls){
 		if(isset(self::$classes[$cls]))	return ;
 
@@ -46,11 +56,27 @@ Class Context{
 				require($clsPath);
 				return ;
 			}
+			
+			// 在测试到model中查找，这不是一个好的方法策略
+            $clsPath = Context::$appBasePath."/app/model/$cls.php";
+			if(file_exists( $clsPath )){
+				self::$classes[$cls] = true;
+				
+				require($clsPath);
+				return ;
+			}
+
+			$clsPath = false;
 		}
-
-		if(!$clsPath)	trigger_error("Not Found CLASS [ $cls ]", E_USER_ERROR);
+        
+		if(!$clsPath) trigger_error("Not Found CLASS [ $cls ]", E_USER_ERROR);
 	}
-
+    
+	/**
+	 * 获得资源路径
+	 * @param string $path 路径
+	 * @return string
+	 */
 	public function getResourcePath($path){
 		return realpath(Context::$appBasePath.$path);
 	}
@@ -59,6 +85,10 @@ spl_autoload_register(Array('Context', 'autoload'));
 
 Class akari{
 	private static $f;
+	/**
+	 * 框架单例
+	 * @return akari
+	 */
 	public static function getInstance(){
 		if (self::$f == null) {
             self::$f = new self();
@@ -66,9 +96,12 @@ Class akari{
         return self::$f;
 	}
 
-	/**
-	 * 框架引导用
-	 **/
+    /**
+     * 初始化框架，载入设定和组件，并设定错误处理器
+     * 
+     * @param string $appBasePath 应用基础目录
+     * @return akari
+     */
 	public function initApp($appBasePath){
 		include("config/BaseConfig.php");
 
@@ -90,13 +123,26 @@ Class akari{
 
 		return $this;
 	}
-
+    
+	/**
+	 * 绑定事件错误器
+	 * @return void
+	 */
 	public function setExceptionHandler(){
 		if(isset(Context::$appConfig->defaultExceptionHandler)){
 			ExceptionProcessor::getInstance()->setHandler(Context::$appConfig->defaultExceptionHandler);
 		}
 	}
-
+    
+	/**
+	 * 执行请求
+	 * 
+	 * @param string $uri URI地址
+	 * @param boolean $outputBuffer 是否启用输出缓存
+	 * @param string $params CLI模式时传递用的参数
+	 * @throws Exception
+	 * @return akari
+	 */
 	public function run($uri = NULL, $outputBuffer = true, $params = ""){
 		$config = Context::$appConfig;
 
@@ -119,12 +165,12 @@ Class akari{
 		if($clsPath){
 			Context::$appEntryPath = str_replace(Context::$appBasePath, '', $clsPath);
 
-			HookRules::getInstance()->commitPreRule();
+			TriggerRule::getInstance()->commitPreRule();
 			require $clsPath;
-			HookRules::getInstance()->commitAfterRule();
+			TriggerRule::getInstance()->commitAfterRule();
 		}else{
 			if(Context::$mode == FALSE){
-				HttpStatus::setStatus(HttpStatus::CODE_NotFound);
+				HttpStatus::setStatus(HttpStatus::NOT_FOUND);
     			echo file_get_contents(AKARI_PATH."template/404.htm");
     			$this->stop();
 			}
@@ -137,14 +183,15 @@ Class akari{
 	}
 
 	/**
-	 * 将基础数据载入
-	 *
+	 * 将框架相关组件载入
+	 * @return void
 	 **/
 	public function loadBase(){
 		$lib = Array(
 			"I18n" => "utility/I18n",
 			"Auth" => "utility/Auth",
 			"Pages" => "utility/Pages",
+		    "curl" => "utility/curl",
 			"ImageThumb" => "utility/ImageThumb",
 			"UploadHelper" => "utility/UploadHelper",
 			"TemplateHelper" => "utility/TemplateHelper",
@@ -158,7 +205,8 @@ Class akari{
 			"DBAgentStatement" => "system/db/DBAgentStatement",
 
 			"Dispatcher" => "system/http/Dispatcher",
-			"HookRules" => "system/HookRules",
+			"TriggerRule" => "system/TriggerRule",
+			"Event" => "system/Event",
 			"Router" => "system/http/Router",
 			"Request" => "system/http/Request",
 			"Cookie" => "system/http/Cookie",
@@ -183,6 +231,7 @@ Class akari{
 
 			"Model" => "model/Model",
 			"RequestModel" => "model/RequestModel",
+		    "CodeModel" => "model/CodeModel",
 			"DatabaseModel" => "model/DatabaseModel"
 		);
 

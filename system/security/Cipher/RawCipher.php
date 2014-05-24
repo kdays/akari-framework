@@ -1,4 +1,7 @@
 <?php
+/**
+ * WARNING: 这不是一个加密函数
+ **/
 !defined("AKARI_PATH") && exit;
 
 Class RawCipher extends Cipher{

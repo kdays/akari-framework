@@ -1,12 +1,24 @@
 <?php
 Class HttpStatus{
-	const CODE_Ok = 200;
-	const CODE_Moved = 301;
-	const CODE_BadRequest = 400;
-	const CODE_Forbidden = 403;
-	const CODE_NotFound = 404;
-	const CODE_InternalServerError = 500;
-	const CODE_ServiceUnavailable = 503;
+	const OK = 200;
+	/**
+	 * 永久性的被移动到新位置
+	 * @var int
+	 */
+	const MOVED_PERMANENTLY = 301;
+	/**
+	 * 临时的转移，和301 MOVED_PERMANENTLY不同
+	 * @var int
+	 */
+	const FOUND = 302;
+	const BAD_REQUEST = 400;
+	const UNAUTHORIZED = 401;
+	const FORBIDDEN = 403;
+	const NOT_FOUND = 404;
+	const METHOD_NOT_ALLOWED = 405;
+	const INTERNAL_SERVER_ERROR = 500;
+	const SERVICE_UNAVAILABLE = 503;
+	const GATEWAY_TIMEOUT = 504;
 
 	public static $statusCode = Array(
 		"200" => "OK",
@@ -49,8 +61,13 @@ Class HttpStatus{
 		"503" => "Service Unavailable",
 		"504" => "Gateway Timeout"
 	);
-
-	public static function setStatus($statusCode = self::CODE_Ok){
+    
+	/**
+	 * 设定HTTP头部的status
+	 * 
+	 * @param int $statusCode 状态码 可见HttpStatus::$statusCode[*]，常见封装在CODE_*中
+	 */
+	public static function setStatus($statusCode = self::OK){
 		Header("HTTP/1.1 ".self::$statusCode[$statusCode]);
 	}
 }

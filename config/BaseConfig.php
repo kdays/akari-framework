@@ -4,7 +4,7 @@
 
 Class BaseConfig{
 
-	public $appName = "Application";
+	public $appName = "Akari";
 	public $appBaseURL = "http://localhost/";
 
 	public $database = Array();
@@ -12,7 +12,7 @@ Class BaseConfig{
 		"file" => Array(),
 		"memcache" => Array()
 	);
-	public $defaultCacheType = "File";
+	public $defaultCacheType = "file";
 	public $logs = Array(
 		Array(
 			'level' => AKARI_LOG_LEVEL_PRODUCTION,
@@ -32,6 +32,7 @@ Class BaseConfig{
 	public $csrfTokenName = "_akari";
 
 	public $charset = "utf-8";
+	public $language = "cn";
 
 	public $uriMode = AKARI_URI_AUTO;
 	public $uriSuffix = "";
@@ -51,7 +52,7 @@ Class BaseConfig{
 	public $cookieSecure = false;
 	public $cookieEncrypt= "AESCipher";
 
-	public $hookRules = Array(
+	public $triggerRule = Array(
 		"pre" => Array(
 		//	Array('/KK/', 'a')
 		)

@@ -10,7 +10,14 @@ Class UploadHelper{
 
 		return self::$h;
 	}
-
+    
+	/**
+	 * 是否是一个合法的上传文件
+	 * 
+	 * @param string $tmpName 上传表单中的tmp_name
+	 * @return boolean
+	 * @todo 如果使用moveFile方法的话，不必调用本函数。因为已经自动调用了
+	 */
 	public function isUploadedFile($tmpName){
 		if (!$tmpName || $tmpName == 'none') {
 			return false;
@@ -24,7 +31,19 @@ Class UploadHelper{
 	public function getRandName($ext, $opts = Array()){
 		return md5(uniqid()).".$ext";
 	}
-
+    
+	/**
+	 * 上传并移动文件
+	 * 
+	 * @param array $uploadForm 上传的表单数组
+	 * @param string $saveDir 保存目录
+	 * @param string $namePolicty 命名方式（默认为getRandName）
+	 * @param array $namePolictyOptions 命名函数调用时的参数
+	 * @param callable $callback 回调参数
+	 * @param string $allowExt 允许的文件格式，不设定为设定中的allowUploadExt
+	 * @throws UploadFileCannotAccess
+	 * @return boolean|mixed
+	 */
 	public function moveFile($uploadForm, $saveDir, $namePolicty = NULL, $namePolictyOptions = Array(), $callback, $allowExt = NULL){
 		if(empty($allowExt)){
 			$allowExt = Context::$appConfig->allowUploadExt;

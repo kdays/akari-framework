@@ -23,7 +23,7 @@ Class DBParser{
 	}
 
 	public function parseColumn($value){
-		return '"' . str_replace('.', '"."', $value) . '"';
+		return '`' . str_replace('.', '"."', $value) . '`';
 	}
 
 	public function parseField($columns){
@@ -165,7 +165,7 @@ Class DBParser{
 
 			//如果找到操作符 那么后面的可以无视了
 			if($singleOper != array()){
-				$str = $this->parseData($singleOper, '');
+				$str = $this->parseData($singleOper[0], '');
 			}
 
 			if (!empty($whereAND)){

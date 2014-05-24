@@ -17,6 +17,29 @@ Class Router{
     	$this->request = Request::getInstance();
     	$this->config = Context::$appConfig;
     }
+    
+    /**
+     * Task参数解析用，但不是每个task都需要 可以自由选择
+     * 
+     * @param string $params
+     * @return array
+     * @todo 语法: action,param1=value1,param2=value2
+     */
+    public function parseTaskParam($params){
+        $params = explode(",", $params);
+        if(empty($params)){
+            return Array("action" => "default", "params" => array());
+        }
+        
+        // 然后分析参数处理
+        $list = array();
+        foreach($params as $value) {
+            list($do, $pval) = explode("=", $value);
+            $list[(empty($pval) ? "action" : $do)] = ($pval ? $pval : $do);
+        }
+        
+        return $list;
+    }
 
     private function clearURI($uri){
     	$queryString = $_SERVER['QUERY_STRING'];

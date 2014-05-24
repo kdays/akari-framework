@@ -33,6 +33,7 @@ Class DBAgent{
 
 	/**
 	 * 查询
+	 * 
 	 * @param DBAgentStatement|String $SQL
 	 * @param NULL|Array $params
 	 **/
@@ -58,7 +59,17 @@ Class DBAgent{
 
 		return $rs;
 	}
-
+    
+	/**
+	 * 获得单个查询
+	 * 
+	 * @param mixed $SQL 查询对象或语句
+	 * @param array $params 参数数组
+	 * @param string $class 返回Class
+	 * @throws DBAgentException
+	 * @return mixed
+	 * @todo params在SQL传入DBAgentStatement对象无效
+	 */
 	public function getOne($SQL, $params = NULL, $class = NULL){
 		$pdo = $this->getPDOInstance();
 		if(is_object($SQL) && $SQL instanceof DBAgentStatement){
@@ -85,7 +96,15 @@ Class DBAgent{
 
 		return $rs;
 	}
-
+    
+	/**
+	 * 执行SQL操作
+	 * 
+	 * @param mixed $SQL 查询对象或语句
+	 * @param array $params 参数数组
+	 * @throws DBAgentException
+	 * @return number
+	 */
 	public function execute($SQL, $params = array()){
 		$pdo = $this->getPDOInstance();
 		if(is_object($SQL) && $SQL instanceof DBAgentStatement){
@@ -109,14 +128,32 @@ Class DBAgent{
 		return $s->rowCount();
 	}
 
+	/**
+	 * 返回上次执行时的最近一次插入的id
+	 * 
+	 * @return boolean
+	 */
 	public function insertId(){
 		return $this->lastInsertId;
 	}
-
+    
+	/**
+	 * 获得SQL准备对象
+	 * 
+	 * @param string $SQL SQL语句
+	 * @return DBAgentStatement
+	 */
 	public function prepare($SQL){
 		return new DBAgentStatement($SQL, $this);
 	}
-
+    
+	/**
+	 * 根据Arr设定DBStatement对象
+	 * 
+	 * @param string $SQL sql语句
+	 * @param array $params 参数对象
+	 * @return DBAgentStatement
+	 */
 	public function createStatementByArr($SQL, $params = NULL){
 		if($params == NULL)	return $this->prepare($SQL);
 
@@ -130,6 +167,14 @@ Class DBAgent{
 		return $r;
 	}
 
+	/**
+	 * 在进行链式ORM操作后的查询
+	 * 
+	 * @param string $table 表名
+	 * @param string $join 是否JOIN查询
+	 * @param string $where 是否进行where操作
+	 * @return multitype:
+	 */
 	public function select($table = NULL, $join = NULL, $where = NULL){
 		if($table != NULL)	$this->table($table);
 		if($join != NULL)	$this->join($join);
@@ -182,7 +227,15 @@ Class DBAgent{
 		$this->arg = array();
 		return $this->query($sql);
 	}
-
+    
+	/**
+	 * 在进行链式ORM操作后的更新
+	 * 
+	 * @param string $data 数据
+	 * @param string $table 表名
+	 * @param string $where 是否进行where操作
+	 * @return multitype:
+	 */
 	public function update($data = NULL, $table = NULL, $where = NULL){
 		if($table != NULL)	$this->table($table);
 		if($data != NULL)	$this->data($data);
@@ -212,6 +265,13 @@ Class DBAgent{
 		return $this->execute($sql);
 	}
 
+	/**
+	 * 在进行链式ORM操作后的插入
+	 *
+	 * @param string $data 数据
+	 * @param string $table 表名
+	 * @return multitype:
+	 */
 	public function insert($data = NULL, $table = NULL){
 		if($table != NULL)	$this->table($table);
 		if($data != NULL)	$this->data($data);
@@ -231,46 +291,100 @@ Class DBAgent{
 		return $this->execute($sql);
 	}
 
+	/**
+	 * ORM链式操作: 设定查询的范围
+	 * 
+	 * @param string $name 列名
+	 * @return DBAgent
+	 */
 	public function field($name){
 		$this->arg['select'] = $name;
 		return $this;
 	}
-
+    
+	/**
+	 * ORM链式操作: 设定表名
+	 * 
+	 * @param string $table 表名
+	 * @return DBAgent
+	 */
 	public function table($table){
 		$this->arg['table'] = $table;
 		return $this;
 	}
 
+	/**
+	 * ORM链式操作: 设定where的范围
+	 * 
+	 * @param array $options 范围
+	 * @return DBAgent
+	 */
 	public function where($options){
 		$this->arg['where'][] = $options;
 		return $this;
 	}
-
+    
+	/**
+	 * ORM链式操作: JOIN操作
+	 * 
+	 * @param string $table 表名
+	 * @return DBAgent
+	 */
 	public function join($table){
 		$this->arg['join'][] = $table;
 		return $this;
 	}
-
+    
+	/**
+	 * ORM链式操作: Order排序设定
+	 * 
+	 * @param string $order 排序方式
+	 * @return DBAgent
+	 */
 	public function order($order){
 		$this->arg['order'] = $order;
 		return $this;
 	}
-
+    
+	/**
+	 * ORM链式操作: limit显示显示数
+	 * 
+	 * @param mixed $limit
+	 * @return DBAgent
+	 */
 	public function limit($limit){
 		$this->arg['limit'] = $limit;
 		return $this;
 	}
 
+	/**
+	 * ORM链式操作: 设定groupby
+	 * 
+	 * @param unknown $group
+	 * @return DBAgent
+	 */
 	public function group($group){
 		$this->arg['group'] = $group;
 		return $this;
 	}
-
+    
+	/**
+	 * ORM链式操作: 设定Having
+	 * 
+	 * @param unknown $having
+	 * @return DBAgent
+	 */
 	public function having($having){
 		$this->arg['having'] = $having;
 		return $this;
 	}
-
+    
+	/**
+	 * ORM链式操作: 设定数据
+	 * 
+	 * @param unknown $data
+	 * @return DBAgent
+	 */
 	public function data($data){
 		$this->arg['data'][] = $data;
 		return $this;

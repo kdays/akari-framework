@@ -45,18 +45,18 @@ Class DBAgentStatement{
 
 
 		if(!empty($this->arg['data'])){
-			$where = array();
+			$data = array();
 
 			foreach($this->arg['data'] as $key => $value){
 				if(is_array($value)){
-					$where[] = "`$key` IN (".implode(",", $value).")";
+					$data[] = "`$key` IN (".implode(",", $value).")";
 				}else{
-					$where[] = "`$key`='$value'";
+					$data[] = "`$key`='$value'";
 				}
 			}
 
-			if(!empty($where)){
-				$sql = str_replace('(data)', "WHERE ".implode(",", $where), $sql);
+			if(!empty($data)){
+				$sql = str_replace('(data)', implode(",", $data), $sql);
 			}
 		}
 		$sql = str_replace('(data)', '', $sql);

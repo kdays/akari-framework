@@ -17,7 +17,7 @@ Class FileAdapter extends BaseCacheAdapter{
 		if(!file_exists($this->indexPath)){
 			file_put_contents($this->indexPath, json_encode($this->fileIndex));
 		}else{
-			$this->fileIndex = json_decode(file_get_contents($this->indexPath));
+			$this->fileIndex = json_decode(file_get_contents($this->indexPath), TRUE);
 		}
 
 		// 处理超时的缓存
@@ -39,6 +39,7 @@ Class FileAdapter extends BaseCacheAdapter{
 
 	/**
 	 * 删除文件缓存中的某个键
+	 * 
 	 * @param string $key
 	 * @param bool $oper 是否立即生效，不立即生效的话后面需要用update()处理
 	 **/

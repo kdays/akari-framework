@@ -3,6 +3,10 @@
 
 Class TemplateHelper{
 	public static function load($tplName){
+		if($bDir = C("templateBaseDir")){
+			$tplName = "$bDir/$tplName";
+		}
+
 		$tplPath = Context::$appBasePath."/app/template/$tplName";
 		$tplPath .= Context::$appConfig->templateSuffix ? Context::$appConfig->templateSuffix : ".htm";
 

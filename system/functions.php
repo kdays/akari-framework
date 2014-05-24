@@ -1,6 +1,13 @@
 <?php
 !defined("AKARI_PATH") && exit;
 
+/**
+ * 读取文件
+ * 
+ * @param string $filename 文件路径
+ * @param string $method 读取方式
+ * @return string|unknown
+ */
 function readover($filename, $method = 'rb'){
 	if(function_exists("file_get_contents")){
 		return file_get_contents($filename);
@@ -16,6 +23,14 @@ function readover($filename, $method = 'rb'){
 	}
 }
 
+/**
+ * 写入文件
+ * 
+ * @param string $fileName 文件路径
+ * @param string $data 数据
+ * @param string $method 写入方式
+ * @param string $ifChmod 是否权限进行777设定
+ */
 function writeover($fileName, $data, $method = 'rb+', $ifChmod = true){
 	$baseDir = dirname($fileName);
 	createdir($baseDir);
@@ -29,6 +44,12 @@ function writeover($fileName, $data, $method = 'rb+', $ifChmod = true){
 	$ifChmod && @chmod($fileName, 0777);
 }
 
+/**
+ * 创建目录
+ * 
+ * @param string $path 路径
+ * @param boolean $index 是否自动创建index.html文件
+ */
 function createdir($path, $index = false){
 	if(is_dir($path))	return ;
 	createfolder(dirname($path), $index);
@@ -41,27 +62,39 @@ function createdir($path, $index = false){
 	}
 }
 
+/**
+ * 删除目录
+ * 
+ * @param string $path 路径
+ * @return boolean
+ */
 function deletedir($path){
-	if(rmdir($path) == false && is_dir($path)){
-		if($dp = opendir($path)){
-			while(($fp = readdir($dp)) !== false){
-				if($fp != "." && $fp != ".."){
-					if(is_dir("$path/$fp")){
-						deletedir("$path/$fp");
-					}else{
-						unlink("$path/$fp");
-					}
-				}
-			}
-			
-			closedir($dp);
-			rmdir($path);
-		}else{
-			return false;
-		}
-	}
+    if(!is_dir($path))  return false;
+    
+    if(rmdir($path) == false){
+        if(!$dp = opendir($path))   return false;
+        
+        while(($fp = readdir($dp)) !== false){
+            if($fp == "." || $fp == "..")   continue;
+            if(is_dir("$path/$fp")){
+                deletedir("$path/$fp");
+            }else{
+                unlink("$path/$fp");
+            }
+        }
+        
+        closedir($dp);
+        rmdir($path);
+    }
 }
 
+/**
+ * 移动文件
+ * 
+ * @param string $dstfile 目标路径
+ * @param string $srcfile 来源路径
+ * @return boolean
+ */
 function movefile($dstfile, $srcfile){
 	createfolder(dirname($dstfile));
 	if (rename($srcfile,$dstfile)) {
@@ -82,9 +115,17 @@ function movefile($dstfile, $srcfile){
 	return false;
 }
 
+/**
+ * 获得缓存实例
+ * 
+ * @param string $type 缓存类型
+ * @throws Excepton
+ * @return Ambigous <unknown>
+ */
 function getCacheInstance($type = "File"){
 	static $CacheInstance = Array();
-	$type = $type ? ucfirst($type) : Context::$appConfig->defaultCacheType;
+	$type = $type ? $type : Context::$appConfig->defaultCacheType;
+	$type = ucfirst($type);
 
 	$cls = $type."Adapter";
 	if(!class_exists($cls)){
@@ -98,10 +139,19 @@ function getCacheInstance($type = "File"){
 	return $CacheInstance[$type];
 }
 
-function cache($key, $value = NULL, $expried = -1, $opts = array()){
+/**
+ * 缓存数据
+ * 
+ * @param string $key 缓存键名
+ * @param string $value 缓存数据
+ * @param int $expired 过期时间
+ * @param array $opts 可选
+ * @todo 如果value为NULL且expired为FALSE则为删除，只有value为NULL为取值
+ */
+function cache($key, $value = NULL, $expired = -1, $opts = array()){
 	$cls = getCacheInstance($opts["type"]);
 
-	if($value == NULL && $expried === FALSE){
+	if($value == NULL && $expired === FALSE){
 		return $cls->remove($key);
 	}
 
@@ -113,6 +163,14 @@ function cache($key, $value = NULL, $expried = -1, $opts = array()){
 	return $cls->set($key, $value, $expried);
 }
 
+/**
+ * 计数统计
+ * 
+ * @param string $key 键名
+ * @param number $value 变更的值
+ * @param boolean $cache 是否保存进缓存 
+ * @return Ambigous <number>
+ */
 function logcount($key, $value = 0, $cache = false){
 	static $logs = array();
 	
@@ -131,7 +189,13 @@ function logcount($key, $value = 0, $cache = false){
 	}
 }
 
-
+/**
+ * 检查字符串中是否有某个字符
+ * 
+ * @param string $string 字符串
+ * @param mixed $findme 要查找的字符，支持传入数组
+ * @return boolean
+ */
 function in_string($string,$findme){
 	!is_array($findme) && $findme = Array($findme);
 	foreach($findme as $value){
@@ -145,6 +209,14 @@ function in_string($string,$findme){
 	return false;
 }
 
+/**
+ * 字符串过滤
+ * 
+ * @param string $mixed 数据
+ * @param string $isint 是否为int
+ * @param string $istrim 是否进行trim
+ * @return Ambigous <number, mixed>
+ */
 function Char_cv($mixed,$isint=false,$istrim=false) {
 	if (is_array($mixed)) {
 		foreach ($mixed as $key => $value) {
@@ -169,6 +241,7 @@ function Char_cv($mixed,$isint=false,$istrim=false) {
 /**
  * 根据Model返回单例
  *
+ * @param string $ModelName 模型名称
  */
 function M($ModelName){
 	static $tmpModel = array();
@@ -191,21 +264,37 @@ function M($ModelName){
 	}
 }
 
+/**
+ * 获得语言
+ * 
+ * @param string $key 语言Key
+ * @param array $L 替换用数组
+ * @param string $prefix 前缀
+ * @return Ambigous <mixed, string, multitype:>
+ */
 function L($key, $L = Array(), $prefix = ''){
 	return I18n::get($key, $L, $prefix);
 }
 
+/**
+ * 获得设置或对设置特定项目
+ * 
+ * @param string $key 设置项
+ * @param string $value 数值(NULL时不设置)
+ * @param string $defaultValue 取值时没有找到输出
+ * @return unknown|boolean|string
+ */
 function C($key = FALSE, $value = NULL, $defaultValue = FALSE){
 	$config = Context::$appConfig;
 	if(!$key)	return $config;
 
 	if($value != NULL){
-		$config->$$key = $value;
+		Context::$appConfig->$key = $value;
 		return true;
 	}
 
-	if(isset($config->$$key)){
-		return $config->$$key;
+	if(isset($config->$key)){
+		return $config->$key;
 	}
 
 	return $defaultValue;
@@ -214,6 +303,8 @@ function C($key = FALSE, $value = NULL, $defaultValue = FALSE){
 /**
  * 根据数据获得值
  *
+ * @param string $key 关键词
+ * @param string $method 获得类型(G=GET P=POST GP=GET&POST)
  **/
 function GP($key, $method = 'GP'){
 	if ($method != 'P' && isset($_GET[$key])) {
@@ -226,9 +317,10 @@ function GP($key, $method = 'GP'){
 }
 
 /**
+ * 模板输出或调用
  *
- *
- * @todo: if bindArr == false only return path
+ * @param string $tplName 模板名称
+ * @param mixed $bindArr 绑定数组，设置FALSE时只返回模板路径
  **/
 function T($tplName, $bindArr = false){
 	if($bindArr === FALSE){
@@ -240,6 +332,13 @@ function T($tplName, $bindArr = false){
 	}
 }
 
+/**
+ * 模板数据绑定
+ * 
+ * @param string $key 键名
+ * @param string $value 值
+ * @return multitype:unknown
+ */
 function V($key, $value){
 	static $data = array();
 	if($key != "") $data[$key] = $value;
@@ -247,6 +346,13 @@ function V($key, $value){
 	return $data;
 }
 
+/**
+ * 载入APP目录的数据
+ * 
+ * @param string $path 路径
+ * @todo: .会替换成目录中的/
+ * @throws Exception
+ */
 function import($path){
 	$path = Context::$appBasePath.DIRECTORY_SEPARATOR.str_replace(".", DIRECTORY_SEPARATOR, $path).".php";
 	if(!file_exists($path)){

@@ -1,7 +1,7 @@
 <?php
 Class DefaultExceptionHandler{
 	public function handleException(Exception $ex){
-		HttpStatus::setStatus(HttpStatus::CODE_InternalServerError);
+		HttpStatus::setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 		$trace = $ex->getTrace();
 		if (@$trace[0]['file'] == '') {
 			unset($trace[0]);
@@ -10,11 +10,14 @@ Class DefaultExceptionHandler{
 		$file = @$trace[0]['file'];
 		$line = @$trace[0]['line'];
 
+		$file = str_replace(Context::$appBasePath, '', $file);
+
 		Logging::_logErr($ex->getMessage()."\t(".$file.":".$line.")");
 		$this->msg($ex->getMessage(), $file, $line, $trace, $ex->getCode());
 	}
 
 	public function handleFatal($error, $message, $file, $line){
+		$file = str_replace(Context::$appBasePath, '', $file);
 		Logging::_logFatal($message."\t(".$file.":".$line.")");
 		$this->msg($message, $file, $line, array(), $error);
 	}
@@ -35,7 +38,6 @@ Class DefaultExceptionHandler{
 		foreach ($trace as $key => $value) {
 			$log .= $value . "\r\n";
 		}
-		$file = str_replace(Context::$appBasePath, '', $file);
 		
 		if(CLI_MODE){
 			fwrite(STDOUT, date('[Y-m-d H:i:s] '). $message ."($file:$line)". PHP_EOL);
