@@ -5,8 +5,8 @@
  */
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
-define("AKARI_VERSION", "2014.05.24");
-define("AKARI_NAME", "KDays Akari Framework v2 (Largo)");
+define("AKARI_VERSION", "2.0 (Largo)");
+define("AKARI_BUILD", "2014.05.27");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 

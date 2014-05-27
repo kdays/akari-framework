@@ -47,6 +47,7 @@ Class DefaultExceptionHandler{
 		}
 		
 		$version = AKARI_VERSION;
+		$build = AKARI_BUILD;
 		$file = str_replace(Context::$appBasePath, '', $file);
 		if(CLI_MODE){
 			fwrite(STDOUT, date('[Y-m-d H:i:s] '). $message ."($file:$line)". PHP_EOL);
