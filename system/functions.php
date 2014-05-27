@@ -115,6 +115,20 @@ function movefile($dstfile, $srcfile){
 	return false;
 }
 
+
+function checkDir($requestPath, $basePath = false){
+    if(!$basePath){
+        $basePath = realpath(Context::$appBasePath);
+    }
+    
+    $requestPath = realpath($requestPath);
+    if(strpos($requestPath, $basePath)){
+        return TRUE;
+    }
+    
+    return FALSE;
+}
+
 /**
  * 获得缓存实例
  * 

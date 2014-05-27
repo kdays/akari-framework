@@ -10,14 +10,14 @@ Class DefaultExceptionHandler{
 		$file = @$trace[0]['file'];
 		$line = @$trace[0]['line'];
 
-		$file = str_replace(Context::$appBasePath, '', $file);
+//		$file = str_replace(Context::$appBasePath, '', $file);
 
 		Logging::_logErr($ex->getMessage()."\t(".$file.":".$line.")");
 		$this->msg($ex->getMessage(), $file, $line, $trace, $ex->getCode());
 	}
 
 	public function handleFatal($error, $message, $file, $line){
-		$file = str_replace(Context::$appBasePath, '', $file);
+//		$file = str_replace(Context::$appBasePath, '', $file);
 		Logging::_logFatal($message."\t(".$file.":".$line.")");
 		$this->msg($message, $file, $line, array(), $error);
 	}
@@ -33,12 +33,23 @@ Class DefaultExceptionHandler{
 	 * @throws WindFinalException
 	 */
 	public function msg($message, $file, $line, $trace, $errorcode) {
-		$log = $message . "\r\n" . $file . ":" . $line . "\r\n";
+		$log = $message . "\r\n" . str_replace(Context::$appBasePath, '', $file) . ":" . $line . "\r\n";
 		list($fileLines, $trace) = self::crash($file, $line, $trace);
 		foreach ($trace as $key => $value) {
 			$log .= $value . "\r\n";
 		}
+
+		$fileLineLog = "";
+		foreach($fileLines as $key => $value){
+			$value = str_replace("  ", "<span class='w-block'></span>", $value);
+			if($key == $line - 1){
+				$fileLineLog .= "<li class='current'>$value</li>";
+			}else{
+				$fileLineLog .= "<li>$value</li>\n";
+			}
+		}
 		
+		$file = str_replace(Context::$appBasePath, '', $file);
 		if(CLI_MODE){
 			fwrite(STDOUT, date('[Y-m-d H:i:s] '). $message ."($file:$line)". PHP_EOL);
 		}else{
@@ -77,12 +88,13 @@ Class DefaultExceptionHandler{
 			
 			if (($count = count($fileLines)) > 0) {
 				$padLen = strlen($count);
-				foreach ($fileLines as $line => &$fileLine)
-					$fileLine = " " . htmlspecialchars(
-						str_pad($line + 1, $padLen, "0", STR_PAD_LEFT) . ": " . str_replace("\t", 
+				foreach ($fileLines as $line => &$fileLine){
+					$fileLine = " <b>" .str_pad($line + 1, $padLen, "0", STR_PAD_LEFT) . ":</b> " . htmlspecialchars(str_replace("\t", 
 							"    ", rtrim($fileLine)), null, "UTF-8");
+				}
 			}
 		}
+
 		return array($fileLines, $trace);
 	}
 	
@@ -93,9 +105,11 @@ Class DefaultExceptionHandler{
 	private static function getCallLine($call) {
 		$call_signature = "";
 		if (isset($call['file'])) $call_signature .= $call['file'] . " ";
-		if (isset($call['line'])) $call_signature .= "(" . $call['line'] . ") ";
+		if (isset($call['line'])) $call_signature .= ":" . $call['line'] . " ";
 		if (isset($call['function'])) {
-			$call_signature .= "<span class=func>".$call['function']."(";
+		    $call_signature .= "<span class=func>";
+		    if(isset($call['class'])) $call_signature .= "$call[class]->";
+			$call_signature .= $call['function']."(";
 			if (isset($call['args'])) {
 				foreach ($call['args'] as $arg) {
 					if (is_string($arg))

@@ -77,7 +77,10 @@ Class Context{
 	 * @param string $path 路径
 	 * @return string
 	 */
-	public function getResourcePath($path){
+	public function getResourcePath($path, $toURL = false){
+	    if($toURL){
+	        return str_replace(Context::$appBasePath, '', $path);
+	    }
 		return realpath(Context::$appBasePath.$path);
 	}
 }
@@ -106,13 +109,19 @@ Class akari{
 		include("config/BaseConfig.php");
 
 		$confCls = "Config";
-		if(file_exists(AKARI_PATH."dev.lock")){
-			$confCls = "devConfig";
-			Context::$mode = "dev";
-		}	
-
+		
+		$lock = glob(AKARI_PATH."*.lock");
+		if(isset($lock[0])){
+		    Context::$mode = basename($lock[0], ".lock");
+		    $confCls = Context::$mode."Config";
+		}
+		
 		Context::$appBasePath = $appBasePath;
-		include($appBasePath."/app/config/$confCls.php");
+		if(!file_exists($confPath = $appBasePath."/app/config/$confCls.php")){
+		    trigger_error("Not Found Mode Config [ $confCls ]", E_USER_ERROR);
+		}
+		
+		include($confPath);
 		$config = new $confCls();
 
 		Context::$appConfig = $config;
@@ -174,8 +183,7 @@ Class akari{
     			echo file_get_contents(AKARI_PATH."template/404.htm");
     			$this->stop();
 			}
-
-			Logging::_logInfo("not found $uri");
+			
 			throw new Exception("URI ERROR: $uri");
 		}
 

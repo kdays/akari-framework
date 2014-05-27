@@ -9,20 +9,34 @@
 <style>
 body, ul, h1, h2{ margin: 0; padding: 0;}
 body{
-	background: #fafafa; color: #333; font-size: 12px;
+	background: #fff; color: #333; font-size: 12px;
 }
-#wrapper{margin: 8% auto; width: 800px;}
-#inner{margin: 5px 0; padding: 5px 10px;}
+#wrapper{margin: 0 auto;}
+#inner{margin: 5px 0; padding: 5px 20px;}
 
-ul{list-style: none; color: #666;}
-li{padding: 3px 7px; margin-top: 5px; border-bottom: 1px #ddd dashed;}
+ul{list-style: none; color: fff;}
+li{padding: 5px 7px; }
+li:hover .func{background: #333; color: #fff;}
 
-.func{display: block; margin: 3px 0; color: #999;}
-#trace{padding: 4px 10px;border-top: 1px #ccc solid; margin-bottom: 20px;}
+.func{display: block; margin: 8px 0; color: #666; padding: 3px 20px;}
+#trace{padding: 4px 10px; margin: 20px 0;}
 
-h1{font-size: 22px;}
+h1{font-size: 22px; color: #fff; background: darkred; padding: 10px 20px;}
 h2{font-size: 14px;margin: 6px 0;}
 .gray{color: #888;}
+
+/* 文件详细提示 */
+#where{border: 1px #ccc solid;}
+	#where ul{padding: 3px 10px;}
+	#where b{color: #999; padding: 5px 0;}
+	
+    #where li{border-bottom: 1px #eee solid;display: block;}
+        #where li.current{background: lightyellow;}
+        #where li:last-child{border-bottom: none;}
+        #where li:hover{color: #fff;background: #888;}
+       #where li:hover b{color: #fff;}
+
+.w-block{width: 12px;display: inline-block;}
 </style>
 	
 </head>
@@ -30,11 +44,14 @@ h2{font-size: 14px;margin: 6px 0;}
 <body>
 	<div id="wrapper">
 
+    <h1>程序错误</h1>
 	<div id="inner">
-		<h1>发生错误</h1>
-		
-		<p style='font-size: 14px'>$message <span class='gray'>on $file ($line)</span></p>
-		<p>如果您不了解这个消息，可以将其消息发给网站管理员处理</p>
+		<p style='font-size: 14px'>$message <span class="gray">on $file ($line)</span></p>
+		<p class="gray">如果您不了解这个消息，可以将其消息发给网站管理员处理</p>
+	</div>
+	
+	<div id="where">
+	   <ul>$fileLineLog</ul>
 	</div>
 
 <!--
