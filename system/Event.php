@@ -55,7 +55,7 @@ Class Event{
         }
         
         if(!empty($eventQueue)){
-            usort($eventQueue, Array(self, '_doSort'));
+            usort($eventQueue, '_doEventSort');
             
             foreach($eventQueue as $value){
                 if($value[0]($params) === FALSE){
@@ -64,15 +64,8 @@ Class Event{
             }
         }
     }
-    
-    /**
-     * 排序用方法
-     * 
-     * @param array $a 参数a
-     * @param array $b 参数b
-     * @return number
-     */
-    public static function _doSort($a, $b){
-        return $a[1] - $b[1];
-    }
+}
+
+function _doEventSort($a, $b){
+    return $a[1] - $b[1];
 }

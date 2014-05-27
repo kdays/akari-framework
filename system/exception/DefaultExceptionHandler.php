@@ -10,14 +10,11 @@ Class DefaultExceptionHandler{
 		$file = @$trace[0]['file'];
 		$line = @$trace[0]['line'];
 
-//		$file = str_replace(Context::$appBasePath, '', $file);
-
 		Logging::_logErr($ex->getMessage()."\t(".$file.":".$line.")");
 		$this->msg($ex->getMessage(), $file, $line, $trace, $ex->getCode());
 	}
 
 	public function handleFatal($error, $message, $file, $line){
-//		$file = str_replace(Context::$appBasePath, '', $file);
 		Logging::_logFatal($message."\t(".$file.":".$line.")");
 		$this->msg($message, $file, $line, array(), $error);
 	}
@@ -49,6 +46,7 @@ Class DefaultExceptionHandler{
 			}
 		}
 		
+		$version = AKARI_VERSION;
 		$file = str_replace(Context::$appBasePath, '', $file);
 		if(CLI_MODE){
 			fwrite(STDOUT, date('[Y-m-d H:i:s] '). $message ."($file:$line)". PHP_EOL);
@@ -89,7 +87,7 @@ Class DefaultExceptionHandler{
 			if (($count = count($fileLines)) > 0) {
 				$padLen = strlen($count);
 				foreach ($fileLines as $line => &$fileLine){
-					$fileLine = " <b>" .str_pad($line + 1, $padLen, "0", STR_PAD_LEFT) . ":</b> " . htmlspecialchars(str_replace("\t", 
+					$fileLine = " <b>" .str_pad($line + 1, $padLen, "0", STR_PAD_LEFT) . "</b> " . htmlspecialchars(str_replace("\t", 
 							"    ", rtrim($fileLine)), null, "UTF-8");
 				}
 			}

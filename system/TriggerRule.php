@@ -20,7 +20,7 @@ Class TriggerRule{
 	 * 初始化规则
 	 */
 	public function initRules(){
-		$config = Context::$appConfig->TriggerRule;
+		$config = Context::$appConfig->triggerRule;
 		if(!empty($config['pre']))	$this->preRules = $config['pre'];
 		if(!empty($config['after']))	$this->afterRules = $config['after'];
 

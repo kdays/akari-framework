@@ -22,13 +22,17 @@ li:hover .func{background: #333; color: #fff;}
 #trace{padding: 4px 10px; margin: 20px 0;}
 
 h1{font-size: 22px; color: #fff; background: darkred; padding: 10px 20px;}
+    h1 span{font-size: 12px; color: pink;}
 h2{font-size: 14px;margin: 6px 0;}
+    h2 span{font-size: 12px; color: #666;}
 .gray{color: #888;}
+#version{text-align: center; margin: 10px 0;}
+    #version span{color: #999; margin-left: 6px;}
 
 /* 文件详细提示 */
 #where{border: 1px #ccc solid;}
 	#where ul{padding: 3px 10px;}
-	#where b{color: #999; padding: 5px 0;}
+	#where b{color: #999; padding: 5px 0; margin-right: 10px;}
 	
     #where li{border-bottom: 1px #eee solid;display: block;}
         #where li.current{background: lightyellow;}
@@ -44,7 +48,7 @@ h2{font-size: 14px;margin: 6px 0;}
 <body>
 	<div id="wrapper">
 
-    <h1>程序错误</h1>
+    <h1>程序错误 <span>System Error</span></h1>
 	<div id="inner">
 		<p style='font-size: 14px'>$message <span class="gray">on $file ($line)</span></p>
 		<p class="gray">如果您不了解这个消息，可以将其消息发给网站管理员处理</p>
@@ -59,7 +63,7 @@ EOT;
 if(!empty($trace)){print <<<EOT
 -->
 	<div id="trace">
-		<h2>调试信息</h2>
+		<h2>调试信息 <span>Trace</span></h2>
 		<ul id="trace_log">
 <!--
 EOT;
@@ -85,7 +89,8 @@ EOT;
 }print <<<EOT
 -->
 	
-	<div style='text-align:center'>Akari Framework</div>
+	<div id="version">Akari Framework <span>Build/$version</span>
+</div>
 	</div>
 </body>
 
