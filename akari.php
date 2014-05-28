@@ -203,6 +203,7 @@ Class akari{
 			"ImageThumb" => "utility/ImageThumb",
 			"UploadHelper" => "utility/UploadHelper",
 			"TemplateHelper" => "utility/TemplateHelper",
+			"MessageHelper" => "utility/MessageHelper",
 
 			"ExceptionProcessor" => "system/exception/ExceptionProcessor",
 			"DefaultExceptionHandler" => "system/exception/DefaultExceptionHandler",
