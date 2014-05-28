@@ -376,3 +376,16 @@ function import($path){
 		require($path);
 	}
 }
+
+/**
+ * 生成URL
+ *
+ * @param string $action 操作
+ * @todo 如action=manager.login  => manager/login
+ */
+function url($action){
+	$url = str_replace(".", "/", $action);
+	$url .= Context::$appConfig->uriSuffix;
+
+	return $url;
+}

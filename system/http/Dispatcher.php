@@ -41,6 +41,16 @@ Class Dispatcher{
 
 		return $path;
 	}
+
+	/**
+	 * 临时注册某个路由
+	 * 
+	 * @param string $re URL匹配正则
+	 * @param string $url 重写到哪个文件
+	 */
+	public function register($re, $url){
+		Context::$appConfig->URLRewrite[$re] = $url;
+	}
 	
 	/**
 	 * 通常请求下的分配路径

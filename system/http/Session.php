@@ -2,28 +2,23 @@
 !defined("AKARI_PATH") && exit;
 
 Class Session{
-	private static $s = null;
-	public static function getInstance(){
-		if(self::$s == null){
-			self::$s = new self();
+	public static function init(){
+		if(CLI_MODE){
+			Logging::_logWarn("Session cannot running on CLI mode");
+		}else{
+			session_start();
 		}
-		
-		return self::$s;
 	}
 
-	protected function __construct(){
-		session_start();
-	}
-
-	public function set($key, $value){
+	public static function set($key, $value){
 		$_SESSION[$key] = $value;
 	}
 
-	public function remove($key){
+	public static function remove($key){
 		unset($_SESSION[$key]);
 	}
 
-	public function get($key = NULL, $defaultValue = NULL){
+	public static function get($key = NULL, $defaultValue = NULL){
 		if($key == NULL)	return $_SESSION;
 
 		if(isset($_SESSION[$key])){
