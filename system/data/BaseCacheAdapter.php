@@ -6,16 +6,16 @@ Class BaseCacheAdapter{
 	protected $options = array();
 
 	public function __get($name) {
-        return $this->get($name);
-    }
+		return $this->get($name);
+	}
 
-    public function __set($name,$value) {
-        return $this->set($name,$value);
-    }
-    
-    public function __unset($name){
-    	return $this->remove($name);
-    }
+	public function __set($name,$value) {
+		return $this->set($name,$value);
+	}
+	
+	public function __unset($name){
+		return $this->remove($name);
+	}
 
 	/**
 	 * 获得缓存配置
@@ -42,9 +42,9 @@ Class BaseCacheAdapter{
 	 */
 	public function __call($method, $args){
 		if(method_exists($this->handler, $method)){
-           return call_user_func_array(array($this->handler,$method), $args);
-        }else{
-        	throw new Exception("METHOD NOT FOUND");
-        }
+		   return call_user_func_array(array($this->handler,$method), $args);
+		}else{
+			throw new Exception("METHOD NOT FOUND");
+		}
 	}
 }

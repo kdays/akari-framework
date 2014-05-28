@@ -7,9 +7,9 @@
 Class Base64Cipher extends Cipher{
 	public static function getInstance(){
 		if (self::$d == null) {
-            self::$d = new self();
-        }
-        return self::$d;
+			self::$d = new self();
+		}
+		return self::$d;
 	}
 
 	public function encrypt($str){

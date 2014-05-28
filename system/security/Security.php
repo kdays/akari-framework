@@ -2,13 +2,13 @@
 !defined("AKARI_PATH") && exit;
 
 Class Security{
-    /**
-     * 获得Cipher实例
-     * 
-     * @param string $type 类型
-     * @throws Exception
-     * @return mixed
-     */
+	/**
+	 * 获得Cipher实例
+	 * 
+	 * @param string $type 类型
+	 * @throws Exception
+	 * @return mixed
+	 */
 	public static function getCipherInstance($type){
 		if($type == NULL)	$type = Context::$appConfig->encryptCipher;
 		$clsName = in_string($type, "Cipher") ? $type : $type."Cipher";
@@ -18,7 +18,7 @@ Class Security{
 
 		return call_user_func_array(Array($clsName, "getInstance"), Array());
 	}
-    
+	
 	/**
 	 * 获得CSRF的token
 	 * 
@@ -29,7 +29,7 @@ Class Security{
 		if(!$key && defined("CSRF_KEY"))	$key = CSRF_KEY;
 		return substr( md5(Context::$appConfig->encryptionKey."_".$key."_".$_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR']) ,7, 9);
 	}
-    
+	
 	/**
 	 * 检查CSRF的token是否正常
 	 * 
@@ -56,7 +56,7 @@ Class Security{
 	public static function encrypt($str, $type = NULL){
 		return self::getCipherInstance($type)->encrypt($str);
 	}
-    
+	
 	/**
 	 * 解密字符串
 	 * 

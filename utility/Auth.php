@@ -7,12 +7,12 @@ Class Auth{
 	private $data = array();
 	private $u = array();
 
-    /**
-     * 设置组别权限
-     * 
-     * @param int $groupId 组别id
-     * @param array $permissionLst 权限列表
-     */
+	/**
+	 * 设置组别权限
+	 * 
+	 * @param int $groupId 组别id
+	 * @param array $permissionLst 权限列表
+	 */
 	public function setGroup($groupId, $permissionLst){
 		$this->data[$groupId] = $permissionLst;
 	}
@@ -43,7 +43,7 @@ Class Auth{
 	public function getUser($userId){
 		return $this->u[$userId];
 	}
-    
+	
 	/**
 	 * 获得组别下的权限列表
 	 * 
@@ -52,7 +52,7 @@ Class Auth{
 	public function getGroup($groupId){
 		return $this->data[$groupId];
 	}
-    
+	
 	/**
 	 * 检查权限
 	 * 

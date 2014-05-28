@@ -6,9 +6,9 @@ Class ExceptionProcessor{
 	public static $p;
 	public static function getInstance(){
 		if (!isset(self::$p)) {
-            self::$p = new self();
-        }
-        return self::$p;
+			self::$p = new self();
+		}
+		return self::$p;
 	}
 
 	public function processException(Exception $ex){
@@ -19,20 +19,20 @@ Class ExceptionProcessor{
 	}
 
 	public function processError($errno, $errstr, $errfile, $errline, $errcontext) {
-        throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-    }
+		throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+	}
 
-    public function processFatal(){
-    	$e = error_get_last(); 
-    	if($e){
-    	    $fatalArr = Array(E_ERROR, E_PARSE, E_CORE_ERROR, E_USER_ERROR);
-    		if(in_array($e['type'], $fatalArr)){
-    			if(ob_get_level() > 0)	ob_end_clean();
-    			$this->handler->handleFatal($e['type'], $e['message'], $e['file'], $e['line']);
-    			//throw new Exception($e['message'], $e['type'], 0, $e['file'], $e['line']);
-    		}
-    	}
-    }
+	public function processFatal(){
+		$e = error_get_last(); 
+		if($e){
+			$fatalArr = Array(E_ERROR, E_PARSE, E_CORE_ERROR, E_USER_ERROR);
+			if(in_array($e['type'], $fatalArr)){
+				if(ob_get_level() > 0)	ob_end_clean();
+				$this->handler->handleFatal($e['type'], $e['message'], $e['file'], $e['line']);
+				//throw new Exception($e['message'], $e['type'], 0, $e['file'], $e['line']);
+			}
+		}
+	}
 
 	public function setHandler($clsPath){
 		if(!isset($this->handler)){

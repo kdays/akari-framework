@@ -21,32 +21,32 @@ Class MemcacheAdapter extends BaseCacheAdapter{
 		}
 	}
 
-    public function remove($name){
-    	return $this->handler->remove($this->options['prefix'].$name);
-    }
-    
-    public function get($name) {
-        return $this->handler->get($this->options['prefix'].$name);
-    }
+	public function remove($name){
+		return $this->handler->remove($this->options['prefix'].$name);
+	}
+	
+	public function get($name) {
+		return $this->handler->get($this->options['prefix'].$name);
+	}
 
-    /**
-     * 写入缓存
-     * @access public
-     * @param string $name 缓存变量名
-     * @param mixed $value  存储数据
-     * @param integer $expire  有效时间（秒）
-     * @return boolean
-     */
-    public function set($name, $value, $expire = null) {
-        if(is_null($expire)) {
-            $expire = $this->options['expire'];
-        }
+	/**
+	 * 写入缓存
+	 * @access public
+	 * @param string $name 缓存变量名
+	 * @param mixed $value  存储数据
+	 * @param integer $expire  有效时间（秒）
+	 * @return boolean
+	 */
+	public function set($name, $value, $expire = null) {
+		if(is_null($expire)) {
+			$expire = $this->options['expire'];
+		}
 
-        $name = $this->options['prefix'].$name;
-        if($this->handler->set($name, $value, 0, $expire)) {
-            return true;
-        }
+		$name = $this->options['prefix'].$name;
+		if($this->handler->set($name, $value, 0, $expire)) {
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

@@ -69,23 +69,23 @@ function createdir($path, $index = false){
  * @return boolean
  */
 function deletedir($path){
-    if(!is_dir($path))  return false;
-    
-    if(rmdir($path) == false){
-        if(!$dp = opendir($path))   return false;
-        
-        while(($fp = readdir($dp)) !== false){
-            if($fp == "." || $fp == "..")   continue;
-            if(is_dir("$path/$fp")){
-                deletedir("$path/$fp");
-            }else{
-                unlink("$path/$fp");
-            }
-        }
-        
-        closedir($dp);
-        rmdir($path);
-    }
+	if(!is_dir($path))  return false;
+	
+	if(rmdir($path) == false){
+		if(!$dp = opendir($path))   return false;
+		
+		while(($fp = readdir($dp)) !== false){
+			if($fp == "." || $fp == "..")   continue;
+			if(is_dir("$path/$fp")){
+				deletedir("$path/$fp");
+			}else{
+				unlink("$path/$fp");
+			}
+		}
+		
+		closedir($dp);
+		rmdir($path);
+	}
 }
 
 /**
@@ -117,16 +117,16 @@ function movefile($dstfile, $srcfile){
 
 
 function checkDir($requestPath, $basePath = false){
-    if(!$basePath){
-        $basePath = realpath(Context::$appBasePath);
-    }
-    
-    $requestPath = realpath($requestPath);
-    if(strpos($requestPath, $basePath)){
-        return TRUE;
-    }
-    
-    return FALSE;
+	if(!$basePath){
+		$basePath = realpath(Context::$appBasePath);
+	}
+	
+	$requestPath = realpath($requestPath);
+	if(strpos($requestPath, $basePath)){
+		return TRUE;
+	}
+	
+	return FALSE;
 }
 
 /**
@@ -247,7 +247,7 @@ function Char_cv($mixed,$isint=false,$istrim=false) {
 		);
 		$mixed = str_replace(array("%3C",'<'),'&lt;',$mixed);
 		$mixed = str_replace(array("%3E",'>'),'&gt;',$mixed);
-		$mixed = str_replace(array('"',"'","\t",'  '),array('&quot;','&#39;','    ','&nbsp;&nbsp;'),$mixed);
+		$mixed = str_replace(array('"',"'","\t",'  '),array('&quot;','&#39;','	','&nbsp;&nbsp;'),$mixed);
 	}
 	return $mixed;
 }

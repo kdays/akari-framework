@@ -14,19 +14,19 @@ Class Logging{
 		$config = Context::$appConfig;
 		$logs = array();
 
-        foreach ($config->logs as $idx => $log) {
-        	if(array_key_exists("enabled", $log)){
-        		if(!$log['enabled'])	continue;
-        	}
+		foreach ($config->logs as $idx => $log) {
+			if(array_key_exists("enabled", $log)){
+				if(!$log['enabled'])	continue;
+			}
 
-        	if(array_key_exists("url", $log)){
-        		if(!preg_match($log['url'], Context::$uri))	continue;
-        	}
+			if(array_key_exists("url", $log)){
+				if(!preg_match($log['url'], Context::$uri))	continue;
+			}
 
-        	$logs[] = $log;
-        }
+			$logs[] = $log;
+		}
 
-        if(!$strLevel)	$strLevel = self::$strLevel[$level];
+		if(!$strLevel)	$strLevel = self::$strLevel[$level];
 
 		foreach($logs as $log){
 			$logLevel = $log['level'];
@@ -34,7 +34,7 @@ Class Logging{
 				$appender = $log['appender']::getInstance($log['params']);
 				$appender->append(
 					'[' . $strLevel . '] ' .
-                    self::_dumpObj($msg));
+					self::_dumpObj($msg));
 			}
 		}
 	}
@@ -59,18 +59,18 @@ Class Logging{
 		self::_log($msg, AKARI_LOG_LEVEL_FATAL);
 	}
 
-    /**
-     * Convert any simple object or array to text
-     * @param unknown_type $obj
-     * @return string
-     */
-    protected static function _dumpObj($obj) {
-        if (is_object($obj) || is_array($obj)) {
-            $text = print_r($obj, true);
-            $text = preg_replace('/\s+/', " ", $text);
-            return $text;
-        } else {
-            return $obj;
-        }
-    }
+	/**
+	 * Convert any simple object or array to text
+	 * @param unknown_type $obj
+	 * @return string
+	 */
+	protected static function _dumpObj($obj) {
+		if (is_object($obj) || is_array($obj)) {
+			$text = print_r($obj, true);
+			$text = preg_replace('/\s+/', " ", $text);
+			return $text;
+		} else {
+			return $obj;
+		}
+	}
 }

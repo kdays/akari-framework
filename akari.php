@@ -23,7 +23,7 @@ Class Context{
 	public static $appEntryPath = null;
 
 	public static $mode = FALSE;
-    
+	
 	/**
 	 * 注册类库载入
 	 * @param string $nsName 名字
@@ -32,7 +32,7 @@ Class Context{
 	public static function register($nsName, $nsPath){
 		self::$nsPaths[$nsName] = $nsPath;
 	}
-    
+	
 	/**
 	 * 自动载入用方法
 	 * @param string $cls 类名
@@ -58,7 +58,7 @@ Class Context{
 			}
 			
 			// 在测试到model中查找，这不是一个好的方法策略
-            $clsPath = Context::$appBasePath."/app/model/$cls.php";
+			$clsPath = Context::$appBasePath."/app/model/$cls.php";
 			if(file_exists( $clsPath )){
 				self::$classes[$cls] = true;
 				
@@ -68,19 +68,19 @@ Class Context{
 
 			$clsPath = false;
 		}
-        
+		
 		if(!$clsPath) trigger_error("Not Found CLASS [ $cls ]", E_USER_ERROR);
 	}
-    
+	
 	/**
 	 * 获得资源路径
 	 * @param string $path 路径
 	 * @return string
 	 */
 	public function getResourcePath($path, $toURL = false){
-	    if($toURL){
-	        return str_replace(Context::$appBasePath, '', $path);
-	    }
+		if($toURL){
+			return str_replace(Context::$appBasePath, '', $path);
+		}
 		return realpath(Context::$appBasePath.$path);
 	}
 }
@@ -94,17 +94,17 @@ Class akari{
 	 */
 	public static function getInstance(){
 		if (self::$f == null) {
-            self::$f = new self();
-        }
-        return self::$f;
+			self::$f = new self();
+		}
+		return self::$f;
 	}
 
-    /**
-     * 初始化框架，载入设定和组件，并设定错误处理器
-     * 
-     * @param string $appBasePath 应用基础目录
-     * @return akari
-     */
+	/**
+	 * 初始化框架，载入设定和组件，并设定错误处理器
+	 * 
+	 * @param string $appBasePath 应用基础目录
+	 * @return akari
+	 */
 	public function initApp($appBasePath){
 		include("config/BaseConfig.php");
 
@@ -112,13 +112,13 @@ Class akari{
 		
 		$lock = glob(AKARI_PATH."*.lock");
 		if(isset($lock[0])){
-		    Context::$mode = basename($lock[0], ".lock");
-		    $confCls = Context::$mode."Config";
+			Context::$mode = basename($lock[0], ".lock");
+			$confCls = Context::$mode."Config";
 		}
 		
 		Context::$appBasePath = $appBasePath;
 		if(!file_exists($confPath = $appBasePath."/app/config/$confCls.php")){
-		    trigger_error("Not Found Mode Config [ $confCls ]", E_USER_ERROR);
+			trigger_error("Not Found Mode Config [ $confCls ]", E_USER_ERROR);
 		}
 		
 		include($confPath);
@@ -132,7 +132,7 @@ Class akari{
 
 		return $this;
 	}
-    
+	
 	/**
 	 * 绑定事件错误器
 	 * @return void
@@ -142,7 +142,7 @@ Class akari{
 			ExceptionProcessor::getInstance()->setHandler(Context::$appConfig->defaultExceptionHandler);
 		}
 	}
-    
+	
 	/**
 	 * 执行请求
 	 * 
@@ -179,8 +179,8 @@ Class akari{
 			TriggerRule::getInstance()->commitAfterRule();
 		}else{
 			HttpStatus::setStatus(HttpStatus::NOT_FOUND);
-    		include(AKARI_PATH."template/404.htm");
-    		$this->stop();
+			include(AKARI_PATH."template/404.htm");
+			$this->stop();
 		}
 
 		return $this;
@@ -195,7 +195,7 @@ Class akari{
 			"I18n" => "utility/I18n",
 			"Auth" => "utility/Auth",
 			"Pages" => "utility/Pages",
-		    "curl" => "utility/curl",
+			"curl" => "utility/curl",
 			"ImageThumb" => "utility/ImageThumb",
 			"UploadHelper" => "utility/UploadHelper",
 			"TemplateHelper" => "utility/TemplateHelper",
@@ -236,7 +236,7 @@ Class akari{
 
 			"Model" => "model/Model",
 			"RequestModel" => "model/RequestModel",
-		    "CodeModel" => "model/CodeModel",
+			"CodeModel" => "model/CodeModel",
 			"DatabaseModel" => "model/DatabaseModel"
 		);
 
@@ -247,15 +247,15 @@ Class akari{
 	}
 
 	public function stop($code = 0, $msg = '') {
-        if (!empty($msg)) {
-            Logging::_logInfo('End the response. msg: ' . $msg);            
-        } else {
-            Logging::_logInfo('End the response.');
-        }
-        exit($code);
-    }
+		if (!empty($msg)) {
+			Logging::_logInfo('End the response. msg: ' . $msg);			
+		} else {
+			Logging::_logInfo('End the response.');
+		}
+		exit($code);
+	}
 
 	public function __destruct() {
-        Logging::_log('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs' );
-    }
+		Logging::_log('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs' );
+	}
 }

@@ -56,10 +56,10 @@ Class Request{
 		$this->parameters = $_REQUEST;
 	}
 	
-    /**
-     * 获得用户IP
-     * @return string
-     */
+	/**
+	 * 获得用户IP
+	 * @return string
+	 */
 	public function getUserIP(){
 		$onlineip = $this->getRemoteIP();
 		
@@ -74,46 +74,46 @@ Class Request{
 	
 	/**
 	 * 获得请求的字符串
-     * @return string
-     */
-    public function getQueryString() {
-        return $this->queryString;
-    }
-    
-    /**
-     * 是否存在这个参数
-     * @param string $name 名称
-     * @return bool
-     */
-    public function hasParameter($name) {
-        return array_key_exists($name, $this->parameters);
-    }
-    
-    /**
-     * 获得参数
-     * @param string $name 参数
-     * @return NULL|string
-     */
-    public function getParameter($name) {
-        if (array_key_exists($name, $this->parameters)) {
-            return $this->parameters[$name];
-        }else{
-            return null;
-        }
-    }
-    
-    /**
-     * 获得全部参数
-     * @return array
-     */
-    public function getParameters() {
-        return $this->parameters;
-    }
+	 * @return string
+	 */
+	public function getQueryString() {
+		return $this->queryString;
+	}
 	
-    /**
-     * 获得PathInfo
-     * @return string
-     */
+	/**
+	 * 是否存在这个参数
+	 * @param string $name 名称
+	 * @return bool
+	 */
+	public function hasParameter($name) {
+		return array_key_exists($name, $this->parameters);
+	}
+	
+	/**
+	 * 获得参数
+	 * @param string $name 参数
+	 * @return NULL|string
+	 */
+	public function getParameter($name) {
+		if (array_key_exists($name, $this->parameters)) {
+			return $this->parameters[$name];
+		}else{
+			return null;
+		}
+	}
+	
+	/**
+	 * 获得全部参数
+	 * @return array
+	 */
+	public function getParameters() {
+		return $this->parameters;
+	}
+	
+	/**
+	 * 获得PathInfo
+	 * @return string
+	 */
 	public function getPathInfo(){
 		return $this->pathInfo;
 	}
@@ -123,45 +123,45 @@ Class Request{
 	 * @return Ambigous <unknown, number>
 	 */
 	public function getRequestTime() {
-        return $this->requestTime;
-    }
-    
-    /**
-     * 获得引用页路径
-     * @return string
-     */
-    public function getReferrer(){
-    	return $this->referrer;
-    }
-    
-    /**
-     * 获得远程IP
-     * @return string
-     */
-    public function getRemoteIP() {
-        return $this->remoteIP;
-    }
-    
-    /**
-     * 获得服务器IP
-     * @return string
-     */
-    public function getServerIP() {
-        return $this->serverIP;
-    }
-    
-    /**
-     * 获得请求的URI
-     * @return string
-     */
-    public function getRequestURI() {
-        return $this->requestURI;
-    }
+		return $this->requestTime;
+	}
 	
-    /**
-     * 获得请求的脚本名称
-     * @return string
-     */
+	/**
+	 * 获得引用页路径
+	 * @return string
+	 */
+	public function getReferrer(){
+		return $this->referrer;
+	}
+	
+	/**
+	 * 获得远程IP
+	 * @return string
+	 */
+	public function getRemoteIP() {
+		return $this->remoteIP;
+	}
+	
+	/**
+	 * 获得服务器IP
+	 * @return string
+	 */
+	public function getServerIP() {
+		return $this->serverIP;
+	}
+	
+	/**
+	 * 获得请求的URI
+	 * @return string
+	 */
+	public function getRequestURI() {
+		return $this->requestURI;
+	}
+	
+	/**
+	 * 获得请求的脚本名称
+	 * @return string
+	 */
 	public function getScriptName(){
 		return $this->scriptName;
 	}

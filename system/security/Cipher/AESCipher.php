@@ -9,9 +9,9 @@ Class AESCipher extends Cipher{
 
 	public static function getInstance(){
 		if (self::$d == null) {
-            self::$d = new self();
-        }
-        return self::$d;
+			self::$d = new self();
+		}
+		return self::$d;
 	}
 
 	protected function __construct(){
@@ -30,12 +30,12 @@ Class AESCipher extends Cipher{
 		}
 
 		mcrypt_generic_init($td, $this->secretKey, $iv);
-        $cyperText = mcrypt_generic($td, $str);
-        $result = bin2hex($cyperText);
-        mcrypt_generic_deinit($td);
-        mcrypt_module_close($td);
+		$cyperText = mcrypt_generic($td, $str);
+		$result = bin2hex($cyperText);
+		mcrypt_generic_deinit($td);
+		mcrypt_module_close($td);
 
-        return $result;
+		return $result;
 	}
 
 	public function decrypt($str){
@@ -47,10 +47,10 @@ Class AESCipher extends Cipher{
 		}
 		
 		mcrypt_generic_init($td, $this->secretKey, $iv);
-        $decryptedText = mdecrypt_generic($td, $this->hex2bin($str));
-        mcrypt_generic_deinit($td);
-        mcrypt_module_close($td);
+		$decryptedText = mdecrypt_generic($td, $this->hex2bin($str));
+		mcrypt_generic_deinit($td);
+		mcrypt_module_close($td);
  
-        return $this->unpad($decryptedText);
+		return $this->unpad($decryptedText);
 	}
 }

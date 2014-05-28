@@ -15,7 +15,7 @@ Class TriggerRule{
 
 		return self::$h;
 	}
-    
+	
 	/**
 	 * 初始化规则
 	 */
@@ -27,7 +27,7 @@ Class TriggerRule{
 		$this->preRules[] = Array("/.*/", "AfterInit");
 		$this->afterRules[] = Array("/.*/", "ApplicationEnd");
 	}
-    
+	
 	/**
 	 * 触发器规则提交
 	 * 
@@ -36,29 +36,29 @@ Class TriggerRule{
 	 */
 	private function commitRules($type){
 		$uri = Context::$uri;
-        $arrayName = $type . 'Rules';
+		$arrayName = $type . 'Rules';
 
-        foreach ($this->$arrayName as $rule) {
-            $re = $rule[0];
-            $hookPath = Context::$appBasePath."/app/trigger/$rule[1].php";
+		foreach ($this->$arrayName as $rule) {
+			$re = $rule[0];
+			$hookPath = Context::$appBasePath."/app/trigger/$rule[1].php";
 
-            if (preg_match($re, $uri) === 1) {
-            	if(file_exists($hookPath)){
-            		require $hookPath;
-            	}else{
-            		throw new Exception("[akari.trigger] not found trigger $rule[1]");
-            	}
-            }
-        }
+			if (preg_match($re, $uri) === 1) {
+				if(file_exists($hookPath)){
+					require $hookPath;
+				}else{
+					throw new Exception("[akari.trigger] not found trigger $rule[1]");
+				}
+			}
+		}
 	}
-    
+	
 	/**
 	 * Pre预处理事件
 	 */
 	public function commitPreRule(){
 		$this->commitRules('pre');
 	}
-    
+	
 	/**
 	 * After之后的事件
 	 */
