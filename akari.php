@@ -122,9 +122,11 @@ Class akari{
 		}
 		
 		include($confPath);
-		$config = new $confCls();
+		if(!class_exists($confCls)){
+			trigger_error("Config Class Name [ $confCls ] Err", E_USER_ERROR);
+		}
 
-		Context::$appConfig = $config;
+		Context::$appConfig = new $confCls();
 		Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
 		$this->loadBase();

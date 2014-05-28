@@ -51,29 +51,17 @@ Class Dispatcher{
 	public function register($re, $url){
 		Context::$appConfig->URLRewrite[$re] = $url;
 	}
-	
+
 	/**
-	 * 通常请求下的分配路径
+	 * 根据URL数组查找
 	 * 
-	 * @param string $URI URI路径
-	 * @throws Exception
+	 * @param array|string $list URL数组
 	 * @return string|boolean
-	 */
-	public function invoke($URI = ''){
-		$list = explode("/", $URI);
+	 **/
+	public function findPath($list){
+		if(!is_array($list))	$list = explode("/", $list);
+
 		$basePath = Context::$appBasePath."/app/action/";
-		$URLRewrite = Context::$appConfig->URLRewrite;
-
-		foreach($URLRewrite as $key => $value){
-			if(preg_match($key, $URI)){
-				if(stripos($value, 'app/') === false){
-					$value = "/app/action/$value";
-				}
-				return Context::$appBasePath.$value.".php";
-			}
-		}
-
-		// 原则上不可能那么多URI 只是为了备用 一般4层就很多了
 		$count = count($list);
 
 		if($count > 10){
@@ -107,6 +95,38 @@ Class Dispatcher{
 			 return $path;
 		}
 
-		return FALSE;
+		return false;
+	}
+	
+	/**
+	 * 通常请求下的分配路径
+	 * 
+	 * @param string $URI URI路径
+	 * @throws Exception
+	 * @return string|boolean
+	 */
+	public function invoke($URI = ''){
+		$list = explode("/", $URI);
+
+		$basePath = Context::$appBasePath."/app/action/";
+		$URLRewrite = Context::$appConfig->URLRewrite;
+
+		foreach($URLRewrite as $key => $value){
+			if(preg_match($key, $URI)){
+				if(is_callable($value)){
+					$value = $value($URI);
+					if($value){
+						$list = $value;
+						break;
+					}
+				}else{
+					if(stripos($value, 'app/') === false){
+						$value = "/app/action/$value";
+					}
+				}
+			}
+		}
+
+		return $this->findPath($list);
 	}
 }
