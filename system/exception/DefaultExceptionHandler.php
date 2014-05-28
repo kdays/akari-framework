@@ -81,15 +81,20 @@ Class DefaultExceptionHandler{
 		$fileLines = array();
 		if (is_file($file)) {
 			$currentLine = $line - 1;
+			
 			$fileLines = explode("\n", file_get_contents($file, null, null, 0, 10000000));
 			$topLine = $currentLine - 5;
 			$fileLines = array_slice($fileLines, $topLine > 0 ? $topLine : 0, 10, true);
 			
 			if (($count = count($fileLines)) > 0) {
 				$padLen = strlen($count);
-				foreach ($fileLines as $line => &$fileLine){
+				foreach ($fileLines as $line => $fileLine){
+				    //$fileLine = highlight_string("<?php\n".$fileLine, TRUE);
 					$fileLine = " <b>" .str_pad($line + 1, $padLen, "0", STR_PAD_LEFT) . "</b> " . htmlspecialchars(str_replace("\t", 
-							"    ", rtrim($fileLine)), null, "UTF-8");
+							"    ", rtrim($fileLine)), NULL, 'UTF-8');
+					$fileLine = str_replace('<span style="color: #0000BB">&lt;?php<br />', '', $fileLine);
+					
+					$fileLines[$line] = $fileLine;
 				}
 			}
 		}

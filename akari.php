@@ -178,13 +178,9 @@ Class akari{
 			require $clsPath;
 			TriggerRule::getInstance()->commitAfterRule();
 		}else{
-			if(Context::$mode == FALSE){
-				HttpStatus::setStatus(HttpStatus::NOT_FOUND);
-    			echo file_get_contents(AKARI_PATH."template/404.htm");
-    			$this->stop();
-			}
-			
-			throw new Exception("URI ERROR: $uri");
+			HttpStatus::setStatus(HttpStatus::NOT_FOUND);
+    		include(AKARI_PATH."template/404.htm");
+    		$this->stop();
 		}
 
 		return $this;
