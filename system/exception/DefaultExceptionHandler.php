@@ -3,7 +3,7 @@ Class DefaultExceptionHandler{
 	public function handleException(Exception $ex){
 		HttpStatus::setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 		$trace = $ex->getTrace();
-		if (@$trace[0]['file'] == '') {
+		if (empty($trace[0]['file'])) {
 			unset($trace[0]);
 			$trace = array_values($trace);
 		}
