@@ -49,21 +49,16 @@ Class Context{
 			self::$classes[$cls] = true;
 			require $clsPath;
 		}else{
-			$clsPath = Context::$appBasePath."/app/lib/$cls.php";
-			if(file_exists( $clsPath )){
-				self::$classes[$cls] = true;
-				
-				require($clsPath);
-				return ;
-			}
-			
-			// 在测试到model中查找，这不是一个好的方法策略
-			$clsPath = Context::$appBasePath."/app/model/$cls.php";
-			if(file_exists( $clsPath )){
-				self::$classes[$cls] = true;
-				
-				require($clsPath);
-				return ;
+			$dif = array("lib", "model", "exception");
+
+			foreach($dif as $dir){
+				$clsPath = Context::$appBasePath."/app/$dir/$cls.php";
+				if(file_exists( $clsPath )){
+					self::$classes[$cls] = true;
+					
+					require($clsPath);
+					return ;
+				}
 			}
 
 			$clsPath = false;

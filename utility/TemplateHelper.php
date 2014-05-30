@@ -72,7 +72,7 @@ Class TemplateHelper{
 			case "for":
 				return "<?php for($end_str){ ?>";
 			case "loop":
-				return "<?php if(is_array($str[0]))foreach({$end_str}){ ?>";
+				return "<?php if(is_array($str[0])||is_object($str[0]))foreach({$end_str}){ ?>";
 			case "loopend":
 			case "endloop":
 			case "/loop":
