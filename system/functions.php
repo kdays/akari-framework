@@ -146,7 +146,7 @@ function getCacheInstance($type = "File"){
 		throw new Excepton("[Akari.Cache] Get CacheInstance Error, Not Found [$type]");
 	}
 
-	if(!$CacheInstance[$type]){
+	if(!isset($CacheInstance[$type])){
 		$CacheInstance[$type] = new $cls();
 	}
 
@@ -163,18 +163,18 @@ function getCacheInstance($type = "File"){
  * @todo 如果value为NULL且expired为FALSE则为删除，只有value为NULL为取值
  */
 function cache($key, $value = NULL, $expired = -1, $opts = array()){
-	$cls = getCacheInstance($opts["type"]);
+	$cls = getCacheInstance(array_key_exists("type", $opts) ? $opts["type"] : false);
 
 	if($value == NULL && $expired === FALSE){
 		return $cls->remove($key);
 	}
 
-	if(!is_numeric($expried))	$expried = strtotime($expried);
+	if(!is_numeric($expired))	$expried = strtotime($expired);
 
 	if($value == NULL){
 		return $cls->get($key);
 	}
-	return $cls->set($key, $value, $expried);
+	return $cls->set($key, $value, $expired);
 }
 
 /**

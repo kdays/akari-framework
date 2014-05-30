@@ -70,4 +70,8 @@ Class HttpStatus{
 	public static function setStatus($statusCode = self::OK){
 		Header("HTTP/1.1 ".$statusCode." ".self::$statusCode[$statusCode]);
 	}
+
+	public static function setDownload($fileName, $fileSize){
+		
+	}
 }

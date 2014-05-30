@@ -27,7 +27,6 @@ Class DefaultExceptionHandler{
 	 * @param int $line 错误发生的行
 	 * @param array $trace
 	 * @param int $errorcode 错误代码
-	 * @throws WindFinalException
 	 */
 	public function msg($message, $file, $line, $trace, $errorcode) {
 		$log = $message . "\r\n" . str_replace(Context::$appBasePath, '', $file) . ":" . $line . "\r\n";

@@ -169,6 +169,9 @@ Class akari{
 		$dispatcher = Dispatcher::getInstance();
 		if(CLI_MODE){
 			$clsPath = $dispatcher->invokeTask($uri);
+			if (function_exists("cli_set_process_title")) {
+				cli_set_process_title($uri." - Akari Framework");
+			}
 		}else{
 			$clsPath = $dispatcher->invoke($uri);
 		}
@@ -201,6 +204,7 @@ Class akari{
 			"ImageThumb" => "utility/ImageThumb",
 			"UploadHelper" => "utility/UploadHelper",
 			"TemplateHelper" => "utility/TemplateHelper",
+			"DataHelper" => "utility/DataHelper",
 			"MessageHelper" => "utility/MessageHelper",
 
 			"ExceptionProcessor" => "system/exception/ExceptionProcessor",

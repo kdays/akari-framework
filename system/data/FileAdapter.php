@@ -48,7 +48,9 @@ Class FileAdapter extends BaseCacheAdapter{
 		if(!isset($this->fileIndex[$key]))	return false;
 
 		$data = $this->fileIndex[$key];
-		unlink($this->options['path'].$data['f']);
+		if(file_exists($kPath = $this->options['path'].$data['f'])){
+			unlink($kPath);
+		}
 		unset($this->fileIndex[$key]);
 
 		if($oper)	$this->update();
@@ -70,11 +72,18 @@ Class FileAdapter extends BaseCacheAdapter{
 	}
 
 	public function get($key, $defaultValue = false){
-		$key = $this->options['prefix'].$key;
+		$pKey = $this->options['prefix'].$key;
 		
-		if(isset($this->fileIndex[$key])){
-			$now = $this->fileIndex[$key];
-			return unserialize(file_get_contents($this->options['path'].$now['f']));
+		if(isset($this->fileIndex[$pKey])){
+			$now = $this->fileIndex[$pKey];
+			$fpath = $this->options['path'].$now['f'];
+
+			if(!file_exists($fpath)){
+				$this->remove($key);
+				return NULL;
+			}
+
+			return unserialize(file_get_contents($fpath));
 		}
 		
 		return $defaultValue;
