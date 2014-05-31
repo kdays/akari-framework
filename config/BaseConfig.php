@@ -6,6 +6,7 @@ Class BaseConfig{
 
 	public $appName = "Akari";
 	public $appBaseURL = "http://localhost/";
+	public $appVersion = "1.0";
 
 	public $database = Array();
 	public $cache = Array(

@@ -66,6 +66,7 @@ Class DBParser{
 
 	public function parseData($data, $flag){
 		$wheres = array();
+
 		foreach($data as $key => $value){
 			$type = gettype($value);
 			if($type == 'array' && preg_match("/^(AND|OR)\s*#?/i", $key, $relation_match)){

@@ -2,13 +2,13 @@
 Class DataHelper{
 	public static $data = array();
 
-	public function get($key = false, $subKey = false){
+	public function get($key = false, $subKey = false, $defaultValue = NULL){
 		if($key === false){
 			return self::$data;
 		}else{
-			if(!self::$data[$key])	return false;
+			if(!isset(self::$data[$key]))	return $defaultValue;
 			if($subKey){
-				return array_key_exists($subKey, self::$data[$key]) ? self::$data[$key][$subKey] : false;
+				return array_key_exists($subKey, self::$data[$key]) ? self::$data[$key][$subKey] : $defaultValue;
 			}
 			
 			return self::$data[$key];

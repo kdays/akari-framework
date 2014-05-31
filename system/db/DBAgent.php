@@ -38,6 +38,8 @@ Class DBAgent{
 	 * @param NULL|Array $params
 	 **/
 	public function query($SQL, $params = NULL){
+		logcount("db.query", 1);
+
 		$pdo = $this->getPDOInstance();
 		if(is_object($SQL) && $SQL instanceof DBAgentStatement){
 			$st = $SQL;
@@ -71,6 +73,8 @@ Class DBAgent{
 	 * @todo params在SQL传入DBAgentStatement对象无效
 	 */
 	public function getOne($SQL, $params = NULL, $class = NULL){
+		logcount("db.query", 1);
+
 		$pdo = $this->getPDOInstance();
 		if(is_object($SQL) && $SQL instanceof DBAgentStatement){
 			$st = $SQL;
@@ -106,6 +110,8 @@ Class DBAgent{
 	 * @return number
 	 */
 	public function execute($SQL, $params = array()){
+		logcount("db.query", 1);
+
 		$pdo = $this->getPDOInstance();
 		if(is_object($SQL) && $SQL instanceof DBAgentStatement){
 			$st = $SQL;
