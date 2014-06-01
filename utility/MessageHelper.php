@@ -8,7 +8,7 @@ Class MessageHelper{
 	 * @param string $message 提示信息
 	 * @param number $time 跳转时间(0时直接跳转)
 	 */
-	public function jump($URL, $message = "页面正在跳转中，请稍候", $time = 5){
+	public static function jump($URL, $message = "页面正在跳转中，请稍候", $time = 5){
 		if($time < 1){
 			Header("Location: $URL");exit;
 		}
@@ -32,7 +32,7 @@ Class MessageHelper{
 		}
 	}
 
-	public function tip($message, $btn = FALSE) {
+	public static function tip($message, $btn = FALSE) {
 		if(ob_get_level() > 1) ob_end_clean();
 
 		$version = AKARI_VERSION;

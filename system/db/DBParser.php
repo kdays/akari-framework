@@ -49,7 +49,7 @@ Class DBParser{
 	public function parseArray($array){
 		$temp = array();
 		foreach($array as $value){
-			$temp[] = is_numeric($value) ? $value : $this->pdo->parseValue($value);
+			$temp[] = is_numeric($value) ? $value : $this->parseValue($value);
 		}
 
 		return implode(",", $temp);
@@ -64,11 +64,16 @@ Class DBParser{
 		return implode($outer." ", $haystack);
 	}
 
-	public function parseData($data, $flag){
+	public function parseData($data, $flag = 'AND'){
 		$wheres = array();
+
+		if(gettype($data) == "object"){
+			$data = (array)$data;
+		}
 
 		foreach($data as $key => $value){
 			$type = gettype($value);
+
 			if($type == 'array' && preg_match("/^(AND|OR)\s*#?/i", $key, $relation_match)){
 				$wheres[] = 0 !== count(array_diff_key($value, array_keys(array_keys($value)))) ?
 					'(' . $this->parseData($value, ' ' . $relation_match[1]) . ')' :

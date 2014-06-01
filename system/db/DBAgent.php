@@ -129,7 +129,7 @@ Class DBAgent{
 			throw new DBAgentException("[Akari.DBAgent] Query Error: $errMsg ($errCode) with SQL: ".$st->getSQLDebug());
 		}
 
-		$s->close();
+		$st->close();
 
 		return $s->rowCount();
 	}
@@ -257,12 +257,14 @@ Class DBAgent{
 		$sql = str_replace('%TABLE%', $this->arg['table'], $sql);
 
 		$data = array();
-		$td = $this->parser->parseData($this->arg['data']);
-		foreach($td as $key => $value){
-			$data[] = "`$key`=$value";
+		if(isset($this->arg['data'])){
+			$td = $this->arg['data'];
+			foreach($td as $key => $value){
+				$data[] = "`$key`=".$this->parser->parseValue($value);
+			}
 		}
 
-		$sql = str_replace('%DATA%', implode(",", $data));
+		$sql = str_replace('%DATA%', implode(",", $data), $sql);
 		if(!empty($this->arg['where'])){
 			$sql = str_replace('%WHERE%', $this->parser->parseWhere($this->merge($this->arg['where'])), $sql);
 		}
@@ -286,12 +288,13 @@ Class DBAgent{
 		$sql = str_replace('%TABLE%', $this->arg['table'], $sql);
 
 		$data = array();
-		$td = $this->parser->parseData($this->arg['data']);
-		foreach($td as $key => $value){
-			$data[] = "`$key`=$value";
+		if(isset($this->arg['data'])){
+			$td = $this->arg['data'];
+			foreach($td as $key => $value){
+				$data[] = "`$key`=".$this->parser->parseValue($value);
+			}
 		}
-
-		$sql = str_replace('%DATA%', implode(",", $data));
+		$sql = str_replace('%DATA%', implode(",", $data), $sql);
 
 		$this->arg = array();
 		return $this->execute($sql);
@@ -392,7 +395,14 @@ Class DBAgent{
 	 * @return DBAgent
 	 */
 	public function data($data){
-		$this->arg['data'][] = $data;
+		if(!isset($this->arg['data'])){
+			$this->arg['data'] = array();
+		}
+
+		foreach($data as $key => $value){
+			$this->arg['data'][$key] = $value;
+		}
+
 		return $this;
 	}
 }

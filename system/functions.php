@@ -320,14 +320,14 @@ function C($key = FALSE, $value = NULL, $defaultValue = FALSE){
  * @param string $key 关键词
  * @param string $method 获得类型(G=GET P=POST GP=GET&POST)
  **/
-function GP($key, $method = 'GP'){
+function GP($key, $method = 'GP', $defaultValue = NULL){
 	if ($method != 'P' && isset($_GET[$key])) {
 		return Char_cv($_GET[$key], false, true);
 	} elseif ($method != 'G' && isset($_POST[$key])) {
 		return Char_cv($_POST[$key], false, true);
 	}
 
-	return NULL;
+	return $defaultValue;
 }
 
 /**

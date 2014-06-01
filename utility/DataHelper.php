@@ -2,7 +2,7 @@
 Class DataHelper{
 	public static $data = array();
 
-	public function get($key = false, $subKey = false, $defaultValue = NULL){
+	public static function get($key = false, $subKey = false, $defaultValue = NULL){
 		if($key === false){
 			return self::$data;
 		}else{
@@ -15,16 +15,16 @@ Class DataHelper{
 		}
 	}
 
-	public function set($key = '', $data = array()){
+	public static function set($key = '', $data = array()){
 		if(!isset(self::$data[$key]))	self::$data[$key] = $data;
 	}
 
-	public function update($key, $s_key, $value){
+	public static function update($key, $s_key, $value){
 		if(!isset(self::$data[$key]))	self::$data[$key] = array();
 		self::$data[$key][$s_key] = $value;
 	}
 	
-	public function load($path, $key = ''){
+	public static function load($path, $key = ''){
 		if($key == '')	$key = array_shift(explode(".", basename($path)));
 		
 		$sPath = Context::$appBasePath."data/$path";
