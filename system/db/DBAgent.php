@@ -266,7 +266,7 @@ Class DBAgent{
 
 		$sql = str_replace('%DATA%', implode(",", $data), $sql);
 		if(!empty($this->arg['where'])){
-			$sql = str_replace('%WHERE%', $this->parser->parseWhere($this->merge($this->arg['where'])), $sql);
+			$sql = str_replace('%WHERE%', $this->parser->parseWhere($this->arg['where']), $sql);
 		}
 
 		$this->arg = array();

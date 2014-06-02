@@ -8,7 +8,7 @@ Class RequestModel extends Model{
 	const METHOD_GET_AND_POST = 'GP';
 
 	public function __construct(){
-		return $this->values();
+		return $this->reloadValue();
 	}
 
 	/**
@@ -16,24 +16,31 @@ Class RequestModel extends Model{
 	 *
 	 * @return void
 	 **/
-	public function values(){
+	public function reloadValue(){
+		$map = $this->_mapList();
+
 		foreach($this as $key => $value){
-			$req = GP($key, $this->_getMethod($key));
-			if($req)	$this->$key = $this->_checkParams($key, $req);
+			$reqKey = $key;
+			if(isset($map[$key])){
+				$reqKey = $map[$key];
+			}
+
+			$value = GP($reqKey, $this->_getMethod($key));
+			if($value !== NULL){
+				$this->$key = $value;
+ 			}
 		}
+
+		$this->_checkParams();
 
 		return $this;
 	}
     
 	/**
-	 * 检查每个参数，在取值时调用，然后根据返回值可以重新设定参数进行过滤
-	 * 
-	 * @param string $key 键名
-	 * @param string $reqValue 内容
-	 * @return mixed
+	 * 检查参数回调，在取值时调用，可以通过$this->键名重设值
 	 */
-	public function _checkParams($key, $reqValue){
-		return $reqValue;
+	public function _checkParams(){
+
 	}
     
 	/**
@@ -44,5 +51,14 @@ Class RequestModel extends Model{
 	 */
 	public function _getMethod($key){
 		return RequestModel::METHOD_GET_AND_POST;
+	}
+
+	/**
+	 * 映射地图，通过地图你可以任意的值映射到模型中
+	 * 
+	 * @return array
+	 **/
+	public function _mapList(){
+		return Array();
 	}
 }
