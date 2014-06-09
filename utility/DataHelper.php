@@ -15,8 +15,12 @@ Class DataHelper{
 		}
 	}
 
-	public static function set($key = '', $data = array()){
-		if(!isset(self::$data[$key]))	self::$data[$key] = $data;
+	public static function set($key = '', $data = array(), $isOverwrite = true){
+		if(!isset(self::$data[$key])){
+			self::$data[$key] = $data;
+		}else{
+			if($isOverwrite)	self::$data[$key] = $data;
+		}
 	}
 
 	public static function update($key, $s_key, $value){

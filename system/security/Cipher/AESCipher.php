@@ -2,7 +2,6 @@
 !defined("AKARI_PATH") && exit;
 
 Class AESCipher extends Cipher{
-	public $padMethod = "pkcs5";
 	protected $cipher = MCRYPT_RIJNDAEL_128;
 	protected $mode   = MCRYPT_MODE_ECB;
 	protected $iv	  = '';
@@ -20,7 +19,7 @@ Class AESCipher extends Cipher{
 	}
 
 	public function encrypt($str){
-		$str = $this->pad($str);
+		$str = $this->pkcs5_pad($str);
 		$td = mcrypt_module_open($this->cipher, '', $this->mode, '');
 		
 		if(empty($this->iv)){
@@ -51,6 +50,6 @@ Class AESCipher extends Cipher{
 		mcrypt_generic_deinit($td);
 		mcrypt_module_close($td);
  
-		return $this->unpad($decryptedText);
+		return $this->pkcs5_unpad($decryptedText);
 	}
 }

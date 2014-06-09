@@ -261,10 +261,16 @@ function M($ModelName){
 	static $tmpModel = array();
 
 	$modelPath = Context::$appBasePath."/app/model/$ModelName.php";
+	if(!file_exists($modelPath)){
+		$ModelName .= "Model";
+		$modelPath = Context::$appBasePath."/app/model/$ModelName.php";
+	}
+
 	$modelClass = $ModelName;
 	if(strpos($ModelName, "/") !== false){
 		$modelClass = trim(basename($ModelName), ".php");
 	}
+
 	include_once($modelPath);
 
 	if(method_exists($modelClass, "getInstance")){
