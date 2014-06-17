@@ -34,7 +34,7 @@ Class DBAgentStatement{
 			$where = array();
 
 			foreach($this->arg['where'] as $key => $value){
-				$where[] = "`$key`='$value'";
+				$where[] = "`$key`=".$this->pdo->quote($value);
 			}
 
 			if(!empty($where)){
@@ -49,9 +49,9 @@ Class DBAgentStatement{
 
 			foreach($this->arg['data'] as $key => $value){
 				if(is_array($value)){
-					$data[] = "`$key` IN (".implode(",", $value).")";
+					$data[] = "`$key` IN (".implode(",", $this->pdo->quote($value)).")";
 				}else{
-					$data[] = "`$key`='$value'";
+					$data[] = "`$key`=". $this->pdo->quote($value);
 				}
 			}
 
@@ -76,6 +76,7 @@ Class DBAgentStatement{
 				$this->stmt->bindValue($key, $value);
 			}
 		}
+
 
 		return $this->stmt;
 	}

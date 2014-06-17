@@ -51,6 +51,8 @@ Class TemplateHelper{
 		$end_str = implode(" ", $str);
 		
 		switch($command){
+			case "set":
+				return "<?php $end_str; ?>";
 			case "if":
 				return "<?php if($end_str){?>";
 			case "else":
