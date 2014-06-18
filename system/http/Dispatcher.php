@@ -58,10 +58,10 @@ Class Dispatcher{
 	 * @param array|string $list URL数组
 	 * @return string|boolean
 	 **/
-	public function findPath($list){
+	public function findPath($list, $dir = "action", $ext = ".php"){
 		if(!is_array($list))	$list = explode("/", $list);
 
-		$basePath = Context::$appBasePath."/app/action/";
+		$basePath = Context::$appBasePath."/app/$dir/";
 		$count = count($list);
 
 		if($count > 10){
@@ -74,12 +74,12 @@ Class Dispatcher{
 				$filename = array_pop($list);
 				$name = implode(DIRECTORY_SEPARATOR, $list);
 
-				$path = $basePath.$name.DIRECTORY_SEPARATOR.$filename.".php";
+				$path = $basePath.$name.DIRECTORY_SEPARATOR.$filename.$ext;
 				if(file_exists($path)){
 					return $path;
 				}
 
-				$path = $basePath.$name.DIRECTORY_SEPARATOR."default.php";
+				$path = $basePath.$name.DIRECTORY_SEPARATOR."default".$ext;
 				if(file_exists($path)){
 					return $path;
 				}
@@ -87,14 +87,13 @@ Class Dispatcher{
 		}
 
 		//首先检查是否有类似名称的
-		if(file_exists($path = $basePath.array_shift($list).".php")){
+		if(file_exists($path = $basePath.array_shift($list).$ext)){
 			return $path;
 		}
 
-		if($count == 1 && file_exists($path = $basePath."default.php")){
+		if($count == 1 && file_exists($path = $basePath."default".$ext)){
 			 return $path;
 		}
-
 		return false;
 	}
 	

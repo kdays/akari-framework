@@ -33,6 +33,8 @@ Class Pages{
 		$this->url = $url;
 		$this->params = $extra;
 		$this->page = '';
+
+		return $this;
 	}
     
 	/**
@@ -63,7 +65,7 @@ Class Pages{
 		}
 
 		if($maxPage > 5){
-			$turl = str_replace("(page)", $maxpage, $url);
+			$turl = str_replace("(page)", $maxPage, $url);
 			$this->page .= "<a href='$turl'>&raquo;</a>";
 		}
 	}

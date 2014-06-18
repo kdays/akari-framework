@@ -198,10 +198,11 @@ Class DBAgent{
 
 		//field
 		if(!empty($this->arg['field'])){
-			$field = $this->merge($this->arg['field']);
+			$field = $this->arg['field'];
 		}else{
 			$field = '*';
 		}
+
 		$sql = str_replace('%FIELD%', $this->parser->parseField($field), $sql);
 		$sql = str_replace('%TABLE%', $this->arg['table'], $sql);
 
@@ -307,7 +308,7 @@ Class DBAgent{
 	 * @return DBAgent
 	 */
 	public function field($name){
-		$this->arg['select'] = $name;
+		$this->arg['field'] = $name;
 		return $this;
 	}
     
