@@ -342,11 +342,16 @@ function GP($key, $method = 'GP', $defaultValue = NULL){
  * @param string $tplName 模板名称
  * @param mixed $bindArr 绑定数组，设置FALSE时只返回模板路径
  **/
-function T($tplName, $bindArr = false){
+function T($tplName, $bindArr = []){
 	if($bindArr === FALSE){
 		return TemplateHelper::load($tplName);
 	}else{
-		$arr = is_array($bindArr) ? array_merge($bindArr, V("", false)) : V("", false);
+		if (is_string($bindArr)) {
+			C("customLayout", $bindArr);
+		}
+		$arr = assign(NULL, NULL);
+		if (is_array($bindArr))	$arr =  array_merge($arr, $bindArr);
+
 		@extract($arr);
 		require TemplateHelper::load($tplName);
 	}
@@ -359,11 +364,8 @@ function T($tplName, $bindArr = false){
  * @param string $value 值
  * @return multitype:unknown
  */
-function V($key, $value){
-	static $data = array();
-	if($key != "") $data[$key] = $value;
-
-	return $data;
+function assign($key, $value = NULL){
+	return TemplateHelper::assign($key, $value);
 }
 
 /**

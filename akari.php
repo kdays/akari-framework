@@ -21,6 +21,7 @@ Class Context{
 	public static $appConfig = null;
 	public static $appBasePath = null;
 	public static $appEntryPath = null;
+	public static $lastTemplate = null;
 
 	public static $mode = FALSE;
 	

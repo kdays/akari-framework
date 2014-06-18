@@ -32,9 +32,18 @@ Class DBParser{
 		if(is_string($columns))	$columns = array($columns);
 
 		$stack = array();
+		$fieldComplex = ["count(", "sum(", "count (", "sum ("];
 
 		foreach ($columns as $key => $value){
 			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+
+			// 如果有count 就不进行parseColumn
+			foreach ($fieldComplex as $complex) {
+				if (stripos($value, $complex) !== false) {
+					array_push($stack, $value);
+					continue 2;
+				}
+			}
 
 			if (isset($match[1], $match[2])){
 				array_push($stack, $this->parseColumn( $match[1] ) . ' AS ' . $this->parseColumn( $match[2] ));

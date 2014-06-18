@@ -2,7 +2,12 @@
 !defined("AKARI_PATH") && exit;
 
 Class TemplateHelper{
-	public static function load($tplName){
+	public static $usingLayout = false;//防止子模板载入时，layout再次请求
+	public static function load($tplName, $useLayout = true){
+		if (self::$usingLayout) {
+			$useLayout = false;
+		}
+
 		if($bDir = C("templateBaseDir")){
 			$tplName = "$bDir/$tplName";
 		}
@@ -13,8 +18,43 @@ Class TemplateHelper{
 		if(!file_exists($tplPath)){
 			throw new Exception("[Akari.Utility.TemplateHelper] not found [ $tplName ]");
 		}
+		Context::$lastTemplate = $tplName;
 
-		$tplId = str_replace('/', '_', $tplName);
+		// 如果有Layout的话 处理layout
+		if(C("closeLayout") === TRUE){
+			$useLayout = FALSE; 
+		}
+
+		// 检查layout文件
+		if ($useLayout) {
+			$layoutDir = Context::$appBasePath."/app/template/layout/";
+			$layoutPath = NULL;
+			$layoutSuffix = Context::$appConfig->layoutSuffix ? Context::$appConfig->layoutSuffix : ".htm";
+
+			if(C("customLayout")){
+				$layoutPath = C("customLayout");
+			} else {
+				$layoutPath = Dispatcher::getInstance()->findPath(Context::$uri, "template/layout", $layoutSuffix);
+			}
+
+			if ($layoutPath) {
+				$tplName = str_replace($layoutDir, '', $layoutPath);
+				$tplName = str_replace($layoutSuffix, '', $tplName);
+
+				$tplPath = $layoutPath;
+				if (!file_exists($layoutPath)) {
+					throw new Exception("[Akari.Utility.TemplateHelper] not found layout [ $tplName ]");
+				}
+				self::$usingLayout = true;
+			}
+		}
+
+		if($useLayout && $layoutPath) {
+			$tplId = "Layout_".str_replace('/', '_', $tplName);
+		} else {
+			$tplId = str_replace('/', '_', $tplName);
+		}
+
 		$cachePath = Context::$appBasePath.Context::$appConfig->templateCache."/$tplId.php";
 		if(file_exists($cachePath) && filemtime($tplPath) < filemtime($cachePath)){
 			return $cachePath;
@@ -61,6 +101,8 @@ Class TemplateHelper{
 				return "<?php }elseif($end_str){ ?>";
 			case "template":
 				return "<?php require TH_template('$end_str'); ?>";
+			case "layout":
+				return '<?php require TH_getScreen();?>';
 			case "module":
 				if(isset($str[1])){
 					return "<?php TH_module('$str[0]', \"$str[1]\"); ?>";
@@ -104,6 +146,21 @@ Class TemplateHelper{
 			return "<?php TH_lang(\"$langid\", '$commands'); ?>";
 		}
 	}
+
+	public static $asdata = [];
+	public static function assign($key, $value) {
+		if (!$value && is_array($key)) {
+			self::$asdata = array_merge(self::$asdata, $key);
+		} elseif ($value !== NULL) {
+			self::$asdata[ $key ] = $value;
+		} elseif ($key == NULL && $value == NULL) {
+			return self::$asdata;
+		}
+	}
+}
+
+function TH_getScreen() {
+	return TemplateHelper::load(Context::$lastTemplate, false);
 }
 
 function TH_lang($id, $command = ''){
