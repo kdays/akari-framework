@@ -346,7 +346,12 @@ function T($tplName, $bindArr = []){
 	if($bindArr === FALSE){
 		return TemplateHelper::load($tplName);
 	}else{
-		$arr = is_array($bindArr) ? array_merge($bindArr, assign(NULL, NULL)) : assign(NULL, NULL);
+		if (is_string($bindArr)) {
+			C("customLayout", $bindArr);
+		}
+		$arr = assign(NULL, NULL);
+		if (is_array($bindArr))	$arr =  array_merge($arr, $bindArr);
+
 		@extract($arr);
 		require TemplateHelper::load($tplName);
 	}

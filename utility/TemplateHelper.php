@@ -31,12 +31,20 @@ Class TemplateHelper{
 			$layoutPath = NULL;
 			$layoutSuffix = Context::$appConfig->layoutSuffix ? Context::$appConfig->layoutSuffix : ".htm";
 
-			$layoutPath = Dispatcher::getInstance()->findPath(Context::$uri, "template/layout", $layoutSuffix);
+			if(C("customLayout")){
+				$layoutPath = C("customLayout");
+			} else {
+				$layoutPath = Dispatcher::getInstance()->findPath(Context::$uri, "template/layout", $layoutSuffix);
+			}
+
 			if ($layoutPath) {
 				$tplName = str_replace($layoutDir, '', $layoutPath);
 				$tplName = str_replace($layoutSuffix, '', $tplName);
 
 				$tplPath = $layoutPath;
+				if (!file_exists($layoutPath)) {
+					throw new Exception("[Akari.Utility.TemplateHelper] not found layout [ $tplName ]");
+				}
 				self::$usingLayout = true;
 			}
 		}
