@@ -291,7 +291,7 @@ Class DBParser{
 			return ' ORDER BY FIELD(' . $this->parseColumn($order[0]) . ', ' . $this->parseArray($order[1]) . ')';
 		}else{
 			preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $order, $match);
-			return ' ORDER BY "' . str_replace('.', '"."', $match[1]) . '" ' . (isset($match[3]) ? $match[3] : '');
+			return ' ORDER BY `' . str_replace('.', '"."', $match[1]) . '` ' . (isset($match[3]) ? $match[3] : '');
 		}
 
 		return '';

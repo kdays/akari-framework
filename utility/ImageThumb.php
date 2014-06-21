@@ -1,6 +1,6 @@
 <?php
 Class ImageThumb{
-	public function GetImageSize($srcFile, $srcExt = NULL){
+	public static function GetImageSize($srcFile, $srcExt = NULL){
 		empty($srcExt) && $srcExt = strtolower(substr(strrchr($srcFile,'.'),1));
 		$srcdata = array();
 		if (function_exists('read_exif_data') && in_array($srcExt,array('jpg','jpeg','jpe','jfif'))) {
@@ -17,7 +17,7 @@ Class ImageThumb{
 		return $srcdata;
 	}
 
-	public function MakeThumb($srcFile, $dstFile, $dstW, $dstH, $cenTer = null, $sameFile = null, $fixWH = null){
+	public static function MakeThumb($srcFile, $dstFile, $dstW, $dstH, $cenTer = null, $sameFile = null, $fixWH = null){
 		$minitemp = self::GetThumbInfo($srcFile,$dstW,$dstH,$cenTer);
 		list($imagecreate,$imagecopyre) = self::GetImagecreate($minitemp['type']);
 
@@ -43,7 +43,7 @@ Class ImageThumb{
 		return array($minitemp['dstW'],$minitemp['dstH']);
 	}
 
-	public function GetImagecreate($imagetype){
+	public static function GetImagecreate($imagetype){
 		if ($imagetype!='gif' && function_exists('imagecreatetruecolor') && function_exists('imagecopyresampled')) {
 			return array('imagecreatetruecolor','imagecopyresampled');
 		} elseif (function_exists('imagecreate') && function_exists('imagecopyresized')) {
@@ -53,7 +53,7 @@ Class ImageThumb{
 		}
 	}
 
-	public function GetThumbInfo($srcFile,$dstW,$dstH,$cenTer = null){
+	public static function GetThumbInfo($srcFile,$dstW,$dstH,$cenTer = null){
 		$imgdata = array();
 		$imgdata = self::GetImgInfo($srcFile);
 		if (empty($imgdata) || ($imgdata['width']<=$dstW && $imgdata['height']<=$dstH)) return false;
@@ -97,7 +97,33 @@ Class ImageThumb{
 		return $imgdata;
 	}
 
-	public function MakeImage($type, $image, $filename, $quality = 85){
+	public static function GetImgInfo($srcFile){
+		$imgdata = (array)self::GetImageSize($srcFile);
+		if ($imgdata['type']==1) {
+			$imgdata['type'] = 'gif';
+		} elseif ($imgdata['type']==2) {
+			$imgdata['type'] = 'jpeg';
+		} elseif ($imgdata['type']==3) {
+			$imgdata['type'] = 'png';
+		} elseif ($imgdata['type']==6) {
+			$imgdata['type'] = 'bmp';
+		} else {
+			return false;
+		}
+		if (empty($imgdata) || !function_exists('imagecreatefrom'.$imgdata['type'])) {
+			return false;
+		}
+		$imagecreatefromtype = 'imagecreatefrom'.$imgdata['type'];
+		$imgdata['source']	 = $imagecreatefromtype($srcFile);
+		!$imgdata['width'] && $imgdata['width'] = imagesx($imgdata['source']);
+		!$imgdata['height'] && $imgdata['height'] = imagesy($imgdata['source']);
+		return $imgdata;
+	}
+
+
+	public static function MakeImage($type, $image, $filename, $quality = 90){
+		createdir(dirname($filename));
+
 		$makeimage = 'image'.$type;
 		if (!function_exists($makeimage)) {
 			return false;

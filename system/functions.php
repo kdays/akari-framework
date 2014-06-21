@@ -52,7 +52,7 @@ function writeover($fileName, $data, $method = 'rb+', $ifChmod = true){
  */
 function createdir($path, $index = false){
 	if(is_dir($path))	return ;
-	createfolder(dirname($path), $index);
+	createdir(dirname($path), $index);
 	
 	@mkdir($path);
 	@chmod($path,0777);
@@ -96,7 +96,7 @@ function deletedir($path){
  * @return boolean
  */
 function movefile($dstfile, $srcfile){
-	createfolder(dirname($dstfile));
+	createdir(dirname($dstfile));
 	if (rename($srcfile,$dstfile)) {
 		@chmod($dstfile,0777);
 		return true;

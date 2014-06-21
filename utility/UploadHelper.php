@@ -3,7 +3,7 @@
 
 Class UploadHelper{
 	protected static $h;
-	protected static function getInstance(){
+	public static function getInstance(){
 		if(!isset(self::$h)){
 			self::$h = new self();
 		}
@@ -31,6 +31,10 @@ Class UploadHelper{
 	public function getRandName($ext, $opts = Array()){
 		return md5(uniqid()).".$ext";
 	}
+
+	public function getDefaultName($ext, $opts = Array()){
+		return $opts['filename'].(empty($opts['ext']) ? "" : ".$ext");
+	}
     
 	/**
 	 * 上传并移动文件
@@ -50,27 +54,30 @@ Class UploadHelper{
 		}
 
 		if(!$this->isUploadedFile($uploadForm['tmp_name'])){
-			throw new UploadFileCannotAccess();
+			return FALSE;
 		}
 
-		$fileExt = strtolower(end(explode(".", $uploadForm['name'])));
+		$tmpName = explode(".", $uploadForm['name']);
+		$fileExt = strtolower(end($tmpName));
+
 		if(!in_array($fileExt, $allowExt)){
 			return FALSE;
 		}
 
 		if($namePolicty == NULL){
-			$namePolicty = Array(self, "getRandName");
+			$namePolicty = Array($this, "getRandName");
 		}
 
 		$newName = call_user_func($namePolicty, $fileExt, $namePolictyOptions);
-		$target = Context::$appBasePath.Context::$appConfig->uploadDir.$saveDir.$namePolicty;
-	
-		if(!movefile($uploadForm['tmp_name'], $target)){
-			throw new UploadFileCannotAccess();
+		$target = Context::$appBasePath.Context::$appConfig->uploadDir."/".$saveDir."/".$newName;
+
+		if(!movefile($target, $uploadForm['tmp_name'])){
+			return FALSE;
 		}
 
 		if($callback != NULL){
-			call_user_func($callback, $newName, $target);
+			$test = 123;
+			call_user_func($callback, $saveDir."/".$newName, $target);
 		}
 
 		return $newName;

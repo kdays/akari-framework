@@ -63,7 +63,7 @@ Class BaseConfig{
 		//"/kkd\/(.+)/" => 'manager/test'
 	);
 
-	public $uploadDir = '';
+	public $uploadDir = '/static/attachment';
 	public $allowUploadExt = Array("jpg", "gif", "png");
 
 	public function getDBConfig($name = "default"){
