@@ -74,4 +74,9 @@ Class HttpStatus{
 	public static function setDownload($fileName, $fileSize){
 		
 	}
+
+	public static function jumpTo($url) {
+		self::setStatus(self::FOUND);
+		Header("Location: $url");
+	}
 }

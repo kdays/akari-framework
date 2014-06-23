@@ -76,7 +76,6 @@ Class UploadHelper{
 		}
 
 		if($callback != NULL){
-			$test = 123;
 			call_user_func($callback, $saveDir."/".$newName, $target);
 		}
 

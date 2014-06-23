@@ -14,14 +14,14 @@ Class Cookie{
 	/**
 	 * 设置Cookie
 	 * 
-	 * @param string $key Cookie的名称
+	 * @param string $name Cookie的名称
 	 * @param mixed $value 数据，可以传入简单数组
 	 * @param string $expire 有效时间，没有设定则以设置中的cookieTime为准
 	 * @param boolean $isEncrypt 是否进行加密
 	 * @param array $option 可选参数(path, domain)
 	 * @todo value为FALSE时是删除，也可用Cookie::remove操作
 	 */
-	public function set($key, $value, $expire = NULL, $isEncrypt = FALSE, $option = array()){
+	public function set($name, $value, $expire = NULL, $isEncrypt = FALSE, $option = array()){
 		$config = Context::$appConfig;
 
 		$expire = isset($expire) ? $expire : $config->cookieTime;
@@ -56,13 +56,13 @@ Class Cookie{
 	/**
 	 * 获得Cookie的值
 	 * 
-	 * @param string $key 键名
+	 * @param string $name 键名
 	 * @param string $encryptType 加密方式 不设定时按照设置检查
 	 * @param string $autoPrefix 是否自动添加prefix，false时程序不会添加prefix取值
 	 * @return NULL|multitype:multitype: |unknown
 	 * @todo 加密和数组在取值时会自动处理，不必额外设定
 	 */
-	public function get($key, $encryptType = FALSE, $autoPrefix = true){
+	public function get($name, $encryptType = FALSE, $autoPrefix = true){
 		$config = Context::$appConfig;
 
 		if(!in_string($name, $config->cookiePrefix) && $autoPrefix){

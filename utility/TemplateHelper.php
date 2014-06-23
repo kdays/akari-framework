@@ -153,7 +153,7 @@ Class TemplateHelper{
 			self::$asdata = array_merge(self::$asdata, $key);
 		} elseif ($value !== NULL) {
 			self::$asdata[ $key ] = $value;
-		} elseif ($key == NULL && $value == NULL) {
+		} elseif ($key === NULL && $value === NULL) {
 			return self::$asdata;
 		}
 	}
