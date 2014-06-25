@@ -11,7 +11,8 @@ Class BaseConfig{
 	public $database = Array();
 	public $cache = Array(
 		"file" => Array(),
-		"memcache" => Array()
+		"memcache" => Array(),
+		'memcached' => Array()
 	);
 	public $defaultCacheType = "file";
 	public $logs = Array(
@@ -70,5 +71,15 @@ Class BaseConfig{
 		if(!is_array(current($this->database)))	return $this->database;
 		if($name == "default")	return current($this->database);
 		return $this->database[$name];
+	}
+
+	public static $c;
+	public static function getInstance(){
+		$h = get_called_class();
+		if (!self::$c){
+			self::$c = new $h;
+		}
+
+		return self::$c;
 	}
 }

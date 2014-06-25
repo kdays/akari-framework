@@ -7,16 +7,20 @@ Class MemcachedAdapter extends BaseCacheAdapter{
 			throw new Exception("[Akari.Data.MemcachedAdapter] server not found memcached");
 		}
 
-		$this->handler = new Memcached();
+		$this->handler = new \Memcached();
 		$options = $this->getOptions("memcached", [
 			"host" => "127.0.0.1",
 			"port" => 11211
 		]);
 		$this->options = $options;
 
+		$this->resetServerList();
+		
+		$this->addServer($options['host'], $options['port']);
 		if(isset($options['username'])){
 			$this->handler->setSaslAuthData($options['username'], $options['password']);
 		}
+
 	}
 
 	public function get($name) {

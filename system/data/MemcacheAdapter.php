@@ -22,7 +22,7 @@ Class MemcacheAdapter extends BaseCacheAdapter{
 	}
 
 	public function remove($name){
-		return $this->handler->remove($this->options['prefix'].$name);
+		return $this->handler->delete($this->options['prefix'].$name);
 	}
 	
 	public function get($name) {

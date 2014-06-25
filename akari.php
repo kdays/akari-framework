@@ -122,7 +122,7 @@ Class akari{
 			trigger_error("Config Class Name [ $confCls ] Err", E_USER_ERROR);
 		}
 
-		Context::$appConfig = new $confCls();
+		Context::$appConfig = $confCls::getInstance();
 		Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
 		$this->loadBase();
@@ -232,6 +232,7 @@ Class akari{
 			"BaseCacheAdapter" => "system/data/BaseCacheAdapter",
 			"FileAdapter" => "system/data/FileAdapter",
 			"MemcacheAdapter" => "system/data/MemcacheAdapter",
+			"MemcachedAdapter" => "system/data/MemcachedAdapter",
 
 			"Model" => "model/Model",
 			"RequestModel" => "model/RequestModel",
