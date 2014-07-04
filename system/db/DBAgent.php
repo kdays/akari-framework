@@ -7,11 +7,21 @@ Class DBAgent{
 
 	public $arg;
 
+	/**
+	 * 构造函数
+	 *
+	 * @param array $opts 对数据库的配置
+	 **/
 	public function __construct($opts){
 		$this->options = $opts;
 		$this->parser = DBParser::getInstance($this->getPDOInstance());
 	}
 
+	/**
+	 * 获得PDO的单例
+	 *
+	 * @return \PDO
+	 **/
 	public function getPDOInstance(){
 		if(!class_exists("PDO")){
 			throw new DBAgentException("[Akari.DB.DBAgent] PDO not installed");
@@ -34,8 +44,10 @@ Class DBAgent{
 	/**
 	 * 查询
 	 * 
-	 * @param DBAgentStatement|String $SQL
-	 * @param NULL|Array $params
+	 * @param DBAgentStatement|String $SQL sql查询语句
+	 * @param NULL|Array $params 绑定的参数
+	 * @return array
+	 * @todo params在SQL传入DBAgentStatement对象无效
 	 **/
 	public function query($SQL, $params = NULL){
 		logcount("db.query", 1);

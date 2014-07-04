@@ -15,17 +15,38 @@ Class DBParser{
 		return self::$d;
 	}
 
+	/**
+	 * 构造函数
+	 */
 	protected function __contruct(){
 	}
 
+	/**
+	 * 过滤value
+	 *
+	 * @param string $value 值
+	 * @return string
+	 **/
 	public function parseValue($value){
 		return $this->pdo->quote($value);
 	}
 
+	/**
+	 * 处理列名
+	 *
+	 * @param string $value 名
+	 * @return string
+	 **/
 	public function parseColumn($value){
 		return '`' . str_replace('.', '"."', $value) . '`';
 	}
 
+	/**
+	 * 分析处理查询的列
+	 * 
+	 * @param mixed $columns 条件
+	 * @return string
+	 **/
 	public function parseField($columns){
 		if($columns == '*')	return '*';
 
@@ -55,6 +76,12 @@ Class DBParser{
 		return implode(',', $stack);
 	}
 
+	/**
+	 * 过滤数组内容
+	 *
+	 * @param array $array 数组内容
+	 * @return string
+	 **/
 	public function parseArray($array){
 		$temp = array();
 		foreach($array as $value){
@@ -64,6 +91,14 @@ Class DBParser{
 		return implode(",", $temp);
 	}
 
+	/**
+	 * 内联
+	 *
+	 * @param array $data 数据
+	 * @param string $flag 标志
+	 * @param string $outer 外接字符
+	 * @return string
+	 **/
 	public function innerIn($data, $flag, $outer){
 		$haystack = array();
 		foreach($data as $value){

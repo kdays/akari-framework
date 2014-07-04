@@ -1,11 +1,12 @@
 <?php
 Class DBAgentFactory{
 	private static $instance = array();
+
 	/**
 	 * 获得DBAgent对象
 	 * 
 	 * @param string $cfgName 配置名
-	 * @return multitype:
+	 * @return DBAgent
 	 */
 	public static function getDBAgent($cfgName = "default"){
 		$config = Context::$appConfig->getDBConfig($cfgName);

@@ -8,6 +8,9 @@ Class TemplateHelper{
 			$useLayout = false;
 		}
 
+		// 调用模板时 绑定_verifyhash到csrfToken上
+		assign("_verifyhash", Security::getCSRFToken());
+
 		if($bDir = C("templateBaseDir")){
 			$tplName = "$bDir/$tplName";
 		}

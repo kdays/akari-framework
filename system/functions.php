@@ -385,6 +385,10 @@ function import($path){
 	}
 }
 
+function get_date($format, $timestamp = NULL) {
+	return date($format, $timestamp);
+}
+
 /**
  * 生成URL
  *

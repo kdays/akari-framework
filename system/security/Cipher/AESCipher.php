@@ -13,9 +13,17 @@ Class AESCipher extends Cipher{
 		return self::$d;
 	}
 
-	protected function __construct(){
+	protected function __construct($key){
 		$this->iv = Context::$appConfig->cipherIv;
 		$this->secretKey = md5(Context::$appConfig->encryptionKey);
+	}
+
+	public function setSecretKey($key = NULL) {
+		if ($key == NULL){
+			$this->secretKey = md5(Context::$appConfig->encryptionKey);
+		} else {
+			$this->secretKey = $key;
+		}
 	}
 
 	public function encrypt($str){
