@@ -165,13 +165,13 @@ function getCacheInstance($type = "File"){
 function cache($key, $value = NULL, $expired = -1, $opts = array()){
 	$cls = getCacheInstance(array_key_exists("type", $opts) ? $opts["type"] : false);
 
-	if($value == NULL && $expired === FALSE){
+	if($value === NULL && $expired === FALSE){
 		return $cls->remove($key);
 	}
 
 	if(!is_numeric($expired))	$expried = strtotime($expired);
 
-	if($value == NULL){
+	if($value === NULL){
 		return $cls->get($key);
 	}
 	return $cls->set($key, $value, $expired);
@@ -372,16 +372,22 @@ function assign($key, $value = NULL){
  * 载入APP目录的数据
  * 
  * @param string $path 路径
+ * @param boolean $once 是否仅载入1次
  * @todo: .会替换成目录中的/
  * @throws Exception
  */
-function import($path){
+function import($path, $once = TRUE){
+	static $loadedPath = array();
+
 	$path = Context::$appBasePath.DIRECTORY_SEPARATOR.str_replace(".", DIRECTORY_SEPARATOR, $path).".php";
 	if(!file_exists($path)){
 		Logging::_logErr("Import not found: $path");
 		throw new Exception("$path not load");
 	}else{
-		require($path);
+		if(!in_array($path, $loadedPath) || !$once){
+			require($path);
+			$loadedPath[] = $path;
+		}
 	}
 }
 

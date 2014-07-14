@@ -218,6 +218,11 @@ Class DBAgent{
 		$sql = str_replace('%FIELD%', $this->parser->parseField($field), $sql);
 		$sql = str_replace('%TABLE%', $this->arg['table'], $sql);
 
+		Event::fire("db.select", [
+			"table" => $this->arg['table'],
+			"arg" => $this->arg
+		]);
+
 		foreach(Array('join', 'where', 'order', 'group', 'having', 'limit') as $item){
 			if(!empty($this->arg[$item])){
 				if(in_array($item, Array('JOIN', 'WHERE'))){
@@ -269,6 +274,11 @@ Class DBAgent{
 		$sql = 'UPDATE %TABLE% SET %DATA% %WHERE%';
 		$sql = str_replace('%TABLE%', $this->arg['table'], $sql);
 
+		Event::fire("db.update", [
+			"table" => $this->arg['table'],
+			"arg" => $this->arg
+		]);
+
 		$data = array();
 		if(isset($this->arg['data'])){
 			$td = $this->arg['data'];
@@ -299,6 +309,11 @@ Class DBAgent{
 
 		$sql = 'INSERT INTO %TABLE% SET %DATA%';
 		$sql = str_replace('%TABLE%', $this->arg['table'], $sql);
+
+		Event::fire("db.insert", [
+			"table" => $this->arg['table'],
+			"arg" => $this->arg
+		]);
 
 		$data = array();
 		if(isset($this->arg['data'])){

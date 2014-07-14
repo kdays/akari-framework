@@ -71,10 +71,35 @@ Class HttpStatus{
 		Header("HTTP/1.1 ".$statusCode." ".self::$statusCode[$statusCode]);
 	}
 
-	public static function setDownload($fileName, $fileSize){
-		
-	}
+	/**
+	 * 输出下载
+	 *
+	 * @param string $filePath 文件路径或文字内容
+	 * @param string $newName 新文件名 如果filePath为内容，newName必须设定
+	 **/
+	public static function setDownload($filePath, $newName = FALSE){
+		Header("Content-Type: application/octet-stream");
+		Header("Accept-Ranges: bytes");
 
+		if (is_file($filePath)) {
+			if (!$newName) {
+				$newName = basename($filePath);
+			}
+
+			Header("Accept-Length: ".filesize($filePath));
+			Header("Content-Disposition: attachment; filename=".$newName);
+
+			echo file_get_contents($filePath);
+		} elseif (!empty($newName) && !empty($filePath)) {
+			Header("Accept-Length: ".strlen($filePath));
+			Header("Content-Disposition: attachment; filename=".$newName);
+
+			echo $filePath;
+		}
+
+		exit;
+	}
+	
 	public static function jumpTo($url) {
 		self::setStatus(self::FOUND);
 		Header("Location: $url");

@@ -3,7 +3,7 @@
 
 Class TemplateHelper{
 	public static $usingLayout = false;//防止子模板载入时，layout再次请求
-	public static function load($tplName, $useLayout = true){
+	public static function load($tplName, $useLayout = true, $updateLast = true){
 		if (self::$usingLayout) {
 			$useLayout = false;
 		}
@@ -21,7 +21,7 @@ Class TemplateHelper{
 		if(!file_exists($tplPath)){
 			throw new Exception("[Akari.Utility.TemplateHelper] not found [ $tplName ]");
 		}
-		Context::$lastTemplate = $tplName;
+		if($updateLast) Context::$lastTemplate = $tplName;
 
 		// 如果有Layout的话 处理layout
 		if(C("closeLayout") === TRUE){
@@ -176,7 +176,7 @@ function TH_lang($id, $command = ''){
 }
 
 function TH_template($id){
-	return TemplateHelper::load($id);
+	return TemplateHelper::load($id, false, false);
 }
 
 function TH_module($id, $data = ''){

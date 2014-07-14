@@ -90,9 +90,19 @@ Class I18n{
 	public static function get($id, $L = Array(), $prefix = ""){
 		$id = $prefix.$id;
 		$lang = isset(self::$data[$id]) ? self::$data[$id] : "[$id]";
+
 		foreach($L as $key => $value){
 			$lang = str_replace("%$key%", $value, $lang);
 		}
+
+		// 处理![语言句子] 或被替换成L(语言句子)
+		$lang = preg_replace_callback('/\!\[(\S+)\]/i', function($matches){
+			if (isset($matches[1])) {
+				return L($matches[1]);
+			}
+
+			return $matches[0];
+		}, $lang);
 
 		return $lang;
 	}

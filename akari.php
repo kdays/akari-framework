@@ -5,8 +5,8 @@
  */
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
-define("AKARI_VERSION", "2.1 (Largo)");
-define("AKARI_BUILD", "2014.06.21");
+define("AKARI_VERSION", "2.2 (Largo)");
+define("AKARI_BUILD", "2014.07.14");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 
@@ -125,6 +125,7 @@ Class akari{
 		Context::$appConfig = $confCls::getInstance();
 		Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
+		Header("X-Framework: Akari Framework ". AKARI_BUILD);
 		$this->loadBase();
 		$this->setExceptionHandler();
 
@@ -169,10 +170,18 @@ Class akari{
 			$clsPath = $dispatcher->invoke($uri);
 		}
 
+		Context::$uri = $uri;
+
 		if($clsPath){
 			Context::$appEntryPath = str_replace(Context::$appBasePath, '', $clsPath);
 
 			TriggerRule::getInstance()->commitPreRule();
+
+			// 如有特定某些触发器时 使用这个可以更精确的处理
+			$_doAction = str_replace(Array(Context::$appBasePath, '/app/action/', '.php'), '', 
+				$clsPath);
+			Event::fire("action.".str_replace("/", ".", $_doAction));
+
 			require $clsPath;
 			TriggerRule::getInstance()->commitAfterRule();
 		}else{

@@ -24,8 +24,18 @@ Class TriggerRule{
 		if(!empty($config['pre']))	$this->preRules = $config['pre'];
 		if(!empty($config['after']))	$this->afterRules = $config['after'];
 
-		$this->preRules[] = Array("/.*/", "AfterInit");
-		$this->afterRules[] = Array("/.*/", "ApplicationEnd");
+		// 检查目录是否有AfterInit、ApplicationEnd、ApplicationStart
+		if (file_exists(Context::$appBasePath."/app/trigger/AfterInit.php")) {
+			$this->preRules[] = Array("/.*/", "AfterInit");
+		}
+		
+		if (file_exists(Context::$appBasePath."/app/trigger/ApplicationEnd.php")) {
+			$this->afterRules[] = Array("/.*/", "ApplicationEnd");
+		}
+		
+		if (file_exists(Context::$appBasePath."/app/trigger/ApplicationStart.php")) {
+			array_unshift($this->preRules, ['/.*/', 'ApplicationStart']);
+		}
 	}
 	
 	/**
