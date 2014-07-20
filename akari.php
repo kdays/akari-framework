@@ -160,15 +160,16 @@ Class akari{
 			$uri = $router->resolveURI();
 		}
 		Context::$uri = $uri;
-		
-		// rewrite baseURL
-		Context::$appConfig->appBaseURL = $dispatcher->rewriteBaseURL(
-			Context::$appConfig->appBaseURL
-		);
 
 		if($outputBuffer)	ob_start();
 
 		$dispatcher = Dispatcher::getInstance();
+
+		// rewrite baseURL
+		Context::$appConfig->appBaseURL = $dispatcher->rewriteBaseURL(
+			Context::$appConfig->appBaseURL
+		);
+		
 		if(CLI_MODE){
 			$clsPath = $dispatcher->invokeTask($uri);
 		}else{
