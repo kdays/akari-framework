@@ -17,11 +17,12 @@ Class DBAgent{
 		$this->parser = DBParser::getInstance($this->getPDOInstance());
 	}
 
-	/**
-	 * 获得PDO的单例
-	 *
-	 * @return \PDO
-	 **/
+    /**
+     * 获得PDO的单例
+     *
+     * @throws DBAgentException
+     * @return \PDO
+     */
 	public function getPDOInstance(){
 		if(!class_exists("PDO")){
 			throw new DBAgentException("[Akari.DB.DBAgent] PDO not installed");
@@ -46,6 +47,7 @@ Class DBAgent{
 	 * 
 	 * @param DBAgentStatement|String $SQL sql查询语句
 	 * @param NULL|Array $params 绑定的参数
+     * @throws DBAgentException
 	 * @return array
 	 * @todo params在SQL传入DBAgentStatement对象无效
 	 **/
@@ -119,7 +121,7 @@ Class DBAgent{
 	 * @param mixed $SQL 查询对象或语句
 	 * @param array $params 参数数组
 	 * @throws DBAgentException
-	 * @return number
+	 * @return int
 	 */
 	public function execute($SQL, $params = array()){
 		logcount("db.query", 1);
@@ -149,7 +151,7 @@ Class DBAgent{
 	/**
 	 * 返回上次执行时的最近一次插入的id
 	 * 
-	 * @return boolean
+	 * @return boolean|int
 	 */
 	public function insertId(){
 		return $this->lastInsertId;
@@ -191,7 +193,7 @@ Class DBAgent{
 	 * @param string $table 表名
 	 * @param string $join 是否JOIN查询
 	 * @param string $where 是否进行where操作
-	 * @return multitype:
+	 * @return Array|NULL
 	 */
 	public function select($table = NULL, $join = NULL, $where = NULL){
 		if($table != NULL)	$this->table($table);
@@ -258,7 +260,7 @@ Class DBAgent{
 	 * @param string $data 数据
 	 * @param string $table 表名
 	 * @param string $where 是否进行where操作
-	 * @return multitype:
+	 * @return int
 	 */
 	public function update($data = NULL, $table = NULL, $where = NULL){
 		if($table != NULL)	$this->table($table);
@@ -301,7 +303,7 @@ Class DBAgent{
 	 *
 	 * @param string $data 数据
 	 * @param string $table 表名
-	 * @return multitype:
+	 * @return int
 	 */
 	public function insert($data = NULL, $table = NULL){
 		if($table != NULL)	$this->table($table);
@@ -397,7 +399,7 @@ Class DBAgent{
 	/**
 	 * ORM链式操作: 设定groupby
 	 * 
-	 * @param unknown $group
+	 * @param string $group
 	 * @return DBAgent
 	 */
 	public function group($group){
@@ -408,7 +410,7 @@ Class DBAgent{
 	/**
 	 * ORM链式操作: 设定Having
 	 * 
-	 * @param unknown $having
+	 * @param array $having
 	 * @return DBAgent
 	 */
 	public function having($having){
@@ -419,7 +421,7 @@ Class DBAgent{
 	/**
 	 * ORM链式操作: 设定数据
 	 * 
-	 * @param unknown $data
+	 * @param array $data
 	 * @return DBAgent
 	 */
 	public function data($data){

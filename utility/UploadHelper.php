@@ -3,7 +3,11 @@
 
 Class UploadHelper{
 	protected static $h;
-	public static function getInstance(){
+
+    /**
+     * @return UploadHelper
+     */
+    public static function getInstance(){
 		if(!isset(self::$h)){
 			self::$h = new self();
 		}
@@ -35,6 +39,19 @@ Class UploadHelper{
 	public function getDefaultName($ext, $opts = Array()){
 		return $opts['filename'].(empty($opts['ext']) ? "" : ".$ext");
 	}
+
+    /**
+     * 获得文件扩展名
+     *
+     * @param string $fileName 文件名
+     * @param bool $diff 为true时取文件名段 false为扩展名
+     * @return string
+     */
+    public function getExtension($fileName, $diff = FALSE) {
+        $pathInfo = pathinfo($fileName);
+
+        return $diff ? $pathInfo['filename'] : strtolower($pathInfo['extension']);
+    }
     
 	/**
 	 * 上传并移动文件
@@ -81,6 +98,38 @@ Class UploadHelper{
 
 		return $newName;
 	}
+
+    /**
+     * 快捷保存，在路径复杂时使用这个进行简单的判断
+     * 路径默认在前面加上了uploadDir，不用额外添加
+     *
+     * @param array $uploadForm 上传表单
+     * @param string $savePath 保存路径
+     * @param array $allowExt 允许的扩展名
+     * @return bool
+     */
+    public function saveFile(array $uploadForm, $savePath, $allowExt = []) {
+        if (empty($allowExt)) {
+            $allowExt = Context::$appConfig->allowUploadExt;
+        }
+
+        if (!$this->isUploadedFile($uploadForm['tmp_name'])) {
+            return false;
+        }
+
+        $pathInfo = pathinfo($uploadForm['name']);
+        if (!in_array(strtolower($pathInfo['extension']), $allowExt)) {
+            return false;
+        }
+
+        $savePath = Context::$appBasePath.Context::$appConfig->uploadDir."/".$savePath;
+
+        if (!movefile($savePath, $uploadForm['tmp_name'])) {
+            return false;
+        }
+
+        return true;
+    }
 }
 
 Class UploadFileCannotAccess extends Exception{

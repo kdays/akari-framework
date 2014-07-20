@@ -8,7 +8,11 @@ Class DataHelper{
 		}else{
 			if(!isset(self::$data[$key]))	return $defaultValue;
 			if($subKey){
-				return array_key_exists($subKey, self::$data[$key]) ? self::$data[$key][$subKey] : $defaultValue;
+                if (is_array(self::$data[$key])) {
+				    return array_key_exists($subKey, self::$data[$key]) ? self::$data[$key][$subKey] : $defaultValue;
+                } elseif (is_object(self::$data[$key])) {
+                    return isset(self::$data[$key]->$subKey) ?  self::$data[$key]->$subKey : $defaultValue;
+                }
 			}
 			
 			return self::$data[$key];

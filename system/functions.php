@@ -25,11 +25,11 @@ function readover($filename, $method = 'rb'){
 
 /**
  * 写入文件
- * 
+ *
  * @param string $fileName 文件路径
  * @param string $data 数据
  * @param string $method 写入方式
- * @param string $ifChmod 是否权限进行777设定
+ * @param bool|string $ifChmod 是否权限进行777设定
  */
 function writeover($fileName, $data, $method = 'rb+', $ifChmod = true){
 	$baseDir = dirname($fileName);
@@ -134,7 +134,7 @@ function checkDir($requestPath, $basePath = false){
  * 
  * @param string $type 缓存类型
  * @throws Excepton
- * @return Ambigous <unknown>
+ * @return BaseCacheAdapter
  */
 function getCacheInstance($type = "File"){
 	static $CacheInstance = Array();
@@ -179,10 +179,10 @@ function cache($key, $value = NULL, $expired = -1, $opts = array()){
 
 /**
  * 计数统计
- * 
+ *
  * @param string $key 键名
- * @param number $value 变更的值
- * @param boolean $cache 是否保存进缓存 
+ * @param int|number $value 变更的值
+ * @param boolean $cache 是否保存进缓存
  * @return Ambigous <number>
  */
 function logcount($key, $value = 0, $cache = false){
@@ -225,10 +225,10 @@ function in_string($string,$findme){
 
 /**
  * 字符串过滤
- * 
+ *
  * @param string $mixed 数据
- * @param string $isint 是否为int
- * @param string $istrim 是否进行trim
+ * @param bool|string $isint 是否为int
+ * @param bool|string $istrim 是否进行trim
  * @return Ambigous <number, mixed>
  */
 function Char_cv($mixed,$isint=false,$istrim=false) {
@@ -256,6 +256,7 @@ function Char_cv($mixed,$isint=false,$istrim=false) {
  * 根据Model返回单例
  *
  * @param string $ModelName 模型名称
+ * @return mixed
  */
 function M($ModelName){
 	static $tmpModel = array();
@@ -290,7 +291,7 @@ function M($ModelName){
  * @param string $key 语言Key
  * @param array $L 替换用数组
  * @param string $prefix 前缀
- * @return Ambigous <mixed, string, multitype:>
+ * @return string
  */
 function L($key, $L = Array(), $prefix = ''){
 	return I18n::get($key, $L, $prefix);
@@ -298,11 +299,11 @@ function L($key, $L = Array(), $prefix = ''){
 
 /**
  * 获得设置或对设置特定项目
- * 
- * @param string $key 设置项
+ *
+ * @param bool|string $key 设置项
  * @param string $value 数值(NULL时不设置)
- * @param string $defaultValue 取值时没有找到输出
- * @return unknown|boolean|string
+ * @param bool|string $defaultValue 取值时没有找到输出
+ * @return mixed
  */
 function C($key = FALSE, $value = NULL, $defaultValue = FALSE){
 	$config = Context::$appConfig;
@@ -325,7 +326,9 @@ function C($key = FALSE, $value = NULL, $defaultValue = FALSE){
  *
  * @param string $key 关键词
  * @param string $method 获得类型(G=GET P=POST GP=GET&POST)
- **/
+ * @param string $defaultValue 默认值
+ * @return string|NULL
+ */
 function GP($key, $method = 'GP', $defaultValue = NULL){
 	if ($method != 'P' && isset($_GET[$key])) {
 		return Char_cv($_GET[$key], false, true);
@@ -339,16 +342,25 @@ function GP($key, $method = 'GP', $defaultValue = NULL){
 /**
  * 模板输出或调用
  *
- * @param string $tplName 模板名称
+ * @param mixed $tplName 模板名称 如果设置为绑定数组，则自动启发模板路径
  * @param mixed $bindArr 绑定数组，设置FALSE时只返回模板路径
- **/
+ *
+ * @return void
+ */
 function T($tplName, $bindArr = []){
+    if (is_array($tplName)) {
+        $actionPath = str_replace(['/app/action/', '.php'], '', Context::$appEntryPath);
+        $bindArr = $tplName;
+        $tplName = $actionPath;
+    }
+
 	if($bindArr === FALSE){
 		return TemplateHelper::load($tplName);
 	}else{
 		if (is_string($bindArr)) {
 			C("customLayout", $bindArr);
 		}
+
 		$arr = assign(NULL, NULL);
 		if (is_array($bindArr))	$arr =  array_merge($arr, $bindArr);
 
@@ -362,7 +374,7 @@ function T($tplName, $bindArr = []){
  * 
  * @param string $key 键名
  * @param string $value 值
- * @return multitype:unknown
+ * @return void
  */
 function assign($key, $value = NULL){
 	return TemplateHelper::assign($key, $value);
@@ -399,6 +411,7 @@ function get_date($format, $timestamp = NULL) {
  * 生成URL
  *
  * @param string $action 操作
+ * @return mixed|string
  * @todo 如action=manager.login  => manager/login
  */
 function url($action){
