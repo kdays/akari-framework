@@ -71,6 +71,12 @@ Class Request{
 		
 		return $onlineip;
 	}
+
+	public function isSSL() {
+		$protocol = strtoupper($_SERVER['SERVER_PROTOCOL']);
+		
+		return !!(strpos($protocol, 'HTTPS') !== FALSE);	
+	}
 	
 	/**
 	 * 获得请求的字符串

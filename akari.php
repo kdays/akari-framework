@@ -6,7 +6,7 @@
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
 define("AKARI_VERSION", "2.2 (Largo)");
-define("AKARI_BUILD", "2014.07.14");
+define("AKARI_BUILD", "2014.07.20");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 
@@ -160,6 +160,11 @@ Class akari{
 			$uri = $router->resolveURI();
 		}
 		Context::$uri = $uri;
+		
+		// rewrite baseURL
+		Context::$appConfig->appBaseURL = $dispatcher->rewriteBaseURL(
+			Context::$appConfig->appBaseURL
+		);
 
 		if($outputBuffer)	ob_start();
 

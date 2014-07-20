@@ -98,6 +98,19 @@ Class Dispatcher{
 	}
 	
 	/**
+	 * 由于应用使用了Context::$appBaseURL作为基础连接
+	 * 但某些时候，如ajax之类 必须保证http和https在一个页面才可以触发
+	 *
+	 * @param string 
+	 */
+	public function rewriteBaseURL($URI) {
+		$URI = preg_replace('/https|http/i', 
+				Request::getInstance()->isSSL() ? 'https' : 'http' , $URI);
+
+		return $URI;
+	}
+
+	/**
 	 * 通常请求下的分配路径
 	 * 
 	 * @param string $URI URI路径
