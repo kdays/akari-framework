@@ -104,8 +104,8 @@ Class Dispatcher{
 	 * @param string 
 	 */
 	public function rewriteBaseURL($URI) {
-		$URI = preg_replace('/https|http/i', 
-				Request::getInstance()->isSSL() ? 'https' : 'http' , $URI);
+		$isSSL = Request::getInstance()->isSSL();
+		$URI = preg_replace('/https|http/i', $isSSL ? 'https' : 'http' , $URI);
 
 		return $URI;
 	}

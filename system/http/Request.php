@@ -74,7 +74,10 @@ Class Request{
 
 	public function isSSL() {
 		$protocol = strtoupper($_SERVER['SERVER_PROTOCOL']);
-		
+		if (isset($_SERVER['HTTPS'])) {
+			return !!(strtoupper($_SERVER['HTTPS']) == 'ON');
+		}
+
 		return !!(strpos($protocol, 'HTTPS') !== FALSE);	
 	}
 	
