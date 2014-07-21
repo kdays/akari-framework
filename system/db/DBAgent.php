@@ -89,7 +89,6 @@ Class DBAgent{
 	public function getOne($SQL, $params = NULL, $class = NULL){
 		logcount("db.query", 1);
 
-		$pdo = $this->getPDOInstance();
 		if(is_object($SQL) && $SQL instanceof DBAgentStatement){
 			$st = $SQL;
 		}else{

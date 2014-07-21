@@ -22,12 +22,16 @@ Class ExceptionProcessor{
 					"line" => $ex->getLine()
 				));
 
-		// process app exception
-		if(method_exists($ex, "handleException")) {
-			$ex->handleException($ex);
-		}else{
-			$this->handler->handleException($ex);
-		}
+		// 策略是这样的 Handler我们觉得是没必要的 (放在exception里)
+        // 所以当应用设定了exception时，先检查绑定的是否存在 -> 没有则调用exception里的处理
+        // 都没有就报错
+        if (method_exists($this->handler, 'handleException')) {
+            $this->handler->handleException($ex);
+        } else {
+            if(method_exists($ex, "handleException")) {
+                $ex->handleException($ex);
+            }
+        }
 	}
 
 	public function processError($errno, $errstr, $errfile, $errline, $errcontext) {
@@ -48,8 +52,10 @@ Class ExceptionProcessor{
 					"line" => $e['line']
 				));
 
-				$this->handler->handleFatal($e['type'], $e['message'], $e['file'], $e['line']);
-				//throw new Exception($e['message'], $e['type'], 0, $e['file'], $e['line']);
+                if (method_exists($this->handler, 'handleFatal')) {
+                    $this->handler->handleFatal($e['type'], $e['message'], $e['file'], $e['line']);
+                }
+				throw new Exception($e['message'], $e['type'], 0, $e['file'], $e['line']);
 			}
 		}
 	}
@@ -61,7 +67,7 @@ Class ExceptionProcessor{
 			register_shutdown_function(Array(self::$p, 'processFatal'));
 		}
 
-		require(Context::$appBasePath.DIRECTORY_SEPARATOR.$clsPath.".php");
+		require_once(Context::$appBasePath.DIRECTORY_SEPARATOR.$clsPath.".php");
 		$cls = basename($clsPath);
 		$this->handler = new $cls();
 	}

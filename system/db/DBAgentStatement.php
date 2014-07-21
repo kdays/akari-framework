@@ -105,6 +105,10 @@ Class DBAgentStatement{
 		$this->arg['data'][$key] = $value;
 	}
 
+    public function setData($data) {
+        $this->arg['data'] = $data;
+    }
+
 	public function addLimit($limit, $size = false){
 		$this->arg['limit'] = $size ? " LIMIT $limit,$size" : " LIMIT $limit";
 	}
