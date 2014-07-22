@@ -1,4 +1,8 @@
 <?php
+namespace Akari\config;
+
+use Akari\Context;
+
 !defined("AKARI_PATH") && exit;
 
 
@@ -18,18 +22,18 @@ Class BaseConfig{
 	public $logs = Array(
 		Array(
 			'level' => AKARI_LOG_LEVEL_PRODUCTION,
-			'appender' => 'FileLogger',
+			'appender' => 'Akari\system\log\FileLogger',
 			'params' => Array('filename' => 'data/log/all.log')
 		),
 		Array(
 			'level' => AKARI_LOG_LEVEL_ALL,
-			'appender' => 'STDOutputLogger',
+			'appender' => 'Akari\system\log\STDOutputLogger',
 			'enabled' => CLI_MODE,
 			'url' => "/test/"
 		)
 	);
 
-	public $defaultExceptionHandler = 'core/system/exception/DefaultExceptionHandler';
+	public $defaultExceptionHandler = 'Akari\system\exception\DefaultExceptionHandler';
 	public $csrfProtect = true;
 	public $csrfTokenName = "_akari";
 
@@ -44,7 +48,7 @@ Class BaseConfig{
 	public $templateCache = "/data/tpl_cache";
 
 	public $encryptionKey = 'Akaza Akari, Akkarin';
-	public $encryptCipher = "AESCipher";
+	public $encryptCipher = "Akari\system\security\Cipher\AESCipher";
 	public $cipherIv = "";
 
 	public $cookiePrefix = "kd_";
@@ -52,7 +56,7 @@ Class BaseConfig{
 	public $cookiePath = "/";
 	public $cookieDomain = "";
 	public $cookieSecure = false;
-	public $cookieEncrypt= "AESCipher";
+	public $cookieEncrypt= "Akari\system\security\Cipher\AESCipher";
 
 	public $triggerRule = Array(
 		"pre" => Array(
@@ -72,6 +76,24 @@ Class BaseConfig{
 		if($name == "default")	return current($this->database);
 		return $this->database[$name];
 	}
+
+    /**
+     * 如果获得的配置不默认设置中，就检查是否在config目录下存在同名配置
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public function __get($key) {
+        // 如果没有key则进行检查
+        if (!isset($this->$key)) {
+            $optPath = Context::$appBasePath."/app/config/$key.php";
+            if (file_exists($optPath)) {
+                $this->$key = require($optPath);
+            }
+        }
+
+        return isset($this->$key) ? $this->$key : NULL;
+    }
 
 	public static $c;
 	public static function getInstance(){

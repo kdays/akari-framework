@@ -1,4 +1,6 @@
 <?php
+namespace Akari\system\data;
+
 !defined("AKARI_VERSION") && exit;
 
 Class MemcachedAdapter extends BaseCacheAdapter{

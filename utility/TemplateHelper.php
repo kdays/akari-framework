@@ -1,4 +1,9 @@
 <?php
+namespace Akari\utility;
+
+use Akari\Context;
+use Akari\system\http\Dispatcher;
+
 !defined("AKARI_PATH") && exit;
 
 Class TemplateHelper{
@@ -7,9 +12,6 @@ Class TemplateHelper{
 		if (self::$usingLayout) {
 			$useLayout = false;
 		}
-
-		// 调用模板时 绑定_verifyhash到csrfToken上
-		assign("_verifyhash", Security::getCSRFToken());
 
 		if($bDir = C("templateBaseDir")){
 			$tplName = "$bDir/$tplName";
@@ -22,6 +24,7 @@ Class TemplateHelper{
 			throw new Exception("[Akari.Utility.TemplateHelper] not found [ $tplName ]");
 		}
 		if($updateLast) Context::$lastTemplate = $tplName;
+
 
 		// 如果有Layout的话 处理layout
 		if(C("closeLayout") === TRUE){
@@ -46,7 +49,7 @@ Class TemplateHelper{
 
 				$tplPath = $layoutPath;
 				if (!file_exists($layoutPath)) {
-					throw new Exception("[Akari.Utility.TemplateHelper] not found layout [ $tplName ]");
+					throw new \Exception("[Akari.Utility.TemplateHelper] not found layout [ $tplName ]");
 				}
 				self::$usingLayout = true;
 			}
@@ -63,6 +66,11 @@ Class TemplateHelper{
 			return $cachePath;
 		}else{
 			$content = "<?php !defined('AKARI_VERSION') && exit(); ?>";
+            $content .= "<?php
+                use Akari\Context; use Akari\utility\DataHelper;
+                use Akari\utility\TemplateHelper;
+                use Akari\utility\TemplateHelperCommand;
+            ?>";
 			$content .= self::parse(readover($tplPath));
 
 			writeover($cachePath, $content);
@@ -103,14 +111,14 @@ Class TemplateHelper{
 			case "elseif":
 				return "<?php }elseif($end_str){ ?>";
 			case "template":
-				return "<?php require TH_template('$end_str'); ?>";
+				return "<?php require TemplateHelperCommand::template('$end_str'); ?>";
 			case "layout":
-				return '<?php require TH_getScreen();?>';
+				return '<?php require TemplateHelperCommand::getScreen();?>';
 			case "module":
 				if(isset($str[1])){
-					return "<?php TH_module('$str[0]', \"$str[1]\"); ?>";
+					return "<?php TemplateHelperCommand::module('$str[0]', \"$str[1]\"); ?>";
 				}else{
-					return "<?php TH_module('$end_str'); ?>";
+					return "<?php TemplateHelperCommand::module('$end_str'); ?>";
 				}
 			case "eval":
 				return "<?php eval('$end_str'); ?>";
@@ -143,10 +151,10 @@ Class TemplateHelper{
 		$command = explode(" ", $str);
 		$langid = array_shift($command);
 		if(empty($command)){
-			return "<?php TH_lang(\"$langid\"); ?>";
+			return "<?php TemplateHelperCommand::lang(\"$langid\"); ?>";
 		}else{
 			$commands = implode("&", $command);
-			return "<?php TH_lang(\"$langid\", '$commands'); ?>";
+			return "<?php TemplateHelperCommand::lang(\"$langid\", '$commands'); ?>";
 		}
 	}
 
@@ -160,39 +168,4 @@ Class TemplateHelper{
 			return self::$asdata;
 		}
 	}
-}
-
-function TH_getScreen() {
-	return TemplateHelper::load(Context::$lastTemplate, false);
-}
-
-function TH_lang($id, $command = ''){
-	$command = explode("&", $command);
-	foreach($command as $value){
-		$tmp = explode("=", $value);
-		$L[$tmp[0]] = $tmp[1];
-	}
-	echo I18n::get($id, $L);
-}
-
-function TH_template($id){
-	return TemplateHelper::load($id, false, false);
-}
-
-function TH_module($id, $data = ''){
-	$appPath = Context::$appBasePath."/app/lib/module_{$id}.php";
-	$corePath = Context::$appBasePath."/core/system/module/$id.php";
-	$clsName = $id."Module";
-
-	if(file_exists($appPath)){
-		require_once($appPath);
-	}elseif(file_exists($corePath)){
-		require_once($corePath);
-	}else{
-		throw new Exception("Module $id not found");
-	}
-
-	$clsObj = $clsName::getInstance();
-
-	return $clsObj->run($data);
 }

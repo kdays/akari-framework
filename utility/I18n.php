@@ -1,4 +1,8 @@
 <?php
+namespace Akari\utility;
+
+use Akari\Context;
+
 !defined("AKARI_PATH") && exit;
 
 Class I18n{
@@ -62,10 +66,10 @@ Class I18n{
 	 */
 	public static function load($name, $prefix = ""){
 		if(isset(self::$loaded[$prefix.$name]))	return false;
-
 		$langPath = self::getpath($name);
+
 		if(!$langPath){
-			throw new Exception("[Akari.I18n] not found [ $prefix $name ]");
+			throw new \Exception("[Akari.I18n] not found [ $prefix $name ]");
 		}
 
 		self::$loaded[$prefix.$name] = time();
@@ -108,6 +112,6 @@ Class I18n{
 	}
 
 	public static function getlang($path){
-		return include($path);
+		return require($path);
 	}
 }

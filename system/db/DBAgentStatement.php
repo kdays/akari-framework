@@ -1,4 +1,8 @@
 <?php
+namespace Akari\system\db;
+
+use \PDO;
+
 Class DBAgentStatement{
 	protected $pdo;
 	protected $parser;

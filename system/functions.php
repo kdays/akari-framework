@@ -1,6 +1,10 @@
 <?php
 !defined("AKARI_PATH") && exit;
 
+use Akari\Context;
+use Akari\utility\I18n;
+use Akari\utility\TemplateHelper;
+
 /**
  * 读取文件
  * 
@@ -141,7 +145,7 @@ function getCacheInstance($type = "File"){
 	$type = $type ? $type : Context::$appConfig->defaultCacheType;
 	$type = ucfirst($type);
 
-	$cls = $type."Adapter";
+	$cls = "Akari\\system\\data\\".$type."Adapter";
 	if(!class_exists($cls)){
 		throw new Excepton("[Akari.Cache] Get CacheInstance Error, Not Found [$type]");
 	}
@@ -345,7 +349,7 @@ function GP($key, $method = 'GP', $defaultValue = NULL){
  * @param mixed $tplName 模板名称 如果设置为绑定数组，则自动启发模板路径
  * @param mixed $bindArr 绑定数组，设置FALSE时只返回模板路径
  *
- * @return void
+ * @return String|void
  */
 function T($tplName, $bindArr = []){
     if (is_array($tplName)) {
@@ -420,3 +424,6 @@ function url($action){
 
 	return $url;
 }
+
+
+/***TemplateHelper functions**/

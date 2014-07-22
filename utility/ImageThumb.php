@@ -1,4 +1,6 @@
 <?php
+namespace Akari\utility;
+
 Class ImageThumb{
 	public static function GetImageSize($srcFile, $srcExt = NULL){
 		empty($srcExt) && $srcExt = strtolower(substr(strrchr($srcFile,'.'),1));

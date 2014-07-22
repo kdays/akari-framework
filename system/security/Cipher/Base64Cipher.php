@@ -1,4 +1,6 @@
 <?php
+namespace Akari\system\security\Cipher;
+
 /**
  * WARNING: 这不是一个加密函数
  **/

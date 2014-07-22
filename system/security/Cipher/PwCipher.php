@@ -1,4 +1,6 @@
 <?php
+namespace Akari\system\security\Cipher;
+
 !defined("AKARI_PATH") && exit;
 
 Class PwCipher extends Cipher{

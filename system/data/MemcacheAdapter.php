@@ -1,4 +1,6 @@
 <?php
+namespace Akari\system\data;
+
 !defined("AKARI_PATH") && exit;
 
 Class MemcacheAdapter extends BaseCacheAdapter{

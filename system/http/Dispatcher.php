@@ -1,4 +1,9 @@
 <?php
+namespace Akari\system\http;
+
+use Akari\Context;
+use Akari\system\log\Logging;
+
 !defined("AKARI_PATH") && exit;
 
 Class Dispatcher{

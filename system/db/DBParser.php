@@ -1,4 +1,6 @@
 <?php
+namespace Akari\system\db;
+
 /**
  * 参考Medoo的数据库解析
  **/

@@ -1,4 +1,6 @@
 <?php
+namespace Akari\utility;
+
 !defined("AKARI_PATH") && exit;
 
 Class UploadHelper{

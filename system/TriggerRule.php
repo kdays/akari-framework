@@ -1,4 +1,8 @@
 <?php
+namespace Akari\system;
+
+use Akari\Context;
+
 !defined("AKARI_PATH") && exit;
 
 Class TriggerRule{
@@ -56,7 +60,7 @@ Class TriggerRule{
 				if(file_exists($hookPath)){
 					require $hookPath;
 				}else{
-					throw new Exception("[akari.trigger] not found trigger $rule[1]");
+					throw new \Exception("[akari.trigger] not found trigger $rule[1]");
 				}
 			}
 		}

@@ -1,4 +1,6 @@
 <?php
+namespace Akari\system;
+
 Class Event{
 	public static $queue = Array();
 	

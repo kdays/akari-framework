@@ -1,4 +1,6 @@
 <?php
+namespace Akari\utility;
+
 /**
  * 用户权限控制工具
  *

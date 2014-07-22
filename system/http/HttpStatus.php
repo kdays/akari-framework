@@ -1,4 +1,6 @@
 <?php
+namespace Akari\system\http;
+
 Class HttpStatus{
 	const OK = 200;
 	/**

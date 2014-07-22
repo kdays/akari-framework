@@ -1,4 +1,6 @@
 <?php
+namespace Akari\utility;
+
 Class Pages{
 	public $url = '';
 	public $nowpage = 1;

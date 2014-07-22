@@ -1,4 +1,6 @@
 <?php
+namespace Akari\utility;
+
 Class curl{
 	protected $handler;
 	protected $options = array(
@@ -152,6 +154,6 @@ Class curl{
 	}
 }
 
-Class CURLException extends Exception{
+Class CURLException extends \Exception{
 	
 }

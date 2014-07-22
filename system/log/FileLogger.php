@@ -1,4 +1,8 @@
 <?php
+namespace Akari\system\log;
+
+use Akari\Context;
+
 !defined("AKARI_PATH") && exit;
 
 Class FileLogger{

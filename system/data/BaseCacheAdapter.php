@@ -1,4 +1,8 @@
 <?php
+namespace Akari\system\data;
+
+use Akari\Context;
+
 !defined("AKARI_PATH") && exit;
 
 Class BaseCacheAdapter{

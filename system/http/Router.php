@@ -1,4 +1,8 @@
 <?php
+namespace Akari\system\http;
+
+use Akari\Context;
+
 !defined("AKARI_PATH") && exit;
 
 Class Router{

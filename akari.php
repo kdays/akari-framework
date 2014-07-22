@@ -4,6 +4,8 @@
  *
  */
 
+namespace Akari;
+
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
 define("AKARI_VERSION", "2.2 (Largo)");
 define("AKARI_BUILD", "2014.07.20");
@@ -11,12 +13,15 @@ define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 
 include("define.php");
+include("system/functions.php");
 
 Class Context{
-	public static $nsPaths = Array();
+	public static $nsPaths = Array('Akari' => AKARI_PATH);
+    public static $aliases = Array();
 	public static $classes = Array();
 
 	public static $uri = null;
+    public static $appBaseNS = "";
 	public static $appEntryName = null;
 	public static $appConfig = null;
 	public static $appBasePath = null;
@@ -31,7 +36,7 @@ Class Context{
 	 * @param string $nsPath 路径
 	 */
 	public static function register($nsName, $nsPath){
-		self::$nsPaths[$nsName] = $nsPath;
+		self::$aliases[$nsName] = $nsPath;
 	}
 	
 	/**
@@ -39,15 +44,26 @@ Class Context{
 	 * @param string $cls 类名
 	 */
 	public static function autoload($cls){
-		if(isset(self::$classes[$cls]))	return ;
-
-		$clsPath = false;
-		if(isset(self::$nsPaths[$cls])){
-			$clsPath = Context::$appBasePath. self::$nsPaths[$cls] .".php";
+        $clsPath = false;
+		if(isset(self::$aliases[$cls])){
+			$clsPath = Context::$appBasePath. self::$aliases[$cls] .".php";
 		}
 
+        // 处理字段 首先取第一个
+        $nsPath = explode("\\", $cls);
+        if ( isset(Context::$nsPaths[$nsPath[0]]) ) {
+            $basePath = Context::$nsPaths[ array_shift($nsPath)];
+            $clsPath = $basePath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $nsPath).".php";
+        }
+
+        if ($clsPath) {
+            $clsPath = realpath($clsPath);
+        }
+
+        if(isset(self::$classes[$clsPath]))	return ;
+
 		if($clsPath && file_exists($clsPath)){
-			self::$classes[$cls] = true;
+			self::$classes[$clsPath] = true;
 			require $clsPath;
 		}else{
 			$dif = array("lib", "model", "exception");
@@ -65,14 +81,18 @@ Class Context{
 			$clsPath = false;
 		}
 		
-		if(!$clsPath) trigger_error("Not Found CLASS [ $cls ]", E_USER_ERROR);
+		if(!$clsPath){
+            throw new \Exception("Not Found CLASS [ $cls ]", E_USER_ERROR);
+        }
 	}
-	
-	/**
-	 * 获得资源路径
-	 * @param string $path 路径
-	 * @return string
-	 */
+
+    /**
+     * 获得资源路径
+     *
+     * @param string $path 路径
+     * @param bool $toURL
+     * @return string
+     */
 	public function getResourcePath($path, $toURL = false){
 		if($toURL){
 			return str_replace(Context::$appBasePath, '', $path);
@@ -80,7 +100,15 @@ Class Context{
 		return realpath(Context::$appBasePath.$path);
 	}
 }
-spl_autoload_register(Array('Context', 'autoload'));
+spl_autoload_register(Array('Akari\Context', 'autoload'));
+
+use Akari\system\triggerRule;
+use Akari\system\log\Logging;
+use Akari\system\http\Dispatcher;
+use Akari\system\http\Router;
+use Akari\system\http\HttpStatus;
+use Akari\system\Event;
+use Akari\system\exception\ExceptionProcessor;
 
 Class akari{
 	private static $f;
@@ -101,9 +129,7 @@ Class akari{
 	 * @param string $appBasePath 应用基础目录
 	 * @return akari
 	 */
-	public function initApp($appBasePath){
-		include("config/BaseConfig.php");
-
+	public function initApp($appBasePath, $appNS){
 		$confCls = "Config";
 		
 		$lock = glob(AKARI_PATH."*.lock");
@@ -116,8 +142,13 @@ Class akari{
 		if(!file_exists($confPath = $appBasePath."/app/config/$confCls.php")){
 			trigger_error("Not Found Mode Config [ $confCls ]", E_USER_ERROR);
 		}
-		
-		include($confPath);
+
+        Context::$appBaseNS = $appNS;
+        Context::$nsPaths[ $appNS ] = $appBasePath."/app/";
+
+		require($confPath);
+
+        $confCls = $appNS."\\config\\".ucfirst($confCls);
 		if(!class_exists($confCls)){
 			trigger_error("Config Class Name [ $confCls ] Err", E_USER_ERROR);
 		}
@@ -126,7 +157,6 @@ Class akari{
 		Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
 		Header("X-Framework: Akari Framework ". AKARI_BUILD);
-		$this->loadBase();
 		$this->setExceptionHandler();
 
 		return $this;
@@ -161,6 +191,7 @@ Class akari{
 		}
 		Context::$uri = $uri;
 
+
 		if($outputBuffer)	ob_start();
 
 		$dispatcher = Dispatcher::getInstance();
@@ -175,12 +206,10 @@ Class akari{
 		}else{
 			$clsPath = $dispatcher->invoke($uri);
 		}
-
 		Context::$uri = $uri;
 
 		if($clsPath){
 			Context::$appEntryPath = str_replace(Context::$appBasePath, '', $clsPath);
-
 			TriggerRule::getInstance()->commitPreRule();
 
 			// 如有特定某些触发器时 使用这个可以更精确的处理
@@ -197,68 +226,6 @@ Class akari{
 		}
 
 		return $this;
-	}
-
-	/**
-	 * 将框架相关组件载入
-	 * @return void
-	 **/
-	public function loadBase(){
-		$lib = Array(
-			"I18n" => "utility/I18n",
-			"Auth" => "utility/Auth",
-			"Pages" => "utility/Pages",
-			"curl" => "utility/curl",
-			"ImageThumb" => "utility/ImageThumb",
-			"UploadHelper" => "utility/UploadHelper",
-			"TemplateHelper" => "utility/TemplateHelper",
-			"DataHelper" => "utility/DataHelper",
-			"MessageHelper" => "utility/MessageHelper",
-
-			"ExceptionProcessor" => "system/exception/ExceptionProcessor",
-			"DefaultExceptionHandler" => "system/exception/DefaultExceptionHandler",
-
-			"DBAgent" => "system/db/DBAgent",
-			"DBParser" => "system/db/DBParser",
-			"DBAgentFactory" => "system/db/DBAgentFactory",
-			"DBAgentStatement" => "system/db/DBAgentStatement",
-
-			"Dispatcher" => "system/http/Dispatcher",
-			"TriggerRule" => "system/TriggerRule",
-			"Event" => "system/Event",
-			"Router" => "system/http/Router",
-			"Request" => "system/http/Request",
-			"Cookie" => "system/http/Cookie",
-			"Session" => "system/http/Session",
-			"MobileDevice" => "system/http/MobileDevice",
-			"HttpStatus" => "system/http/HttpStatus",
-
-			"Logging" => "system/log/Logging",
-			"FileLogger" => "system/log/FileLogger",
-			"STDOutputLogger" => "system/log/STDOutputLogger",
-
-			"Security" => "system/security/Security",
-			"Cipher" => "system/security/Cipher/Cipher",
-			"AESCipher" => "system/security/Cipher/AESCipher",
-			"RawCipher" => "system/security/Cipher/RawCipher",
-			"Base64Cipher" => "system/security/Cipher/Base64Cipher",
-			"PwCipher" => "system/security/Cipher/PwCipher",
-
-			"BaseCacheAdapter" => "system/data/BaseCacheAdapter",
-			"FileAdapter" => "system/data/FileAdapter",
-			"MemcacheAdapter" => "system/data/MemcacheAdapter",
-			"MemcachedAdapter" => "system/data/MemcachedAdapter",
-
-			"Model" => "model/Model",
-			"RequestModel" => "model/RequestModel",
-			"CodeModel" => "model/CodeModel",
-			"DatabaseModel" => "model/DatabaseModel"
-		);
-
-		foreach($lib as $key => $value){
-			Context::register($key, "/core/$value");
-		}
-		include("system/functions.php");
 	}
 
 	public function stop($code = 0, $msg = '') {

@@ -1,4 +1,9 @@
 <?php
+namespace Akari\system\db;
+
+use \PDO;
+use Akari\system\log\Logging;
+
 Class DBAgent{
 	public $lastInsertId = false;
 	protected $pdo;
@@ -436,6 +441,6 @@ Class DBAgent{
 	}
 }
 
-Class DBAgentException extends Exception{
+Class DBAgentException extends \Exception{
 
 }

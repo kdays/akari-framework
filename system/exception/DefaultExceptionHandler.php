@@ -1,4 +1,11 @@
 <?php
+namespace Akari\system\exception;
+
+use Akari\system\http\HttpStatus;
+use Akari\system\log\Logging;
+use Akari\Context;
+use \Exception;
+
 Class DefaultExceptionHandler{
 	public function handleException(Exception $ex){
 		HttpStatus::setStatus(HttpStatus::INTERNAL_SERVER_ERROR);

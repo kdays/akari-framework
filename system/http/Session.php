@@ -1,4 +1,6 @@
 <?php
+namespace Akari\system\http;
+
 !defined("AKARI_PATH") && exit;
 
 Class Session{

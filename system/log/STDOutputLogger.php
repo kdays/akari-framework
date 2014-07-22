@@ -1,4 +1,6 @@
 <?php
+namespace Akari\system\log;
+
 !defined("AKARI_PATH") && exit;
 
 Class STDOutputLogger{

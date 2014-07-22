@@ -1,4 +1,8 @@
 <?php
+namespace Akari\system\db;
+
+use Akari\Context;
+
 Class DBAgentFactory{
 	private static $instance = array();
 

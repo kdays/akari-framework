@@ -1,4 +1,8 @@
 <?php
+namespace Akari\system\module;
+
+use Akari\utility\Pages;
+
 !defined("AKARI_PATH") && exit;
 
 Class pagesModule{

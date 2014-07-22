@@ -1,4 +1,8 @@
 <?php
+namespace Akari\system\security\Cipher;
+
+use Akari\Context;
+
 !defined("AKARI_PATH") && exit;
 
 Class AESCipher extends Cipher{
@@ -13,7 +17,7 @@ Class AESCipher extends Cipher{
 		return self::$d;
 	}
 
-	protected function __construct($key){
+	protected function __construct($key = NULL){
 		$this->iv = Context::$appConfig->cipherIv;
 		$this->secretKey = md5(Context::$appConfig->encryptionKey);
 	}

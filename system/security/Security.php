@@ -1,4 +1,8 @@
 <?php
+namespace Akari\system\security;
+
+use Akari\Context;
+
 !defined("AKARI_PATH") && exit;
 
 Class Security{
@@ -13,7 +17,7 @@ Class Security{
 		if($type == NULL)	$type = Context::$appConfig->encryptCipher;
 		$clsName = in_string($type, "Cipher") ? $type : $type."Cipher";
 		if(!class_exists($clsName)){
-			throw new Exception("[akari.Security] Cipher $type not found");
+			throw new \Exception("[akari.Security] Cipher $type not found");
 		}
 
 		return call_user_func_array(Array($clsName, "getInstance"), Array());

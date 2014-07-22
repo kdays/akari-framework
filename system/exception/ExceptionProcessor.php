@@ -1,4 +1,8 @@
 <?php
+namespace Akari\system\exception;
+
+use Akari\system\Event;
+
 !defined("AKARI_PATH") && exit;
 
 Class ExceptionProcessor{
@@ -11,7 +15,7 @@ Class ExceptionProcessor{
 		return self::$p;
 	}
 
-	public function processException(Exception $ex){
+	public function processException(\Exception $ex){
 		if(!isset($this->handler))	throw $ex;
 		if(ob_get_level() > 0)	ob_end_clean();
 
@@ -35,7 +39,7 @@ Class ExceptionProcessor{
 	}
 
 	public function processError($errno, $errstr, $errfile, $errline, $errcontext) {
-		throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+		throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
 	}
 
 	public function processFatal(){
@@ -55,7 +59,7 @@ Class ExceptionProcessor{
                 if (method_exists($this->handler, 'handleFatal')) {
                     $this->handler->handleFatal($e['type'], $e['message'], $e['file'], $e['line']);
                 }
-				throw new Exception($e['message'], $e['type'], 0, $e['file'], $e['line']);
+				throw new \Exception($e['message'], 0);
 			}
 		}
 	}
@@ -67,8 +71,8 @@ Class ExceptionProcessor{
 			register_shutdown_function(Array(self::$p, 'processFatal'));
 		}
 
-		require_once(Context::$appBasePath.DIRECTORY_SEPARATOR.$clsPath.".php");
-		$cls = basename($clsPath);
-		$this->handler = new $cls();
+		//require_once(Context::$appBasePath.DIRECTORY_SEPARATOR.$clsPath.".php");
+		//$cls = basename($clsPath);
+		$this->handler = new $clsPath();
 	}
 }
