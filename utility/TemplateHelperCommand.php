@@ -23,11 +23,11 @@ Class TemplateHelperCommand{
     }
 
     public static function module($id, $data = '') {
-        $appPath = Context::$appBasePath."/app/lib/module_{$id}.php";
+        $appPath = Context::$appBasePath."/app/lib/{$id}Module.php";
         $corePath = Context::$appBasePath."/core/system/module/{$id}Module.php";
 
         if(file_exists($appPath)){
-            $clsName = $id."Module";
+            $clsName = Context::$appBaseNS."\\lib\\{$id}Module";
         }elseif(file_exists($corePath)){
             $clsName = "Akari\\system\\module\\{$id}Module";
         }else{

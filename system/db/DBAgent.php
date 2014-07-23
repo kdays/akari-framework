@@ -89,7 +89,7 @@ Class DBAgent{
 		}
 
 		$s = $st->getDoc();
-        $this->logBenchmark($st->queryString);
+        $this->logBenchmark($s->queryString);
 		$result = $s->execute();
 
 		if($result){
