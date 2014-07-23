@@ -1,6 +1,8 @@
 <?php
 namespace Akari\system\data;
 
+use Akari\utility\BenchmarkHelper;
+
 !defined("AKARI_VERSION") && exit;
 
 Class MemcachedAdapter extends BaseCacheAdapter{
@@ -26,7 +28,14 @@ Class MemcachedAdapter extends BaseCacheAdapter{
 	}
 
 	public function get($name) {
-		return $this->handler->get($this->options['prefix'].$name);
+        $result = $this->handler->get($this->options['prefix'].$name);
+        if (!$result) {
+            BenchmarkHelper::setCacheHit('miss');
+            return $defaultValue;
+        }
+
+        BenchmarkHelper::setCacheHit('hit');
+        return $result;
 	}
 
 	/**
@@ -50,4 +59,8 @@ Class MemcachedAdapter extends BaseCacheAdapter{
 
 		return false;
 	}
+
+    public function remove($key) {
+        return $this->handler->remove($this->options['prefix'].$key);
+    }
 }

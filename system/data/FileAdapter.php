@@ -2,6 +2,7 @@
 namespace Akari\system\data;
 
 use Akari\Context;
+use Akari\utility\BenchmarkHelper;
 
 !defined("AKARI_PATH") && exit;
 
@@ -41,12 +42,14 @@ Class FileAdapter extends BaseCacheAdapter{
 		return $key."_".substr($hash, 6, 11);
 	}
 
-	/**
-	 * 删除文件缓存中的某个键
-	 * 
-	 * @param string $key
-	 * @param bool $oper 是否立即生效，不立即生效的话后面需要用update()处理
-	 **/
+    /**
+     * 删除文件缓存中的某个键
+     *
+     * @param string $key
+     * @param bool $oper 是否立即生效，不立即生效的话后面需要用update()处理
+     *
+     * @return bool
+     */
 	public function remove($key, $oper = true){
 		$key = $this->options['prefix'].$key;
 		if(!isset($this->fileIndex[$key]))	return false;
@@ -79,6 +82,7 @@ Class FileAdapter extends BaseCacheAdapter{
 		$pKey = $this->options['prefix'].$key;
 		
 		if(isset($this->fileIndex[$pKey])){
+            BenchmarkHelper::setCacheHit('hit');
 			$now = $this->fileIndex[$pKey];
 			$fpath = $this->options['path'].$now['f'];
 
@@ -89,6 +93,7 @@ Class FileAdapter extends BaseCacheAdapter{
 
 			return unserialize(file_get_contents($fpath));
 		}
+        BenchmarkHelper::setCacheHit('miss');
 		
 		return $defaultValue;
 	}

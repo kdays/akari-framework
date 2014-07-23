@@ -97,6 +97,17 @@ Class DBAgentStatement{
 		return $msg;
 	}
 
+    public function getParam() {
+        $params = [];
+        if(!empty($this->bind)){
+            foreach($this->bind as $key=>$value){
+                $params[$key] = $value;
+            }
+        }
+
+        return $params;
+    }
+
 	public function bindValue($key, $data){
 		$this->bind[':'.$key] = $data;
 	}

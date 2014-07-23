@@ -27,8 +27,15 @@ Class MemcacheAdapter extends BaseCacheAdapter{
 		return $this->handler->delete($this->options['prefix'].$name);
 	}
 	
-	public function get($name) {
-		return $this->handler->get($this->options['prefix'].$name);
+	public function get($name, $defaultValue = NULL) {
+		$result = $this->handler->get($this->options['prefix'].$name);
+        if (!$result) {
+            BenchmarkHelper::setCacheHit('miss');
+            return $defaultValue;
+        }
+
+        BenchmarkHelper::setCacheHit('hit');
+        return $result;
 	}
 
 	/**

@@ -1,14 +1,15 @@
 <?php
 /**
- * Akari Framework 2.0
+ * Akari Framework 2
  *
+ * @website http://kdays.cn/
  */
 
 namespace Akari;
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
-define("AKARI_VERSION", "2.2 (Largo)");
-define("AKARI_BUILD", "2014.07.20");
+define("AKARI_VERSION", "2.6 (Adagio)");
+define("AKARI_BUILD", "2014.07.23");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 
@@ -23,7 +24,10 @@ Class Context{
 	public static $uri = null;
     public static $appBaseNS = "";
 	public static $appEntryName = null;
-	public static $appConfig = null;
+    /**
+     * @var object
+     */
+    public static $appConfig = null;
 	public static $appBasePath = null;
 	public static $appEntryPath = null;
 	public static $lastTemplate = null;
@@ -38,11 +42,13 @@ Class Context{
 	public static function register($nsName, $nsPath){
 		self::$aliases[$nsName] = $nsPath;
 	}
-	
-	/**
-	 * 自动载入用方法
-	 * @param string $cls 类名
-	 */
+
+    /**
+     * 自动载入用方法
+     *
+     * @param string $cls 类名
+     * @throws \Exception
+     */
 	public static function autoload($cls){
         $clsPath = false;
 		if(isset(self::$aliases[$cls])){
@@ -64,14 +70,14 @@ Class Context{
 
 		if($clsPath && file_exists($clsPath)){
 			self::$classes[$clsPath] = true;
-			require $clsPath;
+            require $clsPath;
 		}else{
 			$dif = array("lib", "model", "exception");
 
 			foreach($dif as $dir){
 				$clsPath = Context::$appBasePath."/app/$dir/$cls.php";
 				if(file_exists( $clsPath )){
-					self::$classes[$cls] = true;
+					self::$classes[$clsPath] = true;
 					
 					require($clsPath);
 					return ;
@@ -109,6 +115,7 @@ use Akari\system\http\Router;
 use Akari\system\http\HttpStatus;
 use Akari\system\Event;
 use Akari\system\exception\ExceptionProcessor;
+use Akari\utility\BenchmarkHelper;
 
 Class akari{
 	private static $f;
@@ -123,13 +130,15 @@ Class akari{
 		return self::$f;
 	}
 
-	/**
-	 * 初始化框架，载入设定和组件，并设定错误处理器
-	 * 
-	 * @param string $appBasePath 应用基础目录
-	 * @return akari
-	 */
+    /**
+     * 初始化框架，载入设定和组件，并设定错误处理器
+     *
+     * @param string $appBasePath 应用基础目录
+     * @param string $appNS 应用命名空间
+     * @return akari
+     */
 	public function initApp($appBasePath, $appNS){
+        BenchmarkHelper::setTimer("init:start");
 		$confCls = "Config";
 		
 		$lock = glob(AKARI_PATH."*.lock");
@@ -146,7 +155,7 @@ Class akari{
         Context::$appBaseNS = $appNS;
         Context::$nsPaths[ $appNS ] = $appBasePath."/app/";
 
-		require($confPath);
+		require $confPath;
 
         $confCls = $appNS."\\config\\".ucfirst($confCls);
 		if(!class_exists($confCls)){
@@ -178,7 +187,7 @@ Class akari{
 	 * @param string $uri URI地址
 	 * @param boolean $outputBuffer 是否启用输出缓存
 	 * @param string $params CLI模式时传递用的参数
-	 * @throws Exception
+	 * @throws \Exception
 	 * @return akari
 	 */
 	public function run($uri = NULL, $outputBuffer = true, $params = ""){
@@ -198,7 +207,7 @@ Class akari{
 
 		// rewrite baseURL
 		Context::$appConfig->appBaseURL = $dispatcher->rewriteBaseURL(
-			Context::$appConfig->appBaseURL
+			$config->appBaseURL
 		);
 		
 		if(CLI_MODE){
@@ -207,6 +216,7 @@ Class akari{
 			$clsPath = $dispatcher->invoke($uri);
 		}
 		Context::$uri = $uri;
+        BenchmarkHelper::setTimer("init:end");
 
 		if($clsPath){
 			Context::$appEntryPath = str_replace(Context::$appBasePath, '', $clsPath);
@@ -217,9 +227,15 @@ Class akari{
 				$clsPath);
 			Event::fire("action.".str_replace("/", ".", $_doAction));
 
-			require $clsPath;
+            BenchmarkHelper::setTimer("app:start");
+			require($clsPath);
+            BenchmarkHelper::setTimer("app:end");
 			TriggerRule::getInstance()->commitAfterRule();
 		}else{
+            if (CLI_MODE) {
+                exit("没有找到输入的操作 $uri\n");
+                $this->stop(0, 'ERROR: not found action');
+            }
 			HttpStatus::setStatus(HttpStatus::NOT_FOUND);
 			include(AKARI_PATH."template/404.htm");
 			$this->stop();

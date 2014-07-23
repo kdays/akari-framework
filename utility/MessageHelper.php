@@ -8,6 +8,7 @@ Class MessageHelper{
      * @param string $URL 跳转的URL
      * @param string $message 提示信息
      * @param int|number $time 跳转时间(0时直接跳转)
+     * @return string
      */
 	public static function jump($URL, $message = "页面正在跳转中，请稍候", $time = 5){
 		if($time < 1){
@@ -20,14 +21,13 @@ Class MessageHelper{
 		$build = AKARI_BUILD;
 		
 		if(C("jumpTemplate")){
-			T(C("jumpTemplate"), Array(
+			return T(C("jumpTemplate"), Array(
 				"URL" => $URL,
 				"message" => $message,
 				"version" => $version,
 				"build" => $build,
 				"time" => $time
 			));
-			exit;
 		}else{
 			include(AKARI_PATH."/template/jump.htm");exit;
 		}

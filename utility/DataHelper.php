@@ -4,7 +4,13 @@ namespace Akari\utility;
 Class DataHelper{
 	public static $data = array();
 
-	public static function get($key = false, $subKey = false, $defaultValue = NULL){
+    /**
+     * @param bool $key
+     * @param bool $subKey
+     * @param null $defaultValue
+     * @return array|null|object
+     */
+    public static function get($key = false, $subKey = false, $defaultValue = NULL){
 		if($key === false){
 			return self::$data;
 		}else{

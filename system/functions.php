@@ -135,10 +135,10 @@ function checkDir($requestPath, $basePath = false){
 
 /**
  * 获得缓存实例
- * 
+ *
  * @param string $type 缓存类型
- * @throws Excepton
- * @return BaseCacheAdapter
+ * @throws Exception
+ * @return Akari\system\data\BaseCacheAdapter
  */
 function getCacheInstance($type = "File"){
 	static $CacheInstance = Array();
@@ -147,7 +147,7 @@ function getCacheInstance($type = "File"){
 
 	$cls = "Akari\\system\\data\\".$type."Adapter";
 	if(!class_exists($cls)){
-		throw new Excepton("[Akari.Cache] Get CacheInstance Error, Not Found [$type]");
+		throw new \Exception("[Akari.Cache] Get CacheInstance Error, Not Found [$type]");
 	}
 
 	if(!isset($CacheInstance[$type])){
@@ -173,7 +173,7 @@ function cache($key, $value = NULL, $expired = -1, $opts = array()){
 		return $cls->remove($key);
 	}
 
-	if(!is_numeric($expired))	$expried = strtotime($expired);
+	if(!is_numeric($expired))	$expired = strtotime($expired);
 
 	if($value === NULL){
 		return $cls->get($key);
@@ -187,7 +187,7 @@ function cache($key, $value = NULL, $expired = -1, $opts = array()){
  * @param string $key 键名
  * @param int|number $value 变更的值
  * @param boolean $cache 是否保存进缓存
- * @return Ambigous <number>
+ * @return int
  */
 function logcount($key, $value = 0, $cache = false){
 	static $logs = array();
@@ -254,39 +254,6 @@ function Char_cv($mixed,$isint=false,$istrim=false) {
 		$mixed = str_replace(array('"',"'","\t",'  '),array('&quot;','&#39;','	','&nbsp;&nbsp;'),$mixed);
 	}
 	return $mixed;
-}
-
-/**
- * 根据Model返回单例
- *
- * @param string $ModelName 模型名称
- * @return mixed
- */
-function M($ModelName){
-	static $tmpModel = array();
-
-	$modelPath = Context::$appBasePath."/app/model/$ModelName.php";
-	if(!file_exists($modelPath)){
-		$ModelName .= "Model";
-		$modelPath = Context::$appBasePath."/app/model/$ModelName.php";
-	}
-
-	$modelClass = $ModelName;
-	if(strpos($ModelName, "/") !== false){
-		$modelClass = trim(basename($ModelName), ".php");
-	}
-
-	include_once($modelPath);
-
-	if(method_exists($modelClass, "getInstance")){
-		return $modelClass::getInstance();
-	}else{
-		if(!isset($tmpModel[ $modelClass ])){
-			$tmpModel[$modelClass] = new $modelClass();
-		}
-
-		return $tmpModel[$modelClass];
-	}
 }
 
 /**
@@ -425,5 +392,122 @@ function url($action){
 	return $url;
 }
 
+function formatSize($size, $dec = 2){
+    $a = array("B", "KB", "MB", "GB", "TB", "PB");
+    $pos = 0;
+    while ($size >= 1024) {
+        $size /= 1024;
+        $pos++;
+    }
+    return round($size, $dec)." ".$a[$pos];
+}
 
-/***TemplateHelper functions**/
+/**
+ * 抽取多维数组的某个元素,组成一个新数组,使这个数组变成一个扁平数组
+ * 使用方法:
+ * <code>
+ * <?php
+ * $fruit = array(array('apple' => 2, 'banana' => 3), array('apple' => 10, 'banana' => 12));
+ * $banana = Typecho_Common::arrayFlatten($fruit, 'banana');
+ * print_r($banana);
+ * //outputs: array(0 => 3, 1 => 12);
+ * ?>
+ * </code>
+ *
+ * @param array $value 被处理的数组
+ * @param string $key 需要抽取的键值
+ * @return array
+ */
+function array_flatten(array $value, $key){
+    $result = array();
+
+    if ($value) {
+        foreach ($value as $inval) {
+            if (is_array($inval) && isset($inval[$key])) {
+                $result[] = $inval[$key];
+            } else {
+                break;
+            }
+        }
+    }
+
+    return $result;
+}
+
+/**
+ * 根据parse_url的结果重新组合url
+ *
+ * @access public
+ * @param array $params 解析后的参数
+ * @return string
+ */
+function build_url($params){
+    return (isset($params['scheme']) ? $params['scheme'] . '://' : NULL)
+    . (isset($params['user']) ? $params['user'] . (isset($params['pass']) ? ':' . $params['pass'] : NULL) . '@' : NULL)
+    . (isset($params['host']) ? $params['host'] : NULL)
+    . (isset($params['port']) ? ':' . $params['port'] : NULL)
+    . (isset($params['path']) ? $params['path'] : NULL)
+    . (isset($params['query']) ? '?' . $params['query'] : NULL)
+    . (isset($params['fragment']) ? '#' . $params['fragment'] : NULL);
+}
+
+/**
+ * @param $val
+ * @return mixed
+ */
+function removeXSS($val){
+    // remove all non-printable characters. CR(0a) and LF(0b) and TAB(9) are allowed
+    // this prevents some character re-spacing such as <java\0script>
+    // note that you have to handle splits with \n, \r, and \t later since they *are* allowed in some inputs
+    $val = preg_replace('/([\x00-\x08]|[\x0b-\x0c]|[\x0e-\x19])/', '', $val);
+
+    // straight replacements, the user should never need these since they're normal characters
+    // this prevents like <IMG SRC=&#X40&#X61&#X76&#X61&#X73&#X63&#X72&#X69&#X70&#X74&#X3A&#X61&#X6C&#X65&#X72&#X74&#X28&#X27&#X58&#X53&#X53&#X27&#X29>
+    $search = 'abcdefghijklmnopqrstuvwxyz';
+    $search .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $search .= '1234567890!@#$%^&*()';
+    $search .= '~`";:?+/={}[]-_|\'\\';
+
+    for ($i = 0; $i < strlen($search); $i++) {
+        // ;? matches the ;, which is optional
+        // 0{0,7} matches any padded zeros, which are optional and go up to 8 chars
+
+        // &#x0040 @ search for the hex values
+        $val = preg_replace('/(&#[xX]0{0,8}'.dechex(ord($search[$i])).';?)/i', $search[$i], $val); // with a ;
+        // &#00064 @ 0{0,7} matches '0' zero to seven times
+        $val = preg_replace('/(&#0{0,8}'.ord($search[$i]).';?)/', $search[$i], $val); // with a ;
+    }
+
+    // now the only remaining whitespace attacks are \t, \n, and \r
+    $ra1 = Array('javascript', 'vbscript', 'expression', 'applet', 'meta', 'xml', 'blink', 'link', 'style', 'script', 'embed', 'object', 'iframe', 'frame', 'frameset', 'ilayer', 'layer', 'bgsound', 'title', 'base');
+    $ra2 = Array('onabort', 'onactivate', 'onafterprint', 'onafterupdate', 'onbeforeactivate', 'onbeforecopy', 'onbeforecut', 'onbeforedeactivate', 'onbeforeeditfocus', 'onbeforepaste', 'onbeforeprint', 'onbeforeunload', 'onbeforeupdate', 'onblur', 'onbounce', 'oncellchange', 'onchange', 'onclick', 'oncontextmenu', 'oncontrolselect', 'oncopy', 'oncut', 'ondataavailable', 'ondatasetchanged', 'ondatasetcomplete', 'ondblclick', 'ondeactivate', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'onerror', 'onerrorupdate', 'onfilterchange', 'onfinish', 'onfocus', 'onfocusin', 'onfocusout', 'onhelp', 'onkeydown', 'onkeypress', 'onkeyup', 'onlayoutcomplete', 'onload', 'onlosecapture', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onmove', 'onmoveend', 'onmovestart', 'onpaste', 'onpropertychange', 'onreadystatechange', 'onreset', 'onresize', 'onresizeend', 'onresizestart', 'onrowenter', 'onrowexit', 'onrowsdelete', 'onrowsinserted', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstart', 'onstop', 'onsubmit', 'onunload');
+    $ra = array_merge($ra1, $ra2);
+
+    $found = true; // keep replacing as long as the previous round replaced something
+    while ($found == true) {
+        $val_before = $val;
+        for ($i = 0; $i < sizeof($ra); $i++) {
+            $pattern = '/';
+            for ($j = 0; $j < strlen($ra[$i]); $j++) {
+                if ($j > 0) {
+                    $pattern .= '(';
+                    $pattern .= '(&#[xX]0{0,8}([9ab]);)';
+                    $pattern .= '|';
+                    $pattern .= '|(&#0{0,8}([9|10|13]);)';
+                    $pattern .= ')*';
+                }
+                $pattern .= $ra[$i][$j];
+            }
+            $pattern .= '/i';
+            $replacement = substr($ra[$i], 0, 2).'<x>'.substr($ra[$i], 2); // add in <> to nerf the tag
+            $val = preg_replace($pattern, $replacement, $val); // filter out the hex tags
+
+            if ($val_before == $val) {
+                // no replacements were made, so exit the loop
+                $found = false;
+            }
+        }
+    }
+
+    return $val;
+}

@@ -5,7 +5,7 @@ use Akari\Context;
 
 !defined("AKARI_PATH") && exit;
 
-Class BaseCacheAdapter{
+abstract Class BaseCacheAdapter{
 	protected $handler;
 	protected $options = array();
 
@@ -21,11 +21,17 @@ Class BaseCacheAdapter{
 		return $this->remove($name);
 	}
 
-	/**
-	 * 获得缓存配置
-	 * @param string $key 项目
-	 * @param array $defaultOpt 默认设置
-	 **/
+    abstract public function remove($key);
+    abstract public function get($key);
+    abstract public function set($key, $value);
+
+    /**
+     * 获得缓存配置
+     *
+     * @param string $key 项目
+     * @param array $defaultOpt 默认设置
+     * @return array
+     */
 	public function getOptions($key, $defaultOpt = array()){
 		$conf = Context::$appConfig->cache;
 

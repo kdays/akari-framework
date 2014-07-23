@@ -1,6 +1,7 @@
 <?php
 namespace Akari\system\db;
 
+use Akari\utility\BenchmarkHelper;
 use \PDO;
 use Akari\system\log\Logging;
 
@@ -9,6 +10,9 @@ Class DBAgent{
 	protected $pdo;
 	protected $options;
 	protected $parser;
+
+    // 开启性能检查后 会记录每句SQL语句的时间
+    public $doBenchmark = false;
 
 	public $arg;
 
@@ -21,6 +25,22 @@ Class DBAgent{
 		$this->options = $opts;
 		$this->parser = DBParser::getInstance($this->getPDOInstance());
 	}
+
+    public function setBenchmark($setTo = FALSE) {
+        $this->doBenchmark = $setTo;
+    }
+
+    public function logBenchmark($SQL, $action = 'start', $params = []) {
+        if ($this->doBenchmark) {
+            $trace = debug_backtrace();
+            $backtrace = [];
+            foreach ($trace as $value) {
+                $backtrace[] = basename($value['file'])." L".$value['line'];
+            }
+
+            BenchmarkHelper::setSQLTimer($SQL, $action, $backtrace, $params);
+        }
+    }
 
     /**
      * 获得PDO的单例
@@ -67,6 +87,7 @@ Class DBAgent{
 		}
 
 		$s = $st->getDoc();
+        $this->logBenchmark($st->queryString);
 		$result = $s->execute();
 
 		if($result){
@@ -76,6 +97,7 @@ Class DBAgent{
 			throw new DBAgentException("[Akari.DBAgent] Query Error: $errMsg ($errCode) with SQL: ".$st->getSQLDebug());
 		}
 
+        $this->logBenchmark($s->queryString, 'end', $st->getParam());
 		$st->close();
 
 		return $rs;
@@ -101,7 +123,9 @@ Class DBAgent{
 		}
 
 		$s = $st->getDoc();
+        $this->logBenchmark($s->queryString);
 		$result = $s->execute();
+
 
 		if($result){
 			if($class != NULL){
@@ -114,6 +138,7 @@ Class DBAgent{
 			throw new DBAgentException("[Akari.DBAgent] Query Error: $errMsg ($errCode) with SQL: ".$st->getSQLDebug());
 		}
 
+        $this->logBenchmark($s->queryString, 'end', $st->getParam());
 		$st->close();
 
 		return $rs;
@@ -138,6 +163,7 @@ Class DBAgent{
 		}
 
 		$s = $st->getDoc();
+        $this->logBenchmark($s->queryString);
 		$result = $s->execute();
 
 		if($result){
@@ -147,6 +173,7 @@ Class DBAgent{
 			throw new DBAgentException("[Akari.DBAgent] Query Error: $errMsg ($errCode) with SQL: ".$st->getSQLDebug());
 		}
 
+        $this->logBenchmark($s->queryString, 'end', $st->getParam());
 		$st->close();
 
 		return $s->rowCount();

@@ -3,6 +3,7 @@ namespace Akari\utility;
 
 use Akari\Context;
 use Akari\system\http\Dispatcher;
+use Exception;
 
 !defined("AKARI_PATH") && exit;
 

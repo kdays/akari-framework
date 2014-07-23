@@ -73,12 +73,13 @@ Class HttpStatus{
 		Header("HTTP/1.1 ".$statusCode." ".self::$statusCode[$statusCode]);
 	}
 
-	/**
-	 * 输出下载
-	 *
-	 * @param string $filePath 文件路径或文字内容
-	 * @param string $newName 新文件名 如果filePath为内容，newName必须设定
-	 **/
+    /**
+     * 输出下载
+     *
+     * @param string $filePath 文件路径或文字内容
+     * @param bool|string $newName 新文件名 如果filePath为内容，newName必须设定
+     * @return boolean
+     */
 	public static function setDownload($filePath, $newName = FALSE){
 		Header("Content-Type: application/octet-stream");
 		Header("Accept-Ranges: bytes");
@@ -99,7 +100,7 @@ Class HttpStatus{
 			echo $filePath;
 		}
 
-		exit;
+        return TRUE;
 	}
 	
 	public static function jumpTo($url) {
