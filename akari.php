@@ -108,7 +108,7 @@ Class Context{
 }
 spl_autoload_register(Array('Akari\Context', 'autoload'));
 
-use Akari\system\triggerRule;
+use Akari\system\TriggerRule;
 use Akari\system\log\Logging;
 use Akari\system\http\Dispatcher;
 use Akari\system\http\Router;

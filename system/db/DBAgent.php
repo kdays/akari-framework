@@ -1,9 +1,11 @@
 <?php
 namespace Akari\system\db;
 
+use Akari\system\Event;
 use Akari\utility\BenchmarkHelper;
-use \PDO;
 use Akari\system\log\Logging;
+use \PDO;
+use \PDOException;
 
 Class DBAgent{
 	public $lastInsertId = false;
