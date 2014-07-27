@@ -2,6 +2,7 @@
 namespace Akari\system\security;
 
 use Akari\Context;
+use \Exception;
 
 !defined("AKARI_PATH") && exit;
 
@@ -17,30 +18,30 @@ Class Security{
 		if($type == NULL)	$type = Context::$appConfig->encryptCipher;
 		$clsName = in_string($type, "Cipher") ? $type : $type."Cipher";
 		if(!class_exists($clsName)){
-			throw new \Exception("[akari.Security] Cipher $type not found");
+			throw new Exception("[akari.Security] Cipher $type not found");
 		}
 
 		return call_user_func_array(Array($clsName, "getInstance"), Array());
 	}
-	
-	/**
-	 * 获得CSRF的token
-	 * 
-	 * @param string $key 设置FALSE时使用CSRF_KEY的值
-	 * @return string
-	 */
+
+    /**
+     * 获得CSRF的token
+     *
+     * @param bool|string $key 设置FALSE时使用CSRF_KEY的值
+     * @return string
+     */
 	public static function getCSRFToken($key = FALSE){
 		if(!$key && defined("CSRF_KEY"))	$key = CSRF_KEY;
 		return substr( md5(Context::$appConfig->encryptionKey."_".$key."_".$_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR']) ,7, 9);
 	}
-	
-	/**
-	 * 检查CSRF的token是否正常
-	 * 
-	 * @param string $key csrf-key，false时自动获得
-	 * @param string $token token，为空时自动获得
-	 * @throws Exception
-	 */
+
+    /**
+     * 检查CSRF的token是否正常
+     *
+     * @param bool|string $key csrf-key，false时自动获得
+     * @param string $token token，为空时自动获得
+     * @throws Exception
+     */
 	public static function verifyCSRFToken($key = FALSE, $token = ''){
 		$tokenName = Context::$appConfig->csrfTokenName;
 		if($token == '')	$token = $_REQUEST[$tokenName];

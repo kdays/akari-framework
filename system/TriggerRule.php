@@ -41,13 +41,13 @@ Class TriggerRule{
 			array_unshift($this->preRules, ['/.*/', 'ApplicationStart']);
 		}
 	}
-	
-	/**
-	 * 触发器规则提交
-	 * 
-	 * @param string $type 事件名
-	 * @throws Exception
-	 */
+
+    /**
+     * 触发器规则提交
+     *
+     * @param string $type 事件名
+     * @throws \Exception
+     */
 	private function commitRules($type){
 		$uri = Context::$uri;
 		$arrayName = $type . 'Rules';

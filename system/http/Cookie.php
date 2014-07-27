@@ -57,16 +57,16 @@ Class Cookie{
 			setCookie($name, $value, $expire, $path, $domain);
 		}
 	}
-	
-	/**
-	 * 获得Cookie的值
-	 * 
-	 * @param string $name 键名
-	 * @param string $encryptType 加密方式 不设定时按照设置检查
-	 * @param string $autoPrefix 是否自动添加prefix，false时程序不会添加prefix取值
-	 * @return NULL|multitype:multitype: |unknown
-	 * @todo 加密和数组在取值时会自动处理，不必额外设定
-	 */
+
+    /**
+     * 获得Cookie的值
+     *
+     * @param string $name 键名
+     * @param bool|string $encryptType 加密方式 不设定时按照设置检查
+     * @param bool|string $autoPrefix 是否自动添加prefix，false时程序不会添加prefix取值
+     * @return NULL|multitype:multitype: |unknown
+     * @todo 加密和数组在取值时会自动处理，不必额外设定
+     */
 	public function get($name, $encryptType = FALSE, $autoPrefix = true){
 		$config = Context::$appConfig;
 
@@ -108,6 +108,6 @@ Class Cookie{
 	 * @param string $key 键名
 	 */
 	public function remove($key){
-		return $this->set($key, FALSE);
+		$this->set($key, FALSE);
 	}
 }

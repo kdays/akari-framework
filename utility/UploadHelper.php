@@ -1,6 +1,9 @@
 <?php
 namespace Akari\utility;
 
+use Akari\Context;
+use Exception;
+
 !defined("AKARI_PATH") && exit;
 
 Class UploadHelper{

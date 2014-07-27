@@ -345,7 +345,7 @@ function T($tplName, $bindArr = []){
  * 
  * @param string $key 键名
  * @param string $value 值
- * @return void
+ * @return array
  */
 function assign($key, $value = NULL){
 	return TemplateHelper::assign($key, $value);

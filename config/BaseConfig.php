@@ -28,8 +28,7 @@ Class BaseConfig{
 		Array(
 			'level' => AKARI_LOG_LEVEL_ALL,
 			'appender' => 'Akari\system\log\STDOutputLogger',
-			'enabled' => CLI_MODE,
-			'url' => "/test/"
+			'enabled' => CLI_MODE
 		)
 	);
 

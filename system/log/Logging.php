@@ -65,7 +65,7 @@ Class Logging{
 
 	/**
 	 * Convert any simple object or array to text
-	 * @param unknown_type $obj
+	 * @param object $obj
 	 * @return string
 	 */
 	protected static function _dumpObj($obj) {

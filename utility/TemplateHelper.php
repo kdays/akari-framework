@@ -160,7 +160,13 @@ Class TemplateHelper{
 	}
 
 	public static $asdata = [];
-	public static function assign($key, $value) {
+
+    /**
+     * @param $key
+     * @param $value
+     * @return array
+     */
+    public static function assign($key, $value) {
 		if (!$value && is_array($key)) {
 			self::$asdata = array_merge(self::$asdata, $key);
 		} elseif ($value !== NULL) {

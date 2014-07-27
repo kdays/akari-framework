@@ -52,7 +52,7 @@ Class Context{
 	public static function autoload($cls){
         $clsPath = false;
 		if(isset(self::$aliases[$cls])){
-			$clsPath = Context::$appBasePath. self::$aliases[$cls] .".php";
+			$cls = self::$aliases[$cls];
 		}
 
         // 处理字段 首先取第一个
@@ -70,7 +70,7 @@ Class Context{
 
 		if($clsPath && file_exists($clsPath)){
 			self::$classes[$clsPath] = true;
-            require $clsPath;
+            require_once $clsPath;
 		}else{
 			$dif = array("lib", "model", "exception");
 
@@ -79,7 +79,7 @@ Class Context{
 				if(file_exists( $clsPath )){
 					self::$classes[$clsPath] = true;
 					
-					require($clsPath);
+					require_once $clsPath;
 					return ;
 				}
 			}
@@ -166,6 +166,8 @@ Class akari{
 		Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
 		Header("X-Framework: Akari Framework ". AKARI_BUILD);
+
+        $this->loadAlias();
 		$this->setExceptionHandler();
 
 		return $this;
@@ -220,7 +222,7 @@ Class akari{
 
 		if($clsPath){
 			Context::$appEntryPath = str_replace(Context::$appBasePath, '', $clsPath);
-			TriggerRule::getInstance()->commitPreRule();
+			if (!CLI_MODE)   TriggerRule::getInstance()->commitPreRule();
 
 			// 如有特定某些触发器时 使用这个可以更精确的处理
 			$_doAction = str_replace(Array(Context::$appBasePath, '/app/action/', '.php'), '', 
@@ -230,7 +232,7 @@ Class akari{
             BenchmarkHelper::setTimer("app:start");
 			require($clsPath);
             BenchmarkHelper::setTimer("app:end");
-			TriggerRule::getInstance()->commitAfterRule();
+			if (!CLI_MODE)  TriggerRule::getInstance()->commitAfterRule();
 		}else{
             if (CLI_MODE) {
                 exit("没有找到输入的操作 $uri\n");
@@ -243,6 +245,17 @@ Class akari{
 
 		return $this;
 	}
+
+    public function loadAlias() {
+        // 下面是常用组件的定义
+        $alias = Array(
+            "DataHelper" => "\\Akari\\utility\\DataHelper"
+        );
+
+        foreach ($alias as $key => $value) {
+            Context::register($key, $value);
+        }
+    }
 
 	public function stop($code = 0, $msg = '') {
 		if (!empty($msg)) {

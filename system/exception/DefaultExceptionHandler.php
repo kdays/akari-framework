@@ -62,13 +62,14 @@ Class DefaultExceptionHandler{
 		}
 	}
 
-	/**
-	 * 错误信息处理方法
-	 *
-	 * @param string $file
-	 * @param string $line
-	 * @param array $trace
-	 */
+    /**
+     * 错误信息处理方法
+     *
+     * @param string $file
+     * @param string $line
+     * @param array $trace
+     * @return array
+     */
 	public static function crash($file, $line, $trace) {
 		$msg = '';
 		$count = count($trace);
