@@ -6,7 +6,10 @@ use Akari\system\db\DBAgentFactory;
 !defined("AKARI_PATH") && exit;
 
 Class DatabaseModel extends Model{
-	public $db;
+    /**
+     * @var \Akari\system\db\DBAgent
+     */
+    public $db;
 
 	public function __construct(){
 		$this->db = DBAgentFactory::getDBAgent();

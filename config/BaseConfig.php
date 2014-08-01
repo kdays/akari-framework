@@ -7,7 +7,6 @@ use Akari\Context;
 
 
 Class BaseConfig{
-
 	public $appName = "Akari";
 	public $appBaseURL = "http://localhost/";
 	public $appVersion = "1.0";
@@ -47,7 +46,7 @@ Class BaseConfig{
 	public $templateCache = "/data/tpl_cache";
 
 	public $encryptionKey = 'Akaza Akari, Akkarin';
-	public $encryptCipher = "Akari\system\security\Cipher\AESCipher";
+    public $encryptCipher = 'Akari\system\security\Cipher\AESCipher';
 	public $cipherIv = "";
 
 	public $cookiePrefix = "kd_";
@@ -55,7 +54,7 @@ Class BaseConfig{
 	public $cookiePath = "/";
 	public $cookieDomain = "";
 	public $cookieSecure = false;
-	public $cookieEncrypt= "Akari\system\security\Cipher\AESCipher";
+	public $cookieEncrypt= 'Akari\system\security\Cipher\AESCipher';
 
 	public $triggerRule = Array(
 		"pre" => Array(
@@ -99,6 +98,10 @@ Class BaseConfig{
 		$h = get_called_class();
 		if (!self::$c){
 			self::$c = new $h;
+
+            if (method_exists(self::$c, 'rewriteConfig')) {
+                self::$c->rewriteConfig();
+            }
 		}
 
 		return self::$c;
