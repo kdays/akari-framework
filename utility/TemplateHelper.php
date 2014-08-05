@@ -67,11 +67,11 @@ Class TemplateHelper{
 			return $cachePath;
 		}else{
 			$content = "<?php !defined('AKARI_VERSION') && exit(); ?>";
-            $content .= "<?php
+            $content .= '<?php
                 use Akari\Context; use Akari\utility\DataHelper;
                 use Akari\utility\TemplateHelper;
                 use Akari\utility\TemplateHelperCommand;
-            ?>";
+            ?>';
 			$content .= self::parse(readover($tplPath));
 
 			writeover($cachePath, $content);
@@ -118,9 +118,9 @@ Class TemplateHelper{
 			case "module":
 				if(isset($str[1])){
 					return "<?php TemplateHelperCommand::module('$str[0]', \"$str[1]\"); ?>";
-				}else{
-					return "<?php TemplateHelperCommand::module('$end_str'); ?>";
 				}
+
+				return "<?php TemplateHelperCommand::module('$end_str'); ?>";
 			case "eval":
 				return "<?php eval('$end_str'); ?>";
 			case "var":
