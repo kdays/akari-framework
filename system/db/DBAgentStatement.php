@@ -19,7 +19,7 @@ Class DBAgentStatement{
     const PARAM_NULL = PDO::PARAM_NULL;
     const PARAM_LOB = PDO::PARAM_LOB;
 
-	public function __construct($SQL = '', DBAgent $DBAgent){
+	public function __construct($SQL, DBAgent $DBAgent){
 		$this->sql = $SQL;
 		$this->pdo = $DBAgent->getPDOInstance();
 		$this->parser = new DBParser();

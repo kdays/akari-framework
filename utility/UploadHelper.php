@@ -70,7 +70,7 @@ Class UploadHelper{
 	 * @throws UploadFileCannotAccess
 	 * @return boolean|mixed
 	 */
-	public function moveFile($uploadForm, $saveDir, $namePolicty = NULL, $namePolictyOptions = Array(), $callback, $allowExt = NULL){
+	public function moveFile($uploadForm, $saveDir, $namePolicty = NULL, $namePolictyOptions = Array(),$callback = NULL, $allowExt = NULL){
 		if(empty($allowExt)){
 			$allowExt = Context::$appConfig->allowUploadExt;
 		}

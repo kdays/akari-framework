@@ -29,7 +29,7 @@ Class Pages{
 	 * extra中的内容会类似page那样被替换，举例extra中["a" => 123]。
 	 * 那么url中的(a)就会被替换成123。 此外extra中的内容在输出前，也可以使用addParam添加
 	 */
-	public function init($url, $nowPage = 1, $maxPage, $extra = array()){
+	public function init($url, $nowPage, $maxPage, $extra = array()){
 		$this->nowpage = $nowPage;
 		$this->maxpage = $maxPage;
 		$this->url = $url;
