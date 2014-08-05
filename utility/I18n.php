@@ -51,19 +51,19 @@ Class I18n{
 		}	
 		return FALSE;
 	}
-    
-	/**
-	 * 载入语言包
-	 * 
-	 * @param string $name 包名
-	 * @param string $prefix 前缀
-	 * @throws Exception
-	 * @return boolean
-	 * @todo 设置中有usrLanguage时(使用C设定)，会以usrLanguage优先目标，再是设置的language选项
-	 * 语言包放在app\language目录下，此外按照language\(languageNameDir)\(LanguagePackName).php，
-	 * 然后是language\(LanguagePackName).(LanguageName).php
-	 * 最后没有找到再是language\(Language).php
-	 */
+
+    /**
+     * 载入语言包
+     *
+     * @param string $name 包名
+     * @param string $prefix 前缀
+     * @throws \Exception
+     * @return boolean
+     * @todo 设置中有usrLanguage时(使用C设定)，会以usrLanguage优先目标，再是设置的language选项
+     * 语言包放在app\language目录下，此外按照language\(languageNameDir)\(LanguagePackName).php，
+     * 然后是language\(LanguagePackName).(LanguageName).php
+     * 最后没有找到再是language\(Language).php
+     */
 	public static function load($name, $prefix = ""){
 		if(isset(self::$loaded[$prefix.$name]))	return false;
 		$langPath = self::getpath($name);
@@ -87,7 +87,7 @@ Class I18n{
 	 * @param string $id 语言串
 	 * @param array $L 替换参数
 	 * @param string $prefix 前缀
-	 * @return Ambigous <mixed, string, multitype:>
+	 * @return string
 	 * @todo 可用函数L代替，此外$L实际替换就是%key%=>$L[%key%]类似。
 	 * prefix是在load时设定
 	 */

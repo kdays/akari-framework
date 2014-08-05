@@ -115,7 +115,7 @@ Class Router{
 				if ($suffix === $config->uriSuffix) {
 					$uri = substr($uri, 0, -strlen($config->uriSuffix));
 				} else {
-					throw new Exception('Invaild URI');
+					throw new \Exception('Invaild URI');
 				}
 			}
 		}

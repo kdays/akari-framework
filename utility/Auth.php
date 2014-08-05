@@ -40,7 +40,7 @@ Class Auth{
 	 * 获得用户权限列表
 	 * 
 	 * @param int $userId 用户id
-	 * @return multitype:
+	 * @return array
 	 */
 	public function getUser($userId){
 		return $this->u[$userId];

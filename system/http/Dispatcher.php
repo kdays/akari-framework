@@ -57,12 +57,15 @@ Class Dispatcher{
 		Context::$appConfig->URLRewrite[$re] = $url;
 	}
 
-	/**
-	 * 根据URL数组查找
-	 * 
-	 * @param array|string $list URL数组
-	 * @return string|boolean
-	 **/
+    /**
+     * 根据URL数组查找
+     *
+     * @param array|string $list URL数组
+     * @param string $dir
+     * @param string $ext
+     * @throws DispatcherException
+     * @return string|boolean
+     */
 	public function findPath($list, $dir = "action", $ext = ".php"){
 		if(!is_array($list))	$list = explode("/", $list);
 
@@ -70,7 +73,7 @@ Class Dispatcher{
 		$count = count($list);
 
 		if($count > 10){
-			throw new Exception("invalid URI");
+			throw new DispatcherException("invalid URI");
 		}
 
 		// 如果有子目录的操作会处理发送最近一个
@@ -101,13 +104,14 @@ Class Dispatcher{
 		}
 		return false;
 	}
-	
-	/**
-	 * 由于应用使用了Context::$appBaseURL作为基础连接
-	 * 但某些时候，如ajax之类 必须保证http和https在一个页面才可以触发
-	 *
-	 * @param string 
-	 */
+
+    /**
+     * 由于应用使用了Context::$appBaseURL作为基础连接
+     * 但某些时候，如ajax之类 必须保证http和https在一个页面才可以触发
+     *
+     * @param string $URI URI地址
+     * @return string
+     */
 	public function rewriteBaseURL($URI) {
 		$isSSL = Request::getInstance()->isSSL();
 		$URI = preg_replace('/https|http/i', $isSSL ? 'https' : 'http' , $URI);
@@ -115,14 +119,13 @@ Class Dispatcher{
 		return $URI;
 	}
 
-	/**
-	 * 通常请求下的分配路径
-	 * 
-	 * @param string $URI URI路径
-	 * @throws Exception
-	 * @return string|boolean
-	 */
-	public function invoke($URI = ''){
+    /**
+     * 根据URI分配路径
+     *
+     * @param string $URI
+     * @return bool|string
+     */
+    public function invoke($URI = ''){
 		$list = explode("/", $URI);
 
 		$basePath = Context::$appBasePath."/app/action/";
@@ -146,4 +149,8 @@ Class Dispatcher{
 
 		return $this->findPath($list);
 	}
+}
+
+Class DispatcherException extends \Exception{
+
 }

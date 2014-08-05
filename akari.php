@@ -166,8 +166,6 @@ Class akari{
 		Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
 		Header("X-Framework: Akari Framework ". AKARI_BUILD);
-
-        $this->loadAlias();
 		$this->setExceptionHandler();
 
 		return $this;
@@ -202,7 +200,6 @@ Class akari{
 		}
 		Context::$uri = $uri;
 
-
 		if($outputBuffer)	ob_start();
 
 		$dispatcher = Dispatcher::getInstance();
@@ -235,8 +232,7 @@ Class akari{
 			if (!CLI_MODE)  TriggerRule::getInstance()->commitAfterRule();
 		}else{
             if (CLI_MODE) {
-                exit("没有找到输入的操作 $uri\n");
-                $this->stop(0, 'ERROR: not found action');
+                exit("not found: $uri\n");
             }
 			HttpStatus::setStatus(HttpStatus::NOT_FOUND);
 			include(AKARI_PATH."template/404.htm");
@@ -245,17 +241,6 @@ Class akari{
 
 		return $this;
 	}
-
-    public function loadAlias() {
-        // 下面是常用组件的定义
-        $alias = Array(
-            "DataHelper" => "\\Akari\\utility\\DataHelper"
-        );
-
-        foreach ($alias as $key => $value) {
-            Context::register($key, $value);
-        }
-    }
 
 	public function stop($code = 0, $msg = '') {
 		if (!empty($msg)) {

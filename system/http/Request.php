@@ -74,7 +74,11 @@ Class Request{
 		return $onlineip;
 	}
 
-	public function isSSL() {
+    /**
+     * 链接是否是SSL安全
+     * @return bool
+     */
+    public function isSSL() {
 		$protocol = strtoupper($_SERVER['SERVER_PROTOCOL']);
 		if (isset($_SERVER['HTTPS'])) {
 			return !!(strtoupper($_SERVER['HTTPS']) == 'ON');
@@ -128,12 +132,11 @@ Class Request{
 	public function getPathInfo(){
 		return $this->pathInfo;
 	}
-	
-	/**
-	 * 获得请求时间
-	 * @return Ambigous <unknown, number>
-	 */
-	public function getRequestTime() {
+
+    /**
+     * @return int
+     */
+    public function getRequestTime() {
 		return $this->requestTime;
 	}
 	

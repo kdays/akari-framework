@@ -17,18 +17,19 @@ Class Pages{
 
 		return self::$m;
 	}
-    
-	/**
-	 * 初始化页码组件
-	 * 
-	 * @param string $url URL
-	 * @param number $nowPage 当前页
-	 * @param number $maxPage 最大页
-	 * @param array $extra 额外扩展用参数
-	 * @todo url使用(key)作为占位符，如页码则是用(page)进行替换
-	 * extra中的内容会类似page那样被替换，举例extra中["a" => 123]。
-	 * 那么url中的(a)就会被替换成123。 此外extra中的内容在输出前，也可以使用addParam添加
-	 */
+
+    /**
+     * 初始化页码组件
+     *
+     * @param string $url URL
+     * @param number $nowPage 当前页
+     * @param number $maxPage 最大页
+     * @param array $extra 额外扩展用参数
+     * @return $this
+     * @todo url使用(key)作为占位符，如页码则是用(page)进行替换
+     * extra中的内容会类似page那样被替换，举例extra中["a" => 123]。
+     * 那么url中的(a)就会被替换成123。 此外extra中的内容在输出前，也可以使用addParam添加
+     */
 	public function init($url, $nowPage, $maxPage, $extra = array()){
 		$this->nowpage = $nowPage;
 		$this->maxpage = $maxPage;

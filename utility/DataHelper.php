@@ -1,6 +1,8 @@
 <?php
 namespace Akari\utility;
 
+use Akari\Context;
+
 Class DataHelper{
 	public static $data = array();
 

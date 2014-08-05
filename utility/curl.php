@@ -12,11 +12,11 @@ Class curl{
 	/**
 	 * 构造函数
 	 * 
-	 * @throws Exception
+	 * @throws CURLException
 	 */
 	public function __construct(){
 		if(!function_exists("curl_init")){
-			throw new Exception("no CURL");
+			throw new CURLException("no CURL");
 		}
 	}
 	
@@ -81,7 +81,7 @@ Class curl{
 	 * @param string $url 地址
 	 * @param string $method 请求类型(GET/POST/PUT..)
 	 * @param array $params 参数
-	 * @return multitype:multitype: string Ambigous <boolean, mixed>
+	 * @return string
 	 */
 	public function send($url, $method, $params = array()){
 		$method = strtoupper($method);

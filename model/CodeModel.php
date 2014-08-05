@@ -1,4 +1,8 @@
 <?php
+namespace Akari\model;
+
+!defined("AKARI_PATH") && exit;
+
 Class CodeModel extends Model{
     public function getName($code){
         foreach($this as $key => $value){
