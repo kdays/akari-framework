@@ -38,7 +38,7 @@ Class Logging{
 				$appender = $log['appender']::getInstance($log['params']);
 				$appender->append(
 					'[' . $strLevel . '] ' .
-					self::_dumpObj($msg));
+					self::_dumpObj($msg), $strLevel);
 			}
 		}
 	}

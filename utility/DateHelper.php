@@ -42,10 +42,22 @@ Class DateHelper {
         return NULL;
     }
 
-    public function word($oldTime) {
-        $diff = $this->timestamp - $oldTime;
+    public function toWord($oldTime) {
+        $seconds = $this->timestamp - $oldTime;
 
+        $times = '';
+        $days = floor(($seconds/86400)%30);
+        $hours = floor(($seconds/3600)%24);
+        $minutes = floor(($seconds/60)%60);
+        $seconds = floor($seconds%60);
+        if($seconds >= 1) $times .= $seconds.'秒';
+        if($minutes >= 1) $times = $minutes.'分钟 '.$times;
+        if($hours >= 1) $times = $hours.'小时 '.$times;
+        if($days >= 1)  $times = $days.'天';
+        if($days > 30) return false;
+        $times .= '前';
 
+        return str_replace(" ", '', $times);
     }
 
     public function format($format) {

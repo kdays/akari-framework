@@ -29,14 +29,24 @@ abstract Class BaseCacheAdapter{
      * 获得缓存配置
      *
      * @param string $key 项目
+     * @param string $itemKey
      * @param array $defaultOpt 默认设置
      * @return array
      */
-	public function getOptions($key, $defaultOpt = array()){
+	public function getOptions($key, $itemKey = 'default', $defaultOpt = array()){
 		$conf = Context::$appConfig->cache;
 
 		if(isset($conf[$key])){
-			$data = $conf[$key];
+            if(!is_array(current($conf[$key]))){
+                return $conf[$key];
+            }
+
+            if (!isset($conf[$key][$itemKey])) {
+                $data = current($conf[$key]);
+            } else {
+                $data = $conf[$key][$itemKey];
+            }
+
 			foreach($defaultOpt as $k => $v){
 				if(!isset($data[$k]))	$data[$k] = $v;
 			}
@@ -54,7 +64,7 @@ abstract Class BaseCacheAdapter{
 		if(method_exists($this->handler, $method)){
 		   return call_user_func_array(array($this->handler,$method), $args);
 		}else{
-			throw new Exception("METHOD NOT FOUND");
+			throw new \Exception("METHOD NOT FOUND");
 		}
 	}
 }

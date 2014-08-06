@@ -9,7 +9,7 @@ Class NullLogger{
 		return self::$l;
 	}
 
-	public function append($msg) {
+	public function append($msg, $level) {
 		
 	}
 }

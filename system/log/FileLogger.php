@@ -34,7 +34,7 @@ Class FileLogger{
         }
     }
     
-    public function append($msg) {
+    public function append($msg, $level) {
         if (!$this->f) {
             @$this->f = fopen($this->logFile, 'a');
             //@chmod($this->logFile, 0777);

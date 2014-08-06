@@ -10,8 +10,8 @@ Class FileAdapter extends BaseCacheAdapter{
 	private $indexPath;
 	private $fileIndex = Array();
 
-	public function __construct(){
-		$options = $this->getOptions("file", Array(
+	public function __construct($confId = 'default'){
+		$options = $this->getOptions("file", $confId, Array(
 			"path" => Context::$appBasePath."/data/cache/",
 			"index" => "data.json",
 			"prefix" => ''

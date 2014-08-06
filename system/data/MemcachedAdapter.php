@@ -2,17 +2,19 @@
 namespace Akari\system\data;
 
 use Akari\utility\BenchmarkHelper;
+use \Exception;
+use \Memcached;
 
 !defined("AKARI_VERSION") && exit;
 
 Class MemcachedAdapter extends BaseCacheAdapter{
-	public function __construct(){
+	public function __construct($confId = 'deafult'){
 		if(!class_exists("memcached")){
 			throw new Exception("[Akari.Data.MemcachedAdapter] server not found memcached");
 		}
 
-		$this->handler = new \Memcached();
-		$options = $this->getOptions("memcached", [
+		$this->handler = new Memcached();
+		$options = $this->getOptions("memcached", $confId, [
 			"host" => "127.0.0.1",
 			"port" => 11211
 		]);

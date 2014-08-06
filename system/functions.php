@@ -137,10 +137,11 @@ function checkDir($requestPath, $basePath = false){
  * 获得缓存实例
  *
  * @param string $type 缓存类型
+ * @param string $confId
  * @throws Exception
  * @return Akari\system\data\BaseCacheAdapter
  */
-function getCacheInstance($type = "File"){
+function getCacheInstance($type = "File", $confId = 'default'){
 	static $CacheInstance = Array();
 	$type = $type ? $type : Context::$appConfig->defaultCacheType;
 	$type = ucfirst($type);
@@ -150,24 +151,25 @@ function getCacheInstance($type = "File"){
 		throw new \Exception("[Akari.Cache] Get CacheInstance Error, Not Found [$type]");
 	}
 
-	if(!isset($CacheInstance[$type])){
-		$CacheInstance[$type] = new $cls();
+	if(!isset($CacheInstance[$type."_".$confId])){
+		$CacheInstance[$type."_".$confId] = new $cls($confId);
 	}
 
-	return $CacheInstance[$type];
+	return $CacheInstance[$type."_".$confId];
 }
 
 /**
  * 缓存数据
- * 
+ *
  * @param string $key 缓存键名
  * @param string $value 缓存数据
  * @param int $expired 过期时间
- * @param array $opts 可选
+ * @param string $drvConfId 缓存配置设置子健
+ * @param bool|string $drvName 缓存驱动名
  * @todo 如果value为NULL且expired为FALSE则为删除，只有value为NULL为取值
  */
-function cache($key, $value = NULL, $expired = -1, $opts = array()){
-	$cls = getCacheInstance(array_key_exists("type", $opts) ? $opts["type"] : false);
+function cache($key, $value = NULL, $expired = -1, $drvConfId = 'default', $drvName = false){
+	$cls = getCacheInstance($drvName ? $drvName : false, $drvConfId);
 
 	if($value === NULL && $expired === FALSE){
 		return $cls->remove($key);

@@ -1,15 +1,19 @@
 <?php
 namespace Akari\system\data;
 
+use Akari\utility\BenchmarkHelper;
+use \Exception;
+use \Memcache;
+
 !defined("AKARI_PATH") && exit;
 
 Class MemcacheAdapter extends BaseCacheAdapter{
-	public function __construct(){
+	public function __construct($confId = 'default'){
 		if(!class_exists("memcache")){
 			throw new Exception("[Akari.Data.MemcacheAdapter] server not found memcache");
 		}
 
-		$options = $this->getOptions("memcache", Array(
+		$options = $this->getOptions("memcache", $confId, Array(
 			"host"		=> "127.0.0.1",
 			"port"		=> 11211,
 			"timeout"	=> 30,
