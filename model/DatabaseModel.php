@@ -15,6 +15,10 @@ Class DatabaseModel extends Model{
 		$this->db = DBAgentFactory::getDBAgent();
 	}
 
+    public function _getDBAgent($name = 'default') {
+        return DBAgentFactory::getDBAgent($name);
+    }
+
     public static $m = [];
     public static function _instance() {
         $class = get_called_class();

@@ -13,9 +13,15 @@ Class BaseConfig{
 
 	public $database = Array();
 	public $cache = Array(
-		"file" => Array(),
-		"memcache" => Array(),
-		'memcached' => Array()
+		"file" => Array(
+            'default' => Array()
+        ),
+		"memcache" => Array(
+            'default' => Array()
+        ),
+		'memcached' => Array(
+            'default' => Array()
+        )
 	);
 	public $defaultCacheType = "file";
 	public $logs = Array(

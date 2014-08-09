@@ -13,10 +13,20 @@ Class RequestModel extends Model{
 		return $this->reloadValue();
 	}
 
+    public static $m = [];
+    public static function getRequest() {
+        $class = get_called_class();
+        if (!isset(self::$m[$class])) {
+            self::$m[ $class ] = new $class;
+        }
+
+        return self::$m[ $class ];
+    }
+
 	/**
 	 * 获得值，在初始化时调用
 	 *
-	 * @return void
+	 * @return RequestModel
 	 **/
 	public function reloadValue(){
 		$map = $this->_mapList();

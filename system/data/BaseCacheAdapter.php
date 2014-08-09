@@ -29,7 +29,7 @@ abstract Class BaseCacheAdapter{
      * 获得缓存配置
      *
      * @param string $key 项目
-     * @param string $itemKey
+     * @param string $itemKey 项目配置的id
      * @param array $defaultOpt 默认设置
      * @return array
      */
@@ -37,18 +37,19 @@ abstract Class BaseCacheAdapter{
 		$conf = Context::$appConfig->cache;
 
 		if(isset($conf[$key])){
-            if(!is_array(current($conf[$key]))){
-                return $conf[$key];
+            $data = [];
+            if (!is_array(current($conf[$key]))) {
+                $data = $conf[$key];
             }
 
-            if (!isset($conf[$key][$itemKey])) {
-                $data = current($conf[$key]);
-            } else {
+            if (isset($conf[$key][$itemKey])) {
                 $data = $conf[$key][$itemKey];
             }
 
 			foreach($defaultOpt as $k => $v){
-				if(!isset($data[$k]))	$data[$k] = $v;
+				if(!isset($data[$k])) {
+                    $data[$k] = $v;
+                }
 			}
 
 			return $data;
@@ -64,7 +65,7 @@ abstract Class BaseCacheAdapter{
 		if(method_exists($this->handler, $method)){
 		   return call_user_func_array(array($this->handler,$method), $args);
 		}else{
-			throw new \Exception("METHOD NOT FOUND");
+			throw new \Exception("[Akari.data.BaseCacheAdapter] not found method");
 		}
 	}
 }

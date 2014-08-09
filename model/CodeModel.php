@@ -11,6 +11,16 @@ Class CodeModel extends Model{
         
         return FALSE;
     }
+
+    public static $m = [];
+    public static function getInstance() {
+        $class = get_called_class();
+        if (!isset(self::$m[$class])) {
+            self::$m[ $class ] = new $class;
+        }
+
+        return self::$m[ $class ];
+    }
     
     public function getCode($name, $defaultValue = FALSE){
         if($this->$name)    return $this->$name;

@@ -170,7 +170,6 @@ function getCacheInstance($type = "File", $confId = 'default'){
  */
 function cache($key, $value = NULL, $expired = -1, $drvConfId = 'default', $drvName = false){
 	$cls = getCacheInstance($drvName ? $drvName : false, $drvConfId);
-
 	if($value === NULL && $expired === FALSE){
 		return $cls->remove($key);
 	}
