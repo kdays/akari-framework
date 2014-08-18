@@ -2,6 +2,7 @@
 namespace Akari\system\data;
 
 use Akari\Context;
+use Akari\utility\BenchmarkHelper;
 
 !defined("AKARI_PATH") && exit;
 
@@ -26,6 +27,13 @@ abstract Class BaseCacheAdapter{
     abstract public function set($key, $value);
 
     /**
+     * @param string $flag BenchmarkHelper::FLAG_*
+     */
+    public function benchmark($flag) {
+        BenchmarkHelper::setCacheHit($flag);
+    }
+
+    /**
      * 获得缓存配置
      *
      * @param string $key 项目
@@ -42,7 +50,7 @@ abstract Class BaseCacheAdapter{
                 $data = $conf[$key];
             }
 
-            if (isset($conf[$key][$itemKey])) {
+            if (is_array($conf[$key][$itemKey])) {
                 $data = $conf[$key][$itemKey];
             }
 
@@ -58,10 +66,15 @@ abstract Class BaseCacheAdapter{
 		return $defaultOpt;
 	}
 
-	/**
-	 * __CALL魔术方法，在没有类的方法时 尝试调用handler下的方法
-	 */
-	public function __call($method, $args){
+    /**
+     * __CALL魔术方法，在类没有对应方法时，尝试调研那个handler下的方法
+     *
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     * @throws \Exception
+     */
+    public function __call($method, $args){
 		if(method_exists($this->handler, $method)){
 		   return call_user_func_array(array($this->handler,$method), $args);
 		}else{

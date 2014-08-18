@@ -8,10 +8,11 @@
 namespace Akari;
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
-define("AKARI_VERSION", "2.6 (Adagio)");
-define("AKARI_BUILD", "2014.08.06");
+define("AKARI_VERSION", "2.7 (Adagio)");
+define("AKARI_BUILD", "2014.08.18");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
+define("NAMESPACE_SEPARATOR", "\\");
 
 include("define.php");
 include("system/functions.php");
@@ -75,7 +76,9 @@ Class Context{
 			$dif = array("lib", "model", "exception");
 
 			foreach($dif as $dir){
-				$clsPath = Context::$appBasePath."/app/$dir/$cls.php";
+				$clsPath = Context::$appBasePath.DIRECTORY_SEPARATOR."app".
+                    DIRECTORY_SEPARATOR.$dir.DIRECTORY_SEPARATOR.$cls.".php";
+
 				if(file_exists( $clsPath )){
 					self::$classes[$clsPath] = true;
 					
@@ -148,21 +151,21 @@ Class akari{
 		}
 		
 		Context::$appBasePath = $appBasePath;
-		if(!file_exists($confPath = $appBasePath."/app/config/$confCls.php")){
-			trigger_error("Not Found Mode Config [ $confCls ]", E_USER_ERROR);
+		if(!file_exists($appBasePath."/app/config/$confCls.php")){
+			trigger_error("not found config file [ $confCls ]", E_USER_ERROR);
 		}
 
         Context::$appBaseNS = $appNS;
         Context::$nsPaths[ $appNS ] = $appBasePath."/app/";
 
-		require $confPath;
+        $confCls = $appNS.NAMESPACE_SEPARATOR."config".
+            NAMESPACE_SEPARATOR.ucfirst($confCls);
 
-        $confCls = $appNS."\\config\\".ucfirst($confCls);
 		if(!class_exists($confCls)){
-			trigger_error("Config Class Name [ $confCls ] Err", E_USER_ERROR);
+			trigger_error("not found config class [ $confCls ]", E_USER_ERROR);
 		}
 
-		Context::$appConfig = $confCls::getInstance();
+        Context::$appConfig = $confCls::getInstance();
 		Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
 		Header("X-Framework: Akari Framework ". AKARI_BUILD);
@@ -208,12 +211,8 @@ Class akari{
 		Context::$appConfig->appBaseURL = $dispatcher->rewriteBaseURL(
 			$config->appBaseURL
 		);
-		
-		if(CLI_MODE){
-			$clsPath = $dispatcher->invokeTask($uri);
-		}else{
-			$clsPath = $dispatcher->invoke($uri);
-		}
+
+        $clsPath = CLI_MODE ? $dispatcher->invokeTask($uri) : $dispatcher->invoke($uri);
 		Context::$uri = $uri;
         BenchmarkHelper::setTimer("init:end");
 
@@ -232,7 +231,7 @@ Class akari{
 			if (!CLI_MODE)  TriggerRule::getInstance()->commitAfterRule();
 		}else{
             if (CLI_MODE) {
-                exit("not found: $uri\n");
+                exit("no action: $uri\n");
             }
 			HttpStatus::setStatus(HttpStatus::NOT_FOUND);
 			include(AKARI_PATH."template/404.htm");

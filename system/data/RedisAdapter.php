@@ -1,12 +1,17 @@
 <?php
 namespace Akari\system\data;
 
+use Akari\utility\BenchmarkHelper;
 use \Redis;
 
 !defined("AKARI_VERSION") && exit;
 
 Class RedisAdapter extends BaseCacheAdapter {
-    public function __construct($redisName){
+    /**
+     * @param string $redisName Redis配置名
+     * @throws \Exception
+     */
+    public function __construct($redisName = 'default'){
         if (!class_exists("redis")) {
             throw new \Exception("[Akari.data.RedisAdapter] server not found redis");
         }
@@ -28,12 +33,21 @@ Class RedisAdapter extends BaseCacheAdapter {
         return $this->handler->set($key, $value);
     }
 
-    public function get($key) {
-        return $this->handler->get($key);
+    public function get($key, $defaultValue = NULL) {
+        $result = $this->handler->get($this->options['prefix'].$key);
+        if (!$result) {
+            $this->benchmark(BenchmarkHelper::FLAG_MISS);
+            return $defaultValue;
+        }
+
+        $this->benchmark(BenchmarkHelper::FLAG_HIT);
+        return $result;
     }
 
     /**
-     * @param $key
+     * 删除缓存
+     *
+     * @param string $key
      */
     public function remove($key) {
         $this->handler->delete($key);

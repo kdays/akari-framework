@@ -85,11 +85,25 @@ Class TemplateHelper{
 		
 		$template = preg_replace('/<!--#(.*?)-->/ieu', "self::command_parse('\\1')", $template);
 		$template = preg_replace('/\{\%(.*?)\}/ieu', "self::command_lang('\\1')", $template);
-		
-		$template = preg_replace("/\{$const_regexp\}/s", "<?=\\1?>", $template);
-		$template = preg_replace("/$var_regexp/es", "self::addquote('<?=\\1?>')", $template);
-		$template = preg_replace("/\<\?\=\<\?\=$var_regexp\?\>\?\>/es", "self::addquote('<?=\\1?>')", $template);
-		
+
+        /*$$template = preg_replace("/\{$const_regexp\}/s", "<?=\\1?>", $template);
+        $template = preg_replace("/$var_regexp/es", "self::addquote('<?=\\1?>')", $template);
+        template = preg_replace("/\<\?\=\<\?\=$var_regexp\?\>\?\>/es", "self::addquote('<?=\\1?>')", $template);
+        */
+
+        $template = preg_replace_callback('/\{'.$const_regexp.'\}/s', function($matches) {
+            return '<?='.$matches[1].'?>';
+        }, $template);
+
+        $template = preg_replace_callback("/$var_regexp/s", function($matches) {
+            return TemplateHelper::addquote('<?='.$matches[1].'?>');
+        }, $template);
+
+
+        $template = preg_replace_callback('/\<\?\=\<\?\='.$var_regexp.'\?\>\?\>/s', function($matches) {
+            return TemplateHelper::addquote('<?='.$matches[1].'?>');
+        }, $template);
+
 		$template = str_replace("_#_", "\$", $template);
 		
 		return $template;
@@ -145,7 +159,7 @@ Class TemplateHelper{
 	}
 	
 	public static function addquote($var) {
-		return str_replace("\\\"", "\"", preg_replace("/\[([a-zA-Z0-9_\-\.\x7f-\xff]+)\]/s", "['\\1']", $var));
+		return str_replace("\\\"", "\"", preg_replace('/\[([a-zA-Z0-9_\-\.\x7f-\xff]+)\]/s', "['\\1']", $var));
 	}
 	
 	public static function command_lang($str){

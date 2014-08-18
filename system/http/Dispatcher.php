@@ -38,8 +38,11 @@ Class Dispatcher{
 		$list = explode("/", $URI);
 		$taskName = array_shift($list);
 
-		$path = Context::$appBasePath."/app/task/$taskName.php";
-		if(!file_exists($path)){
+		$path = [
+            Context::$appBasePath, "app", "task",
+            $taskName.".php"
+        ];
+		if(!file_exists(implode(DIRECTORY_SEPARATOR, $path))){
 			Logging::_logErr("Task [ $taskName ] Not Found");
 			return false;
 		}
@@ -69,7 +72,8 @@ Class Dispatcher{
 	public function findPath($list, $dir = "action", $ext = ".php"){
 		if(!is_array($list))	$list = explode("/", $list);
 
-		$basePath = Context::$appBasePath."/app/$dir/";
+		$basePath = Context::$appBasePath.DIRECTORY_SEPARATOR."app".
+            DIRECTORY_SEPARATOR.$dir.DIRECTORY_SEPARATOR;
 		$count = count($list);
 
 		if($count > 10){
@@ -127,24 +131,25 @@ Class Dispatcher{
      */
     public function invoke($URI = ''){
 		$list = explode("/", $URI);
-
-		$basePath = Context::$appBasePath."/app/action/";
 		$URLRewrite = Context::$appConfig->URLRewrite;
 
 		foreach($URLRewrite as $key => $value){
-			if(preg_match($key, $URI)){
-				if(is_callable($value)){
-					$value = $value($URI);
-					if($value){
-						$list = $value;
-						break;
-					}
-				}else{
-					if(stripos($value, 'app/') === false){
-						$value = "/app/action/$value";
-					}
-				}
-			}
+            if (preg_match($key, $URI)) {
+                if ( is_callable($value) ) {
+                    $value = $value($URI);
+                    if ($value) {
+                        $list = $value; break;
+                    }
+                } else {
+                    $result = preg_split($key, $URI, -1, PREG_SPLIT_DELIM_CAPTURE);
+                    foreach ($result as $k => $v) {
+                        $value = str_replace("@".$k, $v, $value);
+                    }
+
+                    $list = $value;
+                    break;
+                }
+            }
 		}
 
 		return $this->findPath($list);

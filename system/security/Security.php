@@ -48,7 +48,7 @@ Class Security{
 		if(!$key && defined("CSRF_KEY"))	$key = CSRF_KEY;
 
 		if($token != self::getCSRFToken($key)){
-			throw new Exception("[akari.Security] Forbidden. CSRF VerifyErr");
+			throw new Exception("[akari.Security] Forbidden. CSRF Verify Error");
 		}
 	}
 	

@@ -64,7 +64,7 @@ Class Cookie{
      * @param string $name 键名
      * @param bool|string $encryptType 加密方式 不设定时按照设置检查
      * @param bool|string $autoPrefix 是否自动添加prefix，false时程序不会添加prefix取值
-     * @return NULL|multitype:multitype: |unknown
+     * @return NULL|string|Array
      * @todo 加密和数组在取值时会自动处理，不必额外设定
      */
 	public function get($name, $encryptType = FALSE, $autoPrefix = true){

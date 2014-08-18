@@ -34,17 +34,17 @@ Class MemcacheAdapter extends BaseCacheAdapter{
 	public function get($name, $defaultValue = NULL) {
 		$result = $this->handler->get($this->options['prefix'].$name);
         if (!$result) {
-            BenchmarkHelper::setCacheHit('miss');
+            $this->benchmark(BenchmarkHelper::FLAG_MISS);
             return $defaultValue;
         }
 
-        BenchmarkHelper::setCacheHit('hit');
+        $this->benchmark(BenchmarkHelper::FLAG_HIT);
         return $result;
 	}
 
 	/**
 	 * 写入缓存
-	 * @access public
+     *
 	 * @param string $name 缓存变量名
 	 * @param mixed $value  存储数据
 	 * @param integer $expire  有效时间（秒）

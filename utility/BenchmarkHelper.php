@@ -2,6 +2,10 @@
 namespace Akari\utility;
 
 Class BenchmarkHelper {
+
+    const FLAG_MISS = "miss";
+    const FLAG_HIT = "hit";
+
     /**
      * @return array
      */

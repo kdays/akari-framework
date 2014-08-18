@@ -1,6 +1,8 @@
 <?php
 namespace Akari\model;
 
+use Akari\system\log\Logging;
+
 !defined("AKARI_PATH") && exit;
 
 Class Model{

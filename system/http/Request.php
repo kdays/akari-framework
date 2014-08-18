@@ -103,17 +103,19 @@ Class Request{
 	public function hasParameter($name) {
 		return array_key_exists($name, $this->parameters);
 	}
-	
-	/**
-	 * 获得参数
-	 * @param string $name 参数
-	 * @return NULL|string
-	 */
-	public function getParameter($name) {
+
+    /**
+     * 获得参数
+     *
+     * @param string $name 参数
+     * @param null $defaultValue
+     * @return NULL|string
+     */
+	public function getParameter($name, $defaultValue = NULL) {
 		if (array_key_exists($name, $this->parameters)) {
 			return $this->parameters[$name];
 		}else{
-			return null;
+			return $defaultValue;
 		}
 	}
 	

@@ -71,8 +71,6 @@ Class ExceptionProcessor{
 			register_shutdown_function(Array(self::$p, 'processFatal'));
 		}
 
-		//require_once(Context::$appBasePath.DIRECTORY_SEPARATOR.$clsPath.".php");
-		//$cls = basename($clsPath);
 		$this->handler = new $clsPath();
 	}
 }

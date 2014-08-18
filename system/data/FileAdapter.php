@@ -82,18 +82,18 @@ Class FileAdapter extends BaseCacheAdapter{
 		$pKey = $this->options['prefix'].$key;
 		
 		if(isset($this->fileIndex[$pKey])){
-            BenchmarkHelper::setCacheHit('hit');
+            $this->benchmark(BenchmarkHelper::FLAG_HIT);
 			$now = $this->fileIndex[$pKey];
 			$fpath = $this->options['path'].$now['f'];
 
 			if(!file_exists($fpath)){
 				$this->remove($key);
-				return NULL;
+				return $defaultValue;
 			}
 
 			return unserialize(file_get_contents($fpath));
 		}
-        BenchmarkHelper::setCacheHit('miss');
+        $this->benchmark(BenchmarkHelper::FLAG_MISS);
 		
 		return $defaultValue;
 	}

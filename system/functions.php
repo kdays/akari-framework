@@ -10,7 +10,7 @@ use Akari\utility\TemplateHelper;
  * 
  * @param string $filename 文件路径
  * @param string $method 读取方式
- * @return string|unknown
+ * @return string
  */
 function readover($filename, $method = 'rb'){
 	if(function_exists("file_get_contents")){
@@ -33,7 +33,7 @@ function readover($filename, $method = 'rb'){
  * @param string $fileName 文件路径
  * @param string $data 数据
  * @param string $method 写入方式
- * @param bool|string $ifChmod 是否权限进行777设定
+ * @param bool $ifChmod 是否权限进行777设定
  */
 function writeover($fileName, $data, $method = 'rb+', $ifChmod = true){
 	$baseDir = dirname($fileName);
@@ -146,9 +146,9 @@ function getCacheInstance($type = "File", $confId = 'default'){
 	$type = $type ? $type : Context::$appConfig->defaultCacheType;
 	$type = ucfirst($type);
 
-	$cls = "Akari\\system\\data\\".$type."Adapter";
+	$cls = 'Akari\system\data'.NAMESPACE_SEPARATOR.$type."Adapter";
 	if(!class_exists($cls)){
-		throw new \Exception("[Akari.Cache] Get CacheInstance Error, Not Found [$type]");
+		throw new \Exception("[Akari.Cache] getCacheInstance Error, not found driver [$type]");
 	}
 
 	if(!isset($CacheInstance[$type."_".$confId])){
@@ -393,6 +393,13 @@ function url($action){
 	return $url;
 }
 
+/**
+ * 格式化文件大小
+ *
+ * @param int $size 文件字节数
+ * @param int $dec 单位
+ * @return string
+ */
 function formatSize($size, $dec = 2){
     $a = array("B", "KB", "MB", "GB", "TB", "PB");
     $pos = 0;
