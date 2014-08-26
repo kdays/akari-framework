@@ -9,7 +9,11 @@ use \PDOException;
 
 Class DBAgent{
 	public $lastInsertId = false;
-	protected $pdo;
+
+    /**
+     * @var \PDO
+     */
+    protected $pdo;
 	protected $options;
 	protected $parser;
 
@@ -28,10 +32,22 @@ Class DBAgent{
 		$this->parser = DBParser::getInstance($this->getPDOInstance());
 	}
 
+    /**
+     * 是否开启性能检查
+     *
+     * @param bool $setTo 开关
+     */
     public function setBenchmark($setTo = FALSE) {
         $this->doBenchmark = $setTo;
     }
 
+    /**
+     * 性能记录，见setBenchmark
+     *
+     * @param string $SQL SQL语句
+     * @param string $action 操作
+     * @param array $params 参数
+     */
     public function logBenchmark($SQL, $action = 'start', $params = []) {
         if ($this->doBenchmark) {
             $trace = debug_backtrace();
@@ -69,7 +85,23 @@ Class DBAgent{
 		return $this->pdo;
 	}
 
-	/**
+    /**
+     * PDO的mysql_ping，防止mysql gone way
+     *
+     * @return \PDO
+     */
+    public function ping() {
+        $status = $this->pdo->getAttribute(PDO::ATTR_SERVER_INFO);
+
+        if ($status == 'MySQL server has gone away') {
+            Logging::_logDebug("gone away");
+            $this->pdo = NULL;
+        }
+
+        return $this->getPDOInstance();
+    }
+
+    /**
 	 * 查询
 	 * 
 	 * @param DBAgentStatement|String $SQL sql查询语句
@@ -81,7 +113,6 @@ Class DBAgent{
 	public function query($SQL, $params = NULL){
 		logcount("db.query", 1);
 
-		$pdo = $this->getPDOInstance();
 		if(is_object($SQL) && $SQL instanceof DBAgentStatement){
 			$st = $SQL;
 		}else{
@@ -145,8 +176,8 @@ Class DBAgent{
 
 		return $rs;
 	}
-    
-	/**
+
+    /**
 	 * 执行SQL操作
 	 * 
 	 * @param mixed $SQL 查询对象或语句
@@ -468,6 +499,41 @@ Class DBAgent{
 
 		return $this;
 	}
+
+    /**
+     * Begin PDO transaction
+     *
+     * @return bool
+     */
+    public function beginTransaction() {
+        $pdo = $this->getPDOInstance();
+        $pdo->query('set autocommit = 0');
+        return $pdo->beginTransaction();
+    }
+
+    /**
+     * Commit PDO transaction
+     *
+     * @return bool
+     */
+    public function commit() {
+        $pdo = $this->getPDOInstance();
+        $result = $pdo->commit();
+        $pdo->query('set autocommit = 1');
+        return $result;
+    }
+
+    /**
+     * Roolback
+     *
+     * @return bool
+     */
+    public function rollback() {
+        $pdo = $this->getPDOInstance();
+        $result = $pdo->rollBack();
+        $pdo->query('set autocommit = 1');
+        return $result;
+    }
 }
 
 Class DBAgentException extends \Exception{

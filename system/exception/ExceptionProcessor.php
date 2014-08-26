@@ -43,7 +43,7 @@ Class ExceptionProcessor{
 	}
 
 	public function processFatal(){
-		$e = error_get_last(); 
+		$e = error_get_last();
 		if($e){
 			$fatalArr = Array(E_ERROR, E_PARSE, E_CORE_ERROR, E_USER_ERROR);
 			if(in_array($e['type'], $fatalArr)){

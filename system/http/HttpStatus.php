@@ -81,7 +81,7 @@ Class HttpStatus{
      * @return boolean
      */
 	public static function setDownload($filePath, $newName = FALSE){
-		Header("Content-Type: application/octet-stream");
+        self::setContentType(self::CONTENT_BINARY);
 		Header("Accept-Ranges: bytes");
 
 		if (is_file($filePath)) {
@@ -102,9 +102,26 @@ Class HttpStatus{
 
         return TRUE;
 	}
-	
+
 	public static function jumpTo($url) {
 		self::setStatus(self::FOUND);
 		Header("Location: $url");
 	}
+
+    const CONTENT_HTML = 'text/html';
+    const CONTENT_TEXT = 'text/plain';
+    const CONTENT_PNG = 'image/png';
+    const CONTENT_GIF = 'image/gif';
+    const CONTENT_JPEG = 'image/jpeg';
+    const CONTENT_JSON = 'application/json';
+    const CONTENT_XML = 'application/xml';
+    const CONTENT_INI = 'text/ini';
+    const CONTENT_BINARY = 'application/octet-stream';
+
+    /**
+     * @param string $contentType 见CONTENT_*
+     */
+    public static function setContentType($contentType = self::CONTENT_HTML) {
+        Header("Content-Type: ". $contentType);
+    }
 }

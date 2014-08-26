@@ -38,11 +38,11 @@ Class Dispatcher{
 		$list = explode("/", $URI);
 		$taskName = array_shift($list);
 
-		$path = [
+		$path = implode(DIRECTORY_SEPARATOR, [
             Context::$appBasePath, "app", "task",
             $taskName.".php"
-        ];
-		if(!file_exists(implode(DIRECTORY_SEPARATOR, $path))){
+        ]);
+		if(!file_exists($path)){
 			Logging::_logErr("Task [ $taskName ] Not Found");
 			return false;
 		}
