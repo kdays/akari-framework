@@ -73,6 +73,7 @@ Class TemplateHelper{
                 use Akari\utility\TemplateHelperCommand;
             ?>';
 			$content .= self::parse(readover($tplPath));
+            $content .= "<?php if(defined('DEBUG_MODE')): ?><!--#Akari TemplateHelper: $tplName #$tplId (".microtime().")--><?php endif ?>";
 
 			writeover($cachePath, $content);
 			return $cachePath;

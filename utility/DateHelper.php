@@ -60,7 +60,7 @@ Class DateHelper {
         return str_replace(" ", '', $times);
     }
 
-    public function format($format) {
-        return date($format, $this->timestamp);
+    public function format($format, $time = NULL) {
+        return date($format, $time == NULL ? $this->timestamp : $time);
     }
 }

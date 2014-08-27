@@ -9,7 +9,7 @@ namespace Akari;
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
 define("AKARI_VERSION", "2.7 (Adagio)");
-define("AKARI_BUILD", "2014.08.26");
+define("AKARI_BUILD", "2014.08.27");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 define("NAMESPACE_SEPARATOR", "\\");
@@ -234,7 +234,7 @@ Class akari{
                 HttpStatus::setStatus(HttpStatus::NOT_FOUND);
                 include(AKARI_PATH."template/404.htm");
             }
-            
+
 			$this->stop();
 		}
 

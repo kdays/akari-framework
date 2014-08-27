@@ -2,6 +2,7 @@
 !defined("AKARI_PATH") && exit;
 
 use Akari\Context;
+use Akari\system\log\Logging;
 use Akari\utility\I18n;
 use Akari\utility\TemplateHelper;
 
@@ -119,7 +120,13 @@ function movefile($dstfile, $srcfile){
 	return false;
 }
 
-
+/**
+ * 检查目录是否越界，2个目录必须存在
+ *
+ * @param string $requestPath 检查的目录
+ * @param bool $basePath 最低准限目录
+ * @return bool
+ */
 function checkDir($requestPath, $basePath = false){
 	if(!$basePath){
 		$basePath = realpath(Context::$appBasePath);
@@ -234,7 +241,7 @@ function in_string($string,$findme){
  * @param string $mixed 数据
  * @param bool|string $isint 是否为int
  * @param bool|string $istrim 是否进行trim
- * @return Ambigous <number, mixed>
+ * @return mixed
  */
 function Char_cv($mixed,$isint=false,$istrim=false) {
 	if (is_array($mixed)) {
@@ -375,8 +382,15 @@ function import($path, $once = TRUE){
 	}
 }
 
+/**
+ * 对DateHelper的format一次封装
+ *
+ * @param string $format 格式
+ * @param null|int $timestamp 时间戳，NULL取当前时间
+ * @return bool|string
+ */
 function get_date($format, $timestamp = NULL) {
-	return date($format, $timestamp);
+    return \Akari\utility\DateHelper::getInstance()->format($format, $timestamp);
 }
 
 /**
@@ -416,7 +430,7 @@ function formatSize($size, $dec = 2){
  * <code>
  * <?php
  * $fruit = array(array('apple' => 2, 'banana' => 3), array('apple' => 10, 'banana' => 12));
- * $banana = Typecho_Common::arrayFlatten($fruit, 'banana');
+ * $banana = arrayFlatten($fruit, 'banana');
  * print_r($banana);
  * //outputs: array(0 => 3, 1 => 12);
  * ?>
@@ -457,6 +471,21 @@ function build_url($params){
     . (isset($params['path']) ? $params['path'] : NULL)
     . (isset($params['query']) ? '?' . $params['query'] : NULL)
     . (isset($params['fragment']) ? '#' . $params['fragment'] : NULL);
+}
+
+/**
+ * json_decode 优化版
+ *
+ * @param string $json Json语句
+ * @param bool $assoc false返回Object true为Array
+ * @return mixed
+ */
+function json_decode_nice($json, $assoc = TRUE){
+    $json = str_replace(array("\n", "\r"), "\n", $json);
+    $json = preg_replace('/([{,]+)(\s*)([^"]+?)\s*:/','$1"$3":', $json);
+    $json = preg_replace('/(,)\s*}$/', '}', $json);
+
+    return json_decode($json, $assoc);
 }
 
 /**

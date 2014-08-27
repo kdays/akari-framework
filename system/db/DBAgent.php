@@ -86,7 +86,7 @@ Class DBAgent{
 	}
 
     /**
-     * PDO的mysql_ping，防止mysql gone way
+     * 类似mysql_ping，防止mysql gone way
      *
      * @return \PDO
      */
