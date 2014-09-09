@@ -370,7 +370,15 @@ function assign($key, $value = NULL){
 function import($path, $once = TRUE){
 	static $loadedPath = array();
 
-	$path = Context::$appBasePath.DIRECTORY_SEPARATOR.str_replace(".", DIRECTORY_SEPARATOR, $path).".php";
+	$name = explode(".", $path);
+	$head = array_shift($name);
+	
+	if ($head == "core") {
+		$path = AKARI_PATH. implode(DIRECTORY_SEPARATOR, $name). ".php";
+	} else {
+		$path = Context::$appBasePath. DIRECTORY_SEPARATOR. $head. DIRECTORY_SEPARATOR. implode(DIRECTORY_SEPARATOR, $name). ".php";
+	}
+
 	if(!file_exists($path)){
 		Logging::_logErr("Import not found: $path");
 		throw new Exception("$path not load");

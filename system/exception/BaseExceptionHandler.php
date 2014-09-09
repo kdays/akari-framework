@@ -44,7 +44,20 @@ abstract Class BaseExceptionHandler {
         if(CLI_MODE){
             fwrite(STDOUT, date('[Y-m-d H:i:s] '). $message ."($file:$line)". PHP_EOL);
         }else{
-            require(AKARI_PATH."template/error_trace.htm");exit;
+            // 处理是否在特殊模式下 如果没有debug则禁止默认的trace
+            if (defined("DEBUG_MODE")) {
+                require(AKARI_PATH."template/error_trace.htm");
+            } else {
+                if (file_exists(AKARI_PATH. "template/500.htm")) {
+                    require(AKARI_PATH."template/500.htm");
+                } else {
+                    Header("HTTP/1.1 500 Internal Server Error");
+                    echo "server error";
+                }
+            }
+
+
+            exit;
         }
     }
 

@@ -9,7 +9,7 @@ namespace Akari;
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
 define("AKARI_VERSION", "2.7 (Adagio)");
-define("AKARI_BUILD", "2014.08.27");
+define("AKARI_BUILD", "2014.9.9");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 define("NAMESPACE_SEPARATOR", "\\");
@@ -91,7 +91,7 @@ Class Context{
 		}
 		
 		if(!$clsPath){
-            throw new \Exception("Not Found CLASS [ $cls ]", E_USER_ERROR);
+            throw new \Exception("Not Found Class [ $cls ]", E_USER_ERROR);
         }
 	}
 
@@ -141,6 +141,8 @@ Class akari{
      * @return akari
      */
 	public function initApp($appBasePath, $appNS){
+		$this->loadExternal();
+
         BenchmarkHelper::setTimer("init:start");
 		$confCls = "Config";
 		
@@ -156,6 +158,8 @@ Class akari{
 		}
 
         Context::$appBaseNS = $appNS;
+
+        Context::$nsPaths['core'] = __DIR__;
         Context::$nsPaths[ $appNS ] = $appBasePath."/app/";
 
         $confCls = $appNS.NAMESPACE_SEPARATOR."config".
@@ -252,5 +256,17 @@ Class akari{
 
 	public function __destruct() {
 		Logging::_log('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs' );
+	}
+
+	/**
+	 * 用来处理一些框架必须的第三方组件载入
+	 *
+	 **/
+	public function loadExternal() {
+		$libList = ["core.external.Spyc"];
+
+		foreach ($libList as $nowLibName) {
+			import($nowLibName);
+		}
 	}
 }

@@ -5,7 +5,6 @@ use Akari\Context;
 
 !defined("AKARI_PATH") && exit;
 
-
 Class BaseConfig{
 	public $appName = "Akari";
 	public $appBaseURL = "http://localhost/";
@@ -93,6 +92,12 @@ Class BaseConfig{
             $optPath = Context::$appBasePath."/app/config/$key.php";
             if (file_exists($optPath)) {
                 $this->$key = require($optPath);
+            }
+
+            // 处理yaml
+            $yamlPath = Context::$appBasePath."/app/config/$key.yaml";
+            if (file_exists($yamlPath)) {
+            	$this->$key = \Spyc::YAMLLoad($yamlPath);
             }
         }
 

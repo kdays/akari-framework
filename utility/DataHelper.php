@@ -7,9 +7,9 @@ Class DataHelper{
 	public static $data = array();
 
     /**
-     * @param bool $key
-     * @param bool $subKey
-     * @param null $defaultValue
+     * @param bool|string $key
+     * @param bool|string $subKey
+     * @param mixed $defaultValue
      * @return array|null|object
      */
     public static function get($key = false, $subKey = false, $defaultValue = NULL){

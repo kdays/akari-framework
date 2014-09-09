@@ -108,6 +108,7 @@ Class HttpStatus{
 		Header("Location: $url");
 	}
 
+
     const CONTENT_HTML = 'text/html';
     const CONTENT_TEXT = 'text/plain';
     const CONTENT_PNG = 'image/png';
