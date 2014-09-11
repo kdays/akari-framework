@@ -1,5 +1,6 @@
 <?php
 namespace Akari\utility;
+use Akari\Context;
 
 /**
  * 用户权限控制工具
@@ -8,6 +9,19 @@ namespace Akari\utility;
 Class Auth{
 	private $data = array();
 	private $u = array();
+
+    public static $a;
+    public static function getInstance() {
+        if (!isset(self::$a)) {
+            self::$a = new self();
+        }
+
+        return self::$a;
+    }
+
+    protected function __construct() {
+        $this->data = C("AuthPermission", NULL, []);
+    }
 
 	/**
 	 * 设置组别权限
@@ -45,14 +59,40 @@ Class Auth{
 	public function getUser($userId){
 		return $this->u[$userId];
 	}
-	
-	/**
-	 * 获得组别下的权限列表
-	 * 
-	 * @param int $groupId 组别id
-	 */
+
+    /**
+     * 获得组别下的权限列表
+     *
+     * @param int $groupId 组别id
+     * @return array
+     */
 	public function getGroup($groupId){
-		return $this->data[$groupId];
+        $list = [];
+
+        if (!isset($this->data[$groupId])) {
+            return [];
+        }
+
+        foreach ($this->data[$groupId] as $value) {
+            if (strpos($value, 'P:') !== FALSE) {
+                $subGroupName = str_replace('P:', '', $value);
+                foreach ($this->getGroup($subGroupName) as $subGroupPermission) {
+                    $list[] = $subGroupPermission;
+                }
+            } elseif (strpos($value, "D:") !== false) {
+                $readyKey = str_replace("D:", '', $value);
+
+                if (in_array($readyKey, $list)) {
+                    $pos = array_search($readyKey, $list);
+                    var_dump($pos);
+                    $list = array_slice($list, $pos - 1, sizeof($list) - 1);
+                }
+            } else {
+                $list[] = $value;
+            }
+        }
+
+        return $list;
 	}
 	
 	/**

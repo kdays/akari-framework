@@ -8,8 +8,8 @@
 namespace Akari;
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
-define("AKARI_VERSION", "2.7 (Adagio)");
-define("AKARI_BUILD", "2014.9.9");
+define("AKARI_VERSION", "2.8 (Adagio)");
+define("AKARI_BUILD", "2014.9.11");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 define("NAMESPACE_SEPARATOR", "\\");

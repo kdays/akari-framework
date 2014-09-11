@@ -89,15 +89,34 @@ Class BaseConfig{
     public function __get($key) {
         // 如果没有key则进行检查
         if (!isset($this->$key)) {
-            $optPath = Context::$appBasePath."/app/config/$key.php";
-            if (file_exists($optPath)) {
-                $this->$key = require($optPath);
-            }
+            $baseConfDir = implode(DIRECTORY_SEPARATOR, Array(
+                Context::$appBasePath, "app", "config"
+            ));
 
-            // 处理yaml
-            $yamlPath = Context::$appBasePath."/app/config/$key.yaml";
-            if (file_exists($yamlPath)) {
-            	$this->$key = \Spyc::YAMLLoad($yamlPath);
+            $baseFileArr = [
+                Context::$mode. DIRECTORY_SEPARATOR. $key,
+                Context::$mode.".".$key,
+                $key
+            ];
+
+            foreach ($baseFileArr as $fileName) {
+                $optPath = $baseConfDir. DIRECTORY_SEPARATOR. $fileName. ".php";
+                if (file_exists($optPath)) {
+                    $this->$key = require($optPath);
+                    break;
+                }
+
+                $yamlPath = $baseConfDir. DIRECTORY_SEPARATOR. $fileName. ".yaml";
+                if (file_exists($yamlPath)) {
+                    $this->$key = \Spyc::YAMLLoad($yamlPath);
+                    break;
+                }
+
+                $ymlPath = $baseConfDir. DIRECTORY_SEPARATOR. $fileName. ".yml";
+                if (file_exists($ymlPath)) {
+                    $this->$key = \Spyc::YAMLLoad($ymlPath);
+                    break;
+                }
             }
         }
 

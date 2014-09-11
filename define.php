@@ -14,6 +14,6 @@ define('AKARI_URI_QUERYSTRING', 2);
 define('AKARI_URI_REQUESTURI', 3);
 
 define("AKARI_NS", "Akari");
-//define("DEBUG_MODE", 1);
+define("DEBUG_MODE", 1);
 
 define("CLI_MODE", php_sapi_name()=="cli" ? TRUE : FALSE);

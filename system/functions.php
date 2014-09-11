@@ -297,6 +297,24 @@ function C($key = FALSE, $value = NULL, $defaultValue = FALSE){
 		return $config->$key;
 	}
 
+    // 检查目录是否存在类似文件 如果有就尝试调用__GET的magic method
+    $confExt = [".php", ".yaml", ".yml"];
+    $baseConfigDir = Context::$appBasePath."/app/config/";
+
+    foreach ($confExt as $ext) {
+        if (file_exists($baseConfigDir. Context::$mode. DIRECTORY_SEPARATOR. $key. $ext)) {
+            return $config->$key;
+        }
+
+        if (file_exists($baseConfigDir. Context::$mode. ".". $key. $ext)) {
+            return $config->$key;
+        }
+
+        if (file_exists($baseConfigDir. $key. $ext)) {
+            return $config->$key;
+        }
+    }
+
 	return $defaultValue;
 }
 
