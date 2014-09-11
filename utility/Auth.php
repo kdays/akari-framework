@@ -83,9 +83,11 @@ Class Auth{
                 $readyKey = str_replace("D:", '', $value);
 
                 if (in_array($readyKey, $list)) {
-                    $pos = array_search($readyKey, $list);
-                    var_dump($pos);
-                    $list = array_slice($list, $pos - 1, sizeof($list) - 1);
+                    $list = array_slice(
+                        $list,
+                        array_search($readyKey, $list) - 1,
+                        sizeof($list) - 1
+                    );
                 }
             } else {
                 $list[] = $value;
