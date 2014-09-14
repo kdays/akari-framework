@@ -137,6 +137,36 @@ if (!file_exists("app/config/Config.php")) {
 	echoTo("config.php ..done");
 }
 
+
+// 默认触发器处理
+$defaultTrigger = [
+	"ApplicationStart" => "本部分在触发器之前执行，而AfterInit则是在所有触发器结束时执行",
+	"ApplicationEnd" => "在Action调用结束时，会调用本触发器
+可以用来处理如繁体化等操作
+
+注意 异常处理时不会执行这个文件，要进行的额外操作请用Event类
+监听coreException.exception和coreException.fatal处理
+
+如果纯粹是错误信息，应该使用language方法来处理，而非这里判断",
+	"AfterInit" => "在调用action前，框架会调用本文件执行
+可以进行一些应用全局的处理操作"
+];
+
+foreach ($defaultTrigger as $value => $descrip) {
+	$path = "app/trigger/$value.php";
+
+	$file = "<?php\n";
+	$file .= "!defined('AKARI_PATH') && exit;\n";
+	$file .= "\n";
+	$descrip = "/**\n".$descrip."\n*/\n";
+
+	if (!file_exists($path)) {
+		file_put_contents($path, $file.$descrip);
+		echoTo("defaultTrigger: $value ..done");
+	}
+}
+
+
 echoTo("\ninit success, please delete this file");
 
 function echoTo($msg) {
