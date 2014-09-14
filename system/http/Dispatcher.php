@@ -42,6 +42,7 @@ Class Dispatcher{
             Context::$appBasePath, "app", "task",
             $taskName.".php"
         ]);
+
 		if(!file_exists($path)){
 			Logging::_logErr("Task [ $taskName ] Not Found");
 			return false;
@@ -72,8 +73,9 @@ Class Dispatcher{
 	public function findPath($list, $dir = "action", $ext = ".php"){
 		if(!is_array($list))	$list = explode("/", $list);
 
-		$basePath = Context::$appBasePath.DIRECTORY_SEPARATOR."app".
-            DIRECTORY_SEPARATOR.$dir.DIRECTORY_SEPARATOR;
+		$basePath = implode(DIRECTORY_SEPARATOR, [
+            Context::$appBasePath, "app", $dir, ""
+        ]);
 		$count = count($list);
 
 		if($count > 10){
@@ -103,8 +105,9 @@ Class Dispatcher{
 			return $path;
 		}
 
-		if($count == 1 && file_exists($path = $basePath."default".$ext)){
-			 return $path;
+        // 考虑了下 还是去掉了count==1限制 default是一个全局最后的管制
+		if(file_exists($path = $basePath."default".$ext)){
+			return $path;
 		}
 		return false;
 	}
@@ -124,21 +127,20 @@ Class Dispatcher{
 	}
 
     /**
-     * 根据URI分配路径
-     *
      * @param string $URI
-     * @return bool|string
+     * @return array|mixed
      */
-    public function invoke($URI = ''){
-		$list = explode("/", $URI);
-		$URLRewrite = Context::$appConfig->URLRewrite;
+    public function getRewriteURL($URI) {
+        $list = explode("/", $URI);
+        $URLRewrite = Context::$appConfig->URLRewrite;
 
-		foreach($URLRewrite as $key => $value){
+        foreach($URLRewrite as $key => $value){
             if (preg_match($key, $URI)) {
                 if ( is_callable($value) ) {
                     $value = $value($URI);
                     if ($value) {
-                        $list = $value; break;
+                        $list = $value;
+                        break;
                     }
                 } else {
                     $result = preg_split($key, $URI, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -150,9 +152,24 @@ Class Dispatcher{
                     break;
                 }
             }
-		}
+        }
 
-		return $this->findPath($list);
+        return $list;
+    }
+
+    /**
+     * 根据URI分配路径
+     *
+     * @param string $uri
+     * @return bool|string
+     */
+    public function invoke($uri = ''){
+        $uri = $this->getRewriteURL($uri);
+        if (Context::$innerURI == null) {
+            Context::$innerURI = $uri;
+        }
+
+		return $this->findPath($uri);
 	}
 }
 

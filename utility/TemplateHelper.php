@@ -9,6 +9,8 @@ use Exception;
 
 Class TemplateHelper{
 	public static $usingLayout = false;//防止子模板载入时，layout再次请求
+    public static $debug = FALSE;
+
 	public static function load($tplName, $useLayout = true, $updateLast = true){
 		if (self::$usingLayout) {
 			$useLayout = false;
@@ -39,9 +41,9 @@ Class TemplateHelper{
 			$layoutSuffix = Context::$appConfig->layoutSuffix ? Context::$appConfig->layoutSuffix : ".htm";
 
 			if(C("customLayout")){
-				$layoutPath = C("customLayout");
+				$layoutPath = $layoutDir.C("customLayout");
 			} else {
-				$layoutPath = Dispatcher::getInstance()->findPath(Context::$uri, "template/layout", $layoutSuffix);
+				$layoutPath = Dispatcher::getInstance()->findPath(Context::$innerURI, "template/layout", $layoutSuffix);
 			}
 
 			if ($layoutPath) {
@@ -73,7 +75,7 @@ Class TemplateHelper{
                 use Akari\utility\TemplateHelperCommand;
             ?>';
 			$content .= self::parse(readover($tplPath));
-            $content .= "<?php if(defined('DEBUG_MODE')): ?><!--#Akari TemplateHelper: $tplName #$tplId (".microtime().")--><?php endif ?>";
+            $content .= "<?php if(TemplateHelper::\$debug): ?><!--#Akari TemplateHelper: $tplName #$tplId (".microtime().")--><?php endif ?>";
 
 			writeover($cachePath, $content);
 			return $cachePath;
@@ -155,6 +157,9 @@ Class TemplateHelper{
 			case "ifend":
 				return "<?php } ?>";
 			default:
+                if (method_exists('\Akari\utility\TemplateHelperCommand', $command)) {
+                    return "<?php TemplateHelperCommand::$command('$end_str') ?>";
+                }
 				return "<!--[Invild Command: $command]-->";
 		}
 	}
@@ -190,4 +195,14 @@ Class TemplateHelper{
 			return self::$asdata;
 		}
 	}
+
+    public static $jsList = [];
+    public static $cssList = [];
+    public static function addJs($path) {
+        self::$jsList[] = $path;
+    }
+
+    public static function addCss($path) {
+        self::$cssList[] = $path;
+    }
 }

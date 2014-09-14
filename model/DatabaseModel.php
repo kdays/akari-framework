@@ -20,6 +20,11 @@ Class DatabaseModel extends Model{
     }
 
     public static $m = [];
+
+    /**
+     * 单例公共调用，不应在action中调用本方法
+     * @return self
+     */
     public static function _instance() {
         $class = get_called_class();
         if (!isset(self::$m[$class])) {

@@ -325,8 +325,25 @@ function C($key = FALSE, $value = NULL, $defaultValue = FALSE){
  * @param string $method 获得类型(G=GET P=POST GP=GET&POST)
  * @param string $defaultValue 默认值
  * @return string|NULL
+ *
+ * @todo key为U.开头时，调用DataHelper，主要是为了方便URL重写的参数处理
  */
 function GP($key, $method = 'GP', $defaultValue = NULL){
+    $header = substr($key, 0, 2);
+    $t = substr($key, 2);
+
+    if ($header == 'U.') {
+        if ($method != 'GP') {
+            return \Akari\utility\DataHelper::set($t, $method);
+        } else {
+            return \Akari\utility\DataHelper::get(substr($key, 2), FALSE, $defaultValue);
+        }
+    } elseif ($header == 'P.') {
+        return GP($t, 'P');
+    } elseif ($header == 'G.') {
+        return GP($t, 'G');
+    }
+
 	if ($method != 'P' && isset($_GET[$key])) {
 		return Char_cv($_GET[$key], false, true);
 	} elseif ($method != 'G' && isset($_POST[$key])) {

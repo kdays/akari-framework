@@ -35,6 +35,8 @@ Class DataHelper{
 		}else{
 			if($isOverwrite)	self::$data[$key] = $data;
 		}
+
+        return TRUE;
 	}
 
 	public static function update($key, $s_key, $value){

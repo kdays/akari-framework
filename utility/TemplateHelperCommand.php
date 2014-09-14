@@ -38,4 +38,15 @@ Class TemplateHelperCommand{
 
         return $clsObj->run($data);
     }
+
+    /**
+     * 增加的关于addJS,addCSS的界面
+     */
+    public static function addJs($path) {
+        TemplateHelper::addJs($path);
+    }
+
+    public static function addCss($path) {
+        TemplateHelper::addCss($path);
+    }
 }

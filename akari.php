@@ -9,7 +9,7 @@ namespace Akari;
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
 define("AKARI_VERSION", "2.8 (Adagio)");
-define("AKARI_BUILD", "2014.9.11");
+define("AKARI_BUILD", "2014.9.14");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 define("NAMESPACE_SEPARATOR", "\\");
@@ -23,6 +23,7 @@ Class Context{
 	public static $classes = Array();
 
 	public static $uri = null;
+    public static $innerURI = null;
     public static $appBaseNS = "";
 	public static $appEntryName = null;
     /**
@@ -169,6 +170,9 @@ Class akari{
 			trigger_error("not found config class [ $confCls ]", E_USER_ERROR);
 		}
 
+        /**
+         * @var $confCls \Akari\config\BaseConfig
+         */
         Context::$appConfig = $confCls::getInstance();
 		Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
@@ -216,8 +220,10 @@ Class akari{
 			$config->appBaseURL
 		);
 
-        $clsPath = CLI_MODE ? $dispatcher->invokeTask($uri) : $dispatcher->invoke($uri);
-		Context::$uri = $uri;
+        $clsPath = CLI_MODE ?
+            $dispatcher->invokeTask($uri) :
+            $dispatcher->invoke($uri);
+
         BenchmarkHelper::setTimer("init:end");
 
 		if($clsPath){

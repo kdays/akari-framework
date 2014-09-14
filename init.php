@@ -53,7 +53,7 @@ echoTo("make project ..\n");
 
 $indexFileData = <<<'INDEX'
 <?php
-namespace $appName;
+namespace __APPNAME__;
 error_reporting(E_ERROR | E_PARSE);
 
 include("core/akari.php");
@@ -73,7 +73,7 @@ if(!CLI_MODE){
 }
 INDEX;
 
-file_put_contents("index.php", str_replace('$appName', $appName, $indexFileData));
+file_put_contents("index.php", str_replace('__APPNAME__', $appName, $indexFileData));
 echoTo("index.php..success");
 
 echoTo("\nmkdir..");
@@ -103,7 +103,7 @@ foreach ($dirList as $value) {
 // 创建Config文件
 $confData = <<<'CONF'
 <?php
-namespace $appName\config;
+namespace __APPNAME__\config;
 
 use Akari\config\BaseConfig;
 use Akari\Context;
@@ -133,7 +133,7 @@ Class Config extends BaseConfig{
 CONF;
 
 if (!file_exists("app/config/Config.php")) {
-	file_put_contents("app/config/Config.php", str_replace('$appName', $appName, $confData));
+	file_put_contents("app/config/Config.php", str_replace('__APPNAME__', $appName, $confData));
 	echoTo("config.php ..done");
 }
 
