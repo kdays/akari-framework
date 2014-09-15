@@ -3,128 +3,136 @@ namespace Akari\system\db;
 
 use \PDO;
 
-Class DBAgentStatement{
-	protected $pdo;
-	protected $parser;
+Class DBAgentStatement {
 
-	public $sql;
-	public $stmt;
-	public $bind = array();
-	public $arg = array();
-	
-	const PARAM_BOOL = PDO::PARAM_BOOL;
+    protected $pdo;
+    protected $SQL;
+
+    /**
+     * @var $stmt \PDOStatement
+     */
+    public $stmt;
+    private $parser;
+
+    private $_bind = Array();
+    private $_args = Array();
+
+    const PARAM_BOOL = PDO::PARAM_BOOL;
     const PARAM_INT = PDO::PARAM_INT;
     const PARAM_STMT = PDO::PARAM_STMT;
     const PARAM_STR = PDO::PARAM_STR;
     const PARAM_NULL = PDO::PARAM_NULL;
     const PARAM_LOB = PDO::PARAM_LOB;
 
-	public function __construct($SQL, DBAgent $DBAgent){
-		$this->sql = $SQL;
-		$this->pdo = $DBAgent->getPDOInstance();
-		$this->parser = new DBParser();
-	}
+    public function __construct($sql, DBAgent $agentObj) {
+        $this->pdo = $agentObj->getPDOInstance();
+        $this->SQL = $sql;
+        $this->parser = DBParser::getInstance($this->pdo);
+    }
 
-	public function close(){
-		$this->stmt->closeCursor();
-		$this->arg = array();
-		$this->bind = array();
-	}
+    public function close() {
+        $this->stmt->closeCursor();
+        $this->_bind = [];
+        $this->_args = [];
+    }
 
-	public function getDoc($action = 'select'){
-		$sql = $this->sql;
+    public function bindValue($key, $value) {
+        $this->_bind[':'. $key] = $value;
+    }
 
-		if(!empty($this->arg['where'])){
-			$where = array();
+    public function addOrder($order) {
+        $this->_args['ORDER'][] = $order;
+    }
 
-			foreach($this->arg['where'] as $key => $value){
-				$where[] = "`$key`=".$this->pdo->quote($value);
-			}
+    public function addWhere($field, $value) {
+        $this->_args['WHERE'][$field] = $value;
+    }
 
-			if(!empty($where)){
-				$sql = str_replace('(where)', "WHERE ".implode(" AND ", $where), $sql);
-			}
-		}
-		$sql = str_replace('(where)', '', $sql);
+    /**
+     * 注意和addWhere不同，调用的是parse的parseWhere的方法
+     * 即支持AND/OR的方法【必须写嗯】
+     *
+     * @param array $data
+     */
+    public function setWhere($data) {
+        $this->_args['WHERES'] = $data;
+    }
+
+    public function setLimit($limit) {
+        $this->_args['LIMIT'] = $this->parser->parseLimit($limit);
+    }
+
+    public function addData($field, $value) {
+        $this->_args['DATA'][$field] = $value;
+    }
+
+    public function setData($data) {
+        $this->_args['DATA'] = $data;
+    }
+
+    public function getParsedSQL() {
+        $parser = $this->parser;
+        $sql = $this->SQL;
+
+        if (!empty($this->_args['WHERES'])) {
+            $sql = str_replace('(where)', $parser->parseWhere($this->_args['WHERES']), $sql);
+        }
+
+        if (!empty($this->_args['WHERE'])) {
+            $where = $parser->parseData($this->_args['WHERE']);
+
+            if(!empty($where)){
+                $sql = str_replace('(where)', " WHERE $where", $sql);
+            }
+        }
+        $sql = str_replace('(where)', '', $sql);
+
+        if (!empty($this->_args['DATA'])) {
+            $data = [];
+            foreach ($this->_args['DATA'] as $key => $value) {
+                $data[] = "`$key`=".$this->pdo->quote($value);
+            }
+
+            $sql = str_replace("(data)", implode(",", $data), $sql);
+        }
+        $sql = str_replace("(data)", "", $sql);
 
 
-		if(!empty($this->arg['data'])){
-			$data = array();
+        if (!empty($this->_args['LIMIT'])) {
+            $sql .= $this->_args['LIMIT'];
+        }
 
-			foreach($this->arg['data'] as $key => $value){
-				if(is_array($value)){
-					$data[] = "`$key` IN (".implode(",", $this->pdo->quote($value)).")";
-				}else{
-					$data[] = "`$key`=". $this->pdo->quote($value);
-				}
-			}
+        if (!empty($this->_args['ORDER'])) {
+            $sql .= " ORDER BY ".implode(",", $this->_args['ORDER']);
+        }
 
-			if(!empty($data)){
-				$sql = str_replace('(data)', implode(",", $data), $sql);
-			}
-		}
-		$sql = str_replace('(data)', '', $sql);
+        return $sql;
+    }
 
-		if(isset($this->arg['limit'])){
-			$sql .= $this->arg['limit'];
-		}
-
-		try {
-			$this->stmt = $this->pdo->prepare($sql);
-		}catch (Exception $e) {
-			throw new Exception('SQL prepared error [' . $e->getCode() . '], Message: ' . $e->getMessage() . '. SQL: ' . $sql . PHP_EOL . ' With PDO Message:' . $this->pdo->errorInfo()[2]);
-		}
-
-		if(!empty($this->bind)){
-			foreach($this->bind as $key => $value){
-				$this->stmt->bindValue($key, $value);
-			}
-		}
-
-
-		return $this->stmt;
-	}
-
-	public function getSQLDebug(){
-		$msg = $this->sql;
-		if(!empty($this->bind)){
-			$msg .= " with param ";
-			foreach($this->bind as $key=>$value){
-				$msg .= " key `$key` as $value";
-			}
-		}
-
-		return $msg;
-	}
-
-    public function getParam() {
-        $params = [];
-        if(!empty($this->bind)){
-            foreach($this->bind as $key=>$value){
-                $params[$key] = $value;
+    public function getDebugSQL() {
+        $sql = $this->SQL;
+        if (!empty($this->_bind)) {
+            foreach ($this->_bind as $key => $value) {
+                $sql = str_replace($key, $value, $sql);
             }
         }
 
-        return $params;
+        return $sql;
     }
 
-	public function bindValue($key, $data){
-		$this->bind[':'.$key] = $data;
-	}
+    public function getDoc() {
+        $sql = $this->getParsedSQL();
 
-	public function addWhere($key, $value){
-		$this->arg['where'][$key] = $value;
-	}
+        try {
+            $this->stmt = $this->pdo->prepare($sql);
+        } catch (\PDOException $e) {
+            throw new DBAgentException('SQL prepared error [' . $e->getCode() . '], Message: ' . $e->getMessage() . '. SQL: ' . $sql . PHP_EOL . ' With PDO Message:' . $this->pdo->errorInfo()[2]);
+        }
 
-	public function addData($key, $value){
-		$this->arg['data'][$key] = $value;
-	}
+        if (!empty($this->_bind)) {
+            foreach ($this->_bind as $key => $value)    $this->stmt->bindValue($key, $value);
+        }
 
-    public function setData($data) {
-        $this->arg['data'] = $data;
+        return $this->stmt;
     }
-
-	public function addLimit($limit, $size = false){
-		$this->arg['limit'] = $size ? " LIMIT $limit,$size" : " LIMIT $limit";
-	}
 }

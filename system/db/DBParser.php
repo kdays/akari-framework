@@ -110,7 +110,7 @@ Class DBParser{
 		return implode($outer." ", $haystack);
 	}
 
-	public function parseData($data, $flag = 'AND'){
+	public function parseData($data, $flag = ' AND'){
 		$wheres = array();
 
 		if(gettype($data) == "object"){
@@ -126,7 +126,7 @@ Class DBParser{
 					'(' . $this->innerIn($value, ' ' . $relation_match[1], $flag) . ')';
 			}else{
 				// 匹配运算符用
-				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<)\])?/i', $key, $match);
+				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\?|\>\<)\])?/i', $key, $match);
 				$column = $this->parseColumn($match[1]);
 
 				if(isset($match[3])){
@@ -162,6 +162,8 @@ Class DBParser{
 								$wheres[] = '(' . $column . ' BETWEEN ' . $this->parseValue($value[0]) . ' AND ' . $this->parseValue($value[1]) . ')';
 							}
 						}
+                    }elseif($match[3] == '?') {
+                        $wheres[] = $match[1]." LIKE ".$this->parseValue($value);
 					}else{
 						//都不是那就是日期
 						if(is_numeric($value)){
@@ -201,7 +203,7 @@ Class DBParser{
 			}
 		}
 
-		return implode($flag." ", $wheres);
+		return implode($flag.' ', $wheres);
 	}
 
 	public function parseWhere($where){
@@ -375,7 +377,7 @@ Class DBParser{
 		return $values;
 	}
 
-	public function parseDistinct(){
+	public function parseDistinct( $field ){
 		return '';
 	}
 }
