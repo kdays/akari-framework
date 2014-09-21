@@ -433,7 +433,7 @@ function import($path, $once = TRUE){
  * @return bool|string
  */
 function get_date($format, $timestamp = NULL) {
-    return \Akari\utility\DateHelper::getInstance()->format($format, $timestamp);
+    return \Akari\utility\DateHelper::format($format, $timestamp);
 }
 
 /**
@@ -529,6 +529,20 @@ function json_decode_nice($json, $assoc = TRUE){
     $json = preg_replace('/(,)\s*}$/', '}', $json);
 
     return json_decode($json, $assoc);
+}
+
+
+
+function dump($var) {
+    echo "<style>pre{display: block; overflow: auto; background: #fafafa; color: #333; max-height: 300px; border: 1px #eee solid; max-width: 90%; margin: 10px; padding: 5px 10px;}</style>";
+
+    if (is_array($var)) {
+        echo "<pre>";
+        print_r($var);
+        echo "</pre>";
+    } else {
+        var_dump($var);
+    }
 }
 
 /**

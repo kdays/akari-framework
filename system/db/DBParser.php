@@ -6,7 +6,11 @@ namespace Akari\system\db;
  **/
 
 Class DBParser{
-	public $pdo;
+
+    /**
+     * @var $pdo \PDO
+     */
+    public $pdo;
 	protected static $d;
 	public static function getInstance($pdo){
 		if(!isset(self::$d)){
@@ -40,7 +44,11 @@ Class DBParser{
 	 * @return string
 	 **/
 	public function parseColumn($value){
-		return '`' . str_replace('.', '"."', $value) . '`';
+		if (stripos($value, ".") !== FALSE) {
+			list($tblName, $itemName) = explode(".", $value);
+			return '`'.$tblName.'`.`'.$itemName."`";
+		}
+		return '`' . $value . '`';
 	}
 
 	/**

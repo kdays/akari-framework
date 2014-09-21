@@ -8,6 +8,12 @@ use \PDO;
 Class DBAgent {
 
     public $doBenchmark = FALSE;
+
+    /**
+     * 性能记录
+     *
+     * @param string $action 行为start or end
+     */
     public function logBenchmark($action = 'start') {
         if (!$this->doBenchmark)    return ;
 
@@ -33,6 +39,12 @@ Class DBAgent {
         $this->options = $options;
     }
 
+    /**
+     * 获得PDO实例
+     *
+     * @return PDO
+     * @throws DBAgentException
+     */
     public function getPDOInstance() {
         if (!class_exists("PDO")) {
             throw new DBAgentException("[Akari.db.DBAgent] PDO not installed");
@@ -75,7 +87,7 @@ Class DBAgent {
     /**
      * 获得所有符合条件的
      *
-     * @param string $sql
+     * @param string|DBAgentStatement $sql
      * @param null|array $params
      * @return array
      */
@@ -101,7 +113,7 @@ Class DBAgent {
     /**
      * get one result
      *
-     * @param string $sql
+     * @param string|DBAgentStatement $sql
      * @param null|array $params
      * @return array|mixed
      */
@@ -127,8 +139,8 @@ Class DBAgent {
     /**
      * execute sql
      *
-     * @param $sql
-     * @param null $params
+     * @param string|DBAgentStatement $sql SQL语句
+     * @param null|array $params
      * @return int
      */
     public function execute($sql, $params = NULL) {
@@ -158,8 +170,10 @@ Class DBAgent {
      */
     private function _createStatementArr($sql, $params) {
         $st = $this->prepare($sql);
-        foreach ($params as $key => $value) {
-            $st->bindValue($key, $value);
+        if (is_array($params)) {
+            foreach ($params as $key => $value) {
+                $st->bindValue($key, $value);
+            }
         }
 
         return $st;
@@ -198,18 +212,38 @@ Class DBAgent {
         return $sql;
     }
 
+    /**
+     * 开始一个事务
+     *
+     * @return bool
+     */
     public function beginTransaction() {
         return $this->getPDOInstance()->beginTransaction();
     }
 
+    /**
+     * 提交当前事务
+     *
+     * @return bool
+     */
     public function commit() {
         return $this->getPDOInstance()->commit();
     }
 
+    /**
+     * 事务回滚
+     *
+     * @return bool
+     */
     public function rollback() {
         return $this->getPDOInstance()->rollBack();
     }
 
+    /**
+     * 获得当前数据库信息
+     *
+     * @return array
+     */
     public function info() {
         $pdo = $this->getPDOInstance();
         $output = array(

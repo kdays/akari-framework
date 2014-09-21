@@ -7,6 +7,7 @@ Class DBAgentStatement {
 
     protected $pdo;
     protected $SQL;
+	protected $_parsedSQL;
 
     /**
      * @var $stmt \PDOStatement
@@ -32,6 +33,7 @@ Class DBAgentStatement {
 
     public function close() {
         $this->stmt->closeCursor();
+	    $this->_parsedSQL = NULL;
         $this->_bind = [];
         $this->_args = [];
     }
@@ -70,7 +72,16 @@ Class DBAgentStatement {
         $this->_args['DATA'] = $data;
     }
 
+    /**
+     * 获得被解析后的SQL（不包括bind）
+     *
+     * @return string
+     */
     public function getParsedSQL() {
+	    if (!empty($this->_parsedSQL)) {
+		    return $this->_parsedSQL;
+	    }
+
         $parser = $this->parser;
         $sql = $this->SQL;
 
@@ -82,7 +93,9 @@ Class DBAgentStatement {
             $where = $parser->parseData($this->_args['WHERE']);
 
             if(!empty($where)){
-                $sql = str_replace('(where)', " WHERE $where", $sql);
+	            // 注意找的是where空格 不是(where)
+	            $replace = (stripos($sql, " where ")===FALSE ? " WHERE" : " AND")." $where";
+                $sql = str_replace('(where)', $replace, $sql);
             }
         }
         $sql = str_replace('(where)', '', $sql);
@@ -97,20 +110,26 @@ Class DBAgentStatement {
         }
         $sql = str_replace("(data)", "", $sql);
 
+        if (!empty($this->_args['ORDER'])) {
+            $sql .= " ORDER BY ".implode(",", $this->_args['ORDER']);
+        }
 
         if (!empty($this->_args['LIMIT'])) {
             $sql .= $this->_args['LIMIT'];
         }
 
-        if (!empty($this->_args['ORDER'])) {
-            $sql .= " ORDER BY ".implode(",", $this->_args['ORDER']);
-        }
+	    $this->_parsedSQL = $sql;
 
         return $sql;
     }
 
+    /**
+     * 获得调试用SQL语句
+     *
+     * @return string
+     */
     public function getDebugSQL() {
-        $sql = $this->SQL;
+        $sql = $this->getParsedSQL();
         if (!empty($this->_bind)) {
             foreach ($this->_bind as $key => $value) {
                 $sql = str_replace($key, $value, $sql);
@@ -120,6 +139,12 @@ Class DBAgentStatement {
         return $sql;
     }
 
+    /**
+     * 获得PDOStatement对象
+     *
+     * @return \PDOStatement
+     * @throws DBAgentException
+     */
     public function getDoc() {
         $sql = $this->getParsedSQL();
 
@@ -130,7 +155,9 @@ Class DBAgentStatement {
         }
 
         if (!empty($this->_bind)) {
-            foreach ($this->_bind as $key => $value)    $this->stmt->bindValue($key, $value);
+            foreach ($this->_bind as $key => $value) {
+                $this->stmt->bindValue($key, $value);
+            }
         }
 
         return $this->stmt;

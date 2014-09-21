@@ -47,6 +47,27 @@ Class RequestModel extends Model{
 
 		return $this;
 	}
+
+	/**
+	 * 如果有mapList，则按照mapList反向导出数组
+	 */
+	public function toArray() {
+		$map = $this->_mapList();
+		$result = [];
+
+		foreach ($this as $key => $value) {
+			$reqKey = $key;
+			if(isset($map[$key])){
+				$reqKey = $map[$key];
+			}
+
+			if ($value !== NULL) {
+				$result[ $reqKey ] = $value;
+			}
+		}
+
+		return $result;
+	}
     
 	/**
 	 * 检查参数回调，在取值时调用，可以通过$this->键名重设值

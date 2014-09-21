@@ -70,7 +70,9 @@ Class TemplateHelper{
 		}else{
 			$content = "<?php !defined('AKARI_VERSION') && exit(); ?>";
             $content .= '<?php
-                use Akari\Context; use Akari\utility\DataHelper;
+                use Akari\Context;
+                use Akari\utility\DataHelper;
+                use Akari\utility\DateHelper;
                 use Akari\utility\TemplateHelper;
                 use Akari\utility\TemplateHelperCommand;
             ?>';

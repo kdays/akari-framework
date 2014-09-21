@@ -49,6 +49,8 @@ Class BenchmarkHelper {
     /**
      * @param $SQL
      * @param string $action start or end
+     * @param array $trace
+     * @param array $params
      * @return array
      */
     public static function setSQLTimer($SQL, $action = 'start', $trace = [], $params = []) {
