@@ -532,9 +532,9 @@ function json_decode_nice($json, $assoc = TRUE){
 }
 
 
-
 function dump($var) {
     echo "<style>pre{display: block; overflow: auto; background: #fafafa; color: #333; max-height: 300px; border: 1px #eee solid; max-width: 90%; margin: 10px; padding: 5px 10px;}</style>";
+	\Akari\system\exception\ExceptionProcessor::addDump($var);
 
     if (is_array($var)) {
         echo "<pre>";

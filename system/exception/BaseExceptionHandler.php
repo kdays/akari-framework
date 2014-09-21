@@ -140,4 +140,28 @@ abstract Class BaseExceptionHandler {
         }
         return $call_signature;
     }
+
+	protected static function getDump() {
+		return ExceptionProcessor::getDump();
+	}
+
+	public function dispDumpArr() {
+		$arr = self::getDump();
+		if (!empty($arr)) {
+			echo "<!DOCTYPE HTML>";
+			echo "<style>pre{display: block; overflow: auto; background: #fafafa; color: #333;
+max-height: 300px; border: 1px #eee solid;
+max-width: 90%; margin: 10px; padding: 5px 10px;}</style>";
+
+			foreach ($arr as $var) {
+				if (is_array($var)) {
+					echo "<pre>";
+					print_r($var);
+					echo "</pre>";
+				} else {
+					var_dump($var);
+				}
+			}
+		}
+	}
 }

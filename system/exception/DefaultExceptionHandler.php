@@ -17,11 +17,15 @@ Class DefaultExceptionHandler extends BaseExceptionHandler{
 		$line = @$trace[0]['line'];
 
 		Logging::_logErr($ex->getMessage()."\t(".$file.":".$line.")");
+
+		$this->dispDumpArr();
 		$this->_msg($ex->getMessage(), $file, $line, $trace, $ex->getCode());
 	}
 
 	public function handleFatal($errorCode, $message, $file, $line){
 		Logging::_logFatal($message."\t(".$file.":".$line.")");
+
+		$this->dispDumpArr();
 		$this->_msg($message, $file, $line, array(), $errorCode);
 	}
 }

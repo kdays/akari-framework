@@ -73,4 +73,13 @@ Class ExceptionProcessor{
 
 		$this->handler = new $clsPath();
 	}
+
+	protected static $_dump;
+	public static function addDump($var) {
+		self::$_dump[] = $var;
+	}
+
+	public static function getDump() {
+		return self::$_dump;
+	}
 }
