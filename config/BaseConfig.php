@@ -53,6 +53,10 @@ Class BaseConfig{
 	public $encryptionKey = 'Akaza Akari, Akkarin';
     public $encryptCipher = 'Akari\system\security\Cipher\AESCipher';
 	public $cipherIv = "";
+	public $cipherRSA = [
+		"public_key" => "",
+		"private_key" => ""
+	];
 
 	public $cookiePrefix = "kd_";
 	public $cookieTime = "1 day";

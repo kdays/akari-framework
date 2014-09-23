@@ -3,8 +3,6 @@ namespace Akari\system\security\Cipher;
 
 use Akari\Context;
 
-!defined("AKARI_PATH") && exit;
-
 Class AESCipher extends Cipher{
 	protected $cipher = MCRYPT_RIJNDAEL_128;
 	protected $mode   = MCRYPT_MODE_ECB;
@@ -20,14 +18,6 @@ Class AESCipher extends Cipher{
 	protected function __construct($key = NULL){
 		$this->iv = Context::$appConfig->cipherIv;
 		$this->secretKey = md5(Context::$appConfig->encryptionKey);
-	}
-
-	public function setSecretKey($key = NULL) {
-		if ($key == NULL){
-			$this->secretKey = md5(Context::$appConfig->encryptionKey);
-		} else {
-			$this->secretKey = $key;
-		}
 	}
 
 	public function encrypt($str){
@@ -63,5 +53,30 @@ Class AESCipher extends Cipher{
 		mcrypt_module_close($td);
  
 		return $this->pkcs5_unpad($decryptedText);
+	}
+
+
+	public function hex2bin($hex) {
+		$bin = '';
+		$length = strlen($hex);
+		for ($i = 0; $i < $length; $i += 2){
+			$bin .= chr(hexdec(substr($hex, $i, 2)));
+		}
+		return $bin;
+	}
+
+	public function pkcs5_pad($text, $blockSize = FALSE){
+		if(!$blockSize){
+			$blockSize = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
+		}
+		$pad = $blockSize - (strlen($text) % $blockSize);
+		return $text . str_repeat(chr($pad), $pad);
+	}
+
+	public function pkcs5_unpad($text){
+		$pad = ord($text{strlen($text) - 1});
+		if ($pad > strlen($text)) return false;
+		if (strspn($text, chr($pad), strlen($text) - $pad) != $pad) return false;
+		return substr($text, 0, -1 * $pad);
 	}
 }

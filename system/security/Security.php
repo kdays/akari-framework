@@ -16,7 +16,7 @@ Class Security{
 	 */
 	public static function getCipherInstance($type){
 		if($type == NULL)	$type = Context::$appConfig->encryptCipher;
-		$clsName = in_string($type, "Cipher") ? $type : $type."Cipher";
+		$clsName = in_string($type, "Cipher") ? $type : '\Akari\system\security\Cipher\\'.$type."Cipher";
 		if(!class_exists($clsName)){
 			throw new Exception("[akari.Security] Cipher $type not found");
 		}

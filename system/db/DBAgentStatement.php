@@ -38,6 +38,10 @@ Class DBAgentStatement {
         $this->_args = [];
     }
 
+	public function addSQL($str) {
+		$this->SQL .= $str;
+	}
+
     public function bindValue($key, $value) {
         $this->_bind[':'. $key] = $value;
     }

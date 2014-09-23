@@ -3,7 +3,7 @@ namespace Akari\system\security\Cipher;
 
 !defined("AKARI_PATH") && exit;
 
-Class PwCipher extends Cipher{
+Class XorCipher extends Cipher{
 	public static function getInstance(){
 		if (self::$d == null) {
 			self::$d = new self();
@@ -13,12 +13,12 @@ Class PwCipher extends Cipher{
 
 	public function encrypt($str){
 		$code = '';
-		$keylen = strlen($this->secretKey);
-		$strlen = strlen($str);
+		$keyLen = strlen($this->secretKey);
+		$strLen = strlen($str);
 		
-		for ($i=0;$i<$strlen;$i++) {
-			$k		= $i % $keylen;
-			$code  .= $str[$i] ^ $key[$k];
+		for ($i = 0;$i < $strLen; $i++) {
+			$k		= $i % $keyLen;
+			$code  .= $str[$i] ^ $this->secretKey[$k];
 		}
 		
 		return base64_encode($code);
@@ -27,12 +27,12 @@ Class PwCipher extends Cipher{
 	public function decrypt($str){
 		$code = '';
 		$str = base64_decode($str);
-		$keylen = strlen($this->secretKey);
-		$strlen = strlen($str);
+		$keyLen = strlen($this->secretKey);
+		$strLen = strlen($str);
 		
-		for ($i=0;$i<$strlen;$i++) {
-			$k		= $i % $keylen;
-			$code  .= $str[$i] ^ $key[$k];
+		for ($i = 0; $i < $strLen; $i++) {
+			$k		= $i % $keyLen;
+			$code  .= $str[$i] ^ $this->secretKey[$k];
 		}
 		
 		return $code;
