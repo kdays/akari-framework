@@ -2,6 +2,9 @@
 namespace Akari\system\security\Cipher;
 
 Class XorCipher extends Cipher{
+
+	protected static $d = null;
+
 	public static function getInstance(){
 		if (self::$d == null) {
 			self::$d = new self();

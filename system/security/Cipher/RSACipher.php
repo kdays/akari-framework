@@ -4,13 +4,13 @@ namespace Akari\system\security\Cipher;
 use Akari\Context;
 
 Class RSACipher extends Cipher {
-
 	const BLOCK_LENGTH = 30;
 
 	private $_publickeyPath;
 	private $_privatekeyPath;
 	private $_publickeyRes = NULL;
 	private $_privatekeyRes = NULL;
+	protected static $d = NULL;
 
 	public static function getInstance(){
 		if (self::$d == null) {

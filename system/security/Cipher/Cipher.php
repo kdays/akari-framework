@@ -4,7 +4,6 @@ namespace Akari\system\security\Cipher;
 use Akari\Context;
 
 abstract class Cipher{
-	protected static $d = null;
 	protected $secretKey = '';
 	
    	abstract public function encrypt($str);

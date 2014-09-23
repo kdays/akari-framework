@@ -4,6 +4,9 @@ namespace Akari\system\security\Cipher;
 use Akari\Context;
 
 Class AESCipher extends Cipher{
+
+	protected static $d = null;
+
 	protected $cipher = MCRYPT_RIJNDAEL_256;
 	protected $mode   = MCRYPT_MODE_ECB;
 	protected $iv	  = '';
