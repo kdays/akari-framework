@@ -7,7 +7,11 @@ use Akari\system\security\Security;
 !defined("AKARI_PATH") && exit;
 
 Class Cookie{
-	public $flag = "|ENC";
+
+	const FLAG_ENCRYPT = "|ENC";
+	const FLAG_ARRAY = "|A";
+	const SPLIT = "\x00";
+
 	protected static $c;
 	public static function getInstance() {
 		if (self::$c == NULL){
@@ -38,12 +42,12 @@ Class Cookie{
 
 		if(is_array($value)){
 			$tmp = array();
-			foreach($value as $k => $v) $tmp[] = "$k:$v";
-			$value = implode("&", $tmp)."|A";
+			foreach($value as $k => $v) $tmp[] = "$k".self::SPLIT."$v";
+			$value = implode("&", $tmp).self::FLAG_ARRAY;
 		}
 
 		if($isEncrypt){
-			$value = Security::encrypt($value, $config->cookieEncrypt).$this->flag;
+			$value = Security::encrypt($value, $config->cookieEncrypt).self::FLAG_ENCRYPT;
 		}
 
 		$path = array_key_exists("path", $option) ? $option['path'] : $config->cookiePath;
@@ -79,7 +83,7 @@ Class Cookie{
 
 		if($encryptType != FALSE)   $cookie = Security::decrypt($cookie, $encryptType);
 
-		$flag = $this->flag;
+		$flag = self::FLAG_ENCRYPT;
 		$fLen = strlen($flag);
 
 		if(substr($cookie, -$fLen, $fLen) == $flag){
@@ -88,11 +92,12 @@ Class Cookie{
 		}
 
 		//@todo: 如果最后2位是|A 代表是数组 
-		if(substr($cookie, -2, 2) == '|A'){
+		if(substr($cookie, -2, 2) == self::FLAG_ARRAY){
 			$result = array();
-			$value = explode("&", substr($cookie, 0, sizeof($cookie) - 3));
+			$arrayFlagLen = strlen(self::FLAG_ARRAY) + 1;
+			$value = explode("&", substr($cookie, 0, sizeof($cookie) - $arrayFlagLen));
 			foreach($value as $v){
-				list($key, $val) = explode(":", $v);
+				list($key, $val) = explode(self::SPLIT, $v);
 				$result[ $key ] = $val;
 			}
 

@@ -70,7 +70,11 @@ Class HttpStatus{
 	 * @param int $statusCode 状态码 可见HttpStatus::$statusCode[*]，常见封装在CODE_*中
 	 */
 	public static function setStatus($statusCode = self::OK){
-		Header("HTTP/1.1 ".$statusCode." ".self::$statusCode[$statusCode]);
+		if (function_exists("http_response_code")) {
+			http_response_code($statusCode);
+		} else {
+			Header("HTTP/1.1 ".$statusCode." ".self::$statusCode[$statusCode]);
+		}
 	}
 
     /**

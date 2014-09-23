@@ -4,7 +4,7 @@ namespace Akari\system\security\Cipher;
 use Akari\Context;
 
 Class AESCipher extends Cipher{
-	protected $cipher = MCRYPT_RIJNDAEL_128;
+	protected $cipher = MCRYPT_RIJNDAEL_256;
 	protected $mode   = MCRYPT_MODE_ECB;
 	protected $iv	  = '';
 
@@ -15,7 +15,7 @@ Class AESCipher extends Cipher{
 		return self::$d;
 	}
 
-	protected function __construct($key = NULL){
+	protected function __construct(){
 		$this->iv = Context::$appConfig->cipherIv;
 		$this->secretKey = md5(Context::$appConfig->encryptionKey);
 	}
@@ -57,12 +57,7 @@ Class AESCipher extends Cipher{
 
 
 	public function hex2bin($hex) {
-		$bin = '';
-		$length = strlen($hex);
-		for ($i = 0; $i < $length; $i += 2){
-			$bin .= chr(hexdec(substr($hex, $i, 2)));
-		}
-		return $bin;
+		return $hex !== false && preg_match('/^[0-9a-fA-F]+$/i', $hex) ? pack("H*", $hex) : false;
 	}
 
 	public function pkcs5_pad($text, $blockSize = FALSE){
@@ -77,6 +72,8 @@ Class AESCipher extends Cipher{
 		$pad = ord($text{strlen($text) - 1});
 		if ($pad > strlen($text)) return false;
 		if (strspn($text, chr($pad), strlen($text) - $pad) != $pad) return false;
-		return substr($text, 0, -1 * $pad);
+		$ret = substr($text, 0, -1 * $pad);
+
+		return $ret;
 	}
 }
