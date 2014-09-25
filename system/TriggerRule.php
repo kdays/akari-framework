@@ -29,15 +29,21 @@ Class TriggerRule{
 		if(!empty($config['after']))	$this->afterRules = $config['after'];
 
 		// 检查目录是否有AfterInit、ApplicationEnd、ApplicationStart
-		if (file_exists(Context::$appBasePath."/app/trigger/AfterInit.php")) {
+        $baseDir = implode(DIRECTORY_SEPARATOR, Array(
+            Context::$appBasePath,
+            BASE_APP_DIR,
+            'trigger', ''
+        ));
+
+		if (file_exists($baseDir. "AfterInit.php")) {
 			$this->preRules[] = Array("/.*/", "AfterInit");
 		}
 		
-		if (file_exists(Context::$appBasePath."/app/trigger/ApplicationEnd.php")) {
+		if (file_exists($baseDir. "ApplicationEnd.php")) {
 			$this->afterRules[] = Array("/.*/", "ApplicationEnd");
 		}
 		
-		if (file_exists(Context::$appBasePath."/app/trigger/ApplicationStart.php")) {
+		if (file_exists($baseDir. "ApplicationStart.php")) {
 			array_unshift($this->preRules, ['/.*/', 'ApplicationStart']);
 		}
 	}
@@ -52,9 +58,16 @@ Class TriggerRule{
 		$uri = Context::$uri;
 		$arrayName = $type . 'Rules';
 
+        $baseHookDir = implode(DIRECTORY_SEPARATOR, Array(
+            Context::$appBasePath,
+            BASE_APP_DIR,
+            'trigger',
+            ''
+        ));
+
 		foreach ($this->$arrayName as $rule) {
 			$re = $rule[0];
-			$hookPath = Context::$appBasePath."/app/trigger/$rule[1].php";
+			$hookPath = $baseHookDir.$rule[1].".php";
 
 			if (preg_match($re, $uri) === 1) {
 				if(file_exists($hookPath)){

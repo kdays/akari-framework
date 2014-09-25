@@ -36,7 +36,7 @@ Class ConsoleOutput {
     ];
 
     protected static $_styles = [
-        'emergency' => ['text' => 'red', 'underline' => true],
+        'fatal' => ['text' => 'red', 'underline' => true],
         'alert' => ['text' => 'red', 'underline' => true],
         'critical' => ['text' => 'red', 'underline' => true],
         'error' => ['text' => 'red', 'underline' => true],

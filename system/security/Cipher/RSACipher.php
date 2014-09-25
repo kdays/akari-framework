@@ -27,6 +27,16 @@ Class RSACipher extends Cipher {
 		$this->_privatekeyPath = $config['private_key'];
 	}
 
+	public function __destruct() {
+		if ($this->_privatekeyRes != NULL) {
+			openssl_free_key($this->_privatekeyRes);
+		}
+
+		if ($this->_publickeyRes != NULL) {
+			openssl_free_key($this->_publickeyRes);
+		}
+	}
+
 	/**
 	 * 载入新的公钥文件
 	 *
@@ -53,16 +63,6 @@ Class RSACipher extends Cipher {
 		$this->_privatekeyRes = NULL;
 
 		return $this->getPrivateKeyRes();
-	}
-
-	public function __destruct() {
-		if ($this->_privatekeyRes != NULL) {
-			openssl_free_key($this->_privatekeyRes);
-		}
-
-		if ($this->_publickeyRes != NULL) {
-			openssl_free_key($this->_publickeyRes);
-		}
 	}
 
 	/**

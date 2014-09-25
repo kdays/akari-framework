@@ -2,6 +2,7 @@
 namespace Akari\system\security;
 
 use Akari\Context;
+use Akari\system\http\Request;
 use \Exception;
 
 !defined("AKARI_PATH") && exit;
@@ -32,7 +33,15 @@ Class Security{
      */
 	public static function getCSRFToken($key = FALSE){
 		if(!$key && defined("CSRF_KEY"))	$key = CSRF_KEY;
-		return substr( md5(Context::$appConfig->encryptionKey."_".$key."_".$_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR']) ,7, 9);
+
+		$req = Request::getInstance();
+		$str = implode("_", Array(Context::$appConfig->encryptionKey,
+			$key,
+			$req->getUserAgent(),
+			$req->getUserIP()
+		));
+
+		return substr( md5($str) ,7, 9);
 	}
 
     /**

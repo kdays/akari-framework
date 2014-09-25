@@ -17,9 +17,11 @@ Class I18n{
 	 */
 	public static function getpath($name){
 		$defLang = C("language");
-		$langPath = false;
-
-		$baseLangDir = Context::$appBasePath."/app/language";
+		$baseLangDir = implode(DIRECTORY_SEPARATOR, Array(
+            Context::$appBasePath,
+            BASE_APP_DIR,
+            'language'
+        ));
 		// 如果用户有定义的话 usrLanguage
 
 		$usrLang = false;

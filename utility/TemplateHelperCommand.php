@@ -10,6 +10,7 @@ Class TemplateHelperCommand{
 
     public static function lang($id, $command = ''){
         $command = explode("&", $command);
+	    $L = [];
         foreach($command as $value){
             $tmp = explode("=", $value);
             $L[$tmp[0]] = $tmp[1];
@@ -23,7 +24,8 @@ Class TemplateHelperCommand{
     }
 
     public static function module($id, $data = '') {
-        $appPath = Context::$appBasePath."/app/lib/{$id}Module.php";
+	    $id = ucfirst($id);
+        $appPath = Context::$appBasePath.DIRECTORY_SEPARATOR.BASE_APP_DIR."/lib/{$id}Module.php";
         $corePath = Context::$appBasePath."/core/system/module/{$id}Module.php";
 
         if(file_exists($appPath)){
@@ -31,7 +33,7 @@ Class TemplateHelperCommand{
         }elseif(file_exists($corePath)){
             $clsName = "Akari\\system\\module\\{$id}Module";
         }else{
-            throw new \Exception("Module $id not found");
+            throw new \Exception("TemplateModule $id not found");
         }
 
         $clsObj = $clsName::getInstance();

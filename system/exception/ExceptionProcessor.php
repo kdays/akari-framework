@@ -58,8 +58,9 @@ Class ExceptionProcessor{
 
                 if (method_exists($this->handler, 'handleFatal')) {
                     $this->handler->handleFatal($e['type'], $e['message'], $e['file'], $e['line']);
+                } else {
+                    throw new \Exception($e['message'], 0);
                 }
-				throw new \Exception($e['message'], 0);
 			}
 		}
 	}

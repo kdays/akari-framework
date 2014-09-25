@@ -8,7 +8,7 @@ use Exception;
 !defined("AKARI_PATH") && exit;
 
 Class TemplateHelper{
-	public static $usingLayout = false;//防止子模板载入时，layout再次请求
+	public static $usingLayout = FALSE;//防止子模板载入时，layout再次请求
     public static $debug = FALSE;
 
 	public static function load($tplName, $useLayout = true, $updateLast = true){
@@ -20,14 +20,19 @@ Class TemplateHelper{
 			$tplName = "$bDir/$tplName";
 		}
 
-		$tplPath = Context::$appBasePath."/app/template/$tplName";
+		$tplPath = Context::$appBasePath.DIRECTORY_SEPARATOR.BASE_APP_DIR."/template/$tplName";
 		$tplPath .= Context::$appConfig->templateSuffix ? Context::$appConfig->templateSuffix : ".htm";
 
 		if(!file_exists($tplPath)){
 			throw new Exception("[Akari.Utility.TemplateHelper] not found [ $tplName ]");
 		}
-		if($updateLast) Context::$lastTemplate = $tplName;
 
+		// 检查目录是否超过准线目录
+		if (!checkDir($tplPath, '/template/')) {
+			throw new Exception("[Akari.Utility.TemplateHelper] template_id is invalid");
+		}
+
+		if($updateLast) Context::$lastTemplate = $tplName;
 
 		// 如果有Layout的话 处理layout
 		if(C("closeLayout") === TRUE){
@@ -36,7 +41,7 @@ Class TemplateHelper{
 
 		// 检查layout文件
 		if ($useLayout) {
-			$layoutDir = Context::$appBasePath."/app/template/layout/";
+			$layoutDir = Context::$appBasePath.DIRECTORY_SEPARATOR.BASE_APP_DIR."/template/layout/";
 			$layoutPath = NULL;
 			$layoutSuffix = Context::$appConfig->layoutSuffix ? Context::$appConfig->layoutSuffix : ".htm";
 
@@ -88,9 +93,16 @@ Class TemplateHelper{
 		$const_regexp = "([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
 		$var_regexp = "((\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*(\-\>)?[a-zA-Z0-9_\x7f-\xff]*)(\[[a-zA-Z0-9_\-\.\"\'\[\]\$\x7f-\xff]+\])*)";
 		
-		$template = preg_replace('/<!--#(.*?)-->/ieu', "self::command_parse('\\1')", $template);
-		$template = preg_replace('/\{\%(.*?)\}/ieu', "self::command_lang('\\1')", $template);
+		//$template = preg_replace('/<!--#(.*?)-->/ieu', "self::command_parse('\\1')", $template);
+		//$template = preg_replace('/\{\%(.*?)\}/ieu', "self::command_lang('\\1')", $template);
 
+		$template = preg_replace_callback('/\{\%(.*?)\}/iu', function($matches) {
+			return TemplateHelper::command_lang($matches[1]);
+		}, $template);
+
+		$template = preg_replace_callback('/<!--#(.*?)-->/iu', function($matches) {
+			return TemplateHelper::command_parse($matches[1]);
+		}, $template);
         /*$$template = preg_replace("/\{$const_regexp\}/s", "<?=\\1?>", $template);
         $template = preg_replace("/$var_regexp/es", "self::addquote('<?=\\1?>')", $template);
         template = preg_replace("/\<\?\=\<\?\=$var_regexp\?\>\?\>/es", "self::addquote('<?=\\1?>')", $template);
@@ -125,13 +137,16 @@ Class TemplateHelper{
 			case "set":
 				return "<?php $end_str; ?>";
 			case "if":
-				return "<?php if($end_str){?>";
+				return "<?php if($end_str): ?>";
 			case "else":
-				return "<?php }else{ ?>";
+				return "<?php else: ?>";
 			case "elseif":
-				return "<?php }elseif($end_str){ ?>";
+				return "<?php elseif($end_str): ?>";
 			case "template":
+			case "include":
 				return "<?php require TemplateHelperCommand::template('$end_str'); ?>";
+			case "panel":
+				return "<?php require TemplateHelperCommand::template('panel/$end_str'); ?>";
 			case "layout":
 				return '<?php require TemplateHelperCommand::getScreen();?>';
 			case "module":
@@ -145,24 +160,26 @@ Class TemplateHelper{
 			case "var":
 				return "<?php echo($end_str); ?>";
 			case "for":
-				return "<?php for($end_str){ ?>";
+				return "<?php for($end_str): ?>";
 			case "loop":
-				return "<?php if(is_array($str[0])||is_object($str[0]))foreach({$end_str}){ ?>";
+				return "<?php if(is_array($str[0])||is_object($str[0]))foreach({$end_str}): ?>";
 			case "loopend":
 			case "endloop":
 			case "/loop":
-			case "/if":
+				return "<?php endforeach; ?>";
 			case "/for":
 			case "endfor":
 			case "forend":
+				return "<?php endfor; ?>";
+			case "/if":
 			case "endif":
 			case "ifend":
-				return "<?php } ?>";
+				return "<?php endif; ?>";
 			default:
                 if (method_exists('\Akari\utility\TemplateHelperCommand', $command)) {
                     return "<?php TemplateHelperCommand::$command('$end_str') ?>";
                 }
-				return "<!--[Invild Command: $command]-->";
+				return "<!--[Invalid Command: $command]-->";
 		}
 	}
 	

@@ -6,7 +6,7 @@ use Akari\system\security\Security;
 
 !defined("AKARI_PATH") && exit;
 
-Class csrfModule{
+Class CsrfModule{
 	protected static $m;
 	public static function getInstance(){
 		if(!isset(self::$m)){

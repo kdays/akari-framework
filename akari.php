@@ -9,13 +9,17 @@ namespace Akari;
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
 define("AKARI_VERSION", "2.8 (Adagio)");
-define("AKARI_BUILD", "2014.9.23");
+define("AKARI_BUILD", "2014.9.25");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 define("NAMESPACE_SEPARATOR", "\\");
 
 include("define.php");
 include("system/functions.php");
+
+if (!DEBUG_MODE && function_exists("xdebug_disable")) {
+	xdebug_disable();
+}
 
 Class Context{
 	public static $nsPaths = Array('Akari' => AKARI_PATH);
@@ -77,7 +81,7 @@ Class Context{
 			$dif = array("lib", "model", "exception");
 
 			foreach($dif as $dir){
-				$clsPath = Context::$appBasePath.DIRECTORY_SEPARATOR."app".
+				$clsPath = Context::$appBasePath.DIRECTORY_SEPARATOR. BASE_APP_DIR.
                     DIRECTORY_SEPARATOR.$dir.DIRECTORY_SEPARATOR.$cls.".php";
 
 				if(file_exists( $clsPath )){
@@ -142,29 +146,32 @@ Class akari{
      * @return akari
      */
 	public function initApp($appBasePath, $appNS){
-		$this->loadExternal();
+        // 如果什么都没有
+        $appDir = $appBasePath. DIRECTORY_SEPARATOR. BASE_APP_DIR. DIRECTORY_SEPARATOR;
+        if (!is_dir($appDir)) {
+            exit("Cannot found application directory, Please check framework define or upload");
+        }
 
         BenchmarkHelper::setTimer("init:start");
+
 		$confCls = "Config";
-		
-		$lock = glob(AKARI_PATH."*.lock");
-		if(isset($lock[0])){
-			Context::$mode = basename($lock[0], ".lock");
-			$confCls = Context::$mode."Config";
-		}
-		
+        Context::$mode = $this->getMode();
+        if (!empty(Context::$mode)) {
+            $confCls = Context::$mode . "Config";
+        }
+
 		Context::$appBasePath = $appBasePath;
-		if(!file_exists($appBasePath."/app/config/$confCls.php")){
+		if(!file_exists($appDir."/config/$confCls.php")){
 			trigger_error("not found config file [ $confCls ]", E_USER_ERROR);
 		}
 
         Context::$appBaseNS = $appNS;
 
         Context::$nsPaths['core'] = __DIR__;
-        Context::$nsPaths[ $appNS ] = $appBasePath."/app/";
+        Context::$nsPaths[ $appNS ] = $appDir;
 
         $confCls = $appNS.NAMESPACE_SEPARATOR."config".
-            NAMESPACE_SEPARATOR.ucfirst($confCls);
+            NAMESPACE_SEPARATOR.$confCls;
 
 		if(!class_exists($confCls)){
 			trigger_error("not found config class [ $confCls ]", E_USER_ERROR);
@@ -177,6 +184,7 @@ Class akari{
 		Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
 		Header("X-Framework: Akari Framework ". AKARI_BUILD);
+		$this->loadExternal();
 		$this->setExceptionHandler();
 
 		return $this;
@@ -203,6 +211,10 @@ Class akari{
 	 */
 	public function run($uri = NULL, $outputBuffer = true, $params = ""){
 		$config = Context::$appConfig;
+
+		if (CLI_MODE && function_exists("cli_set_process_title")) {
+			cli_set_process_title("Akari PHP : ".$uri);
+		}
 
 		Logging::_log("App Start");
 		if(!$uri){
@@ -231,7 +243,7 @@ Class akari{
 			if (!CLI_MODE)   TriggerRule::getInstance()->commitPreRule();
 
 			// 如有特定某些触发器时 使用这个可以更精确的处理
-			$_doAction = str_replace(Array(Context::$appBasePath, '/app/action/', '.php'), '', 
+			$_doAction = str_replace(Array(Context::$appBasePath, BASE_APP_DIR.'/action/', '.php'), '',
 				$clsPath);
 			Event::fire("action.".str_replace("/", ".", $_doAction));
 
@@ -260,6 +272,21 @@ Class akari{
 		exit($code);
 	}
 
+    public function getMode() {
+        static $mode = FALSE;
+
+        if ($mode === FALSE) {
+            $lock = glob(AKARI_PATH . "*.lock");
+            $mode = NULL;
+
+            if (isset($lock[0])) {
+                $mode = ucfirst(basename($lock[0], ".lock"));
+            }
+        }
+
+        return $mode;
+    }
+
 	public function __destruct() {
 		Logging::_log('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs' );
 	}
@@ -270,9 +297,24 @@ Class akari{
 	 **/
 	public function loadExternal() {
 		$libList = ["core.external.Spyc"];
-
 		foreach ($libList as $nowLibName) {
 			import($nowLibName);
 		}
+
+		$vendorPath = [
+			Context::$appBasePath . DIRECTORY_SEPARATOR
+			. BASE_APP_DIR . 'lib' . DIRECTORY_SEPARATOR
+			. 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php',
+			Context::$appBasePath . DIRECTORY_SEPARATOR
+			. 'external' . DIRECTORY_SEPARATOR
+			. 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php'
+		];
+
+		foreach ($vendorPath as $value) {
+			if (file_exists($value)) {
+				require $value;
+			}
+		}
+
 	}
 }

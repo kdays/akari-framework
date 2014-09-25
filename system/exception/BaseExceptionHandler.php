@@ -1,15 +1,20 @@
 <?php
 namespace Akari\system\exception;
 
+use Akari\akari;
 use Akari\Context;
 use Akari\system\log\Logging;
 use \Exception;
 
-abstract Class BaseExceptionHandler {
-    abstract public function handleException(Exception $ex);
+Class BaseExceptionHandler extends Exception{
+    public function handleException(Exception $ex) {
+
+    }
 
     public function handleFatal($errorCode, $message, $file, $line){
         Logging::_logFatal($message."\t(".$file.":".$line.")");
+        echo("Application FATAL! application now in default exceptionProcessor!");
+        akari::getInstance()->stop();
     }
 
     /**
@@ -56,8 +61,7 @@ abstract Class BaseExceptionHandler {
                 }
             }
 
-
-            exit;
+            akari::getInstance()->stop();
         }
     }
 

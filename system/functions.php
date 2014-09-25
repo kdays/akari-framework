@@ -126,6 +126,7 @@ function movefile($dstfile, $srcfile){
  * @param string $requestPath 检查的目录
  * @param bool $basePath 最低准限目录
  * @return bool
+ * @todo PHP默认会缓存，无需再进行结果缓存
  */
 function checkDir($requestPath, $basePath = false){
 	if(!$basePath){
@@ -133,7 +134,7 @@ function checkDir($requestPath, $basePath = false){
 	}
 	
 	$requestPath = realpath($requestPath);
-	if(strpos($requestPath, $basePath)){
+	if(stripos($requestPath, $basePath) !== FALSE){
 		return TRUE;
 	}
 	
@@ -149,20 +150,20 @@ function checkDir($requestPath, $basePath = false){
  * @return Akari\system\data\BaseCacheAdapter
  */
 function getCacheInstance($type = "File", $confId = 'default'){
-	static $CacheInstance = Array();
+	static $instances = [];
 	$type = $type ? $type : Context::$appConfig->defaultCacheType;
 	$type = ucfirst($type);
 
 	$cls = 'Akari\system\data'.NAMESPACE_SEPARATOR.$type."Adapter";
 	if(!class_exists($cls)){
-		throw new \Exception("[Akari.Cache] getCacheInstance Error, not found driver [$type]");
+		throw new \Exception("[Akari.Cache] create cache instance Error, not found driver [ $type ]");
 	}
 
-	if(!isset($CacheInstance[$type."_".$confId])){
-		$CacheInstance[$type."_".$confId] = new $cls($confId);
+	if(!isset($instances[$type."_".$confId])){
+		$instances[$type."_".$confId] = new $cls($confId);
 	}
 
-	return $CacheInstance[$type."_".$confId];
+	return $instances[$type."_".$confId];
 }
 
 /**
@@ -378,7 +379,7 @@ function T($tplName, $bindArr = []){
 		$arr = assign(NULL, NULL);
 		if (is_array($bindArr))	$arr =  array_merge($arr, $bindArr);
 
-		@extract($arr);
+		@extract($arr, EXTR_PREFIX_SAME, 'a_');
 		require TemplateHelper::load($tplName);
 	}
 }
@@ -531,7 +532,11 @@ function json_decode_nice($json, $assoc = TRUE){
     return json_decode($json, $assoc);
 }
 
-
+/**
+ * 调试个体成熟
+ *
+ * @param mixed $var 参数
+ */
 function dump($var) {
 	if (!CLI_MODE) {
 		echo "<style>pre{display: block; overflow: auto; background: #fafafa; color: #333; max-height: 300px; border: 1px #eee solid; max-width: 90%; margin: 10px; padding: 5px 10px;}</style>";
@@ -539,9 +544,7 @@ function dump($var) {
 	\Akari\system\exception\ExceptionProcessor::addDump($var);
 
     if (is_array($var)) {
-        echo "<pre>";
-        print_r($var);
-        echo "</pre>";
+        echo "<pre>";print_r($var);echo "</pre>";
     } else {
         var_dump($var);
     }

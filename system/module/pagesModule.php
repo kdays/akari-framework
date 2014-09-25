@@ -5,7 +5,7 @@ use Akari\utility\Pages;
 
 !defined("AKARI_PATH") && exit;
 
-Class pagesModule{
+Class PagesModule{
 	protected static $m;
 	public static function getInstance(){
 		if(!isset(self::$m)){

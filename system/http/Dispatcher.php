@@ -74,7 +74,7 @@ Class Dispatcher{
 		if(!is_array($list))	$list = explode("/", $list);
 
 		$basePath = implode(DIRECTORY_SEPARATOR, [
-            Context::$appBasePath, "app", $dir, ""
+            Context::$appBasePath, BASE_APP_DIR, $dir, ""
         ]);
 		$count = count($list);
 
