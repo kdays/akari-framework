@@ -98,7 +98,7 @@ Class DBAgentStatement {
 
             if(!empty($where)){
 	            // 注意找的是where空格 不是(where)
-	            $replace = (stripos($sql, " where ")===FALSE ? " WHERE" : " AND")." $where";
+	            $replace = (stripos($sql, " where ")===FALSE ? " WHERE" : " AND")." ".$where;
                 $sql = str_replace('(where)', $replace, $sql);
             }
         }
@@ -107,7 +107,7 @@ Class DBAgentStatement {
         if (!empty($this->_args['DATA'])) {
             $data = [];
             foreach ($this->_args['DATA'] as $key => $value) {
-                $data[] = "`$key`=".$this->pdo->quote($value);
+                $data[] = "`$key` = ".$parser->parseValue($value);
             }
 
             $sql = str_replace("(data)", implode(",", $data), $sql);
@@ -121,6 +121,11 @@ Class DBAgentStatement {
         if (!empty($this->_args['LIMIT'])) {
             $sql .= $this->_args['LIMIT'];
         }
+
+        foreach ($parser->_bind as $key => $value) {
+            $this->bindValue($key, $value);
+        }
+        $parser->cleanBind();
 
 	    $this->_parsedSQL = $sql;
 

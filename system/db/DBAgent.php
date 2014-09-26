@@ -186,10 +186,9 @@ Class DBAgent {
      * @throws DBAgentException
      */
     private function dispErrorInfo($errorArr) {
-        list($errorCode, $driverCode, $errorMsg) = $errorArr;
+        list($errorCode, , $errorMsg) = $errorArr;
 
-        throw new DBAgentException("[Akari.DBAgent] Query Error: $errorMsg
-            (D.$driverCode E.$errorCode) With SQL: ". $this->lastQuery);
+        throw new DBAgentException("[Akari.DBAgent] Query Error: $errorMsg ($errorCode) With SQL: ". $this->lastQuery);
     }
 
     /**
@@ -237,6 +236,16 @@ Class DBAgent {
      */
     public function rollback() {
         return $this->getPDOInstance()->rollBack();
+    }
+
+    /**
+     * 是否在事务状态
+     *
+     * @return bool
+     * @throws DBAgentException
+     */
+    public function inTransaction() {
+        return !!$this->getPDOInstance()->inTransaction();
     }
 
     /**

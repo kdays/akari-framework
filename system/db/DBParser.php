@@ -11,6 +11,11 @@ Class DBParser{
      * @var $pdo \PDO
      */
     public $pdo;
+
+    public $_bind = [];
+    public $_bindCount = 0;
+    private $autoBind = TRUE;
+
 	protected static $d;
 	public static function getInstance($pdo){
 		if(!isset(self::$d)){
@@ -25,7 +30,32 @@ Class DBParser{
 	 * 构造函数
 	 */
 	protected function __contruct(){
+
 	}
+
+    /**
+     * 清除当前Parser的绑定数组。
+     * 如果开启自动绑定，在parser完成该句SQL语句解析后必须调用。
+     *
+     * @return void
+     */
+    public function cleanBind() {
+        $this->_bind = [];
+        $this->_bindCount = 0;
+    }
+
+    /**
+     * 是否使用parser的自动绑定。
+     * 如果开启，需要再完成prepare解析后单独对parser的_bind进行循环绑定。
+     *
+     * 默认DBAgentStatement已经实现，建议开启（默认开启）
+     *
+     * @param bool $setTo 设定为
+     * @return void
+     */
+    protected function _setAutoBind($setTo = TRUE) {
+        $this->autoBind = !!$setTo;
+    }
 
 	/**
 	 * 过滤value
@@ -34,7 +64,14 @@ Class DBParser{
 	 * @return string
 	 **/
 	public function parseValue($value){
-		return $this->pdo->quote($value);
+        if ($this->autoBind) {
+            $SQLHeader = '_PDR';
+
+            $this->_bind[$SQLHeader . $this->_bindCount] = $value;
+            return ':' . $SQLHeader . $this->_bindCount++;
+        }
+
+        return $this->pdo->quote($value);
 	}
 
 	/**
@@ -276,7 +313,7 @@ Class DBParser{
 				$matchTmpStr = '';
 				$matchQuery = $where['MATCH'];
 
-				if (is_array($match_query) && isset($matchQuery['columns'], $matchQuery['keyword'])){
+				if (is_array($matchQuery) && isset($matchQuery['columns'], $matchQuery['keyword'])){
 					$str =  ($str=="" ? "" : ' AND'). ' MATCH ("' . str_replace('.', '"."', implode($matchQuery['columns'], '", "')) . '") AGAINST (' . $this->quote($matchQuery['keyword']) . ')';
 				}
 			}
@@ -309,7 +346,7 @@ Class DBParser{
 							$relation = 'USING ('.implode('", "', $relation). '")';
 						}else{
 							// ['table1' => 'table2']
-							$relation = 'ON ' . $table . '."' . key($relation) . '" = "' . $match[3] . '"."' . current($relation) . '"';
+							$relation = 'ON ' . $subTable . '."' . key($relation) . '" = "' . $match[3] . '"."' . current($relation) . '"';
 						}
 					}
 
@@ -334,14 +371,16 @@ Class DBParser{
 	}
 
 	public function parseOrder($order){
+        if (empty($order)) {
+            return '';
+        }
+
 		if(is_array($order)){
 			return ' ORDER BY FIELD(' . $this->parseColumn($order[0]) . ', ' . $this->parseArray($order[1]) . ')';
-		}else{
-			preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $order, $match);
-			return ' ORDER BY `' . str_replace('.', '"."', $match[1]) . '` ' . (isset($match[3]) ? $match[3] : '');
 		}
 
-		return '';
+        preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $order, $match);
+		return ' ORDER BY `' . str_replace('.', '"."', $match[1]) . '` ' . (isset($match[3]) ? $match[3] : '');
 	}
 
 	public function parseHaving($having){
@@ -386,6 +425,6 @@ Class DBParser{
 	}
 
 	public function parseDistinct( $field ){
-		return '';
+		return ' DISTINCT('.$field.') ';
 	}
 }

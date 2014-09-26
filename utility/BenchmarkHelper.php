@@ -35,15 +35,16 @@ Class BenchmarkHelper {
 
     /**
      * @param $point
+     * @return array|void
      */
     public static function setTimer( $point ) {
-        static $pointes = [];
+        static $points = [];
 
         if (empty($point)){
-            return $pointes;
+            return $points;
         }
 
-        $pointes[ $point ] = microtime(true);
+        $points[ $point ] = microtime(true);
     }
 
     /**
@@ -54,13 +55,13 @@ Class BenchmarkHelper {
      * @return array
      */
     public static function setSQLTimer($SQL, $action = 'start', $trace = [], $params = []) {
-        static $pointes = [];
+        static $points = [];
 
         if (empty($SQL)){
-            return $pointes;
+            return $points;
         }
 
-        $pointes[ ] = [
+        $points[ ] = [
             "t" => microtime(true),
             "sql" => $SQL,
             "trace" => $trace,

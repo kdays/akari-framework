@@ -81,7 +81,7 @@ Class curl{
 	 * @param string $url 地址
 	 * @param string $method 请求类型(GET/POST/PUT..)
 	 * @param array $params 参数
-	 * @return string
+	 * @return array {header, body, info}
 	 */
 	public function send($url, $method, $params = array()){
 		$method = strtoupper($method);
