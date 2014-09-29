@@ -31,12 +31,13 @@ Class BaseConfig{
 		),
 		Array(
 			'level' => AKARI_LOG_LEVEL_ALL,
-			'appender' => 'Akari\system\log\STDOutputLogger',
+			'appender' => 'Akari\system\log\StandardOutputLogger',
 			'enabled' => CLI_MODE
 		)
 	);
 
 	public $defaultExceptionHandler = 'Akari\system\exception\DefaultExceptionHandler';
+	public $defaultConsoleExceptionHandler = 'Akari\system\exception\DefaultConsoleExceptionHandler';
 	public $csrfProtect = true;
 	public $csrfTokenName = "_akari";
 

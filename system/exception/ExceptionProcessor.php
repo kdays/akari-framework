@@ -6,6 +6,15 @@ use Akari\system\Event;
 !defined("AKARI_PATH") && exit;
 
 Class ExceptionProcessor{
+
+	/**
+	 * 异常被执行时
+	 *
+	 * {class: string, message: string, file: string, line: int}
+	 */
+	const EVENT_EXCEPTION_EXECUTE = "coreException.exception";
+	const EVENT_FATAL_EXECUTE = "coreException.fatal";
+
 	protected $handler;
 	public static $p;
 	public static function getInstance(){
@@ -19,12 +28,10 @@ Class ExceptionProcessor{
 		if(!isset($this->handler))	throw $ex;
 		if(ob_get_level() > 0)	ob_end_clean();
 
-		Event::fire("coreException.exception", Array(
-					"class" => get_class($ex),
-					"message" => $ex->getMessage(),
-					"file" => $ex->getFile(),
-					"line" => $ex->getLine()
-				));
+		Event::fire(self::EVENT_EXCEPTION_EXECUTE, [
+			"class" => get_class($ex), "message" => $ex->getMessage(),
+			"file" => $ex->getFile(), "line" => $ex->getLine()
+		]);
 
 		// 策略是这样的 Handler我们觉得是没必要的 (放在exception里)
         // 所以当应用设定了exception时，先检查绑定的是否存在 -> 没有则调用exception里的处理
@@ -38,30 +45,31 @@ Class ExceptionProcessor{
         }
 	}
 
-	public function processError($errno, $errstr, $errfile, $errline, $errcontext) {
-		throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+	public function processError($errorNo, $errorMessage, $errorFile, $errorLine, $context) {
+		throw new \ErrorException($errorMessage, 0, $errorNo, $errorFile, $errorLine, $context);
 	}
 
 	public function processFatal(){
-		$e = error_get_last();
-		if($e){
-			$fatalArr = Array(E_ERROR, E_PARSE, E_CORE_ERROR, E_USER_ERROR);
-			if(in_array($e['type'], $fatalArr)){
-				if(ob_get_level() > 0)	ob_end_clean();
+		$lastError = error_get_last();
+		if(!$lastError) {
+			return ;
+		}
 
-				Event::fire("coreException.fatal", Array(
-					"type" => $e['type'],
-					"message" => $e['message'],
-					"file" => $e['file'],
-					"line" => $e['line']
-				));
+		$doCatch = [E_ERROR, E_PARSE, E_CORE_ERROR, E_USER_ERROR];
+		if(in_array($lastError['type'], $doCatch)){
+			if(ob_get_level() > 0)	ob_end_clean();
 
-                if (method_exists($this->handler, 'handleFatal')) {
-                    $this->handler->handleFatal($e['type'], $e['message'], $e['file'], $e['line']);
-                } else {
-                    throw new \Exception($e['message'], 0);
-                }
-			}
+			Event::fire(self::EVENT_FATAL_EXECUTE, [
+				"type" => $lastError['type'], "message" => $lastError['message'],
+				"file" => $lastError['file'], "line" => $lastError['line']
+			]);
+
+            if (method_exists($this->handler, 'handleFatal')) {
+                $this->handler->handleFatal($lastError['type'], $lastError['message'], $lastError['file'], $lastError['line']);
+                return ;
+            }
+
+			throw new \Exception($lastError['message'], 0);
 		}
 	}
 

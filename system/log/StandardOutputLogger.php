@@ -5,7 +5,7 @@ use Akari\system\console\ConsoleOutput;
 
 !defined("AKARI_PATH") && exit;
 
-Class STDOutputLogger{
+Class StandardOutputLogger{
 	private static $l;
     /**
      * @var \Akari\system\console\ConsoleOutput

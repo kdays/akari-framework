@@ -9,7 +9,7 @@ namespace Akari;
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
 define("AKARI_VERSION", "2.9 (Rhapsody)");
-define("AKARI_BUILD", "2014.9.26");
+define("AKARI_BUILD", "2014.9.29");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 define("NAMESPACE_SEPARATOR", "\\");
@@ -195,8 +195,12 @@ Class akari{
 	 * @return void
 	 */
 	public function setExceptionHandler(){
-		if(isset(Context::$appConfig->defaultExceptionHandler)){
-			ExceptionProcessor::getInstance()->setHandler(Context::$appConfig->defaultExceptionHandler);
+		$config = Context::$appConfig;
+
+		if (CLI_MODE && isset($config->defaultConsoleExceptionHandler)) {
+			ExceptionProcessor::getInstance()->setHandler($config->defaultConsoleExceptionHandler);
+		} elseif (!CLI_MODE && isset($config->defaultExceptionHandler)) {
+			ExceptionProcessor::getInstance()->setHandler($config->defaultExceptionHandler);
 		}
 	}
 	
@@ -205,11 +209,10 @@ Class akari{
 	 * 
 	 * @param string $uri URI地址
 	 * @param boolean $outputBuffer 是否启用输出缓存
-	 * @param string $params CLI模式时传递用的参数
 	 * @throws \Exception
 	 * @return akari
 	 */
-	public function run($uri = NULL, $outputBuffer = true, $params = ""){
+	public function run($uri = NULL, $outputBuffer = true){
 		$config = Context::$appConfig;
 
 		if (CLI_MODE && function_exists("cli_set_process_title")) {
@@ -240,7 +243,9 @@ Class akari{
 
 		if($clsPath){
 			Context::$appEntryPath = str_replace(Context::$appBasePath, '', $clsPath);
-			if (!CLI_MODE)   TriggerRule::getInstance()->commitPreRule();
+			if (!CLI_MODE) {
+				TriggerRule::getInstance()->commitPreRule();
+			}
 
 			// 如有特定某些触发器时 使用这个可以更精确的处理
 			$_doAction = str_replace(Array(Context::$appBasePath, BASE_APP_DIR.'/action/', '.php'), '',

@@ -81,7 +81,7 @@ Class curl{
 	 * @param string $url 地址
 	 * @param string $method 请求类型(GET/POST/PUT..)
 	 * @param array $params 参数
-	 * @return array {header, body, info}
+	 * @return CUrlResponseObj {header, body, info}
 	 */
 	public function send($url, $method, $params = array()){
 		$method = strtoupper($method);
@@ -112,13 +112,13 @@ Class curl{
 		
 		$result = $this->execute($url, $options);
 		
-		$message = array();
-		$message['info'] = $this->getInfo();
+		$message = new CUrlResponseObj();
+		$message->info = $this->getInfo();
 		
-		$header_size = $message['info']['header_size'];
-		$message['header'] = preg_split('/\r\n/', substr($result, 0, $header_size), 0, PREG_SPLIT_NO_EMPTY);
+		$header_size = $message->info['header_size'];
+		$message->header = preg_split('/\r\n/', substr($result, 0, $header_size), 0, PREG_SPLIT_NO_EMPTY);
 		
-		$message['body'] = substr($result, $header_size);
+		$message->body = substr($result, $header_size);
 		
 		return $message;
 	}
@@ -127,7 +127,7 @@ Class curl{
 	 * 发送GET请求
 	 * @param string $url URL地址
 	 * @param array $params 参数
-	 * @return array 结果数组中header为头部信息 info为curl的信息 body为内容
+	 * @return CUrlResponseObj 结果数组中header为头部信息 info为curl的信息 body为内容
 	 */
 	public function get($url, $params = array()){
 		return $this->send($url, 'GET', $params);
@@ -137,7 +137,7 @@ Class curl{
 	 * 发送POST请求
 	 * @param string $url URL地址
 	 * @param array $params 参数
-	 * @return array 结果数组中header为头部信息 info为curl的信息 body为内容
+	 * @return CUrlResponseObj 结果数组中header为头部信息 info为curl的信息 body为内容
 	 */
 	public function post($url, $params = array()){
 		return $this->send($url, 'POST', $params);
@@ -147,7 +147,7 @@ Class curl{
 	 * 获得头部信息
 	 * @param string $url URL地址
 	 * @param array $params 参数
-	 * @return array 结果数组中header为头部信息 info为curl的信息 body为空
+	 * @return CUrlResponseObj 结果数组中header为头部信息 info为curl的信息 body为空
 	 */
 	public function head($url, $params = array()){
 		return $this->send($url, 'HEAD', $params);
@@ -156,4 +156,14 @@ Class curl{
 
 Class CURLException extends \Exception{
 	
+}
+
+Class CUrlResponseObj {
+
+	public $header;
+
+	public $body;
+
+	public $info;
+
 }

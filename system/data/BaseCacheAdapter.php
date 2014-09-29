@@ -7,6 +7,7 @@ use Akari\utility\BenchmarkHelper;
 !defined("AKARI_PATH") && exit;
 
 abstract Class BaseCacheAdapter{
+
 	protected $handler;
 	protected $options = array();
 

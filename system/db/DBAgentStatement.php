@@ -141,7 +141,7 @@ Class DBAgentStatement {
         $sql = $this->getParsedSQL();
         if (!empty($this->_bind)) {
             foreach ($this->_bind as $key => $value) {
-                $sql = str_replace($key, $value, $sql);
+                $sql = str_replace($key, "'".$value."'", $sql);
             }
         }
 

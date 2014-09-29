@@ -32,12 +32,20 @@ Class Logging{
 
 		if(!$strLevel)	$strLevel = self::$strLevel[$level];
 
+		$toLower = [
+			'DEBUG' => 'DBG',
+			'INFO' => 'INF',
+			'WARNING' => 'WRN',
+			'ERROR' => 'ERR',
+			'FATAL' => 'FAT'
+		];
+
 		foreach($logs as $log){
 			$logLevel = $log['level'];
 			if($level & $logLevel){
 				$appender = $log['appender']::getInstance($log['params']);
 				$appender->append(
-					'[' . $strLevel . '] ' .
+					'[' . $toLower[$strLevel] . '] ' .
 					self::_dumpObj($msg), $strLevel);
 			}
 		}

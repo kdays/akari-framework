@@ -1,6 +1,7 @@
 <?php
 namespace Akari\system\db;
 
+use Akari\system\Event;
 use Akari\system\log\Logging;
 use Akari\utility\BenchmarkHelper;
 use \PDO;
@@ -8,6 +9,9 @@ use \PDO;
 Class DBAgent {
 
     public $doBenchmark = FALSE;
+
+    const EVENT_DB_QUERY = "DBAgent.Query";
+    const EVENT_DB_INIT = "DBAgent.Init";
 
     /**
      * 性能记录
@@ -54,6 +58,7 @@ Class DBAgent {
             extract($this->options);
 
             try {
+                Event::fire(self::EVENT_DB_INIT);
                 $this->pdo = new PDO($dsn, $username, $password, $options);
             } catch (\PDOException $e) {
                 Logging::_logErr($e);
@@ -207,6 +212,8 @@ Class DBAgent {
 
         $this->lastQuery = $sql->getDebugSQL();
         $this->logBenchmark('start');
+
+        Event::fire(self::EVENT_DB_QUERY, ["SQL" => $this->lastQuery]);
 
         return $sql;
     }

@@ -538,13 +538,38 @@ function json_decode_nice($json, $assoc = TRUE){
  * @param mixed $var 参数
  */
 function dump($var) {
-	if (!CLI_MODE) {
-		echo "<style>pre{display: block; overflow: auto; background: #fafafa; color: #333; max-height: 300px; border: 1px #eee solid; max-width: 90%; margin: 10px; padding: 5px 10px;}</style>";
+	static $dispCSS = FALSE;
+
+	if (!CLI_MODE && !$dispCSS) {
+		$preStyle = <<<'PRE_STYLE'
+<style>
+pre{
+	display: block;
+	overflow: auto;
+	background: #fafafa;
+	color: #333;
+	max-height: 300px;
+	border: 1px #eee solid;
+	max-width: 90%;
+	margin: 10px;
+	padding: 5px 10px;
+}
+</style>
+PRE_STYLE;
+
+		$dispCSS = true;
+		echo $preStyle;
 	}
 	\Akari\system\exception\ExceptionProcessor::addDump($var);
 
     if (is_array($var)) {
-        echo "<pre>";print_r($var);echo "</pre>";
+	    $dump = function() use($var) {
+		    echo "<pre>"; print_r($var); echo "</pre>";
+	    };
+
+	    CLI_MODE ? print_r($var) : $dump();
+    } elseif (is_string($var)) {
+	    echo (CLI_MODE ? $var : "<pre>".$var."</pre>")."\n";
     } else {
         var_dump($var);
     }

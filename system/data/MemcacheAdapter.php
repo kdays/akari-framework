@@ -28,11 +28,15 @@ Class MemcacheAdapter extends BaseCacheAdapter{
 	}
 
 	public function remove($name){
-		return $this->handler->delete($this->options['prefix'].$name);
+		$name = $this->options['prefix'].$name;
+
+		return $this->handler->delete($name);
 	}
 	
 	public function get($name, $defaultValue = NULL) {
-		$result = $this->handler->get($this->options['prefix'].$name);
+		$name = $this->options['prefix'].$name;
+
+		$result = $this->handler->get($name);
         if (!$result) {
             $this->benchmark(BenchmarkHelper::FLAG_MISS);
             return $defaultValue;
@@ -56,6 +60,7 @@ Class MemcacheAdapter extends BaseCacheAdapter{
 		}
 
 		$name = $this->options['prefix'].$name;
+
 		if($this->handler->set($name, $value, 0, $expire)) {
 			return true;
 		}

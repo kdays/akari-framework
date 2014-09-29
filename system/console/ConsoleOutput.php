@@ -42,7 +42,7 @@ Class ConsoleOutput {
         'error' => ['text' => 'red', 'underline' => true],
         'warning' => ['text' => 'yellow'],
         'info' => ['text' => 'cyan'],
-        'debug' => ['text' => 'yellow'],
+        'debug' => ['text' => 'white'],
         'success' => ['text' => 'green'],
         'comment' => ['text' => 'blue'],
         'question' => ['text' => 'magenta'],
