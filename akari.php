@@ -138,6 +138,12 @@ Class akari{
 		return self::$f;
 	}
 
+	public static function getVersion($dispCodeName = true) {
+		$version = AKARI_VERSION;
+
+		return $dispCodeName ? $version : preg_replace('/\(\w+\)/', "", $version);
+	}
+
     /**
      * 初始化框架，载入设定和组件，并设定错误处理器
      *

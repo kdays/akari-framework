@@ -1,6 +1,8 @@
 <?php
 namespace Akari\utility;
 
+use Akari\model\MailModel;
+
 !defined("AKARI_PATH") && exit;
 
 import("core.external.PHPMailer.phpmailer");
@@ -16,7 +18,6 @@ Class SendMail{
 			
 		'AltBody' => 'To view the message, please use an HTML compatible email viewer!'
 	);
-	public static $ErrorMessage = false;
 
 	/**
 	 * 传递Mail上的参数
@@ -32,6 +33,7 @@ Class SendMail{
 	 * 邮件发送
 	 *
 	 * @param MailModel $m 邮件模型
+	 * @return bool
 	 */
 	public static function send(MailModel $m){
 		return self::_send(
@@ -41,7 +43,7 @@ Class SendMail{
 			$m->displayName
 		);
 	}
-	
+
 	/**
 	 * 发送邮件
 	 *
@@ -50,6 +52,8 @@ Class SendMail{
 	 * @param string $content 邮件内容
 	 * @param string $user 接受者名称
 	 * @param string $senderName 发送人显示名称
+	 * @throws MailException
+	 * @return bool
 	 */
 	public static function _send($address, $subject, $content, $user='User', $senderName='KDays'){
 		$mailObj = self::createMailObject(self::$options['Username'], $senderName);
@@ -57,15 +61,13 @@ Class SendMail{
 		$mailObj->Subject = $subject;
 		$mailObj->AddAddress($address, $user);
 		
-		$mailObj->MsgHTML( eregi_replace("[\]" , '', $content) );
+		$mailObj->MsgHTML($content);
 		
 		if($mailObj->Send()){
 			return true;
-		}else{
-			self::$ErrorMessage = $mailObj->ErrorInfo;
-			
-			return false;
 		}
+
+		throw new MailException($mailObj->ErrorInfo);
 	}
 	
 	/**
@@ -76,16 +78,25 @@ Class SendMail{
 	 * @return object PHPMailer对象
 	 */
 	 public static function createMailObject($address, $senderName){
-	 	 $mail = new PHPMailer();
+	 	 $mail = new \PHPMailer();
 	 	 
 	 	 $mail->IsSMTP();
 	 	 $mail->SMTPDebug = 0;
 	 	 $mail->SetFrom($address, $senderName);
-	 	 
+
+		 self::$options = array_merge( self::$options, C("mail", []) );
 	 	 foreach(self::$options as $key => $value){
 	 	 	 $mail->{$key} = $value;
 	 	 }
 	 	 
 	 	 return $mail;
 	 }
+}
+
+Class MailException extends \Exception{
+
+	public function __construct($message) {
+		$this->message = "send email failed: ".$message;
+	}
+
 }

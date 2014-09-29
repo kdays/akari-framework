@@ -23,7 +23,9 @@ Class CodeModel extends Model{
     }
     
     public function getCode($name, $defaultValue = FALSE){
-        if($this->$name)    return $this->$name;
+        if($this->$name) {
+            return $this->$name;
+        }
         return $defaultValue;
     }
     

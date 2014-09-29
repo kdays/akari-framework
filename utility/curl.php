@@ -16,7 +16,7 @@ Class curl{
 	 */
 	public function __construct(){
 		if(!function_exists("curl_init")){
-			throw new CURLException("no CURL");
+			throw new CURLException("curl not installed");
 		}
 	}
 	
@@ -55,7 +55,7 @@ Class curl{
 		curl_setopt_array($handler, $opts);
 		$result = curl_exec($handler);
 		if($result === false){
-			throw new CURLException("CURL ERROR: ".curl_error($handler), curl_errno($handler));
+			throw new CURLException(curl_error($handler), curl_errno($handler), $url);
 		}
 		
 		$this->handler = $handler;
@@ -155,15 +155,42 @@ Class curl{
 }
 
 Class CURLException extends \Exception{
-	
+	/**
+	 * @param string $message
+	 * @param int $code
+	 * @param string $requestURL
+	 */
+	public function __construct($message, $code = NULL, $requestURL = "") {
+		$this->message = "CURL ERROR: ". $message;
+		$this->code = $code;
+
+		// 如果指示当前的CURL类没有任何意义
+		if (!empty($requestURL)) {
+			$trace = debug_backtrace();
+			if (isset($trace[3])) {
+				$this->file = $trace[3]['file'];
+				$this->line = $trace[3]['line'];
+			}
+		}
+	}
 }
 
 Class CUrlResponseObj {
-
+	/**
+	 * Http头信息
+	 * @var array
+	 */
 	public $header;
 
+	/**
+	 * 请求的内容信息，在使用head时为null
+	 * @var string|NULL
+	 */
 	public $body;
 
+	/**
+	 * CURL一些请求到的资料，如http_code
+	 * @var array
+	 */
 	public $info;
-
 }

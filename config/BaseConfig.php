@@ -68,13 +68,20 @@ Class BaseConfig{
 
 	public $triggerRule = Array(
 		"pre" => Array(
-		//	Array('/KK/', 'a')
+			//['/^(?!widget).*/is', 'GetLoginInfo'],
 		)
 	);
 
 	public $URLRewrite = Array(
-		//"/kkd\/(.+)/" => 'manager/test'
+		//'/^(game|character|company)\/(\d+)\/(\w+)/' => 'TestFunction',
+		//'/^(create|edit)\/(\w+)/' => 'test/@2'
 	);
+
+	public $mail = [
+		'Username' => '',
+		'Password' => '',
+		'Host' => 'smtp.qq.com'
+	];
 
 	public $uploadDir = '/static/attachment';
 	public $allowUploadExt = Array("jpg", "gif", "png");
