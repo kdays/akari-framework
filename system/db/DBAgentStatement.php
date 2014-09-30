@@ -64,6 +64,12 @@ Class DBAgentStatement {
         $this->_args['WHERES'] = $data;
     }
 
+    /**
+     * 设置SQL的LIMIT
+     * 传入[0, 10] => LIMIT 0, 10  传入10 => LIMIT 10
+     *
+     * @param int|array $limit
+     */
     public function setLimit($limit) {
         $this->_args['LIMIT'] = $this->parser->parseLimit($limit);
     }

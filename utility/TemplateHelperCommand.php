@@ -23,6 +23,10 @@ Class TemplateHelperCommand{
         return TemplateHelper::load($id, false, false);
     }
 
+    public static function panel($id) {
+        return TemplateHelper::load("../partial/$id", false, false);
+    }
+
     public static function module($id, $data = '') {
 	    $id = ucfirst($id);
         $appPath = Context::$appBasePath.DIRECTORY_SEPARATOR.BASE_APP_DIR."/lib/{$id}Module.php";
@@ -39,6 +43,22 @@ Class TemplateHelperCommand{
         $clsObj = $clsName::getInstance();
 
         return $clsObj->run($data);
+    }
+
+    public static function widget($id) {
+        $widgetPath = implode(DIRECTORY_SEPARATOR, [
+            Context::$appBasePath, BASE_APP_DIR, "widget", $id.".php"
+        ]);
+
+        if (file_exists($widgetPath)) {
+            $widgetResult = require($widgetPath);
+            if (!empty($widgetResult)) {
+                @extract($widgetResult);
+                require T("../partial/".$id, FALSE);
+            }
+        } else {
+            throw new \Exception("Template Widget $id not found");
+        }
     }
 
     /**

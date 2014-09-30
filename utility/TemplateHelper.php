@@ -20,7 +20,7 @@ Class TemplateHelper{
 			$tplName = "$bDir/$tplName";
 		}
 
-		$tplPath = Context::$appBasePath.DIRECTORY_SEPARATOR.BASE_APP_DIR."/template/$tplName";
+		$tplPath = Context::$appBasePath.DIRECTORY_SEPARATOR.BASE_APP_DIR."/template/view/$tplName";
 		$tplPath .= Context::$appConfig->templateSuffix ? Context::$appConfig->templateSuffix : ".htm";
 
 		if(!file_exists($tplPath)){
@@ -64,9 +64,9 @@ Class TemplateHelper{
 		}
 
 		if($useLayout && $layoutPath) {
-			$tplId = "Layout_".str_replace('/', '_', $tplName);
+			$tplId = "Layout_".str_replace(['/', '..'], '_', $tplName);
 		} else {
-			$tplId = str_replace('/', '_', $tplName);
+			$tplId = str_replace(['/', '..'], '_', $tplName);
 		}
 
 		$cachePath = Context::$appBasePath.Context::$appConfig->templateCache."/$tplId.php";
@@ -146,7 +146,9 @@ Class TemplateHelper{
 			case "include":
 				return "<?php require TemplateHelperCommand::template('$end_str'); ?>";
 			case "panel":
-				return "<?php require TemplateHelperCommand::template('panel/$end_str'); ?>";
+				return "<?php require TemplateHelperCommand::panel('$end_str'); ?>";
+			case "widget":
+				return "<?php TemplateHelperCommand::widget('$end_str'); ?>";
 			case "layout":
 				return '<?php require TemplateHelperCommand::getScreen();?>';
 			case "module":

@@ -69,7 +69,7 @@ if(!CLI_MODE){
 	    echo("\nusage: php -f index.php taskURI parameter\n\n");
 	    exit();
 	}
-	akari::getInstance()->initApp(__DIR__, __NAMESPACE__)->run($argv[1], FALSE, $argv[2]);
+	akari::getInstance()->initApp(__DIR__, __NAMESPACE__)->run($argv[1], FALSE);
 }
 INDEX;
 
@@ -88,6 +88,9 @@ $dirList = [
 	"app/service",
 	"app/task",
 	"app/template",
+	"app/template/layout",
+	"app/template/partial",
+	"app/template/view",
 	"app/trigger"
 ];
 
