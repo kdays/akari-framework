@@ -15,6 +15,7 @@ define('AKARI_URI_REQUESTURI', 3);
 
 define("AKARI_NS", "Akari");
 define("DEBUG_MODE", 1);
+define("USE_RESULT_PROCESSOR", false);
 define("BASE_APP_DIR", "app");
 define("BASE_CACHE_DIR", "data");
 

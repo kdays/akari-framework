@@ -9,7 +9,7 @@ namespace Akari;
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
 define("AKARI_VERSION", "2.9 (Rhapsody)");
-define("AKARI_BUILD", "2014.9.30");
+define("AKARI_BUILD", "2014.10.3");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 define("NAMESPACE_SEPARATOR", "\\");
@@ -116,6 +116,8 @@ Class Context{
 }
 spl_autoload_register(Array('Akari\Context', 'autoload'));
 
+use Akari\system\result\ResultProcessor;
+use Akari\system\ResultHelper;
 use Akari\system\TriggerRule;
 use Akari\system\log\Logging;
 use Akari\system\http\Dispatcher;
@@ -192,6 +194,7 @@ Class akari{
 		Header("X-Framework: Akari Framework ". AKARI_BUILD);
 		$this->loadExternal();
 		$this->setExceptionHandler();
+		ResultProcessor::getInstance()->setDefaultResultHandler('\Akari\system\result\DefaultResult');
 
 		return $this;
 	}
@@ -259,6 +262,13 @@ Class akari{
 			Event::fire("action.".str_replace("/", ".", $_doAction));
 
             BenchmarkHelper::setTimer("app:start");
+
+			/*$result = require($clsPath);
+
+			if (!is_a($result, '\Akari\system\result\Result')) {
+				$result = ResultProcessor::getInstance()->doInit($result);
+			}
+			$result->doProcess();*/
 			require($clsPath);
             BenchmarkHelper::setTimer("app:end");
 			if (!CLI_MODE)  TriggerRule::getInstance()->commitAfterRule();

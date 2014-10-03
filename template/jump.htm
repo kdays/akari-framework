@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <title>页面跳转</title>
-<!--<?php print <<<EOT
---> 
-    <meta http-equiv="refresh" content="$time;url=$URL">
+
+    <base href="<?php echo akari\Context::$appConfig->appBaseURL ?>" />
+    <meta http-equiv="refresh" content="<?php echo $time ?>;url=<?php echo $URL ?>">
 </head>
 
 <style>
@@ -40,20 +40,17 @@ p{ padding: 5px 3px; font-size: 16px;}
     <div id="wrap">
         <div id="content">
             <h1>:) <span>跳转中</span></h1>
-            <p>$message</p>
+            <p><?php echo $message ?></p>
             
-            <a href="$URL" id="jumpURL">点击这里手动跳转</a>
+            <a href="<?php echo $URL ?>" id="jumpURL">点击这里手动跳转</a>
         </div>
         
         <div id="version">
-	       Akari Framework <span class="ver">$version</span>
+	       Akari Framework <span class="ver"><?php echo $version ?></span>
 	       <div id="site">
-	           <b>Code By</b> <a href="http://kdays.cn/">KDays Team</a> (Build: $build)
+	           <b>Code By</b> <a href="http://kdays.cn/">KDays Team</a> (Build: <?php echo $build ?>)
 	    </div>
     </div>
     </div>
 </body>
 </html>
-<!--
-EOT;
-?>-->

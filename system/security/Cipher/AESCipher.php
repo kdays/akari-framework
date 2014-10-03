@@ -60,12 +60,15 @@ Class AESCipher extends Cipher{
 
 
 	public function hex2bin($hex) {
+		if (function_exists("hex2bin")) {
+			return hex2bin($hex);
+		}
 		return $hex !== false && preg_match('/^[0-9a-fA-F]+$/i', $hex) ? pack("H*", $hex) : false;
 	}
 
 	public function pkcs5_pad($text, $blockSize = FALSE){
 		if(!$blockSize){
-			$blockSize = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
+			$blockSize = mcrypt_get_block_size($this->cipher, $this->mode);
 		}
 		$pad = $blockSize - (strlen($text) % $blockSize);
 		return $text . str_repeat(chr($pad), $pad);

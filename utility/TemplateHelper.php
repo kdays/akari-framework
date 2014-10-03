@@ -1,6 +1,7 @@
 <?php
 namespace Akari\utility;
 
+use Akari\config\ConfigItem;
 use Akari\Context;
 use Akari\system\http\Dispatcher;
 use Exception;
@@ -16,7 +17,7 @@ Class TemplateHelper{
 			$useLayout = false;
 		}
 
-		if($bDir = C("templateBaseDir")){
+		if($bDir = C(ConfigItem::templateBaseDir)){
 			$tplName = "$bDir/$tplName";
 		}
 
@@ -35,18 +36,18 @@ Class TemplateHelper{
 		if($updateLast) Context::$lastTemplate = $tplName;
 
 		// 如果有Layout的话 处理layout
-		if(C("closeLayout") === TRUE){
+		if(C(ConfigItem::closeLayout) === TRUE){
 			$useLayout = FALSE; 
 		}
 
 		// 检查layout文件
+		$layoutPath = NULL;
 		if ($useLayout) {
 			$layoutDir = Context::$appBasePath.DIRECTORY_SEPARATOR.BASE_APP_DIR."/template/layout/";
-			$layoutPath = NULL;
 			$layoutSuffix = Context::$appConfig->layoutSuffix ? Context::$appConfig->layoutSuffix : ".htm";
 
-			if(C("customLayout")){
-				$layoutPath = $layoutDir.C("customLayout");
+			if(C(ConfigItem::customLayout)){
+				$layoutPath = $layoutDir.C(ConfigItem::customLayout);
 			} else {
 				$layoutPath = Dispatcher::getInstance()->findPath(Context::$innerURI, "template/layout", $layoutSuffix);
 			}
@@ -92,9 +93,6 @@ Class TemplateHelper{
 	public static function parse($template){
 		$const_regexp = "([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
 		$var_regexp = "((\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*(\-\>)?[a-zA-Z0-9_\x7f-\xff]*)(\[[a-zA-Z0-9_\-\.\"\'\[\]\$\x7f-\xff]+\])*)";
-		
-		//$template = preg_replace('/<!--#(.*?)-->/ieu', "self::command_parse('\\1')", $template);
-		//$template = preg_replace('/\{\%(.*?)\}/ieu', "self::command_lang('\\1')", $template);
 
 		$template = preg_replace_callback('/\{\%(.*?)\}/iu', function($matches) {
 			return TemplateHelper::command_lang($matches[1]);
@@ -103,10 +101,6 @@ Class TemplateHelper{
 		$template = preg_replace_callback('/<!--#(.*?)-->/iu', function($matches) {
 			return TemplateHelper::command_parse($matches[1]);
 		}, $template);
-        /*$$template = preg_replace("/\{$const_regexp\}/s", "<?=\\1?>", $template);
-        $template = preg_replace("/$var_regexp/es", "self::addquote('<?=\\1?>')", $template);
-        template = preg_replace("/\<\?\=\<\?\=$var_regexp\?\>\?\>/es", "self::addquote('<?=\\1?>')", $template);
-        */
 
         $template = preg_replace_callback('/\{'.$const_regexp.'\}/s', function($matches) {
             return '<?='.$matches[1].'?>';

@@ -45,16 +45,16 @@ Class TemplateHelperCommand{
         return $clsObj->run($data);
     }
 
-    public static function widget($id) {
+    public static function widget($widgetName) {
         $widgetPath = implode(DIRECTORY_SEPARATOR, [
-            Context::$appBasePath, BASE_APP_DIR, "widget", $id.".php"
+            Context::$appBasePath, BASE_APP_DIR, "widget", $widgetName.".php"
         ]);
 
         if (file_exists($widgetPath)) {
             $widgetResult = require($widgetPath);
-            if (!empty($widgetResult)) {
+            if (is_array($widgetResult)) {
                 @extract($widgetResult);
-                require T("../partial/".$id, FALSE);
+                require T("../partial/".$widgetName, FALSE);
             }
         } else {
             throw new \Exception("Template Widget $id not found");

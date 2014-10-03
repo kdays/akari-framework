@@ -1,6 +1,7 @@
 <?php
 !defined("AKARI_PATH") && exit;
 
+use Akari\config\ConfigItem;
 use Akari\Context;
 use Akari\system\log\Logging;
 use Akari\utility\I18n;
@@ -372,8 +373,13 @@ function T($tplName, $bindArr = []){
 	if($bindArr === FALSE){
 		return TemplateHelper::load($tplName);
 	}else{
+		if (USE_RESULT_PROCESSOR) {
+			$result = new \Akari\system\result\TemplateResult($tplName, $bindArr);
+			return $result;
+		}
+
 		if (is_string($bindArr)) {
-			C("customLayout", $bindArr);
+			C(ConfigItem::customLayout, $bindArr);
 		}
 
 		$arr = assign(NULL, NULL);
