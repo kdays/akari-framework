@@ -38,18 +38,45 @@ Class DBAgentStatement {
         $this->_args = [];
     }
 
+    /**
+     * 在当前SQL语句后面追加str
+     *
+     * @param string $str
+     */
 	public function addSQL($str) {
 		$this->SQL .= $str;
 	}
 
+    /**
+     * PDO的参数绑定
+     * 举例: bindValue('a', 'b')会绑定sql语句中的:a
+     *
+     * @param string $key 键
+     * @param string|int $value 值
+     */
     public function bindValue($key, $value) {
         $this->_bind[':'. $key] = $value;
     }
 
+    /**
+     * 添加排序值，如id DESC
+     * 可多次调用
+     *
+     * @param $order
+     */
     public function addOrder($order) {
         $this->_args['ORDER'][] = $order;
     }
 
+    /**
+     * 添加where的替换字段，SQL语句需要有(where)用来替换
+     * 举例添加一个field=a,value=b 那么会自动替换成 WHERE a = 'b'
+     * 此外语句中如果已经有WHERE时，(where)的替换开头会自动变成 AND `a` = 'b'
+     * 此外value如果为数组时，自动会解析为IN查询
+     *
+     * @param string $field
+     * @param mixed $value
+     */
     public function addWhere($field, $value) {
         $this->_args['WHERE'][$field] = $value;
     }
@@ -74,10 +101,23 @@ Class DBAgentStatement {
         $this->_args['LIMIT'] = $this->parser->parseLimit($limit);
     }
 
+    /**
+     * 类似WHERE，会替换SQL语句中的(data)
+     * 会替换成`field1` = 'value1', `field2` = 'value2'
+     *
+     * @param string $field
+     * @param string|int $value
+     */
     public function addData($field, $value) {
         $this->_args['DATA'][$field] = $value;
     }
 
+    /**
+     * 参考addData，只是一次性设定DATA的值
+     * 传入一个数组
+     *
+     * @param array $data
+     */
     public function setData($data) {
         $this->_args['DATA'] = $data;
     }

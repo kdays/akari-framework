@@ -2,6 +2,7 @@
 namespace Akari\system\exception;
 
 use Akari\system\Event;
+use Akari\system\result\ResultProcessor;
 
 !defined("AKARI_PATH") && exit;
 
@@ -36,13 +37,18 @@ Class ExceptionProcessor{
 		// 策略是这样的 Handler我们觉得是没必要的 (放在exception里)
         // 所以当应用设定了exception时，先检查绑定的是否存在 -> 没有则调用exception里的处理
         // 都没有就报错
+		$result = NULL;
         if (method_exists($this->handler, 'handleException')) {
-            $this->handler->handleException($ex);
+            $result = $this->handler->handleException($ex);
         } else {
             if(method_exists($ex, "handleException")) {
-                $ex->handleException($ex);
+                $result = $ex->handleException($ex);
             }
         }
+
+		if (is_a($result, '\Akari\system\result\Result') ) {
+			$result->doProcess();
+		}
 	}
 
 	public function processError($errorNo, $errorMessage, $errorFile, $errorLine, $context) {
@@ -52,7 +58,7 @@ Class ExceptionProcessor{
 	public function processFatal(){
 		$lastError = error_get_last();
 		if(!$lastError) {
-			return ;
+			return false;
 		}
 
 		$doCatch = [E_ERROR, E_PARSE, E_CORE_ERROR, E_USER_ERROR];
@@ -65,8 +71,12 @@ Class ExceptionProcessor{
 			]);
 
             if (method_exists($this->handler, 'handleFatal')) {
-                $this->handler->handleFatal($lastError['type'], $lastError['message'], $lastError['file'], $lastError['line']);
-                return ;
+                $result = $this->handler->handleFatal($lastError['type'], $lastError['message'],
+	                $lastError['file'], $lastError['line']);
+
+	            if (is_a($result, '\Akari\system\result\Result') ) {
+		            $result->doProcess();
+	            }
             }
 
 			throw new \Exception($lastError['message'], 0);
