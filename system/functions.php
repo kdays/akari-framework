@@ -474,36 +474,17 @@ function formatSize($size, $dec = 2){
     return round($size, $dec)." ".$a[$pos];
 }
 
-/**
- * 抽取多维数组的某个元素,组成一个新数组,使这个数组变成一个扁平数组
- * 使用方法:
- * <code>
- * <?php
- * $fruit = array(array('apple' => 2, 'banana' => 3), array('apple' => 10, 'banana' => 12));
- * $banana = arrayFlatten($fruit, 'banana');
- * print_r($banana);
- * //outputs: array(0 => 3, 1 => 12);
- * ?>
- * </code>
- *
- * @param array $value 被处理的数组
- * @param string $key 需要抽取的键值
- * @return array
- */
-function array_flatten(array $value, $key){
-    $result = array();
-
-    if ($value) {
-        foreach ($value as $inval) {
-            if (is_array($inval) && isset($inval[$key])) {
-                $result[] = $inval[$key];
-            } else {
-                break;
-            }
-        }
-    }
-
-    return $result;
+function array_flatten($array, $preserve_keys = 1, &$newArray = Array()) {
+	foreach ($array as $key => $child) {
+		if (is_array($child)) {
+			$newArray =& array_flatten($child, $preserve_keys, $newArray);
+		} elseif ($preserve_keys + is_string($key) > 1) {
+			$newArray[$key] = $child;
+		} else {
+			$newArray[] = $child;
+		}
+	}
+	return $newArray;
 }
 
 /**

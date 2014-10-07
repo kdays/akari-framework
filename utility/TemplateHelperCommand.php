@@ -54,10 +54,10 @@ Class TemplateHelperCommand{
             $widgetResult = require($widgetPath);
             if (is_array($widgetResult)) {
                 @extract($widgetResult);
-                require T("../partial/".$widgetName, FALSE);
+                require TemplateHelper::load("../partial/$widgetName", false, false);
             }
         } else {
-            throw new \Exception("Template Widget $id not found");
+            throw new \Exception("Template Widget $widgetName not found");
         }
     }
 

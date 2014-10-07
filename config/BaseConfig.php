@@ -83,7 +83,7 @@ Class BaseConfig{
 		'Host' => 'smtp.qq.com'
 	];
 
-	public $uploadDir = '/static/attachment';
+	public $uploadDir = '/attachment';
 	public $allowUploadExt = Array("jpg", "gif", "png");
 
 	public function getDBConfig($name = "default"){

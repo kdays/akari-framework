@@ -19,4 +19,9 @@ define("USE_RESULT_PROCESSOR", false);
 define("BASE_APP_DIR", "app");
 define("BASE_CACHE_DIR", "data");
 
-define("CLI_MODE", php_sapi_name()=="cli" ? TRUE : FALSE);
+$serverHandler = php_sapi_name();
+define("CLI_MODE", $serverHandler=="cli" ? TRUE : FALSE);
+if ($serverHandler == 'apache2handler' && !file_exists(".htaccess")) {
+    echo("WARNING: running on Apache, but not found .htaccess");
+}
+unset($serverHandler);
