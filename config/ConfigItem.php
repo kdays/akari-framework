@@ -31,4 +31,11 @@ Class ConfigItem {
      */
     const customLayout = "customLayout";
 
+    /**
+     * 跳转模板设定
+     *
+     * MessageHelper
+     */
+    const jumpTemplate = "jumpTemplate";
+
 }

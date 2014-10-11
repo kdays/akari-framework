@@ -1,6 +1,8 @@
 <?php
 namespace Akari\utility;
 
+use Akari\config\ConfigItem;
+
 Class MessageHelper{
     /**
      * 跳转页面
@@ -20,8 +22,8 @@ Class MessageHelper{
 		$version = AKARI_VERSION;
 		$build = AKARI_BUILD;
 		
-		if(C("jumpTemplate")){
-			return T(C("jumpTemplate"), Array(
+		if(C(ConfigItem::jumpTemplate)){
+			return T(C(ConfigItem::jumpTemplate), Array(
 				"URL" => $URL,
 				"message" => $message,
 				"version" => $version,

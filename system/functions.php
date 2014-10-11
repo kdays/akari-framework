@@ -3,6 +3,7 @@
 
 use Akari\config\ConfigItem;
 use Akari\Context;
+use Akari\system\http\Cookie;
 use Akari\system\log\Logging;
 use Akari\utility\I18n;
 use Akari\utility\TemplateHelper;
@@ -517,6 +518,17 @@ function json_decode_nice($json, $assoc = TRUE){
     $json = preg_replace('/(,)\s*}$/', '}', $json);
 
     return json_decode($json, $assoc);
+}
+
+function Cookie($key, $value = NULL, $expire = NULL, $isEncrypt = FALSE) {
+
+	$co = Cookie::getInstance();
+
+	if ($value === NULL) {
+		return $co->get($key);
+	}
+
+	$co->set($key, $value, $expire, $isEncrypt);
 }
 
 /**

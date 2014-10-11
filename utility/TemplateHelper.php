@@ -47,7 +47,7 @@ Class TemplateHelper{
 			$layoutSuffix = Context::$appConfig->layoutSuffix ? Context::$appConfig->layoutSuffix : ".htm";
 
 			if(C(ConfigItem::customLayout)){
-				$layoutPath = $layoutDir.C(ConfigItem::customLayout);
+				$layoutPath = $layoutDir.C(ConfigItem::customLayout).$layoutSuffix;
 			} else {
 				$layoutPath = Dispatcher::getInstance()->findPath(Context::$innerURI, "template/layout", $layoutSuffix);
 			}

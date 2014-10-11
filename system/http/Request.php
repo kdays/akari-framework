@@ -57,21 +57,71 @@ Class Request{
 		
 		$this->parameters = $_REQUEST;
 	}
-	
+
+	// http://cn2.php.net/manual/en/function.ip2long.php#104163
+	private function bin2ip($bin) {
+		if(strlen($bin) <= 32) // 32bits (ipv4)
+			return long2ip(base_convert($bin,2,10));
+		if(strlen($bin) != 128)
+			return false;
+		$pad = 128 - strlen($bin);
+		for ($i = 1; $i <= $pad; $i++)
+		{
+			$bin = "0".$bin;
+		}
+		$bits = 0;
+		while ($bits <= 7)
+		{
+			$bin_part = substr($bin,($bits*16),16);
+			$ipv6 .= dechex(bindec($bin_part)).":";
+			$bits++;
+		}
+		return inet_ntop(inet_pton(substr($ipv6,0,-1)));
+	}
+
 	/**
 	 * 获得用户IP
 	 * @return string
 	 */
-	public function getUserIP(){
-		$onlineip = $this->getRemoteIP();
-		
-		if ($_SERVER['HTTP_X_FORWARDED_FOR'] && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/',$_SERVER['HTTP_X_FORWARDED_FOR'])) {
-			$onlineip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-		} elseif ($_SERVER['HTTP_CLIENT_IP'] && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/',$_SERVER['HTTP_CLIENT_IP'])) {
-			$onlineip = $_SERVER['HTTP_CLIENT_IP'];
+	public function getUserIP() {
+		$onlineIp = $this->getRemoteIP();
+
+		// try ipv6 => ipv4
+		if (filter_var($onlineIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+			$onlineIp = $this->bin2ip(base_convert(ip2long($onlineIp), 10, 2));
 		}
-		
-		return $onlineip;
+
+		// 如果onlineip是内网ip
+		$isInternal = false;
+		$ip_address = explode(".", $onlineIp);
+		if ($ip_address[0] == 10) {
+			$isInternal = true;
+		}
+
+		if ($ip_address[0] == 172 && $ip_address[1] > 15 && $ip_address[1] < 32) {
+			$isInternal = true;
+		}
+
+		if ($ip_address[0] == 192 && $ip_address[1] == 168) {
+			$isInternal = true;
+		}
+
+		if ($isInternal && isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+			$onlineIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		}
+
+		if ($onlineIp) {
+			if (strstr($onlineIp, ',')) {
+				$x = explode(',', $onlineIp);
+				$onlineIp = end($x);
+			}
+		}
+
+		if (!filter_var($onlineIp, FILTER_VALIDATE_IP)) {
+			$onlineIp = '0.0.0.0';
+		}
+
+		return $onlineIp;
 	}
 
     /**
@@ -172,6 +222,10 @@ Class Request{
 	 */
 	public function getRequestURI() {
 		return $this->requestURI;
+	}
+
+	public function getFullURI() {
+		return $this->host. $this->requestURI;
 	}
 	
 	/**
