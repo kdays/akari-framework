@@ -27,7 +27,7 @@ Class TemplateHelperCommand{
         return TemplateHelper::load("../partial/$id", false, false);
     }
 
-    public static function module($id, $data = '') {
+    public static function module($id, $data) {
 	    $id = ucfirst($id);
         $appPath = Context::$appBasePath.DIRECTORY_SEPARATOR.BASE_APP_DIR."/lib/{$id}Module.php";
         $corePath = Context::$appBasePath."/core/system/module/{$id}Module.php";
@@ -42,7 +42,10 @@ Class TemplateHelperCommand{
 
         $clsObj = $clsName::getInstance();
 
-        return $clsObj->run($data);
+        if ($data) {
+            return $clsObj->run($data);
+        }
+        return $clsObj->run();
     }
 
     public static function widget($widgetName) {

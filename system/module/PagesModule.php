@@ -14,8 +14,8 @@ Class PagesModule{
 		return self::$m;
 	}
 
-	public function run($p){
-		$result = Pages::getInstance()->getHTML();
+	public function run($p = 'default'){
+		$result = Pages::getInstance($p)->getHTML();
 		echo $result;
 	}
 }

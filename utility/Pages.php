@@ -9,13 +9,18 @@ Class Pages{
 
 	public $page = '';
 
-	protected static $m;
-	public static function getInstance(){
-		if(!isset(self::$m)){
-			self::$m = new self();
+	protected static $m = [];
+
+	/**
+	 * @param string $name
+	 * @return Pages
+	 */
+	public static function getInstance($name = 'default'){
+		if(!isset(self::$m[$name])){
+			self::$m[ $name ] = new self();
 		}
 
-		return self::$m;
+		return self::$m[ $name ];
 	}
 
     /**
@@ -25,7 +30,7 @@ Class Pages{
      * @param number $nowPage 当前页
      * @param number $maxPage 最大页
      * @param array $extra 额外扩展用参数
-     * @return $this
+     * @return Pages
      * @todo url使用(key)作为占位符，如页码则是用(page)进行替换
      * extra中的内容会类似page那样被替换，举例extra中["a" => 123]。
      * 那么url中的(a)就会被替换成123。 此外extra中的内容在输出前，也可以使用addParam添加
