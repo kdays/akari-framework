@@ -73,7 +73,7 @@ Class Auth{
             return [];
         }
 
-        foreach ($this->data[$groupId] as $value) {
+        foreach ($this->data[$groupId] as $key => $value) {
             if (strpos($value, 'P:') !== FALSE) {
                 $subGroupName = str_replace('P:', '', $value);
                 foreach ($this->getGroup($subGroupName) as $subGroupPermission) {
@@ -83,12 +83,10 @@ Class Auth{
                 $readyKey = str_replace("D:", '', $value);
 
                 if (in_array($readyKey, $list)) {
-                    $list = array_slice(
-                        $list,
-                        array_search($readyKey, $list) - 1,
-                        sizeof($list) - 1
-                    );
+                    $list = array_slice($list, array_search($readyKey, $list) - 1, sizeof($list) - 1);
                 }
+            } elseif (is_string($key)) {
+                continue;
             } else {
                 $list[] = $value;
             }
@@ -96,7 +94,19 @@ Class Auth{
 
         return $list;
 	}
-	
+
+    public function getGroupList() {
+        $result = [];
+
+        foreach ($this->data as $groupId => $value) {
+            if (array_key_exists("name", $value)) {
+                $result[ $groupId ] = $value['name'];
+            }
+        }
+
+        return $result;
+    }
+
 	/**
 	 * 检查权限
 	 * 

@@ -38,4 +38,11 @@ Class ConfigItem {
      */
     const jumpTemplate = "jumpTemplate";
 
+    /**
+     * 默认跳转页
+     *
+     * PageHelper
+     */
+    const defaultPager = "defaultPagerTemplate";
+
 }

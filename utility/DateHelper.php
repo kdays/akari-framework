@@ -24,6 +24,8 @@ Class DateHelper {
     }
 
     public static function format($format, $time = NULL) {
-        return date($format, $time == NULL ? TIMESTAMP : $time);
+        $time = $time == NULL ? TIMESTAMP : $time;
+        $time += 3600 * 8;
+        return date($format, $time);
     }
 }
