@@ -52,7 +52,7 @@ Class ExceptionProcessor{
 	}
 
 	public function processError($errorNo, $errorMessage, $errorFile, $errorLine, $context) {
-		throw new \ErrorException($errorMessage, 0, $errorNo, $errorFile, $errorLine, $context);
+		throw new \ErrorException($errorMessage, 0, $errorNo, $errorFile, $errorLine);
 	}
 
 	public function processFatal(){

@@ -402,15 +402,18 @@ function assign($key, $value = NULL){
 	return TemplateHelper::assign($key, $value);
 }
 
+
 /**
  * 载入APP目录的数据
- * 
+ *
  * @param string $path 路径
  * @param boolean $once 是否仅载入1次
- * @todo: .会替换成目录中的/
+ * @param array $params
  * @throws Exception
+ * @return mixed
+ * @todo: .会替换成目录中的/
  */
-function import($path, $once = TRUE){
+function import($path, $once = TRUE, $params = []){
 	static $loadedPath = array();
 
 	$name = explode(".", $path);
@@ -421,14 +424,17 @@ function import($path, $once = TRUE){
 	} else {
 		$path = Context::$appBasePath. DIRECTORY_SEPARATOR. $head. DIRECTORY_SEPARATOR. implode(DIRECTORY_SEPARATOR, $name). ".php";
 	}
+	$path = str_replace("#", ".", $path);
+
+	extract($params);
 
 	if(!file_exists($path)){
 		Logging::_logErr("Import not found: $path");
 		throw new Exception("$path not load");
 	}else{
 		if(!in_array($path, $loadedPath) || !$once){
-			require($path);
 			$loadedPath[] = $path;
+			return require($path);
 		}
 	}
 }
