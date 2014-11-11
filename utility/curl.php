@@ -6,7 +6,9 @@ Class curl{
 	protected $options = array(
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_TIMEOUT => 5,
-		CURLOPT_USERAGENT => "Akari/1.0"
+		CURLOPT_USERAGENT => "Akari/1.0",
+		CURLOPT_SSL_VERIFYPEER => false,
+		CURLOPT_SSL_VERIFYHOST => false
 	);
 	
 	/**
@@ -57,7 +59,7 @@ Class curl{
 		if($result === false){
 			throw new CURLException(curl_error($handler), curl_errno($handler), $url);
 		}
-		
+
 		$this->handler = $handler;
 		
 		return $result;

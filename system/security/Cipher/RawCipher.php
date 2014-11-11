@@ -6,13 +6,8 @@ namespace Akari\system\security\Cipher;
  **/
 Class RawCipher extends Cipher{
 
-	protected static $d = null;
-
-	public static function getInstance(){
-		if (self::$d == null) {
-			self::$d = new self();
-		}
-		return self::$d;
+	public static function getInstance($mode = 'default'){
+		return self::_instance($mode);
 	}
 
 	public function encrypt($str){

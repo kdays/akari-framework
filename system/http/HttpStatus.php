@@ -107,9 +107,15 @@ Class HttpStatus{
         return TRUE;
 	}
 
+	/**
+	 * @param $url
+	 * @return bool
+	 */
 	public static function jumpTo($url) {
 		self::setStatus(self::FOUND);
 		Header("Location: $url");
+
+		return TRUE;
 	}
 
 

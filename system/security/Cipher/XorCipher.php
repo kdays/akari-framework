@@ -1,15 +1,17 @@
 <?php
 namespace Akari\system\security\Cipher;
 
+use Akari\Context;
+
 Class XorCipher extends Cipher{
+	private $secretKey;
 
-	protected static $d = null;
+	public static function getInstance($mode = 'default'){
+		return self::_instance($mode);
+	}
 
-	public static function getInstance(){
-		if (self::$d == null) {
-			self::$d = new self();
-		}
-		return self::$d;
+	protected function __construct($mode){
+		$this->secretKey = md5(Context::$appConfig->encryptionKey);
 	}
 
 	public function encrypt($str){

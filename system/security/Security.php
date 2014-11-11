@@ -10,19 +10,20 @@ use \Exception;
 Class Security{
 	/**
 	 * 获得Cipher实例
-	 * 
+	 *
 	 * @param string $type 类型
+	 * @param string $mode
 	 * @throws Exception
 	 * @return mixed
 	 */
-	public static function getCipherInstance($type){
+	public static function getCipherInstance($type, $mode = "default"){
 		if($type == NULL)	$type = Context::$appConfig->encryptCipher;
 		$clsName = in_string($type, "Cipher") ? $type : '\Akari\system\security\Cipher\\'.$type."Cipher";
 		if(!class_exists($clsName)){
 			throw new Exception("[akari.Security] Cipher $type not found");
 		}
 
-		return call_user_func_array(Array($clsName, "getInstance"), Array());
+		return call_user_func_array(Array($clsName, "getInstance"), Array($mode));
 	}
 
     /**
@@ -60,24 +61,30 @@ Class Security{
 			throw new Exception("[akari.Security] Forbidden. CSRF Verify Error");
 		}
 	}
-	
+
 	/**
 	 * 加密字符串
-	 * 
+	 *
 	 * @param string $str 待加密的内容
+	 * @param string $mode
 	 * @param string $type 加密方式
+	 * @throws Exception
+	 * @return string
 	 */
-	public static function encrypt($str, $type = NULL){
-		return self::getCipherInstance($type)->encrypt($str);
+	public static function encrypt($str, $mode = "default", $type = NULL){
+		return self::getCipherInstance($type, $mode)->encrypt($str);
 	}
-	
+
 	/**
 	 * 解密字符串
-	 * 
+	 *
 	 * @param string $str 加密的内容
+	 * @param string $mode
 	 * @param string $type 解密方式
+	 * @throws Exception
+	 * @return bool|string
 	 */
-	public static function decrypt($str, $type = NULL){
-		return self::getCipherInstance($type)->decrypt($str);
+	public static function decrypt($str, $mode = "default", $type = NULL){
+		return self::getCipherInstance($type, $mode)->decrypt($str);
 	}
 }

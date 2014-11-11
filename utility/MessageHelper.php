@@ -1,6 +1,7 @@
 <?php
 namespace Akari\utility;
 
+use Akari\akari;
 use Akari\config\ConfigItem;
 
 Class MessageHelper{
@@ -31,7 +32,8 @@ Class MessageHelper{
 				"time" => $time
 			));
 		}else{
-			include(AKARI_PATH."/template/jump.htm");exit;
+			include(AKARI_PATH."/template/jump.htm");
+			akari::getInstance()->stop();
 		}
 	}
 
@@ -45,6 +47,7 @@ Class MessageHelper{
 			$btn = array("返回" => "javascript:history.back();");
 		}
 
-		include(AKARI_PATH."template/showmessage.htm");exit;
+		include(AKARI_PATH."template/showmessage.htm");
+		akari::getInstance()->stop();
 	}
 }

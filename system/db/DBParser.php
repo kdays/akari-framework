@@ -67,8 +67,12 @@ Class DBParser{
         if ($this->autoBind) {
             $SQLHeader = '_PDR';
 
-            $this->_bind[$SQLHeader . $this->_bindCount] = $value;
-            return ':' . $SQLHeader . $this->_bindCount++;
+	        // 调试时为了不覆盖 变量2位
+	        $bindCount = str_pad($this->_bindCount, 2,  '0', STR_PAD_LEFT);
+	        $this->_bindCount++;
+
+            $this->_bind[$SQLHeader . $bindCount] = $value;
+            return ':' . $SQLHeader . $bindCount;
         }
 
         return $this->pdo->quote($value);

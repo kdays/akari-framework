@@ -12,14 +12,11 @@ Class RSACipher extends Cipher {
 	private $_privatekeyRes = NULL;
 	protected static $d = NULL;
 
-	public static function getInstance(){
-		if (self::$d == null) {
-			self::$d = new self();
-		}
-		return self::$d;
+	public static function getInstance($mode = 'default'){
+		return self::_instance($mode);
 	}
 
-	protected function __construct() {
+	protected function __construct($mode) {
 		$config = Context::$appConfig->cipherRSA;
 
 		// 读取文件准备解密

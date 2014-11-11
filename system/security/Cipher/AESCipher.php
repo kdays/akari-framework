@@ -5,22 +5,32 @@ use Akari\Context;
 
 Class AESCipher extends Cipher{
 
-	protected static $d = null;
+	protected static $d = [];
 
-	protected $cipher = MCRYPT_RIJNDAEL_256;
-	protected $mode   = MCRYPT_MODE_ECB;
-	protected $iv	  = '';
+	private $cipher = MCRYPT_RIJNDAEL_256;
+	private $mode   = MCRYPT_MODE_ECB;
+	private $iv	  = '';
+	private $secretKey;
 
-	public static function getInstance(){
-		if (self::$d == null) {
-			self::$d = new self();
-		}
-		return self::$d;
+	/**
+	 * @param string $mode
+	 * @return AESCipher
+	 */
+	public static function getInstance($mode = 'default'){
+		return self::_instance($mode);
 	}
 
-	protected function __construct(){
+	protected function __construct($mode){
 		$this->iv = Context::$appConfig->cipherIv;
 		$this->secretKey = md5(Context::$appConfig->encryptionKey);
+	}
+
+	public function setCipherIv($iv) {
+		$this->iv = $iv;
+	}
+
+	public function setSecretKey($key) {
+		$this->secretKey = $key;
 	}
 
 	public function encrypt($str){

@@ -47,7 +47,7 @@ Class Cookie{
 		}
 
 		if($isEncrypt){
-			$value = Security::encrypt($value, $config->cookieEncrypt).self::FLAG_ENCRYPT;
+			$value = Security::encrypt($value, 'Cookie', $config->cookieEncrypt).self::FLAG_ENCRYPT;
 		}
 
 		$path = array_key_exists("path", $option) ? $option['path'] : $config->cookiePath;
@@ -81,14 +81,15 @@ Class Cookie{
 		if(!array_key_exists($name, $_COOKIE)) return NULL;
 		$cookie = $_COOKIE[$name];
 
-		if($encryptType != FALSE)   $cookie = Security::decrypt($cookie, $encryptType);
+		// 处理加密解密时Cipher key可能丢失的问题
+		if($encryptType != FALSE)   $cookie = Security::decrypt($cookie, 'Cookie', $encryptType);
 
 		$flag = self::FLAG_ENCRYPT;
 		$fLen = strlen($flag);
 
 		if(substr($cookie, -$fLen, $fLen) == $flag){
 			$cookie = substr($cookie, 0, -$fLen);
-			$cookie = Security::decrypt($cookie, $config->cookieEncrypt);
+			$cookie = Security::decrypt($cookie, 'Cookie', $config->cookieEncrypt);
 		}
 
 		//@todo: 如果最后2位是|A 代表是数组 
