@@ -93,6 +93,7 @@ Class UploadHelper{
 		$newName = call_user_func($namePolicty, $fileExt, $namePolictyOptions);
 		$target = Context::$appBasePath.Context::$appConfig->uploadDir."/".$saveDir."/".$newName;
 
+
 		if(!movefile($target, $uploadForm['tmp_name'])){
 			return FALSE;
 		}

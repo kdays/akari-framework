@@ -46,7 +46,7 @@ Class HttpStatus{
 		"405" => "Method Not Allowed",
 		"406" => "Not Acceptable",
 		"407" => "Proxy Authentication",
-		"408" => "Reuqest Timeout",
+		"408" => "Request Timeout",
 		"409" => "Conflict",
 		"410" => "Gone",
 		"411" => "Length Required",
