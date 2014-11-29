@@ -134,7 +134,7 @@ Class UploadHelper{
             return false;
         }
 
-        return true;
+        return $savePath;
     }
 }
 

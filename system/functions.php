@@ -336,10 +336,11 @@ function GP($key, $method = 'GP', $defaultValue = NULL){
     $t = substr($key, 2);
 
     if ($header == 'U.') {
-        if ($method != 'GP') {
+	    // (TRUE == 'GP') => TRUE
+        if ($method != 'GP' || $method === TRUE) {
             return \Akari\utility\DataHelper::set($t, $method);
         } else {
-            return \Akari\utility\DataHelper::get(substr($key, 2), FALSE, $defaultValue);
+            return \Akari\utility\DataHelper::get($t, FALSE, $defaultValue);
         }
     } elseif ($header == 'P.') {
         return GP($t, 'P');
