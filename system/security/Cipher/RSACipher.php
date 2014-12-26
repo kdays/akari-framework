@@ -4,12 +4,13 @@ namespace Akari\system\security\Cipher;
 use Akari\Context;
 
 Class RSACipher extends Cipher {
+
 	const BLOCK_LENGTH = 30;
 
-	private $_publickeyPath;
-	private $_privatekeyPath;
-	private $_publickeyRes = NULL;
-	private $_privatekeyRes = NULL;
+	private $_pteKey;
+	private $_pubKey;
+	private $_pubKeyRes = NULL;
+	private $_pteKeyRes = NULL;
 	protected static $d = NULL;
 
 	public static function getInstance($mode = 'default'){
@@ -19,45 +20,51 @@ Class RSACipher extends Cipher {
 	protected function __construct($mode) {
 		$config = Context::$appConfig->cipherRSA;
 
-		// 读取文件准备解密
-		$this->_publickeyPath = $config['public_key'];
-		$this->_privatekeyPath = $config['private_key'];
+		if (isset($config['public_key']))   $this->loadPublicKey($config['public_key']);
+		if (isset($config['private_key']))   $this->loadPrivateKey($config['private_key']);
 	}
 
 	public function __destruct() {
-		if ($this->_privatekeyRes != NULL) {
-			openssl_free_key($this->_privatekeyRes);
-		}
-
-		if ($this->_publickeyRes != NULL) {
-			openssl_free_key($this->_publickeyRes);
-		}
+		if ($this->_pteKeyRes != NULL)  openssl_free_key($this->_pteKeyRes);
+		if ($this->_pubKeyRes != NULL)  openssl_free_key($this->_pubKeyRes);
 	}
 
 	/**
-	 * 载入新的公钥文件
+	 * 载入新的公钥
 	 *
-	 * @param string $filePath 文件路径
+	 * @param string $key 公钥内容
 	 * @return null|resource
 	 * @throws RSAException
 	 */
-	public function loadPublicKeyFile($filePath) {
-		$this->_publickeyPath = $filePath;
-		$this->_publickeyRes = NULL;
+	public function loadPublicKey($key) {
+		$this->_pubKey = $key;
+		if (!in_string($key, '---')) {
+			if (!file_exists($key)) throw new RSAException("public key load failed");
+			$this->_pubKey = file_get_contents($key);
+		}
+
+		if ($this->_pubKeyRes != NULL)  openssl_free_key($this->_pubKeyRes);
+		$this->_pubKeyRes = NULL;
 
 		return $this->getPublicKeyRes();
 	}
 
 	/**
-	 * 载入新的私钥文件
+	 * 载入新的私钥
 	 *
-	 * @param string $filePath 文件路径
+	 * @param string $key 私钥内容
 	 * @return bool|null|resource
 	 * @throws RSAException
 	 */
-	public function loadPrivateKeyFile($filePath) {
-		$this->_privatekeyPath = $filePath;
-		$this->_privatekeyRes = NULL;
+	public function loadPrivateKey($key) {
+		$this->_pteKey = $key;
+		if (!in_string($key, '---')) {
+			if (!file_exists($key)) throw new RSAException("public key load failed");
+			$this->_pteKey = file_get_contents($key);
+		}
+
+		if ($this->_pteKeyRes != NULL)  openssl_free_key($this->_pteKeyRes);
+		$this->_pteKeyRes = NULL;
 
 		return $this->getPrivateKeyRes();
 	}
@@ -184,15 +191,12 @@ Class RSACipher extends Cipher {
 	 * @throws \Exception
 	 */
 	private function getPublicKeyRes() {
-		if ($this->_publickeyRes == NULL) {
-			if (!file_exists($this->_publickeyPath)) {
-				throw new RSAException("cannot found public key file");
-			}
-			$pubKey = file_get_contents($this->_publickeyPath);
-			$this->_publickeyRes = openssl_get_publickey($pubKey);
+		if ($this->_pubKeyRes == NULL) {
+			if ($this->_pubKey == NULL) throw new RSAException("Please set RSA public key");
+			$this->_pubKeyRes = openssl_get_publickey($this->_pubKey);
 		}
 
-		return $this->_publickeyRes;
+		return $this->_pubKeyRes;
 	}
 
 	/**
@@ -202,16 +206,12 @@ Class RSACipher extends Cipher {
 	 * @throws \Exception
 	 */
 	private function getPrivateKeyRes() {
-		if ($this->_privatekeyRes == NULL) {
-			$priKey = file_get_contents($this->_privatekeyPath);
-
-			if (!$priKey || empty($priKey)) {
-				throw new RSAException("can not found private key file");
-			}
-			$this->_privatekeyRes = openssl_get_privatekey($priKey);
+		if ($this->_pteKeyRes == NULL) {
+			if ($this->_pteKey == NULL) throw new RSAException("Please set RSA private key");
+			$this->_pteKeyRes = openssl_get_privatekey($this->_pteKey);
 		}
 
-		return $this->_privatekeyRes;
+		return $this->_pteKeyRes;
 	}
 }
 
