@@ -32,7 +32,7 @@ Class RSACipher extends Cipher {
 	/**
 	 * 载入新的公钥
 	 *
-	 * @param string $key 公钥内容
+	 * @param string $key 公钥内容 或 公钥文件路径
 	 * @return null|resource
 	 * @throws RSAException
 	 */
@@ -52,14 +52,14 @@ Class RSACipher extends Cipher {
 	/**
 	 * 载入新的私钥
 	 *
-	 * @param string $key 私钥内容
+	 * @param string $key 私钥内容 或 私钥文件路径
 	 * @return bool|null|resource
 	 * @throws RSAException
 	 */
 	public function loadPrivateKey($key) {
 		$this->_pteKey = $key;
 		if (!in_string($key, '---')) {
-			if (!file_exists($key)) throw new RSAException("public key load failed");
+			if (!file_exists($key)) throw new RSAException("private key load failed");
 			$this->_pteKey = file_get_contents($key);
 		}
 
@@ -75,7 +75,6 @@ Class RSACipher extends Cipher {
 	 * @param string $str 要签名的内容
 	 * @param bool $base64 是否返回base64签名过的，默认是
 	 * @return string
-	 * @throws \Exception
 	 */
 	public function sign($str, $base64 = TRUE) {
 		openssl_sign($str, $signature, $this->getPrivateKeyRes());
@@ -89,7 +88,6 @@ Class RSACipher extends Cipher {
 	 * @param string $signature 签名
 	 * @param bool $base64 签名内容是否base64
 	 * @return int
-	 * @throws \Exception
 	 */
 	public function verify($str, $signature, $base64 = TRUE) {
 		if ($base64)    $signature = base64_decode($signature);
@@ -101,7 +99,7 @@ Class RSACipher extends Cipher {
 	 *
 	 * @param string $str 内容
 	 * @return string
-	 * @throws \Exception
+	 * @throws RSAException
 	 */
 	public function encrypt($str) {
 		$res = $this->getPublicKeyRes();
@@ -188,7 +186,7 @@ Class RSACipher extends Cipher {
 	 * 获得Public RSA密匙资源
 	 *
 	 * @return null|resource
-	 * @throws \Exception
+	 * @throws RSAException
 	 */
 	private function getPublicKeyRes() {
 		if ($this->_pubKeyRes == NULL) {
@@ -203,7 +201,7 @@ Class RSACipher extends Cipher {
 	 * 获得Private RSA密匙资源
 	 *
 	 * @return bool|null|resource
-	 * @throws \Exception
+	 * @throws RSAException
 	 */
 	private function getPrivateKeyRes() {
 		if ($this->_pteKeyRes == NULL) {
