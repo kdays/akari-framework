@@ -1,151 +1,146 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/27
+ * Time: 14:30
+ */
+
 namespace Akari\config;
 
 use Akari\Context;
+use Akari\exception\ExceptionProcessor;
 
-!defined("AKARI_PATH") && exit;
+Class BaseConfig {
 
-Class BaseConfig{
-	public $appName = "Akari";
-	public $appBaseURL = "http://localhost/";
-	public $appVersion = "1.0";
+    public $appName;
+    public $appBaseURL;
+    public $defaultURI = 'index';
 
-	public $database = Array();
-	public $cache = Array(
-		"file" => Array(
-            'default' => Array()
-        ),
-		"memcache" => Array(
-            'default' => Array()
-        ),
-		'memcached' => Array(
-            'default' => Array()
-        )
-	);
-	public $defaultCacheType = "file";
-	public $logs = Array(
-		Array(
-			'level' => AKARI_LOG_LEVEL_PRODUCTION,
-			'appender' => 'Akari\system\log\FileLogger',
-			'params' => Array('filename' => 'data/log/all.log')
-		),
-		Array(
-			'level' => AKARI_LOG_LEVEL_ALL,
-			'appender' => 'Akari\system\log\StandardOutputLogger',
-			'enabled' => CLI_MODE
-		)
-	);
+    //
+    public $notFoundTemplate = "";
+    public $serverErrorTemplate = "";
 
-	public $defaultExceptionHandler = 'Akari\system\exception\DefaultExceptionHandler';
-	public $defaultConsoleExceptionHandler = 'Akari\system\exception\DefaultConsoleExceptionHandler';
-	public $csrfProtect = true;
-	public $csrfTokenName = "_akari";
+    // 如果没有result时的callback
+    public $nonResultCallback = NULL;
 
-	public $charset = "utf-8";
-	public $language = "cn";
+    public $logs = [
+        [
+            'level' => AKARI_LOG_LEVEL_ALL,
+            'appender' => 'Akari\system\logger\FileLogger',
+            'params' => [
+                'filename' => 'data/log/all.log'
+            ]
+        ]
+    ];
 
-	public $uriMode = AKARI_URI_AUTO;
-	public $uriSuffix = "";
-	public $uriDefault = "";
+    public $cache = [
+        'default' => 'file',
 
-	public $templateSuffix = false;
-	public $templateCache = "/data/tpl_cache";
+        'file' => [
+            'default' => [
+                /*'path' => '',
+                'index' => '',
+                'prefix' => ''*/
+            ]
+        ]
+    ];
 
-	public $encryptionKey = 'Akaza Akari, Akkarin';
-    public $encryptCipher = 'Akari\system\security\Cipher\AESCipher';
-	public $cipherIv = "";
-	public $cipherRSA = [
-		"public_key" => "",
-		"private_key" => ""
-	];
+    public $database = [];
 
-	public $cookiePrefix = "kd_";
-	public $cookieTime = "1 day";
-	public $cookiePath = "/";
-	public $cookieDomain = "";
-	public $cookieSecure = false;
-	public $cookieEncrypt= 'Akari\system\security\Cipher\AESCipher';
+    public $defaultExceptionHandler = 'Akari\system\exception\defaultExceptionHandler';
+    public $defaultPageTemplate = 'Pager';
 
-	public $triggerRule = Array(
-		"pre" => Array(
-			//['/^(?!widget).*/is', 'GetLoginInfo'],
-		)
-	);
+    public $uriMode = AKARI_URI_AUTO;
+    public $uriSuffix = '';
 
-	public $URLRewrite = Array(
-		//'/^(game|character|company)\/(\d+)\/(\w+)/' => 'TestFunction',
-		//'/^(create|edit)\/(\w+)/' => 'test/@2'
-	);
+    public $templateSuffix = ".htm";
+    public $templateCacheDir = '/data/tpl_cache';
 
-	public $mail = [
-		'Username' => '',
-		'Password' => '',
-		'Host' => 'smtp.qq.com'
-	];
+    //public $defaultEncryptCipher = '\Akari\system\security\Cipher\AESCipher';
+    public $encrypt = [
+        'default' => [
+            'cipher' => 'AES',
+            'iv' => '',
+            'key' => 'Akaza Akari, Akkarin'
+        ],
 
-	public $uploadDir = '/attachment';
-	public $allowUploadExt = Array("jpg", "gif", "png");
+        'cookie' => [
+            'cipher' => 'AES',
+            'iv' => '',
+            'key' => 'Akari Framework v3'
+        ]
+    ];
 
-	public function getDBConfig($name = "default"){
-		if(!is_array(current($this->database)))	return $this->database;
-		if($name == "default")	return current($this->database);
-		return $this->database[$name];
-	}
+    public $cookiePrefix = '';
+    public $cookieTime = '';
+    public $cookiePath = '';
+    public $cookieSecure = false;
+    public $cookieDomain = '';
+    public $csrfTokenName = '_akari';
+
+    public $uriEvent = [
+        'pre' => [],
+        'post' => []
+    ];
+
+    public $uriRewrite = [];
+
+    public $mail = [
+        'Username' => '',
+        'Password' => '',
+        'Host' => ''
+    ];
+
+    public $uploadDir = '/attachment/upload';
+    public $allowUploadExt = [];
+
+    public function getDBConfig($name = "default"){
+        if(!is_array(current($this->database)))	return $this->database;
+        if($name == "default")	return current($this->database);
+        return $this->database[$name];
+    }
 
     /**
-     * 如果获得的配置不默认设置中，就检查是否在config目录下存在同名配置
-     *
-     * @param string $key
-     * @return mixed
+     * @var string $key
+     * @return null
      */
-    public function __get($key) {
-        // 如果没有key则进行检查
-        if (!isset($this->$key)) {
-            $baseConfDir = implode(DIRECTORY_SEPARATOR, Array(
-                Context::$appBasePath, "app", "config"
-            ));
+    public function loadExternalConfig($key) {
+        $namePolicies = [
+            Context::$mode. DIRECTORY_SEPARATOR. $key,
+            Context::$mode. ".". $key,
+            $key
+        ];
+        $baseConfig = Context::$appEntryPath. DIRECTORY_SEPARATOR. "config". DIRECTORY_SEPARATOR;
 
-            $baseFileArr = [
-                Context::$mode. DIRECTORY_SEPARATOR. $key,
-                Context::$mode.".".$key,
-                $key
-            ];
-
-            foreach ($baseFileArr as $fileName) {
-                $optPath = $baseConfDir. DIRECTORY_SEPARATOR. $fileName. ".php";
-                if (file_exists($optPath)) {
-                    $this->$key = require($optPath);
-                    break;
-                }
-
-                $yamlPath = $baseConfDir. DIRECTORY_SEPARATOR. $fileName. ".yaml";
-                if (file_exists($yamlPath)) {
-                    $this->$key = \Spyc::YAMLLoad($yamlPath);
-                    break;
-                }
-
-                $ymlPath = $baseConfDir. DIRECTORY_SEPARATOR. $fileName. ".yml";
-                if (file_exists($ymlPath)) {
-                    $this->$key = \Spyc::YAMLLoad($ymlPath);
-                    break;
-                }
+        foreach ($namePolicies as $name) {
+            if (file_exists($baseConfig. $name. ".php")) {
+                return include($baseConfig. $name. ".php");
             }
+
+            if (file_exists($baseConfig. $name. ".yml")) {
+                return \Spyc::YAMLLoad($baseConfig. $name. ".yml");
+            }
+
+        }
+        return NULL;
+    }
+
+    public function __get($key) {
+        if (!isset($this->$key)) {
+            $this->$key = $this->loadExternalConfig($key);
         }
 
         return isset($this->$key) ? $this->$key : NULL;
     }
 
-	public static $c;
-	public static function getInstance(){
-		$h = get_called_class();
-		if (!self::$c){
-			self::$c = new $h;
+    public static $c;
+    public static function getInstance(){
+        $h = get_called_class();
+        if (!self::$c){
+            self::$c = new $h();
+        }
 
-            if (method_exists(self::$c, 'rewriteConfig')) {
-                self::$c->rewriteConfig();
-            }
-		}
-
-		return self::$c;
-	}
+        return self::$c;
+    }
 }

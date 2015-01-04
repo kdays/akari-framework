@@ -1,24 +1,17 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/27
+ * Time: 14:31
+ */
+
 namespace Akari\model;
 
-use Akari\system\log\Logging;
+use Akari\utility\helper\Logging;
 
-!defined("AKARI_PATH") && exit;
+Class Model {
 
-Class Model{
-    /**
-     * 日志记录函数
-     * @param string $msg 消息
-     */
-	public function __log($msg){
-		Logging::_log($msg);
-	}
-    
-	/**
-	 * 错误记录函数
-	 * @param string $msg 信息
-	 */
-	public function __logErr($msg){
-		Logging::_logErr($msg);
-	}
+    use Logging;
+
 }

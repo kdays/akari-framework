@@ -33,7 +33,7 @@ Class PageHelper {
         if(!isset(self::$m[$name])){
             self::$m[ $name ] = new self();
             self::$m[ $name ]->objId = $name;
-            self::$m[ $name ]->pageTemplate = C(ConfigItem::defaultPager, NULL, 'pager');
+            self::$m[ $name ]->pageTemplate = C(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'pager');
         }
 
         return self::$m[ $name ];
@@ -130,7 +130,8 @@ Class PageHelper {
         $this->lastPage = str_replace('(page)', $this->totalPage, $url);
         $this->pagination = $pagination;
 
-        return TemplateHelperCommand::panelWith($this->pageTemplate, (array) $this);
+        // 调用展现
+        TemplateCommand::panel($this->pageTemplate, (array) $this);
     }
 
     public function needPage() {

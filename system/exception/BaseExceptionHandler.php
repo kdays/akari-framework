@@ -1,80 +1,23 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 15/1/1
+ * Time: 15:54
+ */
+
 namespace Akari\system\exception;
 
-use Akari\akari;
 use Akari\Context;
-use Akari\system\log\Logging;
-use \Exception;
+use Akari\utility\helper\Logging;
+use Akari\utility\helper\ResultHelper;
+use Akari\utility\helper\ValueHelper;
 
-Class BaseExceptionHandler extends Exception{
-    public function handleException(Exception $ex) {
+Class BaseExceptionHandler {
 
-    }
+    use Logging, ResultHelper, ValueHelper;
 
-    public function handleFatal($errorCode, $message, $file, $line){
-        Logging::_logFatal($message."\t(".$file.":".$line.")");
-        echo("Application FATAL! application now in default exceptionProcessor!");
-        akari::getInstance()->stop();
-    }
-
-    /**
-     * 错误处理
-     *
-     * @param string $message
-     * @param string $file 异常文件
-     * @param int $line 错误发生的行
-     * @param array $trace
-     * @param int $errorcode 错误代码
-     */
-    public function _msg($message, $file, $line, $trace, $errorcode) {
-        $log = $message . "\r\n" . str_replace(Context::$appBasePath, '', $file) . ":" . $line . "\r\n";
-        list($fileLines, $trace) = self::crash($file, $line, $trace);
-        foreach ($trace as $key => $value) {
-            $log .= $value . "\r\n";
-        }
-
-        $fileLineLog = "";
-        foreach($fileLines as $key => $value){
-            $value = str_replace("  ", "<span class='w-block'></span>", $value);
-            if($key == $line - 1){
-                $fileLineLog .= "<li class='current'>$value</li>";
-            }else{
-                $fileLineLog .= "<li>$value</li>\n";
-            }
-        }
-
-        $version = AKARI_VERSION;
-        $build = AKARI_BUILD;
-        $file = str_replace(Context::$appBasePath, '', $file);
-        if(CLI_MODE){
-            fwrite(STDOUT, date('[Y-m-d H:i:s] '). $message ."($file:$line)". PHP_EOL);
-        }else{
-            // 处理是否在特殊模式下 如果没有debug则禁止默认的trace
-            if (defined("DEBUG_MODE")) {
-                require(AKARI_PATH."template/error_trace.htm");
-            } else {
-                if (file_exists(AKARI_PATH. "template/500.htm")) {
-                    require(AKARI_PATH."template/500.htm");
-                } else {
-                    Header("HTTP/1.1 500 Internal Server Error");
-                    echo "server error";
-                }
-            }
-
-            akari::getInstance()->stop();
-        }
-    }
-
-    /**
-     * 错误信息处理方法
-     *
-     * @param string $file
-     * @param string $line
-     * @param array $trace
-     * @return array
-     */
-    protected static function crash($file, $line, $trace) {
-        $msg = '';
+    protected function crash($file, $line, $trace) {
         $count = count($trace);
         $padLen = strlen($count);
         foreach ($trace as $key => $call) {
@@ -86,8 +29,10 @@ Class BaseExceptionHandler extends Exception{
             }
             $traceLine = '#' . str_pad(($count - $key), $padLen, "0", STR_PAD_LEFT) . ' ' . self::getCallLine(
                     $call);
+
             $trace[$key] = $traceLine;
         }
+
         $fileLines = array();
         if (is_file($file)) {
             $currentLine = $line - 1;
@@ -109,16 +54,12 @@ Class BaseExceptionHandler extends Exception{
         return array($fileLines, $trace);
     }
 
-    /**
-     * @param array $call
-     * @return string
-     */
-    protected static function getCallLine($call) {
+    protected function getCallLine(array $call) {
         $call_signature = "";
         if (isset($call['file'])) $call_signature .= $call['file'] . " ";
         if (isset($call['line'])) $call_signature .= ":" . $call['line'] . " ";
         if (isset($call['function'])) {
-            $call_signature .= "<span class='func'>";
+            $call_signature .= '<span class="func">';
             if(isset($call['class'])) $call_signature .= "$call[class]->";
             $call_signature .= $call['function']."(";
             if (isset($call['args'])) {
@@ -145,27 +86,4 @@ Class BaseExceptionHandler extends Exception{
         return $call_signature;
     }
 
-	protected static function getDump() {
-		return ExceptionProcessor::getDump();
-	}
-
-	public function dispDumpArr() {
-		$arr = self::getDump();
-		if (!empty($arr)) {
-			echo "<!DOCTYPE HTML>";
-			echo "<style>pre{display: block; overflow: auto; background: #fafafa; color: #333;
-max-height: 300px; border: 1px #eee solid;
-max-width: 90%; margin: 10px; padding: 5px 10px;}</style>";
-
-			foreach ($arr as $var) {
-				if (is_array($var)) {
-					echo "<pre>";
-					print_r($var);
-					echo "</pre>";
-				} else {
-					var_dump($var);
-				}
-			}
-		}
-	}
 }

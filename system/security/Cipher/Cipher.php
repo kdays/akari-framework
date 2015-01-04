@@ -1,23 +1,38 @@
 <?php
-namespace Akari\system\security\Cipher;
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/29
+ * Time: 17:01
+ */
+
+namespace Akari\system\security\cipher;
 
 use Akari\Context;
 
-abstract class Cipher{
-	public static $instances = [];
-	public $pMode = 'default';
+abstract Class Cipher implements ICipher {
 
-	public static function _instance($mode) {
-		$instanceName = get_called_class(). "_". $mode;
-		if (!isset(self::$instances[ $instanceName ])) {
-			$cls = get_called_class();
-			self::$instances[ $instanceName ] = new $cls( $mode );
-			self::$instances[ $instanceName ]->pMode = $mode;
-		}
+    public $pMode = 'default';
+    protected static $instance = [];
 
-		return self::$instances[ $instanceName ];
-	}
+    protected static $d = NULL;
+    protected static function _instance($mode) {
+        $instanceName = get_called_class(). "_". $mode;
+        if (!isset(self::$instance[ $instanceName ])) {
+            $cls = get_called_class();
+            self::$instance[ $instanceName ] = new $cls($mode);
+            self::$instance[ $instanceName ]->pMode = $mode;
+        }
 
-   	abstract public function encrypt($str);
-	abstract  public function decrypt($str);
-} 
+        return self::$instance[ $instanceName ];
+    }
+
+    protected function getConfig($mode, $subKey = FALSE) {
+        $config = Context::$appConfig->encrypt[$mode];
+        return $subKey ? $config[$subKey] : $config;
+    }
+
+    abstract public function encrypt($text);
+    abstract public function decrypt($text);
+
+}

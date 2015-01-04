@@ -1,31 +1,56 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/27
+ * Time: 14:32
+ */
+
 namespace Akari\system\exception;
 
-use Akari\system\http\HttpStatus;
-use Akari\system\log\Logging;
-use \Exception;
+use Akari\akari;
+use Akari\Context;
+use Akari\system\http\HttpCode;
+use Akari\system\http\Response;
+use Akari\utility\helper\Logging;
+use Akari\utility\helper\ResultHelper;
 
-Class DefaultExceptionHandler extends BaseExceptionHandler{
-	public function handleException(Exception $ex){
-		HttpStatus::setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
-		$trace = $ex->getTrace();
-		if (empty($trace[0]['file'])) {
-			unset($trace[0]);
-			$trace = array_values($trace);
-		}
-		$file = @$trace[0]['file'];
-		$line = @$trace[0]['line'];
+Class DefaultExceptionHandler extends BaseExceptionHandler {
 
-		Logging::_logErr($ex->getMessage()."\t(".$file.":".$line.")");
+    /**
+     * @param \Exception $ex
+     * @return \Akari\system\result\Result
+     */
+    public function handleException(\Exception $ex) {
+        Response::getInstance()->setStatusCode(HttpCode::INTERNAL_SERVER_ERROR);
 
-		$this->dispDumpArr();
-		$this->_msg($ex->getMessage(), $file, $line, $trace, $ex->getCode());
-	}
+        self::_logErr($ex);
+        $view = function($path, $data) {
+            ob_start();
+            @extract($data, EXTR_PREFIX_SAME, 'a_');
+            include(AKARI_PATH. "/template/". $path. ".php");
+            $content = ob_get_contents();
+            ob_end_clean();
 
-	public function handleFatal($errorCode, $message, $file, $line){
-		Logging::_logFatal($message."\t(".$file.":".$line.")");
+            return $content;
+        };
 
-		$this->dispDumpArr();
-		$this->_msg($message, $file, $line, array(), $errorCode);
-	}
+        list($fileLine, $trace) = $this->crash($ex->getFile(), $ex->getLine(), $ex->getTrace());
+        foreach ($fileLine as &$value) {
+            $value = str_replace("  ", "<span class='w-block'></span>", $value);
+        }
+
+        $result = [
+            'message' => $ex->getMessage(),
+            'file' => str_replace(Context::$appBasePath, '', $ex->getFile()),
+            'fileLine' => $fileLine,
+            'line' => $ex->getLine(),
+            'trace' => $trace,
+            'version' => akari::getVersion(),
+            'build' => AKARI_BUILD
+        ];
+
+        return $this->_genHTMLResult( $view("DefaultException", $result) );
+    }
+
 }

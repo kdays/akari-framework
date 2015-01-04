@@ -1,67 +1,104 @@
 <?php
 /**
- * Akari Framework 2
+ * Akari Framework 3
  *
- * @website http://kdays.cn/
+ *
  */
 
 namespace Akari;
 
+use Akari\system\exception\ExceptionProcessor;
+use Akari\system\event\Trigger;
+use Akari\system\http\Response;
+use Akari\system\result\Processor;
+use Akari\system\result\Result;
+use Akari\system\router\Dispatcher;
+use Akari\system\router\Router;
+use Akari\utility\Benchmark;
+use Akari\utility\helper\Logging;
+
 function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
-define("AKARI_VERSION", "2.9 (Rhapsody)");
-define("AKARI_BUILD", "2014.11.11");
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
-define("NAMESPACE_SEPARATOR", "\\");
 
-include("define.php");
-include("system/functions.php");
+include("const.php");
+include("function.php");
 
-if (!DEBUG_MODE && function_exists("xdebug_disable")) {
-	xdebug_disable();
-}
+Class Context {
 
-Class Context{
-	public static $nsPaths = Array('Akari' => AKARI_PATH);
-    public static $aliases = Array();
-	public static $classes = Array();
+    public static $aliases = [];
 
-	public static $uri = null;
-    public static $innerURI = null;
-    public static $appBaseNS = "";
-	public static $appEntryName = null;
+    public static $nsPaths = [
+        'Akari' => AKARI_PATH
+    ];
+
     /**
-     * @var object
+     * 当前已载入的
+     * @var array
      */
-    public static $appConfig = null;
-	public static $appBasePath = null;
-	public static $appEntryPath = null;
-	public static $lastTemplate = null;
-
-	public static $mode = FALSE;
-	
-	/**
-	 * 注册类库载入
-	 * @param string $nsName 名字
-	 * @param string $nsPath 路径
-	 */
-	public static function register($nsName, $nsPath){
-		self::$aliases[$nsName] = $nsPath;
-	}
+    public static $classes = [];
 
     /**
-     * 自动载入用方法
+     * 当前运行的模式
      *
-     * @param string $cls 类名
-     * @throws \Exception
+     * @var bool|string
      */
-	public static function autoload($cls){
-        $clsPath = false;
-		if(isset(self::$aliases[$cls])){
-			$cls = self::$aliases[$cls];
-		}
+    public static $mode = FALSE;
 
-        // 处理字段 首先取第一个
+    /**
+     * 当前访问的地址
+     * @var string
+     */
+    public static $uri;
+
+    /**
+     * APP实际运行的命名空间
+     * @var string
+     */
+    public static $appBaseNS;
+
+    /**
+     * 该网站实际路径(即应用实际文件夹的上一层)
+     * @var string
+     */
+    public static $appBasePath;
+
+    /**
+     * 应用实际文件夹
+     * @var string
+     */
+    public static $appEntryPath;
+
+    /**
+     * 框架执行的入口文件名
+     * @var string
+     */
+    public static $appEntryName;
+
+    /**
+     * 应用调用方法，使用直接调用时为NULL
+     * @var NULL|string
+     */
+    public static $appEntryMethod = NULL;
+
+    /**
+     * 应用配置
+     * @var \Akari\config\BaseConfig $appConfig
+     */
+    public static $appConfig;
+
+    /**
+     * 是否在测试模式
+     * @var bool
+     */
+    public static $testing = FALSE;
+
+    public static function autoload($cls) {
+        $clsPath = false;
+        if(isset(self::$aliases[$cls])){
+            $cls = self::$aliases[$cls];
+        }
+
         $nsPath = explode("\\", $cls);
         if ( isset(Context::$nsPaths[$nsPath[0]]) ) {
             $basePath = Context::$nsPaths[ array_shift($nsPath)];
@@ -74,224 +111,134 @@ Class Context{
 
         if(isset(self::$classes[$clsPath]))	return ;
 
-		if($clsPath && file_exists($clsPath)){
-			self::$classes[$clsPath] = true;
+        if($clsPath && file_exists($clsPath)) {
+            self::$classes[$clsPath] = true;
             require_once $clsPath;
-		}else{
-			$dif = array("lib", "model", "exception");
-
-			foreach($dif as $dir){
-				$clsPath = Context::$appBasePath.DIRECTORY_SEPARATOR. BASE_APP_DIR.
-                    DIRECTORY_SEPARATOR.$dir.DIRECTORY_SEPARATOR.$cls.".php";
-
-				if(file_exists( $clsPath )){
-					self::$classes[$clsPath] = true;
-					
-					require_once $clsPath;
-					return ;
-				}
-			}
-
-			$clsPath = false;
-		}
-		
-		if(!$clsPath){
-            throw new \Exception("Not Found Class [ $cls ]", E_USER_ERROR);
         }
-	}
 
-    /**
-     * 获得资源路径
-     *
-     * @param string $path 路径
-     * @param bool $toURL
-     * @return string
-     */
-	public function getResourcePath($path, $toURL = false){
-		if($toURL){
-			return str_replace(Context::$appBasePath, '', $path);
-		}
-		return realpath(Context::$appBasePath.$path);
-	}
+        if(!$clsPath){
+            throw new NotFoundClass($cls);
+        }
+    }
 }
 spl_autoload_register(Array('Akari\Context', 'autoload'));
 
-use Akari\system\result\ResultProcessor;
-use Akari\system\ResultHelper;
-use Akari\system\TriggerRule;
-use Akari\system\log\Logging;
-use Akari\system\http\Dispatcher;
-use Akari\system\http\Router;
-use Akari\system\http\HttpStatus;
-use Akari\system\Event;
-use Akari\system\exception\ExceptionProcessor;
-use Akari\utility\BenchmarkHelper;
 
-Class akari{
-	private static $f;
-	/**
-	 * 框架单例
-	 * @return akari
-	 */
-	public static function getInstance(){
-		if (self::$f == null) {
-			self::$f = new self();
-		}
-		return self::$f;
-	}
 
-	public static function getVersion($dispCodeName = true) {
-		$version = AKARI_VERSION;
+Class akari {
 
-		return $dispCodeName ? $version : preg_replace('/\(\w+\)/', "", $version);
-	}
+    use Logging;
 
-    /**
-     * 初始化框架，载入设定和组件，并设定错误处理器
-     *
-     * @param string $appBasePath 应用基础目录
-     * @param string $appNS 应用命名空间
-     * @return akari
-     */
-	public function initApp($appBasePath, $appNS){
-        // 如果什么都没有
-        $appDir = $appBasePath. DIRECTORY_SEPARATOR. BASE_APP_DIR. DIRECTORY_SEPARATOR;
-        if (!is_dir($appDir)) {
-            exit("Cannot found application directory, Please check framework define or upload");
+    private static $f;
+    public static function getInstance(){
+        if (self::$f == null) {
+            self::$f = new self();
+        }
+        return self::$f;
+    }
+
+    public static function getVersion($dispCodeName = true) {
+        $version = AKARI_VERSION;
+
+        return $dispCodeName ? $version : preg_replace('/\(\w+\)/', "", $version);
+    }
+
+    public function initApp($appBasePath, $appNS, $defaultConfig = NULL) {
+        $appDir = implode(DIRECTORY_SEPARATOR, [$appBasePath, BASE_APP_DIR, ""]);
+        if (!is_dir($appDir) && !Context::$testing) {
+            printf("not found application directory [ %s ]", $appDir);
+            die;
         }
 
-        BenchmarkHelper::setTimer("init:start");
-
-		$confCls = "Config";
-        Context::$mode = $this->getMode();
-        if (!empty(Context::$mode)) {
-            $confCls = Context::$mode . "Config";
-        }
-
-		Context::$appBasePath = $appBasePath;
-		if(!file_exists($appDir."/config/$confCls.php")){
-			trigger_error("not found config file [ $confCls ]", E_USER_ERROR);
-		}
-
+        Context::$appBasePath = $appBasePath;
         Context::$appBaseNS = $appNS;
-
-        Context::$nsPaths['core'] = __DIR__;
         Context::$nsPaths[ $appNS ] = $appDir;
+        Context::$appEntryPath = $appDir;
 
-        $confCls = $appNS.NAMESPACE_SEPARATOR."config".
-            NAMESPACE_SEPARATOR.$confCls;
+        if ($appNS == 'Akari' && Context::$testing) { // 测试时才会出现这个情况
+            Context::$appBasePath = realpath($appBasePath. "/../");
+            Context::$nsPaths[ $appNS ] = $appBasePath;
+            Context::$appEntryPath = $appBasePath;
+        }
 
-		if(!class_exists($confCls)){
-			trigger_error("not found config class [ $confCls ]", E_USER_ERROR);
-		}
+        Context::$mode = $this->getMode();
+        $confClsName = (empty(Context::$mode) ? "" : Context::$mode). "Config";
 
-        /**
-         * @var $confCls \Akari\config\BaseConfig
-         */
-        Context::$appConfig = $confCls::getInstance();
-		Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
-
-		Header("X-Framework: Akari Framework ". AKARI_BUILD);
-		$this->loadExternal();
-		$this->setExceptionHandler();
-		ResultProcessor::getInstance()->setDefaultResultHandler('\Akari\system\result\DefaultResult');
-
-		return $this;
-	}
-	
-	/**
-	 * 绑定事件错误器
-	 * @return void
-	 */
-	public function setExceptionHandler(){
-		$config = Context::$appConfig;
-
-		if (CLI_MODE && isset($config->defaultConsoleExceptionHandler)) {
-			ExceptionProcessor::getInstance()->setHandler($config->defaultConsoleExceptionHandler);
-		} elseif (!CLI_MODE && isset($config->defaultExceptionHandler)) {
-			ExceptionProcessor::getInstance()->setHandler($config->defaultExceptionHandler);
-		}
-	}
-	
-	/**
-	 * 执行请求
-	 * 
-	 * @param string $uri URI地址
-	 * @param boolean $outputBuffer 是否启用输出缓存
-	 * @throws \Exception
-	 * @return akari
-	 */
-	public function run($uri = NULL, $outputBuffer = true){
-		$config = Context::$appConfig;
-
-		if (CLI_MODE && function_exists("cli_set_process_title")) {
-			cli_set_process_title("Akari PHP : ".$uri);
-		}
-
-		Logging::_log("App Start");
-		if(!$uri){
-			$router = Router::getInstance();
-			$uri = $router->resolveURI();
-		}
-		Context::$uri = $uri;
-
-		if($outputBuffer)	ob_start();
-
-		$dispatcher = Dispatcher::getInstance();
-
-		// rewrite baseURL
-		Context::$appConfig->appBaseURL = $dispatcher->rewriteBaseURL(
-			$config->appBaseURL
-		);
-
-        $clsPath = CLI_MODE ?
-            $dispatcher->invokeTask($uri) :
-            $dispatcher->invoke($uri);
-
-        BenchmarkHelper::setTimer("init:end");
-
-		if($clsPath){
-			Context::$appEntryPath = str_replace(Context::$appBasePath, '', $clsPath);
-			if (!CLI_MODE) {
-				TriggerRule::getInstance()->commitPreRule();
-			}
-
-			// 如有特定某些触发器时 使用这个可以更精确的处理
-			$_doAction = str_replace(Array(Context::$appBasePath, BASE_APP_DIR.'/action/', '.php'), '',
-				$clsPath);
-			Event::fire("action.".str_replace("/", ".", $_doAction));
-
-            BenchmarkHelper::setTimer("app:start");
-
-			/*$result = require($clsPath);
-
-			if (is_a($result, '\Akari\system\result\Result')) {
-				$result->doProcess();
-			}
-			*/
-			require($clsPath);
-            BenchmarkHelper::setTimer("app:end");
-			if (!CLI_MODE)  TriggerRule::getInstance()->commitAfterRule();
-		}else{
-            if (!CLI_MODE) {
-                HttpStatus::setStatus(HttpStatus::NOT_FOUND);
-                include(AKARI_PATH."template/404.htm");
+        if ($defaultConfig == NULL) {
+            if (!file_exists( $appDir. "config/$confClsName.php" )) {
+                throw new FrameworkInitFailed( sprintf("config %s not found", $confClsName) );
             }
 
-			$this->stop();
-		}
+            /**
+             * @var \Akari\config\BaseConfig $confCls
+             */
+            $confCls = $appNS. NAMESPACE_SEPARATOR. "config". NAMESPACE_SEPARATOR. $confClsName;
+        } else {
+            $confCls =  $defaultConfig;
+        }
 
-		return $this;
-	}
+        Context::$appConfig = $confCls::getInstance();
+        // 应该是实际执行的Action被赋值
+        //Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
-	public function stop($code = 0, $msg = '') {
-		if (!empty($msg)) {
-			Logging::_logInfo('End the response. msg: ' . $msg);			
-		} else {
-			Logging::_logInfo('End the response.');
-		}
-		exit($code);
-	}
+        Header("X-Framework: Akari Framework ". AKARI_BUILD);
+        $this->loadExternal();
+        if (!Context::$testing) $this->setExceptionHandler();
+
+        return $this;
+    }
+
+    public function setExceptionHandler() {
+        ExceptionProcessor::getInstance()->setHandler(Context::$appConfig->defaultExceptionHandler);
+    }
+
+    public function run($uri = NULL, $outputBuffer = TRUE) {
+        $config = Context::$appConfig;
+
+        Benchmark::setTimer('app.start');
+
+        if (!$uri) {
+            $router = Router::getInstance();
+            $uri = $router->resolveURI();
+        }
+        Context::$uri = $uri;
+
+        if ($outputBuffer)  ob_start();
+        $result = Trigger::getInstance()->commitPreRule();
+
+        // 如果没有result 说明触发都表示没啥可吐槽的
+        if (!isset($result)) {
+            $dispatcher = Dispatcher::getInstance();
+            $realResult = CLI_MODE ? $dispatcher->invokeTask($uri) : $dispatcher->invoke($uri);
+
+            if (!is_a($realResult, '\Akari\system\result\Result')) {
+                $defaultCallback = $config->nonResultCallback;
+
+                if (is_callable($defaultCallback)) {
+                    $realResult = $defaultCallback($realResult);
+                } else {
+                    $realResult = new Result(Result::TYPE_HTML, $realResult, NULL);
+                }
+            }
+
+            $result = Trigger::getInstance()->commitAfterRule($realResult);
+        }
+
+        // 下面是结果 如果有result 直接处理result
+        $processor = Processor::getInstance();
+        Benchmark::logParams('app.time', ['time' => Benchmark::getTimerDiff('app.start')]);
+
+        if (isset($result)) {
+            $processor->processResult($result);
+        } else {
+            if (isset($realResult)) {
+                // 如果不是result 则会调用设置nonResultCallback来处理result 如果没有设置则按照HTML返回
+                $processor->processResult($realResult);
+            }
+        }
+
+        return $this;
+    }
 
     public function getMode() {
         static $mode = FALSE;
@@ -308,34 +255,62 @@ Class akari{
         return $mode;
     }
 
-	public function __destruct() {
-		Logging::_log('Request ' . Context::$appConfig->appName . ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' secs' );
-	}
+    public function stop($msg = '', $code = 0) {
+        if (!empty($msg)) {
+            self::_logInfo('End the response. msg: ' . $msg);
+        } else {
+            self::_logInfo('End the response.');
+        }
+        exit($code);
+    }
 
-	/**
-	 * 用来处理一些框架必须的第三方组件载入
-	 *
-	 **/
-	public function loadExternal() {
-		$libList = require("external/classes.php");
-		foreach ($libList as $nowLibName) {
-			import($nowLibName);
-		}
+    public function __destruct() {
+        if (!CLI_MODE && DISPLAY_BENCHMARK) {
+            include("utility/BenchmarkResult.php");
+        }
 
-		$vendorPath = [
-			Context::$appBasePath . DIRECTORY_SEPARATOR
-			. BASE_APP_DIR . 'lib' . DIRECTORY_SEPARATOR
-			. 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php',
-			Context::$appBasePath . DIRECTORY_SEPARATOR
-			. 'external' . DIRECTORY_SEPARATOR
-			. 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php'
-		];
+        self::_logInfo('Request ' . Context::$appConfig->appName .
+            ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) .
+            ' secs' );
+    }
 
-		foreach ($vendorPath as $value) {
-			if (file_exists($value)) {
-				require $value;
-			}
-		}
 
-	}
+    /**
+     * 用来处理一些框架必须的第三方组件载入
+     *
+     **/
+    public function loadExternal() {
+        $libList = require("external/classes.php");
+        foreach ($libList as $nowLibName) {
+            import($nowLibName);
+        }
+
+        $vendorPath = [
+            Context::$appEntryPath . 'lib' . DIRECTORY_SEPARATOR
+            . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php',
+            Context::$appBasePath . DIRECTORY_SEPARATOR
+            . 'external' . DIRECTORY_SEPARATOR
+            . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php'
+        ];
+
+        foreach ($vendorPath as $value) {
+            if (file_exists($value)) {
+                require $value;
+            }
+        }
+
+    }
+}
+
+Class FrameworkInitFailed extends \Exception {
+
+
+}
+
+Class NotFoundClass extends \Exception {
+
+    public function __construct($clsName) {
+        $this->message = "not found class [ ". $clsName. " ] ";
+    }
+
 }

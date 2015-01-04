@@ -1,7 +1,15 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/28
+ * Time: 23:09
+ */
+
 namespace Akari\system\console;
 
 Class ConsoleOutput {
+
     const PLAIN = 1;
     const COLOR = 2;
     const LF = PHP_EOL;
@@ -119,4 +127,5 @@ Class ConsoleOutput {
             fclose($this->output);
         }
     }
+
 }

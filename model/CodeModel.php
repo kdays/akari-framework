@@ -1,4 +1,11 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/28
+ * Time: 23:10
+ */
+
 namespace Akari\model;
 
 use ReflectionClass;

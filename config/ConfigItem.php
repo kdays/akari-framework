@@ -1,48 +1,19 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/28
+ * Time: 19:10
+ */
+
 namespace Akari\config;
 
-/**
- * 用来说明C的定义
- * 举例 C(ConfigItem::templateBaseDir, '');
- *
- * @package Akari\config
- */
 Class ConfigItem {
 
-    /**
-     * 设定模板的基础目录
-     *
-     * TemplateHelper
-     */
-    const templateBaseDir = "templateBaseDir";
+    const BASE_TPL_DIR = 'baseTemplateDir';
 
-    /**
-     * 关闭模板的layout布局使用
-     *
-     * TemplateHelper
-     */
-    const closeLayout = "closeLayout";
+    const DEFAULT_PAGE_TEMPLATE = 'defaultPageTemplate';
 
-    /**
-     * 自定义当前模板调用的layout
-     * 此外使用T([], "layoutName")也可以设定
-     *
-     * TemplateHelper
-     */
-    const customLayout = "customLayout";
-
-    /**
-     * 跳转模板设定
-     *
-     * MessageHelper
-     */
-    const jumpTemplate = "jumpTemplate";
-
-    /**
-     * 默认跳转页
-     *
-     * PageHelper
-     */
-    const defaultPager = "defaultPagerTemplate";
+    const LANGUAGE_ID = "languageId";
 
 }

@@ -7,43 +7,43 @@ use Exception;
 !defined("AKARI_PATH") && exit;
 
 Class UploadHelper{
-	protected static $h;
+    protected static $h;
 
     /**
      * @return UploadHelper
      */
     public static function getInstance(){
-		if(!isset(self::$h)){
-			self::$h = new self();
-		}
+        if(!isset(self::$h)){
+            self::$h = new self();
+        }
 
-		return self::$h;
-	}
-    
-	/**
-	 * 是否是一个合法的上传文件
-	 * 
-	 * @param string $tmpName 上传表单中的tmp_name
-	 * @return boolean
-	 * @todo 如果使用moveFile方法的话，不必调用本函数。因为已经自动调用了
-	 */
-	public function isUploadedFile($tmpName){
-		if (!$tmpName || $tmpName == 'none') {
-			return false;
-		} elseif (function_exists('is_uploaded_file') && !is_uploaded_file($tmpName) && !is_uploaded_file(str_replace('\\\\', '\\', $tmpName))) {
-			return false;
-		}
+        return self::$h;
+    }
 
-		return true;
-	}
+    /**
+     * 是否是一个合法的上传文件
+     *
+     * @param string $tmpName 上传表单中的tmp_name
+     * @return boolean
+     * @todo 如果使用moveFile方法的话，不必调用本函数。因为已经自动调用了
+     */
+    public function isUploadedFile($tmpName){
+        if (!$tmpName || $tmpName == 'none') {
+            return false;
+        } elseif (function_exists('is_uploaded_file') && !is_uploaded_file($tmpName) && !is_uploaded_file(str_replace('\\\\', '\\', $tmpName))) {
+            return false;
+        }
 
-	public function getRandName($ext, $opts = Array()){
-		return md5(uniqid()).".$ext";
-	}
+        return true;
+    }
 
-	public function getDefaultName($ext, $opts = Array()){
-		return $opts['filename'].(empty($opts['ext']) ? "" : ".$ext");
-	}
+    public function getRandName($ext, $opts = Array()){
+        return md5(uniqid()).".$ext";
+    }
+
+    public function getDefaultName($ext, $opts = Array()){
+        return $opts['filename'].(empty($opts['ext']) ? "" : ".$ext");
+    }
 
     /**
      * 获得文件扩展名
@@ -57,84 +57,100 @@ Class UploadHelper{
 
         return $diff ? $pathInfo['filename'] : strtolower($pathInfo['extension']);
     }
-    
-	/**
-	 * 上传并移动文件
-	 * 
-	 * @param array $uploadForm 上传的表单数组
-	 * @param string $saveDir 保存目录
-	 * @param string $namePolicty 命名方式（默认为getRandName）
-	 * @param array $namePolictyOptions 命名函数调用时的参数
-	 * @param callable $callback 回调参数
-	 * @param string $allowExt 允许的文件格式，不设定为设定中的allowUploadExt
-	 * @throws UploadFileCannotAccess
-	 * @return boolean|mixed
-	 */
-	public function moveFile($uploadForm, $saveDir, $namePolicty = NULL, $namePolictyOptions = Array(),$callback = NULL, $allowExt = NULL){
-		if(empty($allowExt)){
-			$allowExt = Context::$appConfig->allowUploadExt;
-		}
 
-		if(!$this->isUploadedFile($uploadForm['tmp_name'])){
-			return FALSE;
-		}
+    /**
+     * 上传并移动文件
+     *
+     * @param array $uploadForm 上传的表单数组
+     * @param string $saveDir 保存目录
+     * @param string $namePolicy 命名方式（默认为getRandName）
+     * @param array $namePolicyOptions 命名函数调用时的参数
+     * @param callable $callback 回调参数
+     * @param string $allowExt 允许的文件格式，不设定为设定中的allowUploadExt
+     * @throws UploadFileCannotAccess
+     * @return boolean|mixed
+     */
+    public function moveFile($uploadForm, $saveDir, $namePolicy = NULL, $namePolicyOptions = Array(),$callback = NULL, $allowExt = NULL){
+        if(empty($allowExt)){
+            $allowExt = Context::$appConfig->allowUploadExt;
+        }
 
-		$tmpName = explode(".", $uploadForm['name']);
-		$fileExt = strtolower(end($tmpName));
+        if(!$this->isUploadedFile($uploadForm['tmp_name'])){
+            return FALSE;
+        }
 
-		if(!in_array($fileExt, $allowExt)){
-			return FALSE;
-		}
+        $tmpName = explode(".", $uploadForm['name']);
+        $fileExt = strtolower(end($tmpName));
 
-		if($namePolicty == NULL){
-			$namePolicty = Array($this, "getRandName");
-		}
+        if(!in_array($fileExt, $allowExt)){
+            return FALSE;
+        }
 
-		$newName = call_user_func($namePolicty, $fileExt, $namePolictyOptions);
-		$target = Context::$appBasePath.Context::$appConfig->uploadDir."/".$saveDir."/".$newName;
+        if($namePolicy == NULL){
+            $namePolicy = Array($this, "getRandName");
+        }
+
+        $newName = call_user_func($namePolicy, $fileExt, $namePolicyOptions);
+        $target = Context::$appBasePath.Context::$appConfig->uploadDir."/".$saveDir."/".$newName;
 
 
-		if(!movefile($target, $uploadForm['tmp_name'])){
-			return FALSE;
-		}
+        if(!movefile($target, $uploadForm['tmp_name'])){
+            return FALSE;
+        }
 
-		if($callback != NULL){
-			call_user_func($callback, $saveDir."/".$newName, $target);
-		}
+        if($callback != NULL){
+            call_user_func($callback, $saveDir."/".$newName, $target);
+        }
 
-		return $newName;
-	}
+        return $newName;
+    }
 
     /**
      * 快捷保存，在路径复杂时使用这个进行简单的判断
      * 路径默认在前面加上了uploadDir，不用额外添加
      *
-     * @param array $uploadForm 上传表单
+     * @param mixed $uploadForm 上传表单
      * @param string $savePath 保存路径
      * @param array $allowExt 允许的扩展名
      * @return bool
      */
-    public function saveFile(array $uploadForm, $savePath, $allowExt = []) {
+    public function saveFile($uploadForm, $savePath, $allowExt = []) {
         if (empty($allowExt)) {
             $allowExt = Context::$appConfig->allowUploadExt;
         }
 
-        if (!$this->isUploadedFile($uploadForm['tmp_name'])) {
-            return false;
-        }
+        $savePath = Context::$appBasePath.
+            Context::$appConfig->uploadDir.DIRECTORY_SEPARATOR.$savePath;
 
-        $pathInfo = pathinfo($uploadForm['name']);
-        if (!in_array(strtolower($pathInfo['extension']), $allowExt)) {
-            return false;
-        }
+        if (is_array($uploadForm)) {
+            if (!$this->isUploadedFile($uploadForm['tmp_name'])) {
+                return false;
+            }
 
-        $savePath = Context::$appBasePath.Context::$appConfig->uploadDir."/".$savePath;
+            $pathInfo = pathinfo($uploadForm['name']);
+            if (!in_array(strtolower($pathInfo['extension']), $allowExt)) {
+                return false;
+            }
 
-        if (!movefile($savePath, $uploadForm['tmp_name'])) {
-            return false;
+            if (!movefile($savePath, $uploadForm['tmp_name'])) {
+                return false;
+            }
+        } else {
+            writeover($savePath, $uploadForm);
         }
 
         return $savePath;
+    }
+
+    public static function formatFileSize($size, $dec = 2){
+        $a = array("B", "KB", "MB", "GB", "TB", "PB");
+        $pos = 0;
+        while ($size >= 1024) {
+            $size /= 1024;
+            $pos++;
+        }
+
+        return round($size, $dec)." ".$a[$pos];
     }
 }
 

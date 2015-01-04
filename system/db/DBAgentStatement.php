@@ -1,39 +1,41 @@
 <?php
-namespace Akari\system\db;
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/28
+ * Time: 23:05
+ */
 
-use \PDO;
+namespace Akari\system\db;
 
 Class DBAgentStatement {
 
-    protected $pdo;
+    protected $agent;
     protected $SQL;
-	protected $_parsedSQL;
 
     /**
      * @var $stmt \PDOStatement
      */
-    public $stmt;
-    private $parser;
+    protected $stmt;
 
-    private $_bind = Array();
-    private $_args = Array();
+    /**
+     * @var $parser SQLParser
+     */
+    protected $parser;
+    protected $_parsedSQL;
 
-    const PARAM_BOOL = PDO::PARAM_BOOL;
-    const PARAM_INT = PDO::PARAM_INT;
-    const PARAM_STMT = PDO::PARAM_STMT;
-    const PARAM_STR = PDO::PARAM_STR;
-    const PARAM_NULL = PDO::PARAM_NULL;
-    const PARAM_LOB = PDO::PARAM_LOB;
+    private $_bind = [];
+    private $_args = [];
 
-    public function __construct($sql, DBAgent $agentObj) {
-        $this->pdo = $agentObj->getPDOInstance();
-        $this->SQL = $sql;
-        $this->parser = DBParser::getInstance($this->pdo);
+    public function __construct($SQL, DBAgent $dbAgent) {
+        $this->pdo = $dbAgent->getPDOInstance();
+        $this->SQL = $SQL;
+        $this->parser = SQLParser::getInstance($this->pdo);
     }
 
     public function close() {
         $this->stmt->closeCursor();
-	    $this->_parsedSQL = NULL;
+        $this->_parsedSQL = NULL;
         $this->_bind = [];
         $this->_args = [];
     }
@@ -43,9 +45,9 @@ Class DBAgentStatement {
      *
      * @param string $str
      */
-	public function addSQL($str) {
-		$this->SQL .= $str;
-	}
+    public function addSQL($str) {
+        $this->SQL .= $str;
+    }
 
     /**
      * PDO的参数绑定
@@ -128,9 +130,9 @@ Class DBAgentStatement {
      * @return string
      */
     public function getParsedSQL() {
-	    if (!empty($this->_parsedSQL)) {
-		    return $this->_parsedSQL;
-	    }
+        if (!empty($this->_parsedSQL)) {
+            return $this->_parsedSQL;
+        }
 
         $parser = $this->parser;
         $sql = $this->SQL;
@@ -143,8 +145,8 @@ Class DBAgentStatement {
             $where = $parser->parseData($this->_args['WHERE']);
 
             if(!empty($where)){
-	            // 注意找的是where空格 不是(where)
-	            $replace = (stripos($sql, " where ")===FALSE ? " WHERE" : " AND")." ".$where;
+                // 注意找的是where空格 不是(where)
+                $replace = (stripos($sql, " where ")===FALSE ? " WHERE" : " AND")." ".$where;
                 $sql = str_replace('(where)', $replace, $sql);
             }
         }
@@ -171,9 +173,9 @@ Class DBAgentStatement {
         foreach ($parser->_bind as $key => $value) {
             $this->bindValue($key, $value);
         }
-        $parser->cleanBind();
+        $parser->clearBind();
 
-	    $this->_parsedSQL = $sql;
+        $this->_parsedSQL = $sql;
 
         return $sql;
     }
@@ -186,6 +188,7 @@ Class DBAgentStatement {
     public function getDebugSQL() {
         $sql = $this->getParsedSQL();
         if (!empty($this->_bind)) {
+            krsort($this->_bind);
             foreach ($this->_bind as $key => $value) {
                 $sql = str_replace($key, "'".$value."'", $sql);
             }
@@ -217,4 +220,5 @@ Class DBAgentStatement {
 
         return $this->stmt;
     }
+
 }

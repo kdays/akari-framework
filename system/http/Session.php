@@ -1,34 +1,40 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/27
+ * Time: 14:36
+ */
+
 namespace Akari\system\http;
 
-use Akari\system\log\Logging;
+use Akari\utility\helper\Logging;
 
 !defined("AKARI_PATH") && exit;
 
 Class Session{
-	public static function init(){
-		if(CLI_MODE){
-			Logging::_logWarn("Session cannot running on CLI mode");
-		}else{
-			session_start();
-		}
-	}
 
-	public static function set($key, $value){
-		$_SESSION[$key] = $value;
-	}
+    use Logging;
 
-	public static function remove($key){
-		unset($_SESSION[$key]);
-	}
+    public static function init(){
+        session_start();
+    }
 
-	public static function get($key = NULL, $defaultValue = NULL){
-		if($key == NULL)	return $_SESSION;
+    public static function set($key, $value){
+        $_SESSION[$key] = $value;
+    }
 
-		if(isset($_SESSION[$key])){
-			return $_SESSION[$key];
-		}
+    public static function remove($key){
+        unset($_SESSION[$key]);
+    }
 
-		return $defaultValue;
-	}
+    public static function get($key = NULL, $defaultValue = NULL){
+        if($key == NULL)	return $_SESSION;
+
+        if(isset($_SESSION[$key])){
+            return $_SESSION[$key];
+        }
+
+        return $defaultValue;
+    }
 }

@@ -1,223 +1,246 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/27
+ * Time: 15:17
+ */
+
 namespace Akari\utility;
 
 use Akari\config\ConfigItem;
 use Akari\Context;
-use Akari\system\http\Dispatcher;
-use Exception;
 
-!defined("AKARI_PATH") && exit;
+Class TemplateHelper {
 
-Class TemplateHelper{
-	public static $usingLayout = FALSE;//防止子模板载入时，layout再次请求
-    public static $debug = FALSE;
+    public $cacheDirPath;
+    public $layoutPath;
 
-	public static function load($tplName, $useLayout = true, $updateLast = true){
-		if (self::$usingLayout) {
-			$useLayout = false;
-		}
+    protected static $h;
 
-		if($bDir = C(ConfigItem::templateBaseDir)){
-			$tplName = "$bDir/$tplName";
-		}
+    public static function getInstance() {
+        if (!isset(self::$h)) {
+            self::$h = new self();
+        }
 
-		$tplPath = Context::$appBasePath.DIRECTORY_SEPARATOR.BASE_APP_DIR."/template/view/$tplName";
-		$tplPath .= Context::$appConfig->templateSuffix ? Context::$appConfig->templateSuffix : ".htm";
+        return self::$h;
+    }
 
-		if(!file_exists($tplPath)){
-			throw new Exception("[Akari.Utility.TemplateHelper] not found [ $tplName ]");
-		}
+    public function __construct() {
+        $this->cacheDirPath = Context::$appConfig->templateCacheDir;
+    }
 
-		// 检查目录是否超过准线目录
-		if (!checkDir($tplPath, '/template/')) {
-			throw new Exception("[Akari.Utility.TemplateHelper] template_id is invalid");
-		}
+    public function load($tplName, $layoutName = NULL) {
+        $config = Context::$appConfig;
+        $suffix = $config->templateSuffix ? $config->templateSuffix : ".htm";
 
-		if($updateLast) Context::$lastTemplate = $tplName;
+        $baseTemplateDirPath = implode(DIRECTORY_SEPARATOR, [
+            Context::$appEntryPath, "template", ""
+        ]);
 
-		// 如果有Layout的话 处理layout
-		if(C(ConfigItem::closeLayout) === TRUE){
-			$useLayout = FALSE; 
-		}
+        if ($configBaseTemplatePath = C(ConfigItem::BASE_TPL_DIR)) {
+            $baseTemplateDirPath = $configBaseTemplatePath;
+        }
 
-		// 检查layout文件
-		$layoutPath = NULL;
-		if ($useLayout) {
-			$layoutDir = Context::$appBasePath.DIRECTORY_SEPARATOR.BASE_APP_DIR."/template/layout/";
-			$layoutSuffix = Context::$appConfig->layoutSuffix ? Context::$appConfig->layoutSuffix : ".htm";
+        $tplName = str_replace('//', '/', $tplName);
+        if ($layoutName != NULL)    $layoutName = str_replace('//', '/', $layoutName);
 
-			if(C(ConfigItem::customLayout)){
-				$layoutPath = $layoutDir.C(ConfigItem::customLayout).$layoutSuffix;
-			} else {
-				$layoutPath = Dispatcher::getInstance()->findPath(Context::$innerURI, "template/layout", $layoutSuffix);
-			}
+        if ($tplName[0] == '/') $tplName = substr($tplName, 1);
+        if ($layoutName[0] == '/')  $layoutName = substr($layoutName, 1);
 
-			if ($layoutPath) {
-				$tplName = str_replace($layoutDir, '', $layoutPath);
-				$tplName = str_replace($layoutSuffix, '', $tplName);
+        if (!file_exists( $templatePath = $baseTemplateDirPath. "view". DIRECTORY_SEPARATOR. $tplName. $suffix )) {
+            throw new TemplateNotFound($tplName);
+        }
 
-				$tplPath = $layoutPath;
-				if (!file_exists($layoutPath)) {
-					throw new \Exception("[Akari.Utility.TemplateHelper] not found layout [ $tplName ]");
-				}
-				self::$usingLayout = true;
-			}
-		}
+        // 创建模板缓存
+        $assignData = $this->data;
+        $screenPath = $this->parseTemplate($templatePath);
+        $view = function($path, $data) {
+            ob_start();
+            @extract($data, EXTR_PREFIX_SAME, 'a_');
+            include($path);
+            $content = ob_get_contents();
+            ob_end_clean();
 
-		if($useLayout && $layoutPath) {
-			$tplId = "Layout_".str_replace(['/', '..'], '_', $tplName);
-		} else {
-			$tplId = str_replace(['/', '..'], '_', $tplName);
-		}
+            return $content;
+        };
 
-		$cachePath = Context::$appBasePath.Context::$appConfig->templateCache."/$tplId.php";
-		if(file_exists($cachePath) && filemtime($tplPath) < filemtime($cachePath)){
-			return $cachePath;
-		}else{
-			$content = "<?php !defined('AKARI_VERSION') && exit(); ?>";
-            $content .= '<?php
-                use Akari\Context;
-                use Akari\utility\DataHelper;
-                use Akari\utility\DateHelper;
-                use Akari\utility\TemplateHelper;
-                use Akari\utility\TemplateHelperCommand;
-            ?>';
-			$content .= self::parse(readover($tplPath));
-            $content .= "<?php if(TemplateHelper::\$debug): ?><!--#Akari TemplateHelper: $tplName #$tplId (".microtime().")--><?php endif ?>";
+        if ($layoutName == NULL) {
+            return $view($screenPath, $assignData);
+        }
 
-			writeover($cachePath, $content);
-			return $cachePath;
-		}
-	}
+        $realLayoutPath = $baseTemplateDirPath. "layout". DIRECTORY_SEPARATOR. $layoutName. $suffix;
+        if (!file_exists($realLayoutPath)) {
+            throw new TemplateNotFound($layoutName);
+        }
+        $layoutPath = $this->parseTemplate($realLayoutPath);
 
-	public static function parse($template){
-		$const_regexp = "([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
-		$var_regexp = "((\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*(\-\>)?[a-zA-Z0-9_\x7f-\xff]*)(\[[a-zA-Z0-9_\-\.\"\'\[\]\$\x7f-\xff]+\])*)";
+        TemplateCommand::$screen = $view($screenPath, $assignData);
+        return $view($layoutPath, array_merge([], $assignData));
+    }
 
-		$template = preg_replace_callback('/\{\%(.*?)\}/iu', function($matches) {
-			return TemplateHelper::command_lang($matches[1]);
-		}, $template);
+    /**
+     * @param $templatePath
+     * @return mixed
+     */
+    public function parseTemplate($templatePath) {
+        $tplName = str_replace(
+            Context::$appEntryPath. DIRECTORY_SEPARATOR. "template". DIRECTORY_SEPARATOR,
+            '',
+            $templatePath
+        );
+        $tplName = str_replace(['.', '/'], '_', $tplName);
+        $tplPath = Context::$appBasePath. $this->cacheDirPath. DIRECTORY_SEPARATOR. $tplName. ".php";
 
-		$template = preg_replace_callback('/<!--#(.*?)-->/iu', function($matches) {
-			return TemplateHelper::command_parse($matches[1]);
-		}, $template);
+        if (!file_exists($tplPath) || filemtime($tplPath) < filemtime($templatePath)) {
+            $content = <<<'TAG'
+<?php
+    !defined('AKARI_PATH') && exit;
+
+    use Akari\Context;
+    use Akari\utility\DataHelper;
+    use Akari\utility\TemplateHelper;
+    use Akari\utility\TemplateCommand;
+?>
+TAG;
+
+            $content .= $this->parseTemplateText(file_get_contents($templatePath), $templatePath);
+            $content .= "<!--". $tplName. "@". md5($content). "-->";
+
+            file_put_contents($tplPath, $content);
+        }
+
+        return $tplPath;
+    }
+
+    public function parseTemplateText($template, $path = NULL) {
+        $const_regexp = "([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
+        $var_regexp = "((\\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*(\-\>)?[a-zA-Z0-9_\x7f-\xff]*)(\[[a-zA-Z0-9_\-\.\"\'\[\]\$\x7f-\xff]+\])*)";
+
+        $template = preg_replace_callback('/\{\%(.*?)\}/iu', function($matches) {
+            return TemplateHelper::parseTemplateLanguage($matches[1]);
+        }, $template);
+
+        $template = preg_replace_callback('/<!--#(.*?)-->/iu', function($matches) use($path) {
+            return TemplateHelper::parseTemplateCommand($matches[1], $path);
+        }, $template);
 
         $template = preg_replace_callback('/\{'.$const_regexp.'\}/s', function($matches) {
             return '<?='.$matches[1].'?>';
         }, $template);
 
         $template = preg_replace_callback("/$var_regexp/s", function($matches) {
-            return TemplateHelper::addquote('<?='.$matches[1].'?>');
+            return TemplateHelper::addQuote('<?='.$matches[1].'?>');
         }, $template);
 
 
         $template = preg_replace_callback('/\<\?\=\<\?\='.$var_regexp.'\?\>\?\>/s', function($matches) {
-            return TemplateHelper::addquote('<?='.$matches[1].'?>');
+            return TemplateHelper::addQuote('<?='.$matches[1].'?>');
         }, $template);
 
-		$template = str_replace("_#_", "\$", $template);
-		
-		return $template;
-	}
+        return str_replace("_#_", "\$", $template);
+    }
 
-	
-	public static function command_parse($str){
-		$str = str_replace("$", "_#_", $str);
-		$str = explode(" ", $str);
-		$command = array_shift($str);
-		$end_str = implode(" ", $str);
-		
-		switch($command){
-			case "set":
-				return "<?php $end_str; ?>";
-			case "if":
-				return "<?php if($end_str): ?>";
-			case "else":
-				return "<?php else: ?>";
-			case "elseif":
-				return "<?php elseif($end_str): ?>";
-			case "template":
-			case "include":
-				return "<?php require TemplateHelperCommand::template('$end_str'); ?>";
-			case "panel":
-				return "<?php require TemplateHelperCommand::panel('$end_str'); ?>";
-			case "widget":
-				return "<?php TemplateHelperCommand::widget('$end_str'); ?>";
-			case "layout":
-				return '<?php require TemplateHelperCommand::getScreen();?>';
-			case "module":
-				if(isset($str[1])){
-					return "<?php TemplateHelperCommand::module('$str[0]', \"$str[1]\"); ?>";
-				}
+    public static function addQuote($var) {
+        return str_replace("\\\"", "\"", preg_replace('/\[([a-zA-Z0-9_\-\.\x7f-\xff]+)\]/s', "['\\1']", $var));
+    }
 
-				return "<?php TemplateHelperCommand::module('$end_str'); ?>";
-			case "eval":
-				return "<?php eval('$end_str'); ?>";
-			case "var":
-				return "<?php echo($end_str); ?>";
-			case "for":
-				return "<?php for($end_str): ?>";
-			case "loop":
-				return "<?php if(is_array($str[0])||is_object($str[0]))foreach({$end_str}): ?>";
-			case "loopend":
-			case "endloop":
-			case "/loop":
-				return "<?php endforeach; ?>";
-			case "/for":
-			case "endfor":
-			case "forend":
-				return "<?php endfor; ?>";
-			case "/if":
-			case "endif":
-			case "ifend":
-				return "<?php endif; ?>";
-			default:
-                if (method_exists('\Akari\utility\TemplateHelperCommand', $command)) {
-                    return "<?php TemplateHelperCommand::$command('$end_str') ?>";
+    public static function parseTemplateLanguage($str) {
+        $command = explode(" ", $str);
+        $langid = array_shift($command);
+        if(empty($command)){
+            return "<?php TemplateCommand::lang(\"$langid\"); ?>";
+        }else{
+            $commands = implode("&", $command);
+            return "<?php TemplateCommand::lang(\"$langid\", '$commands'); ?>";
+        }
+    }
+
+    public static function parseTemplateCommand($line, $path = NULL) {
+        $line = str_replace("$", "_#_", $line);
+        $line = explode(" ", $line);
+        $command = array_shift($line);
+        $args = implode(" ", $line);
+
+        switch ($command) {
+            case "set":
+                return "<?php $args; ?>";
+
+            case "var":
+                return "<?=$args?>";
+
+            case "screen":
+                return '<?=TemplateCommand::getScreen()?>';
+
+            case "if":
+                return "<?php if($args): ?>";
+
+            case "else":
+                return "<?php else: ?>";
+
+            case "elseif":
+                return "<?php elseif($args): ?>";
+
+            case "module":
+                if(isset($str[1])){
+                    return "<?php TemplateCommand::module('$command', \"$args\"); ?>";
                 }
-				return "<!--[Invalid Command: $command]-->";
-		}
-	}
-	
-	public static function addquote($var) {
-		return str_replace("\\\"", "\"", preg_replace('/\[([a-zA-Z0-9_\-\.\x7f-\xff]+)\]/s', "['\\1']", $var));
-	}
-	
-	public static function command_lang($str){
-		$command = explode(" ", $str);
-		$langid = array_shift($command);
-		if(empty($command)){
-			return "<?php TemplateHelperCommand::lang(\"$langid\"); ?>";
-		}else{
-			$commands = implode("&", $command);
-			return "<?php TemplateHelperCommand::lang(\"$langid\", '$commands'); ?>";
-		}
-	}
 
-	public static $asdata = [];
+                return "<?php TemplateCommand::module('$args'); ?>";
 
-    /**
-     * @param $key
-     * @param $value
-     * @return array
-     */
-    public static function assign($key, $value) {
-		if (!$value && is_array($key)) {
-			self::$asdata = array_merge(self::$asdata, $key);
-		} elseif ($value !== NULL) {
-			self::$asdata[ $key ] = $value;
-		} elseif ($key === NULL && $value === NULL) {
-			return self::$asdata;
-		}
-	}
+            case "for":
+                return "<?php for($args): ?>";
 
-    public static $jsList = [];
-    public static $cssList = [];
-    public static function addJs($path) {
-        self::$jsList[] = $path;
+            case "loop":
+                return "<?php if(is_array($line[0])||is_object($line[0]))foreach($args}): ?>";
+
+            case "loopend":
+            case "endloop":
+            case "/loop":
+                return "<?php endforeach; ?>";
+            case "/for":
+            case "endfor":
+            case "forend":
+                return "<?php endfor; ?>";
+            case "/if":
+            case "endif":
+            case "ifend":
+                return "<?php endif; ?>";
+
+            default:
+                if (method_exists('\Akari\utility\TemplateCommand', $command)) {
+                    return "<?php TemplateCommand::$command('$args') ?>";
+                }
+                throw new TemplateCommandInvalid($command, $args, $path);
+        }
     }
 
-    public static function addCss($path) {
-        self::$cssList[] = $path;
+    private $data = [];
+    public function assign($key, $value) {
+        if (!$value && is_array($key)) {
+            $this->data = array_merge($this->data, $key);
+        } elseif ($value !== NULL) {
+            $this->data[ $key ] = $value;
+        } elseif ($key === NULL && $value === NULL) {
+            return $this->data;
+        }
     }
+}
+
+Class TemplateNotFound extends \Exception {
+
+    public function __construct($template) {
+        $this->message = sprintf("Not Found Template [ %s ]", $template);
+    }
+
+}
+
+
+Class TemplateCommandInvalid extends \Exception {
+
+    public function __construct($commandName, $args, $file = NULL) {
+        $file = str_replace(Context::$appEntryPath, '', $file);
+        $this->message = sprintf("Template Command Invalid: [ %s ] with [ %s ] on [ %s ]", $commandName, $args, $file);
+    }
+
 }

@@ -1,90 +1,66 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 14/12/28
+ * Time: 23:05
+ */
+
 namespace Akari\system\db;
 
-use Akari\system\Event;
-use Akari\system\log\Logging;
-use Akari\utility\BenchmarkHelper;
+use Akari\system\event\Listener;
+use Akari\utility\Benchmark;
+use Akari\utility\helper\Logging;
 use \PDO;
 
 Class DBAgent {
 
-    public $doBenchmark = FALSE;
+    use Logging;
 
-    const EVENT_DB_QUERY = "DBAgent.Query";
-    const EVENT_DB_INIT = "DBAgent.Init";
-
-    /**
-     * 性能记录
-     *
-     * @param string $action 行为start or end
-     */
-    public function logBenchmark($action = 'start') {
-        if (!$this->doBenchmark)    return ;
-
-        $trace = debug_backtrace();
-        $backtrace = [];
-
-        foreach ($trace as $value) {
-            $backtrace[] = basename($value['file'])." L".$value['line'];
-        }
-
-        BenchmarkHelper::setSQLTimer($this->lastQuery, $action, $backtrace, []);
-    }
+    const EVT_DB_QUERY = "DB.Query";
+    const EVT_DB_INIT = "DB.Init";
 
     /**
      * @var $pdo \PDO
      */
-    protected $pdo = NULL;
+    protected $pdo;
     protected $options;
     protected $lastQuery;
+
     public $lastInsertId = NULL;
 
-    public function __construct($options) {
+    public function __construct(array $options) {
         $this->options = $options;
     }
 
-    /**
-     * 获得PDO实例
-     *
-     * @return PDO
-     * @throws DBAgentException
-     */
+    private function benchmarkEnd() {
+        Benchmark::logCount('db.Query');
+        Benchmark::logParams('db.Query', [
+            'sql' => $this->lastQuery,
+            'time' => Benchmark::getTimerDiff('db.Query')
+        ]);
+    }
+
     public function getPDOInstance() {
         if (!class_exists("PDO")) {
-            throw new DBAgentException("[Akari.db.DBAgent] PDO not installed");
+            throw new DBAgentException("PDO not installed");
         }
 
         if ($this->pdo === NULL) {
             extract($this->options);
 
             try {
-                Event::fire(self::EVENT_DB_INIT);
+                Listener::fire(self::EVT_DB_INIT);
                 $this->pdo = new PDO($dsn, $username, $password, $options);
             } catch (\PDOException $e) {
-                Logging::_logErr($e);
-                throw new DBAgentException("PDO Connect Failed: ".$e->getCode(). " ".$e->getMessage());
+                self::_logErr($e);
+                throw new DBAgentException("pdo connect failed: ". $e->getMessage());
             }
         }
 
         return $this->pdo;
     }
 
-    /**
-     * quoute
-     *
-     * @param string $string
-     * @return string
-     */
-    public function quote($string) {
-        return $this->pdo->quote($string);
-    }
-
-    /**
-     * prepare
-     *
-     * @param string $sql
-     * @return DBAgentStatement
-     */
     public function prepare($sql) {
         return new DBAgentStatement($sql, $this);
     }
@@ -109,9 +85,10 @@ Class DBAgent {
         } else {
             $this->dispErrorInfo($doc->errorInfo());
         }
-        $this->logBenchmark('end');
 
         $query->close();
+        $this->benchmarkEnd();
+
         return $rs;
     }
 
@@ -135,9 +112,10 @@ Class DBAgent {
         } else {
             $this->dispErrorInfo($doc->errorInfo());
         }
-        $this->logBenchmark('end');
 
         $query->close();
+        $this->benchmarkEnd();
+
         return $rs;
     }
 
@@ -160,9 +138,10 @@ Class DBAgent {
         } else {
             $this->dispErrorInfo($doc->errorInfo());
         }
-        $this->logBenchmark('end');
 
         $query->close();
+        $this->benchmarkEnd();
+
         return $doc->rowCount();
     }
 
@@ -204,16 +183,13 @@ Class DBAgent {
      * @return DBAgentStatement
      */
     private function doQuery($sql, $params = NULL) {
-        logcount("db.query", 1);
-
         if (is_string($sql)) {
             $sql = $this->_createStatementArr($sql, $params);
         }
 
+        Benchmark::setTimer('db.Query');
         $this->lastQuery = $sql->getDebugSQL();
-        $this->logBenchmark('start');
-
-        Event::fire(self::EVENT_DB_QUERY, ["SQL" => $this->lastQuery]);
+        Listener::fire(self::EVT_DB_QUERY, ["SQL" => $this->lastQuery]);
 
         return $sql;
     }
@@ -278,6 +254,6 @@ Class DBAgent {
     }
 }
 
-Class DBAgentException extends \Exception{
+Class DBAgentException extends \Exception {
 
 }
