@@ -33,7 +33,7 @@ Class FrameworkExceptionHandler {
         $view = function($path, $data) {
             ob_start();
             @extract($data, EXTR_PREFIX_SAME, 'a_');
-            include(AKARI_PATH. "/template/". $path. ".php");
+            include(AKARI_PATH. '/template/'. $path. '.php');
             $content = ob_get_contents();
             ob_end_clean();
 

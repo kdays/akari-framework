@@ -25,10 +25,11 @@ Class Listener {
     /**
      * @param string $eventName
      * @param callable $callback
+     * @param array $params
      * @param int $weight
      * @return bool
      */
-    public static function add($eventName, callable $callback, $weight = 0) {
+    public static function add($eventName, callable $callback, $params = [], $weight = 0) {
         list($gloSpace, $subSpace) = explode(".", $eventName);
 
         if (isset(self::$queue[$gloSpace][$subSpace])) {
@@ -39,7 +40,7 @@ Class Listener {
             }
         }
 
-        self::$queue[$gloSpace][$subSpace][] = [$callback, $weight];
+        self::$queue[$gloSpace][$subSpace][] = [$callback, $weight, $params];
     }
 
     /**

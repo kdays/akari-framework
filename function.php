@@ -282,12 +282,12 @@ function cache($key, $value = NULL, $expired = -1, $confId = 'default', $drvName
     return $device->set($key, $value, $expired);
 }
 
-function cookie($key, $value = NULL) {
+function cookie($key, $value = NULL, $expire = NULL, $encrypt = FALSE) {
     $cookie = \Akari\system\http\Cookie::getInstance();
 
     if ($value == NULL) {
         return $cookie->get($key);
     }
 
-    $cookie->set($key, $value);
+    $cookie->set($key, $value, $expire, $encrypt);
 }

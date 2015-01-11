@@ -8,45 +8,24 @@
 
 namespace Akari\model;
 
-use Akari\utility\helper\Logging;
-
-Class RequestModel {
-
-    use Logging;
+Class RequestModel extends Model {
 
     const METHOD_POST = 'P';
     const METHOD_GET = 'G';
     const METHOD_GET_AND_POST = 'GP';
 
-    public function __construct(){
-        return $this->reloadValue();
-    }
-
-    public static $m = [];
-    public static function getRequest() {
-        $class = get_called_class();
-        if (!isset(self::$m[$class])) {
-            self::$m[ $class ] = new $class;
-        }
-
-        return self::$m[ $class ];
-    }
-
     /**
-     * 获得值，在初始化时调用
-     *
-     * @return RequestModel
-     **/
-    public function reloadValue(){
-        $map = $this->_mapList();
+     * @var array $keyMapList 映射表 RequestModel参数 => URL参数
+     */
+    protected static $keyMapList = [];
+
+    public function __construct(){
+        $map = static::$keyMapList;
 
         foreach($this as $key => $value){
-            $reqKey = $key;
-            if(isset($map[$key])){
-                $reqKey = $map[$key];
-            }
+            $reqKey = isset($map[$key]) ? $map[$key] : $key;
 
-            $value = GP($reqKey, $this->_getMethod($key));
+            $value = GP($reqKey, $this->_getKeyMethod($key));
             if($value !== NULL){
                 $this->$key = $value;
             }
@@ -59,17 +38,16 @@ Class RequestModel {
 
     /**
      * 如果有mapList，则按照mapList反向导出数组
+     *
+     * @param bool $toURL 转换是以URL为准还是以RequestModel参数为准
+     * @return array
      */
-    public function toArray() {
-        $map = $this->_mapList();
+    public function toArray($toURL = false) {
+        $map = !$toURL ? array_flip(static::$keyMapList) : static::$keyMapList;
         $result = [];
 
         foreach ($this as $key => $value) {
-            $reqKey = $key;
-            if(isset($map[$key])){
-                $reqKey = $map[$key];
-            }
-
+            $reqKey = isset($map[$key]) ? $map[$key] : $key;
             if ($value !== NULL) {
                 $result[ $reqKey ] = $value;
             }
@@ -81,10 +59,9 @@ Class RequestModel {
     /**
      * 检查参数回调，在取值时调用，可以通过$this->键名重设值
      */
-    public function _checkParams(){
+    protected function _checkParams(){
 
     }
-
 
     /**
      * 获得的方式，是允许GET还是POST 方式见METHOD_*
@@ -92,16 +69,7 @@ Class RequestModel {
      * @param string $key 键名
      * @return string
      */
-    public function _getMethod($key){
+    protected function _getKeyMethod($key){
         return RequestModel::METHOD_GET_AND_POST;
-    }
-
-    /**
-     * 映射地图，通过地图你可以任意的值映射到模型中
-     *
-     * @return array
-     **/
-    public function _mapList(){
-        return Array();
     }
 }

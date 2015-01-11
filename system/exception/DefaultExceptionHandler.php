@@ -45,6 +45,7 @@ Class DefaultExceptionHandler extends BaseExceptionHandler {
             'file' => str_replace(Context::$appBasePath, '', $ex->getFile()),
             'fileLine' => $fileLine,
             'line' => $ex->getLine(),
+            'className' => get_class($ex),
             'trace' => $trace,
             'version' => akari::getVersion(),
             'build' => AKARI_BUILD

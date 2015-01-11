@@ -162,7 +162,7 @@ Class Dispatcher{
         $method = array_pop($parts);
         $class = ucfirst(array_pop($parts)).'Action';
 
-        $cls = Context::$appBaseNS. NAMESPACE_SEPARATOR. 'action'. NAMESPACE_SEPARATOR. implode('\\', $parts). '\\'. $class;
+        $cls = Context::$appBaseNS. NAMESPACE_SEPARATOR. 'action'. NAMESPACE_SEPARATOR. implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
         try {
             if (class_exists($cls)) {
                 Context::$appEntryName = implode(DIRECTORY_SEPARATOR, $parts). DIRECTORY_SEPARATOR. $class.".php";
