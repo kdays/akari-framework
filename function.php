@@ -291,3 +291,20 @@ function cookie($key, $value = NULL, $expire = NULL, $encrypt = FALSE) {
 
     $cookie->set($key, $value, $expire, $encrypt);
 }
+
+function array_flat($list, $key) {
+    if (!is_array($list)) {
+        return FALSE;
+    }
+
+    $result = [];
+    foreach ($list as $v) {
+        if (is_array($v)) {
+            $result[] = $v[$key];
+        } else {
+            $result[] = $v->$key;
+        }
+    }
+
+    return $result;
+}
