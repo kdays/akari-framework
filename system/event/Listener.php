@@ -21,6 +21,9 @@ Class Listener {
 
     const EVENT_CALLBACK = 0;
     const EVENT_WEIGHT = 1;
+    const EVENT_ID = 3;
+
+    protected static $eventId = 0;
 
     /**
      * @param string $eventName
@@ -40,7 +43,8 @@ Class Listener {
             }
         }
 
-        self::$queue[$gloSpace][$subSpace][] = [$callback, $weight, $params];
+        self::$queue[$gloSpace][$subSpace][] = [$callback, $weight, $params, ++self::$eventId];
+        return self::$eventId;
     }
 
     /**
@@ -74,6 +78,21 @@ Class Listener {
                 break;
             }
         }
+    }
+
+    public static function remove($eventId) {
+        foreach (self::$queue as $gKey => $gSpace) {
+            foreach ($gSpace as $sKey => $sSpace) {
+                foreach ($sSpace as $pKey => $pValue) {
+                    if ($pValue[self::EVENT_ID] == $eventId) {
+                        unset(self::$queue[$gKey][$sKey][$pKey]);
+                        return TRUE;
+                    }
+                }
+            }
+        }
+
+        return FALSE;
     }
 
 }
