@@ -35,10 +35,10 @@ Class Listener {
      * 添加成功后，会返回事件id，通过事件id可以使用remove删除
      * </pre>
      *
-     * @param string $eventName
+     * @param string $eventName 事件名
      * @param callable $callback 回调时2个参数 第1个是params 第2个是请求事件名
-     * @param array $params
-     * @param int $weight
+     * @param array $params 参数
+     * @param int $weight 排序权重
      * @return int 事件id
      */
     public static function add($eventName, callable $callback, $params = [], $weight = 0) {
@@ -115,9 +115,8 @@ Class Listener {
 
         array_walk(self::$queue, function($queue, $gloSpace) use($eventId) {
             foreach ($queue as $subSpace => $events) {
-                for ($i = 0; $i < count($events); $i++) {
-                    $nowEventId = $events[$i][self::EVENT_ID];
-                    if ($nowEventId == $eventId) {
+                foreach ($events as $i => $nowEvent) {
+                    if ($nowEvent[self::EVENT_ID] == $eventId) {
                         unset(self::$queue[$gloSpace][$subSpace][$i]);
                         return TRUE;
                     }
