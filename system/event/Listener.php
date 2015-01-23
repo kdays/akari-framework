@@ -21,8 +21,7 @@ Class Listener {
 
     const EVENT_CALLBACK = 0;
     const EVENT_WEIGHT = 1;
-    const EVENT_PARAMS = 2;
-    const EVENT_ID = 3;
+    const EVENT_ID = 2;
 
     protected static $eventId = 0;
 
@@ -33,32 +32,35 @@ Class Listener {
      * 名称最多2层，即a.b
      *
      * 添加成功后，会返回事件id，通过事件id可以使用remove删除
+     *
+     * 注意监听时，fire的选择！
+     * 系统全局的请使用fire类型，战斗系统严重依赖返回值的，使用fireSync
+     * 两者回调时参数不同，请注意区分。
      * </pre>
      *
      * @param string $eventName 事件名
-     * @param callable $callback 回调时2个参数 第1个是params 第2个是请求事件名
-     * @param array $params 参数
-     * @param int $weight 排序权重
+     * @param callable $callback 回调的参数见fire和fireSync，2者回调内容不同
+     * @param int $priority 排序权重 数字越小的越先执行，全局性的
      * @return int 事件id
      */
-    public static function add($eventName, callable $callback, $params = [], $weight = 0) {
+    public static function add($eventName, callable $callback, $priority = 0) {
         list($gloSpace, $subSpace) = explode(".", $eventName);
 
         if (!isset(self::$queue[$gloSpace][$subSpace])) {
             self::$queue[$gloSpace][$subSpace] = [];
         }
 
-        self::$queue[$gloSpace][$subSpace][] = [$callback, $weight, $params, ++self::$eventId];
+        self::$queue[$gloSpace][$subSpace][] = [$callback, $priority, ++self::$eventId];
         return self::$eventId;
     }
 
     /**
-     * 执行事件
+     * 获得事件要执行的队列
      *
-     * @param string $eventName
-     * @param array $params
+     * @param string $eventName 事件名
+     * @return mixed
      */
-    public static function fire($eventName, $params = []) {
+    protected static function _getFireQueue($eventName) {
         list($gloSpace, $subSpace) = explode(".", $eventName);
 
         $fireQueue = [];
@@ -68,7 +70,7 @@ Class Listener {
         foreach ([$gloSpace, "*"] as $frontSpaceName) {
             foreach ([$subSpace, "*"] as $subSpaceName) {
                 if (isset($nowQueue[$frontSpaceName][$subSpaceName])) {
-                    $fireQueue = array_merge($nowQueue[$frontSpaceName][$subSpaceName], $fireQueue);
+                    $fireQueue = array_merge(array_reverse($nowQueue[$frontSpaceName][$subSpaceName]) ,$fireQueue);
                 }
             }
         }
@@ -78,17 +80,66 @@ Class Listener {
             return $a[Listener::EVENT_WEIGHT] - $b[Listener::EVENT_WEIGHT];
         });
 
-        foreach ($fireQueue as $_nowREvent) {
-            $sParams = array_merge($params, $_nowREvent[self::EVENT_PARAMS]);
+        return $fireQueue;
+    }
 
+    /**
+     * 异步事件调用
+     * <pre>
+     * 和fireSync不同，2者callback返回不一致，
+     * fire是array $params, string $eventName, int $eventId
+     * </pre>
+     *
+     * @param string $eventName
+     * @param array $params
+     */
+    public static function fire($eventName, array $params) {
+        $queue = self::_getFireQueue($eventName);
+
+        foreach ($queue as $_) {
             try {
-                $_nowREvent[self::EVENT_CALLBACK]($sParams, $eventName);
-            } catch (StopEventBubbling $e) {
+                call_user_func_array($_[self::EVENT_CALLBACK], [
+                            $params,
+                            $eventName,
+                            $_[self::EVENT_ID]
+                        ]);
+            } catch(StopEventBubbling $e) {
+                break;
+            }
+        }
+    }
+
+    /**
+     * 链式事件调用
+     * <pre>
+     * 和fire不同，2者callback返回不一致
+     * fireSync回调callback是Event $e
+     * </pre>
+     *
+     * @param string $eventName
+     * @param mixed $inResult
+     * @return mixed
+     */
+    public static function fireSync($eventName, $inResult) {
+        $queue = self::_getFireQueue($eventName);
+
+        $event = new Event();
+        $event->result = $inResult;
+        $event->chainPos = 0;
+        $event->eventName = $eventName;
+
+        foreach ($queue as $_) {
+            ++$event->chainPos;
+            $event->eventId = $_[self::EVENT_ID];
+
+            $event->result = call_user_func($_[self::EVENT_CALLBACK], $event);
+            if ($event->isPropagationStopped()) {
                 break;
             }
         }
 
-        unset($fireQueue);
+        unset($queue);
+        return $event->result;
     }
 
     /**
@@ -128,3 +179,4 @@ Class Listener {
     }
 
 }
+

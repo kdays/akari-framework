@@ -16,4 +16,8 @@ namespace Akari\system\event;
  */
 class StopEventBubbling extends \Exception{
 
+    public function __construct() {
+
+    }
+
 }
