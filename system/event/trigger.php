@@ -45,6 +45,7 @@ Class Trigger {
             $this->preRules[] = Array("/.*/", "AfterInit");
         }
 
+
         if (file_exists($baseDir. "ApplicationEnd.php")) {
             $this->afterRules[] = Array("/.*/", "ApplicationEnd");
         }
@@ -56,7 +57,6 @@ Class Trigger {
 
     private function dispatch($type, $requestResult = NULL) {
         $uri = Context::$uri;
-
         $commitName = $type."Rules";
 
         foreach ($this->$commitName as $rule) {
@@ -84,10 +84,10 @@ Class Trigger {
                 } catch (BreakTriggerEvent $e) {
                     break;
                 }
-
-                return $requestResult;
             }
         }
+
+        return $requestResult;
     }
 
     /**

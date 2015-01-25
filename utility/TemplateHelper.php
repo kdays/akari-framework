@@ -55,9 +55,9 @@ Class TemplateHelper {
         // 创建模板缓存
         $assignData = $this->data;
         $screenPath = $this->parseTemplate($templatePath);
-        $view = function($path, $data) {
+        $view = function($path, $assignData) {
             ob_start();
-            @extract($data, EXTR_PREFIX_SAME, 'a_');
+            @extract($assignData, EXTR_PREFIX_SAME, 'a_');
             include($path);
             $content = ob_get_contents();
             ob_end_clean();

@@ -20,7 +20,7 @@ Class Listener {
     protected static $queue = [];
 
     const EVENT_CALLBACK = 0;
-    const EVENT_WEIGHT = 1;
+    const EVENT_PRIORITY = 1;
     const EVENT_ID = 2;
 
     protected static $eventId = 0;
@@ -77,7 +77,7 @@ Class Listener {
 
         // 排序
         usort($fireQueue, function($a, $b) {
-            return $a[Listener::EVENT_WEIGHT] - $b[Listener::EVENT_WEIGHT];
+            return $a[Listener::EVENT_PRIORITY] - $b[Listener::EVENT_PRIORITY];
         });
 
         return $fireQueue;
