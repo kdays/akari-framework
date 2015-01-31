@@ -36,11 +36,14 @@ trait ResultHelper {
 
     public static function _genTplResult($data = [], $screenPath = NULL, $layoutPath = NULL, $contentType = Result::CONTENT_HTML) {
         if ($screenPath == NULL || $layoutPath == NULL) {
-            $screenName = trim(Context::$appEntryName, '.php');
+            $screenName = str_replace('.php', '', trim(Context::$appEntryName));
+
             if (Context::$appEntryMethod !== NULL) {
                 $screenName = substr($screenName, 0, strlen($screenName) - strlen('Action'));
                 $screenName .= DIRECTORY_SEPARATOR. Context::$appEntryMethod;
             }
+
+            $screenName = strtolower($screenName);
             $suffix = Context::$appConfig->templateSuffix;
 
             if ($screenPath == NULL) {
@@ -52,6 +55,7 @@ trait ResultHelper {
                 $layoutPath = Dispatcher::getInstance()->findWay($screenName, 'template/layout/', $suffix);
                 $layoutPath = str_replace([Context::$appEntryPath, $suffix, '/template/layout/'], '', $layoutPath);
             }
+
         }
 
         if ($screenPath == '') {

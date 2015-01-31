@@ -48,7 +48,7 @@ Class BaseConfig {
 
     public $database = [];
 
-    public $defaultExceptionHandler = 'Akari\system\exception\defaultExceptionHandler';
+    public $defaultExceptionHandler = 'Akari\system\exception\DefaultExceptionHandler';
     public $defaultPageTemplate = 'Pager';
 
     public $uriMode = AKARI_URI_AUTO;

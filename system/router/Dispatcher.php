@@ -98,6 +98,10 @@ Class Dispatcher{
             return $path;
         }
 
+        if(file_exists($path = $baseDirPath. "default". $ext)){
+            return $path;
+        }
+
         return FALSE;
     }
 
@@ -166,6 +170,7 @@ Class Dispatcher{
         try {
             if (class_exists($cls)) {
                 Context::$appEntryName = implode(DIRECTORY_SEPARATOR, $parts). DIRECTORY_SEPARATOR. $class.".php";
+
                 return $this->doAction($cls, $method);
             }
         } catch (NotFoundClass $e) {

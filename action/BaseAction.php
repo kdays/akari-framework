@@ -8,6 +8,7 @@
 
 namespace Akari\action;
 
+use Akari\system\http\HttpHelper;
 use Akari\system\http\Request;
 use Akari\system\http\Response;
 use Akari\utility\helper\ExceptionSetter;
@@ -17,7 +18,7 @@ use Akari\utility\helper\ValueHelper;
 
 Class BaseAction {
 
-    use Logging, ValueHelper, ResultHelper, ExceptionSetter;
+    use Logging, ValueHelper, ResultHelper, ExceptionSetter, HttpHelper;
 
     /**
      * @var Request

@@ -45,8 +45,8 @@ Class TemplateHelper {
         $tplName = str_replace('//', '/', $tplName);
         if ($layoutName != NULL)    $layoutName = str_replace('//', '/', $layoutName);
 
-        if ($tplName[0] == '/') $tplName = substr($tplName, 1);
-        if ($layoutName[0] == '/')  $layoutName = substr($layoutName, 1);
+        if (substr($tplName, 0, 1) == '/') $tplName = substr($tplName, 1);
+        if (substr($layoutName, 0, 1) == '/')  $layoutName = substr($layoutName, 1);
 
         if (!file_exists( $templatePath = $baseTemplateDirPath. "view". DIRECTORY_SEPARATOR. $tplName. $suffix )) {
             throw new TemplateNotFound($tplName);
