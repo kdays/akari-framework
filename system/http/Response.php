@@ -28,6 +28,11 @@ Class Response {
         $this->responseCode = $code;
     }
 
+    public function setNoCache() {
+        $this->setHeader('Pragma', 'no-cache');
+        $this->setHeader('Cache-Control', 'no-cache');
+    }
+
     public function setHeader($key, $value) {
         $this->headers[$key] = $value;
     }

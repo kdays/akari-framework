@@ -9,6 +9,7 @@
 namespace Akari\utility\helper;
 
 use Akari\Context;
+use Akari\system\console\Request;
 use Akari\system\http\HttpCode;
 use Akari\system\http\Response;
 use Akari\system\result\Result;
@@ -24,6 +25,10 @@ trait ResultHelper {
 
     protected static function _genJSONResult($data = [], $contentType = Result::CONTENT_JSON) {
         return new Result(Result::TYPE_JSON, $data, NULL, $contentType);
+    }
+
+    public static function _genJPEGResult($data, $quality) {
+        return new Result(Result::TYPE_JPEG, $data, ['quality' => $quality], Result::CONTENT_JPEG);
     }
 
     protected static function _genHTMLResult($html, $contentType = Result::CONTENT_HTML) {
