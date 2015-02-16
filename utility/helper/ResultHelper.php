@@ -34,6 +34,10 @@ trait ResultHelper {
         return new Result(Result::TYPE_TEXT, $text, NULL, Result::CONTENT_TEXT);
     }
 
+    protected static function _genJPEGResult($resource, $quality) {
+        return new Result(Result::TYPE_JPEG, $resource, ['quality' => $quality], Result::CONTENT_JPEG);
+    }
+
     public static function _genTplResult($data = [], $screenPath = NULL, $layoutPath = NULL, $contentType = Result::CONTENT_HTML) {
         if ($screenPath == NULL || $layoutPath == NULL) {
             $screenName = str_replace('.php', '', trim(Context::$appEntryName));

@@ -10,7 +10,7 @@ define("AKARI_VERSION", "3.0 (Sora)");
 define("AKARI_BUILD", "2015.01.04");
 define("NAMESPACE_SEPARATOR", "\\");
 
-define("BASE_APP_DIR", "app");
+defined("BASE_APP_DIR") or define("BASE_APP_DIR", "app");
 define("CLI_MODE", php_sapi_name()=="cli" ? TRUE : FALSE);
 
 define('AKARI_URI_AUTO', 0);
