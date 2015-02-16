@@ -27,10 +27,6 @@ trait ResultHelper {
         return new Result(Result::TYPE_JSON, $data, NULL, $contentType);
     }
 
-    public static function _genJPEGResult($data, $quality) {
-        return new Result(Result::TYPE_JPEG, $data, ['quality' => $quality], Result::CONTENT_JPEG);
-    }
-
     protected static function _genHTMLResult($html, $contentType = Result::CONTENT_HTML) {
         return new Result(Result::TYPE_HTML, $html, NULL, $contentType);
     }
