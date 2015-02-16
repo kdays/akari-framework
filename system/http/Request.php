@@ -235,4 +235,12 @@ Class Request{
     public function getUserAgent(){
         return $this->userAgent;
     }
+
+    /**
+     * 获得请求模式 (PUT/GET/POST)
+     * @return mixed
+     */
+    public function getRequestMethod() {
+        return $this->requestMethod;
+    }
 }

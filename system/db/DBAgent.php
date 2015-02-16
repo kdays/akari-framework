@@ -9,6 +9,7 @@
 namespace Akari\system\db;
 
 use Akari\system\event\Listener;
+use Akari\system\event\StopEventBubbling;
 use Akari\utility\Benchmark;
 use Akari\utility\helper\Logging;
 use \PDO;
@@ -50,7 +51,7 @@ Class DBAgent {
             extract($this->options);
 
             try {
-                Listener::fire(self::EVT_DB_INIT);
+                Listener::fire(self::EVT_DB_INIT, $this->options);
                 $this->pdo = new PDO($dsn, $username, $password, $options);
             } catch (\PDOException $e) {
                 self::_logErr($e);
@@ -90,6 +91,26 @@ Class DBAgent {
         $this->benchmarkEnd();
 
         return $rs;
+    }
+
+    /**
+     * @param DBAgentStatement $st
+     * @param callable $callback
+     * @return array
+     * @throws DBAgentException
+     */
+    public function getAllWithCallback(DBAgentStatement $st, callable $callback) {
+        $result = $this->getAll($st, NULL);
+
+        foreach ($result as $key => &$value) {
+            try {
+                $value = $callback($value, $key);
+            } catch (StopEventBubbling $e) {
+                break;
+            }
+        }
+
+        return $result;
     }
 
     /**
