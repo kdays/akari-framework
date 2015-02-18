@@ -61,6 +61,64 @@ Class Processor {
         echo $result->data;
     }
 
+    public function processINI(Result $result) {
+        $array = ["body" => $result->data];
+
+        echo $this->_parseIni($array);
+    }
+
+    protected function _parseIni($data, $i = 0) {
+        $str = "";
+        foreach ($data as $k => $v){
+            if ($v === FALSE) {
+                $v = "false";
+            } elseif ($v === TRUE) {
+                $v = "true";
+            }
+
+            if (is_array($v)){
+                $str .= /*str_repeat(" ",$i*2).*/"[$k]".PHP_EOL;
+                $str .= $this->_parseIni($v, $i+1);
+            }else {
+                $str .= /*str_repeat(" ",$i*2).*/"$k=$v".PHP_EOL;
+            }
+        }
+
+        return $str;
+    }
+
+    public function processXML(Result $result) {
+        $xml = '<?xml version="1.0" encoding="utf-8"?>'."\n";
+        $xml .= self::_array2xml(["body" => $result->data]);
+
+        echo $xml;
+    }
+
+    private function _array2xml($array, $level = 0) {
+        $xml = '';
+        foreach($array as $key=>$val) {
+            is_numeric($key) && $key="item id=\"$key\"";
+            if($level > 0){
+                $xml.= "\t";
+            }
+
+            $xml.="<$key>";
+            if($level == 0)	$xml.="\n";
+
+            if($val === true){
+                $val = '1';
+            }elseif($val === false){
+                $val = '0';
+            }
+
+            $xml .= is_array($val) ? $this->_array2xml($val, ++$level) : $val;
+            list($key,) = explode(' ',$key);
+            $xml .= "</$key>\n";
+        }
+
+        return $xml;
+    }
+
     public function processDOWNLOAD(Result $result) {
         $resp = Response::getInstance();
         $resp->setHeader('Accept-Ranges', 'bytes');

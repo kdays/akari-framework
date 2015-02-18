@@ -10,6 +10,6 @@ namespace Akari\utility\template;
 
 interface BaseTemplateModule {
 
-    public function run($args);
+    public function run($args = '');
 
 }

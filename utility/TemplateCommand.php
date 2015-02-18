@@ -41,7 +41,7 @@ Class TemplateCommand {
         echo $view($panelPath, array_merge(TemplateHelper::getInstance()->assign(NULL, NULL), $args));
     }
 
-    public static function module($id, $data) {
+    public static function module($id, $data = '') {
         $id = ucfirst($id);
 
         $appCls = Context::$appBaseNS."\\lib\\{$id}Module";

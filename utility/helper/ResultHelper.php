@@ -27,6 +27,14 @@ trait ResultHelper {
         return new Result(Result::TYPE_JSON, $data, NULL, $contentType);
     }
 
+    protected static function _genXMLResult($data = [], $contentType = Result::CONTENT_XML) {
+        return new Result(Result::TYPE_XML, $data, NULL, $contentType);
+    }
+
+    protected static function _genINIResult($data = [], $contentType = Result::CONTENT_INI) {
+        return new Result(Result::TYPE_INI, $data, NULL, $contentType);
+    }
+
     protected static function _genHTMLResult($html, $contentType = Result::CONTENT_HTML) {
         return new Result(Result::TYPE_HTML, $html, NULL, $contentType);
     }
@@ -35,7 +43,7 @@ trait ResultHelper {
         return new Result(Result::TYPE_TEXT, $text, NULL, Result::CONTENT_TEXT);
     }
 
-    protected static function _genJPEGResult($resource, $quality) {
+    public static function _genJPEGResult($resource, $quality) {
         return new Result(Result::TYPE_JPEG, $resource, ['quality' => $quality], Result::CONTENT_JPEG);
     }
 

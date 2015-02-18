@@ -204,6 +204,10 @@ Class Dispatcher{
             }
         }
 
+        if (method_exists($clsObj, '_pre')) {
+            $clsObj->_pre();
+        }
+
         Context::$appEntryMethod = $method;
 
         // 如果说 这个path是一个class文件 Result需要调用对应方法执行

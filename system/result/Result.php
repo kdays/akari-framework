@@ -17,6 +17,7 @@ Class Result {
     const TYPE_TPL = 'TPL';
     const TYPE_DOWN = 'DOWNLOAD';
     const TYPE_TEXT = "TEXT";
+    const TYPE_INI = 'INI';
 
     const TYPE_JPEG = 'JPEG';
     const TYPE_PNG = 'PNG';

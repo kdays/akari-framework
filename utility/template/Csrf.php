@@ -13,7 +13,7 @@ use Akari\system\security\Security;
 
 Class Csrf implements BaseTemplateModule {
 
-    public function run($arg) {
+    public function run($arg = '') {
         $tokenName = Context::$appConfig->csrfTokenName;
         $token = Security::getCSRFToken();
         echo "<input type=\"hidden\" name=\"$tokenName\" value=\"$token\" />\n";
