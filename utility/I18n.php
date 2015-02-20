@@ -16,7 +16,7 @@ Class I18n {
     protected static $data = [];
     protected static $loadedPackages = [];
 
-    public function getPath($name) {
+    protected static function getPath($name) {
         $baseDir = implode(DIRECTORY_SEPARATOR, [
             Context::$appEntryPath, 'language', ''
         ]);

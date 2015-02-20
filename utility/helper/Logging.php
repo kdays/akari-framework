@@ -11,7 +11,7 @@ namespace Akari\utility\helper;
 use Akari\Context;
 
 trait Logging{
-    public static $strLevel = Array(
+    protected static $strLevel = Array(
         AKARI_LOG_LEVEL_DEBUG => "DEBUG",
         AKARI_LOG_LEVEL_INFO => "INFO",
         AKARI_LOG_LEVEL_WARN => "WARNING",

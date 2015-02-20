@@ -41,7 +41,7 @@ Class Cookie {
             $value = implode("&", $tmp).self::FLAG_ARRAY;
         }
 
-        if ($encrypt) $value = Security::encrypt($value, 'cookie');
+        if ($encrypt) $value = Security::encrypt($value, 'cookie'). self::FLAG_ENCRYPT;
         $path = array_key_exists("path", $opts) ? $opts['path'] : $config->cookiePath;
         $domain  = array_key_exists("domain", $opts) ? $opts['domain'] : $config->cookieDomain;
 
@@ -66,7 +66,7 @@ Class Cookie {
 
         $len = strlen(self::FLAG_ENCRYPT);
         if (substr($cookie, -$len, $len) == self::FLAG_ENCRYPT) {
-            $cookie = Security::decrypt(substr($cookie, 0, $len), 'cookie');
+            $cookie = Security::decrypt(substr($cookie, 0, -$len), 'cookie');
         }
 
         if(substr($cookie, -2, 2) == self::FLAG_ARRAY){

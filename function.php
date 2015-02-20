@@ -308,3 +308,7 @@ function array_flat($list, $key) {
 
     return $result;
 }
+
+function make_url($url, array $params) {
+    return $url. (in_string($url, '?') ? "&" : "?"). http_build_query($params);
+}
