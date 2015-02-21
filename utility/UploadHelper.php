@@ -67,8 +67,9 @@ Class UploadHelper{
      * @param array $namePolicyOptions 命名函数调用时的参数
      * @param callable $callback 回调参数
      * @param string $allowExt 允许的文件格式，不设定为设定中的allowUploadExt
+     * @return bool|mixed
+     * @throws UploadExtensionError
      * @throws UploadFileCannotAccess
-     * @return boolean|mixed
      */
     public function moveFile($uploadForm, $saveDir, $namePolicy = NULL, $namePolicyOptions = Array(),$callback = NULL, $allowExt = NULL){
         if(empty($allowExt)){
@@ -76,14 +77,14 @@ Class UploadHelper{
         }
 
         if(!$this->isUploadedFile($uploadForm['tmp_name'])){
-            return FALSE;
+            throw new UploadFileCannotAccess();
         }
 
         $tmpName = explode(".", $uploadForm['name']);
         $fileExt = strtolower(end($tmpName));
 
         if(!in_array($fileExt, $allowExt)){
-            return FALSE;
+            throw new UploadExtensionError($fileExt, $allowExt);
         }
 
         if($namePolicy == NULL){
@@ -95,7 +96,7 @@ Class UploadHelper{
 
 
         if(!movefile($target, $uploadForm['tmp_name'])){
-            return FALSE;
+            throw new UploadFileCannotAccess();
         }
 
         if($callback != NULL){
@@ -113,6 +114,8 @@ Class UploadHelper{
      * @param string $savePath 保存路径
      * @param array $allowExt 允许的扩展名
      * @return bool
+     * @throws UploadExtensionError
+     * @throws UploadFileCannotAccess
      */
     public function saveFile($uploadForm, $savePath, $allowExt = []) {
         if (empty($allowExt)) {
@@ -124,16 +127,16 @@ Class UploadHelper{
 
         if (is_array($uploadForm)) {
             if (!$this->isUploadedFile($uploadForm['tmp_name'])) {
-                return false;
+                throw new UploadFileCannotAccess();
             }
 
             $pathInfo = pathinfo($uploadForm['name']);
             if (!in_array(strtolower($pathInfo['extension']), $allowExt)) {
-                return false;
+                throw new UploadExtensionError($pathInfo['extension'], $allowExt);
             }
 
             if (!movefile($savePath, $uploadForm['tmp_name'])) {
-                return false;
+                throw new UploadFileCannotAccess();
             }
         } else {
             writeover($savePath, $uploadForm);
@@ -155,5 +158,17 @@ Class UploadHelper{
 }
 
 Class UploadFileCannotAccess extends Exception{
+
+}
+
+Class UploadExtensionError extends Exception {
+
+    protected $nowFileExtension;
+    protected $allowFileExtensions;
+
+    public function __construct($nowFileExtension, array $allowFileExtensions) {
+        $this->nowFileExtension = $nowFileExtension;
+        $this->allowFileExtensions = $allowFileExtensions;
+    }
 
 }

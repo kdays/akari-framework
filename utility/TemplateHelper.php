@@ -192,7 +192,7 @@ TAG;
                 return "<?php for($args): ?>";
 
             case "loop":
-                return "<?php if(is_array($line[0])||is_object($line[0]))foreach($args}): ?>";
+                return "<?php if(is_array($line[0])||is_object($line[0]))foreach($args): ?>";
 
             case "loopend":
             case "endloop":

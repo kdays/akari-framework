@@ -28,6 +28,8 @@ Class TemplateCommand {
         if (!file_exists($panelPath)) {
             throw new TemplateNotFound("panel:". $panelName);
         }
+
+        $realPanelPath = TemplateHelper::getInstance()->parseTemplate($panelPath);
         $view = function($path, $data) {
             ob_start();
             @extract($data, EXTR_PREFIX_SAME, 'a_');
@@ -38,7 +40,7 @@ Class TemplateCommand {
             return $content;
         };
 
-        echo $view($panelPath, array_merge(TemplateHelper::getInstance()->assign(NULL, NULL), $args));
+        echo $view($realPanelPath, array_merge(TemplateHelper::getInstance()->assign(NULL, NULL), $args));
     }
 
     public static function module($id, $data = '') {
@@ -73,7 +75,7 @@ Class TemplateCommand {
         ]);
 
         $widgetTemplatePath = implode(DIRECTORY_SEPARATOR, [
-            Context::$appEntryPath, "template", "layout", $widgetName. Context::$appConfig->templateSuffix
+            Context::$appEntryPath, "template", "widget", $widgetName. Context::$appConfig->templateSuffix
         ]);
 
         if (!file_exists($widgetAppPath)) {
@@ -85,6 +87,7 @@ Class TemplateCommand {
         }
 
         $widgetResult = require($widgetAppPath);
+        $realWidgetTemplatePath = TemplateHelper::getInstance()->parseTemplate($widgetTemplatePath);
         $view = function($path, $data) {
             ob_start();
             @extract($data, EXTR_PREFIX_SAME, 'a_');
@@ -95,7 +98,7 @@ Class TemplateCommand {
         };
 
         if ($widgetResult !== FALSE) {
-            echo $view($widgetTemplatePath, $widgetResult);
+            echo $view($realWidgetTemplatePath, $widgetResult);
         }
     }
 
