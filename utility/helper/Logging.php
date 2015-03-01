@@ -11,17 +11,16 @@ namespace Akari\utility\helper;
 use Akari\Context;
 
 trait Logging{
-    protected static $strLevel = Array(
-        AKARI_LOG_LEVEL_DEBUG => "DEBUG",
-        AKARI_LOG_LEVEL_INFO => "INFO",
-        AKARI_LOG_LEVEL_WARN => "WARNING",
-        AKARI_LOG_LEVEL_ERROR => "ERROR",
-        AKARI_LOG_LEVEL_FATAL => "FATAL"
-    );
-
     public static function _log($msg, $level = AKARI_LOG_LEVEL_DEBUG, $strLevel = FALSE){
         $config = Context::$appConfig;
         $logs = array();
+        $strLevels = Array(
+            AKARI_LOG_LEVEL_DEBUG => "DEBUG",
+            AKARI_LOG_LEVEL_INFO => "INFO",
+            AKARI_LOG_LEVEL_WARN => "WARNING",
+            AKARI_LOG_LEVEL_ERROR => "ERROR",
+            AKARI_LOG_LEVEL_FATAL => "FATAL"
+        );
 
         foreach ($config->logs as $idx => $log) {
             if(array_key_exists("enabled", $log)){
@@ -35,7 +34,7 @@ trait Logging{
             $logs[] = $log;
         }
 
-        if(!$strLevel)	$strLevel = self::$strLevel[$level];
+        if(!$strLevel)	$strLevel = $strLevels[$level];
 
         $toLower = [
             'DEBUG' => 'DBG',

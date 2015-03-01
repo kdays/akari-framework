@@ -167,25 +167,29 @@ Class Dispatcher{
         $class = ucfirst(array_pop($parts)).'Action';
 
         $cls = Context::$appBaseNS. NAMESPACE_SEPARATOR. 'action'. NAMESPACE_SEPARATOR. implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
+        $isExistCls = False;
+
         try {
-            if (class_exists($cls)) {
-                Context::$appEntryName = implode(DIRECTORY_SEPARATOR, $parts). DIRECTORY_SEPARATOR. $class.".php";
-
-                return $this->doAction($cls, $method);
-            }
+            $isExistCls = !!class_exists($cls);
         } catch (NotFoundClass $e) {
-            $path = $this->findWay($uri, 'action');
-            if (!$path) {
-                throw new NotFoundURI($uri);
-            }
+        }
 
-            Context::$appEntryName = str_replace([Context::$appEntryPath, 'action/'], '', $path);
+        if ($isExistCls) {
+            Context::$appEntryName = implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR . $class . ".php";
+            return $this->doAction($cls, $method);
+        }
 
-            // 如果没有找到类 就按照默认查询方式操作
-            $conResult = require($path);
-            if (isset($conResult)) {
-                return $conResult;
-            }
+        $path = $this->findWay($uri, 'action');
+        if (!$path) {
+            throw new NotFoundURI($uri);
+        }
+
+        Context::$appEntryName = str_replace([Context::$appEntryPath, 'action/'], '', $path);
+
+        // 如果没有找到类 就按照默认查询方式操作
+        $conResult = require($path);
+        if (isset($conResult)) {
+            return $conResult;
         }
     }
 
@@ -226,9 +230,10 @@ Class Dispatcher{
 
 Class NotFoundURI extends \Exception {
 
-    public function __construct($methodName, $className = NULL) {
+    public function __construct($methodName, $className = NULL, $previous = NULL) {
         $methodName = is_array($methodName) ? implode("/", $methodName) : $methodName;
         $this->message = "not found $methodName on ". ($className == NULL ? " direct " : $className);
+        $this->previous = $previous;
     }
 
 }

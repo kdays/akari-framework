@@ -17,34 +17,38 @@ use Akari\system\router\Dispatcher;
 
 trait ResultHelper {
 
-    protected static function _genFileDownloadResult($fileContent, $fileName) {
+    public static function _genFileDownloadResult($fileContent, $fileName) {
         return new Result(Result::TYPE_DOWN, $fileContent, [
             'name' => $fileName
         ], Result::CONTENT_BINARY);
     }
 
-    protected static function _genJSONResult($data = [], $contentType = Result::CONTENT_JSON) {
+    public static function _genJSONResult($data = [], $contentType = Result::CONTENT_JSON) {
         return new Result(Result::TYPE_JSON, $data, NULL, $contentType);
     }
 
-    protected static function _genXMLResult($data = [], $contentType = Result::CONTENT_XML) {
+    public static function _genXMLResult($data = [], $contentType = Result::CONTENT_XML) {
         return new Result(Result::TYPE_XML, $data, NULL, $contentType);
     }
 
-    protected static function _genINIResult($data = [], $contentType = Result::CONTENT_INI) {
+    public static function _genINIResult($data = [], $contentType = Result::CONTENT_INI) {
         return new Result(Result::TYPE_INI, $data, NULL, $contentType);
     }
 
-    protected static function _genHTMLResult($html, $contentType = Result::CONTENT_HTML) {
+    public static function _genHTMLResult($html, $contentType = Result::CONTENT_HTML) {
         return new Result(Result::TYPE_HTML, $html, NULL, $contentType);
     }
 
-    protected static function _genTEXTResult($text) {
+    public static function _genTEXTResult($text) {
         return new Result(Result::TYPE_TEXT, $text, NULL, Result::CONTENT_TEXT);
     }
 
     public static function _genJPEGResult($resource, $quality) {
         return new Result(Result::TYPE_JPEG, $resource, ['quality' => $quality], Result::CONTENT_JPEG);
+    }
+
+    public static function _genPNGResult($resource, $quality) {
+        return new Result(Result::TYPE_PNG, $resource, ['quality' => $quality], Result::CONTENT_PNG);
     }
 
     public static function _genTplResult($data = [], $screenPath = NULL, $layoutPath = NULL, $contentType = Result::CONTENT_HTML) {
@@ -81,14 +85,14 @@ trait ResultHelper {
         ], $contentType);
     }
 
-    protected static function _redirect($uri, $code = HttpCode::FOUND) {
+    public static function _redirect($uri, $code = HttpCode::FOUND) {
         Response::getInstance()->setStatusCode($code);
 
         Header("Location: ". $uri);
         return self::_genNoneResult();
     }
 
-    protected static function _genNoneResult() {
+    public static function _genNoneResult() {
         return new Result(Result::TYPE_NONE, NULL, NULL);
     }
 

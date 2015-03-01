@@ -309,7 +309,10 @@ Class FrameworkInitFailed extends \Exception {
 
 Class NotFoundClass extends \Exception {
 
+    public $className;
+
     public function __construct($clsName) {
+        $this->className = $clsName;
         $this->message = "not found class [ ". $clsName. " ] ";
     }
 

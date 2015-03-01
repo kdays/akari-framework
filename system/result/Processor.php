@@ -22,11 +22,6 @@ Class Processor {
         return self::$p;
     }
 
-    protected function processPNG(Result $result) {
-        imagepng($result->data);
-        imagedestroy($result->data);
-    }
-
     protected function processJPEG(Result $result) {
         if (isset($result->meta['quality'])) {
             imagejpeg($result->data, NULL, $result->meta['quality']);
@@ -38,6 +33,15 @@ Class Processor {
 
     protected function processGIF(Result $result) {
         imagegif($result->data);
+        imagedestroy($result->data);
+    }
+
+    protected function processPNG(Result $result) {
+        if (isset($result->meta['quality'])) {
+            imagepng($result->data, NULL, $result->meta['quality']);
+        } else {
+            imagepng($result->data);
+        }
         imagedestroy($result->data);
     }
 

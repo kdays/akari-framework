@@ -47,9 +47,26 @@
 #benchmarkResult li {
     margin-bottom: 2px;
 }
+
+#benchmarkResult.close {
+    height: 5px;
+}
+
+#benchmarkResult.close .bClose {
+    bottom: 14px;
+}
+
+    #benchmarkResult .bClose {
+        position: fixed;
+        bottom: 130px;
+        right: 20px;
+    }
 </style>
 
+
+
 <div id="benchmarkResult">
+    <a class="bClose" href="javascript:;" onclick="closeBenchmark()">&times;</a>
     <h3>Application</h3>
     <ul>
         <li>
@@ -69,6 +86,11 @@
         <li>
             <b>AppMode</b>
             <?=\Akari\Context::$mode ? \Akari\Context::$mode : '(Non-mode)'?>
+        </li>
+
+        <li>
+            <b>Memory</b>
+            <?=round(memory_get_usage()/1024, 2)?> KB
         </li>
     </ul>
 
@@ -114,6 +136,21 @@
     <?php endforeach; ?>
     </ul>
 
+    <h3>Class <small>(<?=count(\Akari\Context::$classes)?>)</small></h3>
+    <ul>
+        <?php foreach(\Akari\Context::$classes as $className => $_): ?>
+        <li><?=str_replace(dirname(AKARI_PATH), '', $className)?></li>
+        <?php endforeach; ?>
+    </ul>
+
 </div>
+
+<script>
+    var isClose = false;
+    function closeBenchmark() {
+        isClose = !isClose;
+        document.getElementById("benchmarkResult").className = isClose ? 'close' : 'open';
+    }
+</script>
 
 <!-- 结束，如果需要关闭请修改const的DISPLAY_BENCHMARK为FALSE -->

@@ -53,8 +53,16 @@ Class FrameworkExceptionHandler {
                 if (file_exists($config->notFoundTemplate)) {
                     return $this->_genTplResult([], $config->notFoundTemplate);
                 } else {
+                    // 处理$ex
+                    if ($ex->getPrevious() !== NULL) {
+                        $msg = $ex->getPrevious()->getMessage();
+                    } else {
+                        $msg = $ex->getMessage();
+                    }
+
                     return $this->_genHTMLResult(
                         $view(404, [
+                            'msg' => $msg,
                             "url" => Context::$uri,
                             "index" => Context::$appConfig->appBaseURL
                         ])

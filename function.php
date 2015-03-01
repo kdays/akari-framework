@@ -262,6 +262,20 @@ function import($path, $once = TRUE, $params = []){
     }
 }
 
+function import_exists($path) {
+    $name = explode(".", $path);
+    $head = array_shift($name);
+
+    if ($head == "core") {
+        $path = AKARI_PATH. implode(DIRECTORY_SEPARATOR, $name). ".php";
+    } else {
+        $path = Context::$appBasePath. DIRECTORY_SEPARATOR. $head. DIRECTORY_SEPARATOR. implode(DIRECTORY_SEPARATOR, $name). ".php";
+    }
+    $path = str_replace("#", ".", $path);
+
+    return !!file_exists($path);
+}
+
 function cache($key, $value = NULL, $expired = -1, $confId = 'default', $drvName = NULL) {
     $config = Context::$appConfig->cache;
     $drvName = empty($drvName) ? $config['default'] : $drvName;
@@ -311,4 +325,53 @@ function array_flat($list, $key) {
 
 function make_url($url, array $params) {
     return $url. (in_string($url, '?') ? "&" : "?"). http_build_query($params);
+}
+
+/**
+ * json_decode 优化版
+ *
+ * @param string $json Json语句
+ * @param bool $assoc false返回Object true为Array
+ * @return mixed
+ */
+function json_decode_nice($json, $assoc = TRUE){
+    $json = str_replace(array("\n", "\r"), "\n", $json);
+    $json = preg_replace('/([{,]+)(\s*)([^"]+?)\s*:/','$1"$3":', $json);
+    $json = preg_replace('/(,)\s*}$/', '}', $json);
+
+    return json_decode($json, $assoc);
+}
+
+function convert_camel_underscore($in) {
+    static $upperA = 65;
+    static $upperZ = 90;
+    $len = strlen($in);
+    $positions = [];
+    for ($i = 0; $i < $len; $i++) {
+        if (ord($in[$i]) >= $upperA && ord($in[$i]) <= $upperZ) {
+            $positions[] = $i;
+        }
+    }
+    $positions = array_reverse($positions);
+
+    foreach ($positions as $pos) {
+        $in = substr_replace($in, '_' . lcfirst(substr($in, $pos)), $pos);
+    }
+    return $in;
+}
+
+function convert_underscore_camel($in) {
+    $positions = [];
+    $lastPos = 0;
+    while (($lastPos = strpos($in, '_', $lastPos)) !== false) {
+        $positions[] = $lastPos;
+        $lastPos++;
+    }
+    $positions = array_reverse($positions);
+
+    foreach ($positions as $pos) {
+        $in = substr_replace($in, strtoupper($in[$pos + 1]), $pos, 2);
+    }
+
+    return $in;
 }
