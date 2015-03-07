@@ -12,7 +12,8 @@ namespace Akari\system\http;
 trait HttpHelper {
 
     public static function _isXhr() {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']);
+        //HTTP_X_REQUESTED_WITH jquery  HTTP_SEND_BY  minatojs
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) || isset($_SERVER['HTTP_SEND_BY']);
     }
 
     public static function _isPost() {

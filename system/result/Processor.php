@@ -23,12 +23,16 @@ Class Processor {
     }
 
     protected function processJPEG(Result $result) {
-        if (isset($result->meta['quality'])) {
-            imagejpeg($result->data, NULL, $result->meta['quality']);
+        if (is_resource($result->data)) {
+            if (isset($result->meta['quality'])) {
+                imagejpeg($result->data, NULL, $result->meta['quality']);
+            } else {
+                imagejpeg($result->data);
+            }
+            imagedestroy($result->data);
         } else {
-            imagejpeg($result->data);
+            echo $result->data;
         }
-        imagedestroy($result->data);
     }
 
     protected function processGIF(Result $result) {

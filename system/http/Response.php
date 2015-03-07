@@ -33,6 +33,14 @@ Class Response {
         $this->setHeader('Cache-Control', 'no-cache');
     }
 
+    public function setCacheTime($time) {
+        if (!is_numeric($time)) {
+            $time = strtotime($time);
+        }
+
+        $this->setHeader("Cache-Control", "max-age=". $time);
+    }
+
     public function setHeader($key, $value) {
         $this->headers[$key] = $value;
     }

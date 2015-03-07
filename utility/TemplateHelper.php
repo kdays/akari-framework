@@ -39,7 +39,7 @@ Class TemplateHelper {
         ]);
 
         if ($configBaseTemplatePath = C(ConfigItem::BASE_TPL_DIR)) {
-            $baseTemplateDirPath = $configBaseTemplatePath;
+            $baseTemplateDirPath = Context::$appEntryPath. DIRECTORY_SEPARATOR. $configBaseTemplatePath;
         }
 
         $tplName = str_replace('//', '/', $tplName);
