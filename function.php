@@ -222,7 +222,7 @@ function L($key, $L = []) {
     return I18n::get($key, $L);
 }
 
-function T($bindArr, $tplName = NULL, $layoutName = NULL) {
+function view($bindArr, $tplName = NULL, $layoutName = NULL) {
     return ResultHelper::_genTplResult($bindArr, $tplName, $layoutName);
 }
 
@@ -342,7 +342,7 @@ function json_decode_nice($json, $assoc = TRUE){
     return json_decode($json, $assoc);
 }
 
-function convert_camel_underscore($in) {
+function snake_case($in) {
     static $upperA = 65;
     static $upperZ = 90;
     $len = strlen($in);
@@ -360,7 +360,7 @@ function convert_camel_underscore($in) {
     return $in;
 }
 
-function convert_underscore_camel($in) {
+function camel_case($in) {
     $positions = [];
     $lastPos = 0;
     while (($lastPos = strpos($in, '_', $lastPos)) !== false) {
