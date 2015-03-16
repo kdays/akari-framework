@@ -28,6 +28,9 @@ Class DBAgent {
     protected $options;
     protected $lastQuery;
 
+    /**
+     * @var null|int
+     */
     public $lastInsertId = NULL;
 
     public function __construct(array $options) {

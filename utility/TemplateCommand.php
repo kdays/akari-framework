@@ -43,6 +43,10 @@ Class TemplateCommand {
         echo $view($realPanelPath, array_merge(TemplateHelper::getInstance()->assign(NULL, NULL), $args));
     }
 
+    public static function lang($str, $data = '') {
+        echo L($str);
+    }
+
     public static function module($id, $data = '') {
         $id = ucfirst($id);
 
