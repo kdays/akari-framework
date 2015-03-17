@@ -7,6 +7,7 @@
 
 namespace Akari;
 
+use Akari\system\event\Listener;
 use Akari\system\exception\ExceptionProcessor;
 use Akari\system\event\Trigger;
 use Akari\system\http\Response;
@@ -190,6 +191,17 @@ Class akari {
 
     public function setExceptionHandler() {
         ExceptionProcessor::getInstance()->setHandler(Context::$appConfig->defaultExceptionHandler);
+
+        // 异常发生时Event发射到Logging方法
+        Listener::add(ExceptionProcessor::EVENT_EXCEPTION_EXECUTE, function($params, $eventName, $eventId) {
+            /** @var \Exception $ex */
+            $ex = $params['ex'];
+            $this->_logErr(
+                sprintf("Message: %s File: %s",
+                    $ex->getMessage(),
+                    str_replace(Context::$appBasePath, '', $ex->getFile()). ":" .$ex->getLine())
+            );
+        });
     }
 
     public function run($uri = NULL, $outputBuffer = TRUE) {

@@ -8,6 +8,8 @@
 
 namespace Akari\system\exception;
 
+use Akari\system\event\Event;
+use Akari\system\event\Listener;
 use Akari\system\result\Processor;
 use Akari\utility\helper\ExceptionSetter;
 
@@ -19,7 +21,6 @@ Class ExceptionProcessor {
      * {class: string, message: string, file: string, line: int}
      */
     const EVENT_EXCEPTION_EXECUTE = "coreException.exception";
-    const EVENT_FATAL_EXECUTE = "coreException.fatal";
 
     public static $p;
     public static function getInstance(){
@@ -54,6 +55,8 @@ Class ExceptionProcessor {
     }
 
     public function processException(\Exception $ex) {
+        Listener::fire(self::EVENT_EXCEPTION_EXECUTE, ['ex' => $ex]);
+
         if (ob_get_level() !== 0) {
             ob_end_clean();
         }
