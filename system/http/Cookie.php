@@ -30,7 +30,7 @@ Class Cookie {
 
         $expire = isset($expire) ? $expire : $config->cookieTime;
         if(is_numeric($expire)){
-            $expire += time();
+            $expire += TIMESTAMP;
         }else{
             $expire = $expire=='now' ? 0 : strtotime($expire);
         }

@@ -12,8 +12,8 @@ use Akari\utility\Benchmark;
 
 Class CacheBenchmark {
 
-    const HIT = "CACHE.". Benchmark::F_HIT;
-    const MISS = "CACHE.". Benchmark::F_MISS;
+    const HIT = "CACHE.HIT";
+    const MISS = "CACHE.MISS";
 
     // 操作行为
     const ACTION_CREATE = "CACHE.INSERT";

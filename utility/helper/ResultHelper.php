@@ -56,11 +56,11 @@ trait ResultHelper {
             $screenName = str_replace('.php', '', trim(Context::$appEntryName));
 
             if (Context::$appEntryMethod !== NULL) {
-                $screenName = substr($screenName, 0, strlen($screenName) - strlen('Action'));
+                $screenName = strtolower(substr($screenName, 0, strlen($screenName) - strlen('Action')));
                 $screenName .= DIRECTORY_SEPARATOR. Context::$appEntryMethod;
             }
 
-            $screenName = strtolower($screenName);
+            //$screenName = strtolower($screenName);
             $suffix = Context::$appConfig->templateSuffix;
 
             if ($screenPath == NULL) {
