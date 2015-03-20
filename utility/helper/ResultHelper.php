@@ -85,6 +85,17 @@ trait ResultHelper {
         ], $contentType);
     }
 
+    public static function _alertRedirect($message, $uri = NULL) {
+        $js = "history.back(-1)";
+        if ($uri !== NULL) {
+            $js = "location.href='$uri'";
+        }
+
+        return new Result(Result::TYPE_HTML,
+            sprintf("<script>alert('%s');%s;</script>", $message, $js),
+            Result::CONTENT_HTML);
+    }
+
     public static function _redirect($uri, $code = HttpCode::FOUND) {
         Response::getInstance()->setStatusCode($code);
 

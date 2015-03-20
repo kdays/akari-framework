@@ -18,7 +18,7 @@ Class FileCache extends ICache {
 
     public function __construct($confId = 'default') {
         $opts = $this->getOption('file', $confId, [
-            'path' => implode(DIRECTORY_SEPARATOR, [Context::$appBasePath, 'data', 'cache', '']),
+            'path' => implode(DIRECTORY_SEPARATOR, [Context::$appBasePath, 'runtime', 'cache', '']),
             'index' => 'data.json',
             'prefix' => ''
         ]);

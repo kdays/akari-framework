@@ -10,15 +10,14 @@ define("AKARI_VERSION", "3.02 (Sora)");
 define("AKARI_BUILD", "2015.03.17");
 define("NAMESPACE_SEPARATOR", "\\");
 
-defined("BASE_APP_DIR") or define("BASE_APP_DIR", "app");
 define("CLI_MODE", php_sapi_name()=="cli" ? TRUE : FALSE);
+defined("BASE_APP_DIR") or define("BASE_APP_DIR", "app");
+defined('DISPLAY_BENCHMARK') or define("DISPLAY_BENCHMARK", FALSE);
 
 define('AKARI_URI_AUTO', 0);
 define('AKARI_URI_PATHINFO', 1);
 define('AKARI_URI_QUERYSTRING', 2);
 define('AKARI_URI_REQUESTURI', 3);
-
-define("DISPLAY_BENCHMARK", FALSE);
 
 define('AKARI_LOG_LEVEL_DEBUG', 0b00001);
 define('AKARI_LOG_LEVEL_INFO', 0b00010);

@@ -29,7 +29,7 @@ Class BaseConfig {
             'level' => AKARI_LOG_LEVEL_ALL,
             'appender' => 'Akari\system\logger\FileLogger',
             'params' => [
-                'filename' => 'data/log/all.log'
+                'filename' => 'runtime/log/all.log'
             ]
         ]
     ];
@@ -55,7 +55,7 @@ Class BaseConfig {
     public $uriSuffix = '';
 
     public $templateSuffix = ".htm";
-    public $templateCacheDir = '/data/tpl_cache';
+    public $templateCacheDir = '/runtime/tpl';
 
     //public $defaultEncryptCipher = '\Akari\system\security\Cipher\AESCipher';
     public $encrypt = [
@@ -92,7 +92,7 @@ Class BaseConfig {
         'Host' => ''
     ];
 
-    public $uploadDir = '/attachment/upload';
+    public $uploadDir = 'web/attachment/upload';
     public $allowUploadExt = [];
 
     public function getDBConfig($name = "default"){

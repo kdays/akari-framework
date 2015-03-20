@@ -66,6 +66,12 @@ Class Context {
     public static $appBasePath;
 
     /**
+     * 用户访问时调用的文件夹
+     * @var string
+     */
+    public static $appWebPath;
+
+    /**
      * 应用实际文件夹
      * @var string
      */
@@ -145,13 +151,23 @@ Class akari {
         return $dispCodeName ? $version : preg_replace('/\(\w+\)/', "", $version);
     }
 
-    public function initApp($appBasePath, $appNS, $defaultConfig = NULL) {
+    /**
+     * @param string $appBasePath 应用所在的上级目录（即app的上级）
+     * @param string $appNS 应用程序申请的命名空间
+     * @param null $defaultConfig 默认设置
+     * @param string $webPath Web当前访问没目录
+     *
+     * @return $this
+     * @throws FrameworkInitFailed
+     */
+    public function initApp($appBasePath, $appNS, $defaultConfig = NULL, $webPath = NULL) {
         $appDir = implode(DIRECTORY_SEPARATOR, [$appBasePath, BASE_APP_DIR, ""]);
         if (!is_dir($appDir) && !Context::$testing) {
             printf("not found application directory [ %s ]", $appDir);
             die;
         }
 
+        Context::$appWebPath = $webPath===NULL ? $appBasePath : $webPath;
         Context::$appBasePath = $appBasePath;
         Context::$appBaseNS = $appNS;
         Context::$nsPaths[ $appNS ] = $appDir;
@@ -257,7 +273,7 @@ Class akari {
         static $mode = FALSE;
 
         if ($mode === FALSE) {
-            $lock = glob(AKARI_PATH . "*.lock");
+            $lock = glob(Context::$appBasePath . "*.lock");
             $mode = NULL;
 
             if (isset($lock[0])) {
