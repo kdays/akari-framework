@@ -375,3 +375,7 @@ function camel_case($in) {
 
     return $in;
 }
+
+function get_date($format, $timestamp = NULL) {
+    return date($format, $timestamp);
+}
