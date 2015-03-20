@@ -61,15 +61,12 @@ Class Dispatcher{
     }
 
     /**
-     * 临时注册某个路由
-     *
-     * @param string $re URL匹配正则
-     * @param string $url 重写到哪个文件
+     * @param string $uri
+     * @param $baseDir
+     * @param string $ext
+     * @return bool|string
+     * @throws DispatcherException
      */
-    public function register($re, $url){
-        Context::$appConfig->uriRewrite[$re] = $url;
-    }
-
     public function findWay($uri, $baseDir, $ext = '.php') {
         if (!is_array($uri))    $uri = explode('/', $uri);
 
@@ -124,30 +121,54 @@ Class Dispatcher{
      * @return array|mixed
      */
     public function getRewriteURL($URI) {
-        $list = explode("/", $URI);
+        $matchResult = False;
         $URLRewrite = Context::$appConfig->uriRewrite;
 
-        foreach($URLRewrite as $key => $value){
-            if (preg_match($key, $URI)) {
-                if ( is_callable($value) ) {
-                    $value = $value($URI);
-                    if ($value) {
-                        $list = $value;
-                        break;
-                    }
-                } else {
-                    $result = preg_split($key, $URI, -1, PREG_SPLIT_DELIM_CAPTURE);
-                    foreach ($result as $k => $v) {
-                        $value = str_replace("@".$k, $v, $value);
-                    }
+        // 让路由重写时支持METHOD设定 而非CALLBACK时处理
+        $nowRequestMethod = Request::getInstance()->getRequestMethod();
+        $allowMethodHeader = ['GET', 'POST', 'PUT', 'DELETE', 'GP'];
+        $methodRegexp = "/^(GET|POST|PUT|DELETE|GP):(.*)/";
 
-                    $list = $value;
+        /**@var mixed|callable|URL $value**/
+        foreach($URLRewrite as $re => $value){
+            preg_match($methodRegexp, $re, $methodMatch);
+            if (isset($methodMatch[1]) && in_array($methodMatch[1], $allowMethodHeader)) {
+                $needMethod = $methodMatch[1];
+                if ($nowRequestMethod == $needMethod ||
+                    ($needMethod == 'GP' && in_array($nowRequestMethod, ['GET', 'POST']))) {
+                    $re = $methodMatch[2];
+                } else {
+                    continue;
+                }
+            }
+
+            $isMatched = preg_match($re, $URI);
+            if (!$isMatched) continue;
+
+            if (is_callable($value)) {
+                $value = $value($URI);
+                if ($value) {
+                    $matchResult = $value;
                     break;
                 }
+            } else {
+                $result = preg_split($re, $URI, -1, PREG_SPLIT_DELIM_CAPTURE);
+                foreach ($result as $k => $v) {
+                    $value = str_replace("@".$k, $v, $value);
+                }
+
+                $matchResult = $value;
+                break;
             }
         }
 
-        return $list;
+        if ($matchResult) {
+            $matchResult = explode("/", $matchResult);
+        } else {
+            $matchResult = explode("/", $URI);
+        }
+
+        return $matchResult;
     }
 
     /**

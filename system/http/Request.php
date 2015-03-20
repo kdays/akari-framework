@@ -241,6 +241,6 @@ Class Request{
      * @return mixed
      */
     public function getRequestMethod() {
-        return $this->requestMethod;
+        return strtoupper($this->requestMethod);
     }
 }

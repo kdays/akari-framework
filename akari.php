@@ -15,6 +15,7 @@ use Akari\system\result\Processor;
 use Akari\system\result\Result;
 use Akari\system\router\Dispatcher;
 use Akari\system\router\Router;
+use Akari\system\router\URL;
 use Akari\utility\Benchmark;
 use Akari\utility\helper\Logging;
 
@@ -311,6 +312,10 @@ Class akari {
             }
         }
 
+    }
+
+    public function register(URL $event) {
+        Context::$appConfig->uriRewrite[ $event->makeRegExp() ] = $event->getCallback();
     }
 }
 
