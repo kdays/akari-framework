@@ -167,6 +167,8 @@ Class akari {
             die;
         }
 
+        $appDir = realpath($appDir). DIRECTORY_SEPARATOR;
+
         Context::$appWebPath = $webPath===NULL ? $appBasePath : $webPath;
         Context::$appBasePath = $appBasePath;
         Context::$appBaseNS = $appNS;
@@ -295,7 +297,7 @@ Class akari {
 
     public function __destruct() {
         if (!CLI_MODE && DISPLAY_BENCHMARK) {
-            include("utility/BenchmarkResult.php");
+            include("template/BenchmarkResult.php");
         }
 
         self::_logInfo('Request ' . Context::$appConfig->appName .

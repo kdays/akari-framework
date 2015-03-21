@@ -128,11 +128,11 @@
     <h3>Session</h3>
     <ul>
     <?php foreach($_COOKIE as $k => $v): ?>
-        <li><b>COOKIE.<?=$k?></b> <?=$v?></li>
+        <li><b>[C]<?=$k?></b> <?=$v?></li>
     <?php endforeach; ?>
 
     <?php foreach($_SESSION as $k => $v): ?>
-        <li><b>SESSION.<?=$k?></b> <?=$v?></li>
+        <li><b>[S]<?=$k?></b> <?=$v?></li>
     <?php endforeach; ?>
     </ul>
 

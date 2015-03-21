@@ -17,7 +17,7 @@ use Akari\system\router\Dispatcher;
 
 trait ResultHelper {
 
-    public static function _genFileDownloadResult($fileContent, $fileName) {
+    public static function _setFileDownload($fileContent, $fileName) {
         return new Result(Result::TYPE_DOWN, $fileContent, [
             'name' => $fileName
         ], Result::CONTENT_BINARY);
