@@ -152,5 +152,4 @@
         document.getElementById("benchmarkResult").className = isClose ? 'close' : 'open';
     }
 </script>
-
 <!-- 结束，如果需要关闭请修改const的DISPLAY_BENCHMARK为FALSE -->

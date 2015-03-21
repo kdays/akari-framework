@@ -10,6 +10,7 @@ namespace Akari;
 use Akari\system\event\Listener;
 use Akari\system\exception\ExceptionProcessor;
 use Akari\system\event\Trigger;
+use Akari\system\exception\FatalException;
 use Akari\system\http\Response;
 use Akari\system\result\Processor;
 use Akari\system\result\Result;
@@ -215,10 +216,17 @@ Class akari {
         Listener::add(ExceptionProcessor::EVENT_EXCEPTION_EXECUTE, function($params, $eventName, $eventId) {
             /** @var \Exception $ex */
             $ex = $params['ex'];
-            $this->_logErr(
+
+            $level = AKARI_LOG_LEVEL_ERROR;
+            if (isset($ex->logLevel)) {
+                $level = $ex->logLevel;
+            }
+
+            $this->_log(
                 sprintf("Message: %s File: %s",
                     $ex->getMessage(),
-                    str_replace(Context::$appBasePath, '', $ex->getFile()). ":" .$ex->getLine())
+                    str_replace(Context::$appBasePath, '', $ex->getFile()). ":" .$ex->getLine()),
+                $level
             );
         });
     }

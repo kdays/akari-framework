@@ -88,6 +88,8 @@ Class ExceptionProcessor {
 
 Class FatalException extends \Exception {
 
+    public $logLevel = AKARI_LOG_LEVEL_FATAL;
+
     protected $type;
 
     public function __construct($message, $file, $line, $type) {

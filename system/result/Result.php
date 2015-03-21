@@ -8,6 +8,8 @@
 
 namespace Akari\system\result;
 
+use Akari\akari;
+
 Class Result {
 
     const TYPE_NONE = "NONE";
@@ -15,9 +17,9 @@ Class Result {
     const TYPE_JSON = 'JSON';
     const TYPE_XML = 'XML';
     const TYPE_TPL = 'TPL';
-    const TYPE_DOWN = 'DOWNLOAD';
     const TYPE_TEXT = "TEXT";
     const TYPE_INI = 'INI';
+    const TYPE_CUSTOM = "CUSTOM";
 
     const TYPE_JPEG = 'JPEG';
     const TYPE_PNG = 'PNG';
@@ -38,12 +40,19 @@ Class Result {
     public $meta;
     public $contentType;
 
-    public function __construct($type, $data, $meta, $contentType = self::CONTENT_HTML) {
+    public function __construct($type, $data, $meta, $contentType = self::CONTENT_HTML, callable $callback = NULL) {
         $this->type = $type;
         $this->data = $data;
         $this->meta = $meta;
 
         $this->contentType = $contentType;
+
+        if (is_callable($callback)) {
+            $result = call_user_func($callback, $this);
+            if ($result === FALSE) {
+                akari::getInstance()->stop();
+            }
+        }
     }
 
 }

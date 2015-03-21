@@ -26,7 +26,7 @@ Class BaseConfig {
 
     public $logs = [
         [
-            'level' => AKARI_LOG_LEVEL_ALL,
+            'level' => AKARI_LOG_LEVEL_PRODUCTION,
             'appender' => 'Akari\system\logger\FileLogger',
             'params' => [
                 'filename' => 'runtime/log/all.log'

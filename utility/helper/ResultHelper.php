@@ -17,10 +17,14 @@ use Akari\system\router\Dispatcher;
 
 trait ResultHelper {
 
-    public static function _setFileDownload($fileContent, $fileName) {
-        return new Result(Result::TYPE_DOWN, $fileContent, [
-            'name' => $fileName
-        ], Result::CONTENT_BINARY);
+    public static function _outputFileDownload($fileContent, $fileName) {
+        return new Result(Result::TYPE_CUSTOM, $fileContent, ['name' => $fileName], Result::CONTENT_BINARY, function($result) {
+            $resp = Response::getInstance();
+            $resp->setHeader('Accept-Ranges', 'bytes');
+            $resp->setHeader('Content-Disposition', "attachment; filename=".$result->meta['name']);
+
+            return TRUE;
+        });
     }
 
     public static function _genJSONResult($data = [], $contentType = Result::CONTENT_JSON) {
@@ -52,48 +56,23 @@ trait ResultHelper {
     }
 
     public static function _genTplResult($data = [], $screenPath = NULL, $layoutPath = NULL, $contentType = Result::CONTENT_HTML) {
-        if ($screenPath == NULL || $layoutPath == NULL) {
-            $screenName = str_replace('.php', '', trim(Context::$appEntryName));
-
-            if (Context::$appEntryMethod !== NULL) {
-                $screenName = strtolower(substr($screenName, 0, strlen($screenName) - strlen('Action')));
-                $screenName .= DIRECTORY_SEPARATOR. Context::$appEntryMethod;
-            }
-
-            //$screenName = strtolower($screenName);
-            $suffix = Context::$appConfig->templateSuffix;
-
-            if ($screenPath == NULL) {
-                $screenPath = Dispatcher::getInstance()->findWay($screenName, 'template/view/', $suffix);
-                $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'], '', $screenPath);
-            }
-
-            if ($layoutPath == NULL) {
-                $layoutPath = Dispatcher::getInstance()->findWay($screenName, 'template/layout/', $suffix);
-                $layoutPath = str_replace([Context::$appEntryPath, $suffix, '/template/layout/'], '', $layoutPath);
-            }
-
-        }
-
-        if ($screenPath == '') {
-            throw new \Exception("auto template detect cannot found file or screen path is empty.");
-        }
-
         return new Result(Result::TYPE_TPL, $data, [
             "view" => $screenPath,
             "layout" => $layoutPath
         ], $contentType);
     }
 
-    public static function _alertRedirect($message, $uri = NULL) {
+    public static function _alertRedirect($message, $uri = NULL, $encoding = "utf-8") {
         $js = "history.back(-1)";
         if ($uri !== NULL) {
             $js = "location.href='$uri'";
         }
 
-        return new Result(Result::TYPE_HTML,
-            sprintf("<script>alert('%s');%s;</script>", $message, $js),
-            Result::CONTENT_HTML);
+        $html = "<!DOCTYPE HTML><head><meta charset='". $encoding. "' /></head><body>";
+        $html.= sprintf("<script>alert('%s');%s;</script>", $message, $js);
+        $html.= "</body>";
+
+        return new Result(Result::TYPE_HTML, $html, Result::CONTENT_HTML);
     }
 
     public static function _redirect($uri, $code = HttpCode::FOUND) {
@@ -105,6 +84,10 @@ trait ResultHelper {
 
     public static function _genNoneResult() {
         return new Result(Result::TYPE_NONE, NULL, NULL);
+    }
+
+    public static function _genCustomResult($data, $meta, $contentType = Result::CONTENT_BINARY, callable $callback = NULL) {
+        return new Result(Result::TYPE_CUSTOM, $data, $meta, $contentType, $callback);
     }
 
 }
