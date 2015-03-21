@@ -43,6 +43,13 @@ Class CURL {
         return $this;
     }
 
+    public function createCurlFile($filename) {
+        if (function_exists('curl_file_create')) {
+            return curl_file_create($filename);
+        }
+        return "@$filename;filename=" . basename($filename);
+    }
+
     /**
      * 执行请求
      *

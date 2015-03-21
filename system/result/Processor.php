@@ -58,7 +58,7 @@ Class Processor {
 
     public function processTPL(Result $result) {
         $layoutPath = $result->meta['layout'];
-        $screenPath = $result->meta['screen'];
+        $screenPath = $result->meta['view'];
 
         if ($screenPath == NULL || $layoutPath == NULL) {
             $screenName = str_replace('.php', '', trim(Context::$appEntryName));
