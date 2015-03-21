@@ -6,7 +6,7 @@
  * Time: 13:53
  */
 
-define("AKARI_VERSION", "3.03 (Sora)");
+define("AKARI_VERSION", "3.1 (Sora)");
 define("AKARI_BUILD", "2015.03.21");
 define("NAMESPACE_SEPARATOR", "\\");
 

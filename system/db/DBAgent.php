@@ -51,6 +51,7 @@ Class DBAgent {
         }
 
         if ($this->pdo === NULL) {
+            Listener::fire(self::EVT_DB_INIT, ['opts' => $this->options]);
             extract($this->options);
 
             try {
