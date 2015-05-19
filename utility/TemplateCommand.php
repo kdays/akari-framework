@@ -10,6 +10,8 @@ namespace Akari\utility;
 
 use Akari\Context;
 use Akari\NotFoundClass;
+use Akari\system\result\Widget;
+use Akari\utility\template\BaseTemplateModule;
 
 Class TemplateCommand {
 
@@ -21,7 +23,7 @@ Class TemplateCommand {
 
     public static function panel($panelName, $args = []) {
         $panelPath = implode(DIRECTORY_SEPARATOR, [
-            Context::$appEntryPath, "template", "panel",
+            TemplateHelper::getInstance()->basePath, "panel",
             $panelName. Context::$appConfig->templateSuffix
         ]);
 
@@ -50,18 +52,15 @@ Class TemplateCommand {
     public static function module($id, $data = '') {
         $id = ucfirst($id);
 
-        $appCls = Context::$appBaseNS."\\lib\\{$id}Module";
+        $appCls = implode(NAMESPACE_SEPARATOR, [Context::$appBaseNS, "lib", "{$id}Module"]);
         $sysCls = implode(NAMESPACE_SEPARATOR, ["Akari", "utility", "template", $id]);
 
         try {
-            if (class_exists($appCls)) {
-                $clsObj = new $appCls();
-            }
+            /** @var BaseTemplateModule $clsObj */
+            $clsObj = new $appCls();
         } catch (NotFoundClass $e) {
             try {
-                if (class_exists($sysCls)) {
-                    $clsObj = new $sysCls();
-                }
+                $clsObj = new $sysCls();
             } catch (NotFoundClass $ex) {
                 throw new TemplateModuleNotFound($id);
             }
@@ -73,24 +72,26 @@ Class TemplateCommand {
         return $clsObj->run();
     }
 
-    public static function widget($widgetName) {
-        $widgetAppPath = implode(DIRECTORY_SEPARATOR, [
-            Context::$appEntryPath, "widget", $widgetName.".php"
-        ]);
+    public static function widget($widgetName, $userData = NULL) {
+        $widgetCls = implode(NAMESPACE_SEPARATOR, [Context::$appBaseNS, "widget", $widgetName]);
+
+        try {
+            /** @var Widget $cls */
+            $cls = new $widgetCls();
+        } catch (NotFoundClass $e) {
+            throw new TemplateNotFound("widget: $widgetName");
+        }
 
         $widgetTemplatePath = implode(DIRECTORY_SEPARATOR, [
-            Context::$appEntryPath, "template", "widget", $widgetName. Context::$appConfig->templateSuffix
+            TemplateHelper::getInstance()->basePath, "widget",
+                $widgetName. Context::$appConfig->templateSuffix
         ]);
-
-        if (!file_exists($widgetAppPath)) {
-            throw new TemplateNotFound("widget app: $widgetName");
-        }
 
         if (!file_exists($widgetTemplatePath)) {
             throw new TemplateNotFound("widget: $widgetName");
         }
 
-        $widgetResult = require($widgetAppPath);
+        $widgetResult = $cls->execute($userData);
         $realWidgetTemplatePath = TemplateHelper::getInstance()->parseTemplate($widgetTemplatePath);
         $view = function($path, $data) {
             ob_start();

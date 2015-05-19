@@ -15,6 +15,7 @@ Class TemplateHelper {
 
     public $cacheDirPath;
     public $layoutPath;
+    public $basePath;
 
     protected static $h;
 
@@ -28,11 +29,6 @@ Class TemplateHelper {
 
     public function __construct() {
         $this->cacheDirPath = Context::$appConfig->templateCacheDir;
-    }
-
-    public function load($tplName, $layoutName = NULL) {
-        $config = Context::$appConfig;
-        $suffix = $config->templateSuffix ? $config->templateSuffix : ".htm";
 
         $baseTemplateDirPath = implode(DIRECTORY_SEPARATOR, [
             Context::$appEntryPath, "template", ""
@@ -41,6 +37,14 @@ Class TemplateHelper {
         if ($configBaseTemplatePath = C(ConfigItem::BASE_TPL_DIR)) {
             $baseTemplateDirPath = Context::$appEntryPath. DIRECTORY_SEPARATOR. $configBaseTemplatePath;
         }
+        $this->basePath = $baseTemplateDirPath;
+    }
+
+    public function load($tplName, $layoutName = NULL) {
+        $config = Context::$appConfig;
+        $suffix = $config->templateSuffix ? $config->templateSuffix : ".htm";
+
+        $baseTemplateDirPath = $this->basePath;
 
         $tplName = str_replace('//', '/', $tplName);
         if ($layoutName != NULL)    $layoutName = str_replace('//', '/', $layoutName);
