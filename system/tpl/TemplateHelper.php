@@ -51,11 +51,11 @@ class TemplateHelper {
 
         foreach ($baseDirs as $baseDir) {
             if (file_exists($tplPath = $baseDir. $tplName. $suffix)) {
-                return $tplPath;
+                return realpath($tplPath);
             }
 
             if (file_exists($tplPath = $baseDir. "default". $suffix)) {
-                return $tplPath;
+                return realpath($tplPath);
             }
         }
 

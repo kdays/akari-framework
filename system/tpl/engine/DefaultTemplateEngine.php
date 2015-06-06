@@ -72,6 +72,11 @@ TAG;
         return str_replace("<!--@screen-->", $screenResult, $layoutResult);
     }
 
+    /**
+     * @param $command
+     * @return mixed|string
+     * @throws TemplateCommandInvalid
+     */
     private function parseCommand($command) {
         $command = explode(" ", str_replace("$", "_#_", $command));
 
@@ -100,6 +105,7 @@ TAG;
                 return "<?php if(is_array($command[0])||is_object($command[0]))foreach($afterCommand): ?>";
 
             case "endloop":
+            case "loopend":
                 return "<?php endforeach; ?>";
 
             case "for":
