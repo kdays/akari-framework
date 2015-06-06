@@ -22,8 +22,8 @@ function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/G
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
 
-include("Const.php");
-include("Function.php");
+include("const.php");
+include("function.php");
 
 Class Context {
 
@@ -131,7 +131,6 @@ Class Context {
 spl_autoload_register(Array('Akari\Context', 'autoload'));
 
 
-
 Class akari {
 
     use Logging;
@@ -201,7 +200,7 @@ Class akari {
         //Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
         Header("X-Framework: Akari Framework ". AKARI_BUILD);
-        include("DefaultBoot.php");
+        include("defaultBoot.php");
         if (file_exists(Context::$appBasePath . "boot.php")) {
             include(Context::$appBasePath . "boot.php");
         }
