@@ -19,7 +19,7 @@ class DefaultTemplateEngine extends BaseTemplateEngine{
         $this->engineArgs = $data;
         $cachePath = $this->getCachePath($tplPath);
 
-        if (!file_exists($cachePath)) {
+        if (filemtime($tplPath) > filemtime($cachePath) || !file_exists($cachePath)) {
             $template = file_get_contents($tplPath);
 
             $const_regexp = "([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";

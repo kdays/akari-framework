@@ -29,7 +29,8 @@ abstract class BaseTemplateEngine {
         $tpl = str_replace(Context::$appEntryPath, '', $tplPath);
         $tpl = str_replace([ '.', '/'],  '_', $tpl);
 
-        return realpath(Context::$appBasePath. Context::$appConfig->templateCacheDir). '/'. $tpl . ".php";
+        $cachePath = realpath(Context::$appBasePath. Context::$appConfig->templateCacheDir). '/'. $tpl . ".php";
+        return $cachePath;
     }
 
     public static function _getView($viewContent, array $data) {

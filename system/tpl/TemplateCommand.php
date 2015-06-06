@@ -10,6 +10,7 @@ namespace Akari\system\tpl;
 
 use Akari\Context;
 use Akari\NotFoundClass;
+use Akari\system\ioc\DI;
 use Akari\system\result\Widget;
 use Akari\system\tpl\engine\BaseTemplateEngine;
 use Akari\system\tpl\mod\BaseTemplateMod;
@@ -23,7 +24,7 @@ class TemplateCommand {
     public static function panelAction(BaseTemplateEngine $engine, $panelName) {
         $tplPath = TemplateHelper::find($panelName, TemplateHelper::TYPE_BLOCK);
         $cachePath = $engine->parse($tplPath, [], TemplateHelper::TYPE_BLOCK, True);
-        return "<?php include('". $cachePath. "'); ?>'";
+        return sprintf('<?php include(\Akari\system\tpl\TemplateCommand::loadBlock("%s", "%s"))?>', $cachePath, $tplPath);
     }
 
     public static function widgetAction(BaseTemplateEngine $engine, $widgetName, $args) {
@@ -34,6 +35,14 @@ class TemplateCommand {
 
     public static function moduleAction(BaseTemplateEngine $engine, $modName, $args) {
         return sprintf('<?=\Akari\system\tpl\TemplateCommand::loadMod("%s", "%s")?>', $modName, $args);
+    }
+
+    public static function loadBlock($cachePath, $templatePath) {
+        if (filemtime($cachePath) < filemtime($templatePath)) {
+            $viewEngine = DI::getDefault()->getShared('viewEngine');
+            $viewEngine->parse($templatePath, [], TemplateHelper::TYPE_BLOCK, True);
+        }
+        return $cachePath;
     }
 
     public static function loadWidget($cachePath, $widgetName, $args) {
