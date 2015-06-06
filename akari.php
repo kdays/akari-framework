@@ -10,8 +10,6 @@ namespace Akari;
 use Akari\system\event\Listener;
 use Akari\system\exception\ExceptionProcessor;
 use Akari\system\event\Trigger;
-use Akari\system\exception\FatalException;
-use Akari\system\http\Response;
 use Akari\system\result\Processor;
 use Akari\system\result\Result;
 use Akari\system\router\Dispatcher;
@@ -203,6 +201,11 @@ Class akari {
         //Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
         Header("X-Framework: Akari Framework ". AKARI_BUILD);
+        include("defaultBoot.php");
+        if (file_exists(Context::$appBasePath . "boot.php")) {
+            include(Context::$appBasePath . "boot.php");
+        }
+
         $this->loadExternal();
         if (!Context::$testing) $this->setExceptionHandler();
 

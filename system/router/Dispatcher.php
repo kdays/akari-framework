@@ -117,9 +117,12 @@ Class Dispatcher{
         return $URI;
     }
 
-    public function rewriteURLByString($now, $re) {
+    public function matchURLByString($now, $re) {
         $uri = explode("/", $re);
         $now = explode("/", $now);
+
+        $uri = array_filter($uri);
+        $now = array_filter($now);
 
         $block = [];
 
@@ -150,9 +153,9 @@ Class Dispatcher{
      * @param string $URI
      * @return array|mixed
      */
-    public function getRewriteURL($URI) {
+    public function getRewriteURL($URI, $rule = NULL) {
         $matchResult = False;
-        $URLRewrite = Context::$appConfig->uriRewrite;
+        $URLRewrite = $rule === NULL ? Context::$appConfig->uriRewrite : $rule;
 
         // 让路由重写时支持METHOD设定 而非CALLBACK时处理
         $nowRequestMethod = Request::getInstance()->getRequestMethod();
@@ -186,7 +189,7 @@ Class Dispatcher{
             if ($matchMode == 'REGEXP') {
                 $isMatched = preg_match($re, $URI);
             } else {
-                $isMatched = $this->rewriteURLByString($URI, $re);
+                $isMatched = $this->matchURLByString($URI, $re);
             }
 
 

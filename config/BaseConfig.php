@@ -72,9 +72,9 @@ Class BaseConfig {
         ]
     ];
 
-    public $cookiePrefix = '';
-    public $cookieTime = '';
-    public $cookiePath = '';
+    public $cookiePrefix = 'w_';
+    public $cookieTime = 86400;
+    public $cookiePath = '/';
     public $cookieSecure = false;
     public $cookieDomain = '';
     public $csrfTokenName = '_akari';
@@ -85,6 +85,9 @@ Class BaseConfig {
     ];
 
     public $uriRewrite = [];
+    public $uriMake = [
+
+    ];
 
     public $mail = [
         'Username' => '',

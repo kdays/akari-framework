@@ -78,7 +78,7 @@ Class FrameworkExceptionHandler {
                     return $this->_genHTMLResult(
                         $view(500, [
                             "message" => $ex->getMessage(),
-                            "file" => basename($ex->getFile())
+                            "file" => basename($ex->getFile()).":".$ex->getLine()
                         ])
                     );
                 }

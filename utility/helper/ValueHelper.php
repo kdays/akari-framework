@@ -8,8 +8,8 @@
 
 namespace Akari\utility\helper;
 
+use Akari\system\tpl\TemplateHelper;
 use Akari\utility\DataHelper;
-use Akari\utility\TemplateHelper;
 
 trait ValueHelper {
 
@@ -21,7 +21,7 @@ trait ValueHelper {
      * @return array
      */
     public static function _bindValue($key, $value = NULL) {
-        return TemplateHelper::getInstance()->assign($key, $value);
+        TemplateHelper::assign($key, $value);
     }
 
     /**

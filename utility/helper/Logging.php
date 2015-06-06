@@ -81,10 +81,10 @@ trait Logging{
      * @return string
      */
     protected static function _dumpObj($obj) {
-        if (is_object($obj) || is_array($obj)) {
-            $text = print_r($obj, true);
-            $text = preg_replace('/\s+/', " ", $text);
-            return $text;
+        if (is_object($obj)) {
+            return '[' . get_class($obj) . ']';
+        } elseif (is_array($obj)) {
+            return '[Array]';
         } else {
             return $obj;
         }

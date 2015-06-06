@@ -11,8 +11,9 @@ namespace Akari\system\result;
 use Akari\Context;
 use Akari\system\http\Response;
 use Akari\system\router\Dispatcher;
-use Akari\utility\TemplateHelper;
-use Akari\utility\TemplateNotFound;
+use Akari\system\tpl\TemplateHelper;
+use Akari\system\tpl\TemplateNotFound;
+use Akari\utility\helper\ValueHelper;
 
 Class Processor {
 
@@ -60,6 +61,8 @@ Class Processor {
         $layoutPath = $result->meta['layout'];
         $screenPath = $result->meta['view'];
 
+        $h = new TemplateHelper();
+
         if ($screenPath == NULL || $layoutPath == NULL) {
             $screenName = str_replace('.php', '', trim(Context::$appEntryName));
 
@@ -73,23 +76,26 @@ Class Processor {
             if ($screenPath == NULL) {
                 $screenPath = Dispatcher::getInstance()->findWay($screenName, 'template/view/', $suffix);
                 $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'], '', $screenPath);
+
+                if ($screenPath == '') {
+                    throw new TemplateNotFound('screen Default');
+                }
+
+                $h->setScreen($screenPath);
             }
 
             if ($layoutPath == NULL) {
                 $layoutPath = Dispatcher::getInstance()->findWay($screenName, 'template/layout/', $suffix);
                 $layoutPath = str_replace([Context::$appEntryPath, $suffix, '/template/layout/'], '', $layoutPath);
+                $h->setLayout($layoutPath);
             }
         }
 
-        if ($screenPath == '') {
-            throw new TemplateNotFound('default');
+        if (is_array($result->data)) {
+            TemplateHelper::assign($result->data, NULL);
         }
 
-        $helper = TemplateHelper::getInstance();
-        if (is_array($result->data))    $helper->assign($result->data, NULL);
-        $template = $helper->load($screenPath, $layoutPath);
-
-        echo $template;
+        echo $h->getResult(NULL);
     }
 
     public function processHTML(Result $result) {

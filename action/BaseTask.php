@@ -37,7 +37,7 @@ Class BaseTask {
     }
 
     public function _input() {
-        return $this->input->read();
+        return trim($this->input->read());
     }
 
     public function _write($message) {
