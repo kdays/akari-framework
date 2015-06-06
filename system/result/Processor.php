@@ -80,13 +80,16 @@ Class Processor {
                 if ($screenPath == '') {
                     throw new TemplateNotFound('screen Default');
                 }
-
-                $h->setScreen($screenPath);
             }
+
+            $h->setScreen($screenPath);
 
             if ($layoutPath == NULL) {
                 $layoutPath = Dispatcher::getInstance()->findWay($screenName, 'template/layout/', $suffix);
                 $layoutPath = str_replace([Context::$appEntryPath, $suffix, '/template/layout/'], '', $layoutPath);
+            }
+
+            if ($layoutPath) {
                 $h->setLayout($layoutPath);
             }
         }

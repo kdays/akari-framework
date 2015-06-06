@@ -17,10 +17,6 @@ use Akari\system\tpl\mod\BaseTemplateMod;
 
 class TemplateCommand {
 
-    public static function varAction(BaseTemplateEngine $engine, $var) {
-        return "<?=". $var. "?>";
-    }
-
     public static function panelAction(BaseTemplateEngine $engine, $panelName) {
         $tplPath = TemplateHelper::find($panelName, TemplateHelper::TYPE_BLOCK);
         $cachePath = $engine->parse($tplPath, [], TemplateHelper::TYPE_BLOCK, True);
@@ -28,7 +24,7 @@ class TemplateCommand {
     }
 
     public static function widgetAction(BaseTemplateEngine $engine, $widgetName, $args) {
-        $tplPath = TemplateHelper::find($widgetName, TemplateHelper::TYPE_WIDGET);
+        $tplPath = TemplateHelper::find(str_replace('.', DIRECTORY_SEPARATOR, $widgetName), TemplateHelper::TYPE_WIDGET);
         $cachePath = $engine->parse($tplPath, [], TemplateHelper::TYPE_WIDGET, True);
         return sprintf('<?=\Akari\system\tpl\TemplateCommand::loadWidget("%s", "%s", "%s")?>', $cachePath, $widgetName, $args);
     }
@@ -46,6 +42,7 @@ class TemplateCommand {
     }
 
     public static function loadWidget($cachePath, $widgetName, $args) {
+        $widgetName = str_replace(".", NAMESPACE_SEPARATOR, $widgetName);
         $widgetCls = implode(NAMESPACE_SEPARATOR, [Context::$appBaseNS, "widget", $widgetName]);
 
         try {

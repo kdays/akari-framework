@@ -31,6 +31,10 @@ class DefaultTemplateEngine extends BaseTemplateEngine{
                 return $that->parseCommand($matches[1]);
             }, $template);
 
+            $template = preg_replace_callback('/\{\%(.*?)\}/iu', function($matches) {
+                return "<?=L('$matches[1]')?>";
+            }, $template);
+
             $template = preg_replace_callback('/\{'.$const_regexp.'\}/s', function($matches) {
                 return '<?='.$matches[1].'?>';
             }, $template);
@@ -78,13 +82,16 @@ TAG;
      * @throws TemplateCommandInvalid
      */
     private function parseCommand($command) {
-        $command = explode(" ", str_replace("$", "_#_", $command));
+        $command = explode(" ", trim(str_replace("$", "_#_", $command)));
 
         $cmd = array_shift($command);
         $afterCommand = implode(' ', $command);
 
         // 有几个要直接写入 不需要TemplateModel判断的条件语句
         switch ($cmd) {
+            case "set":
+                return "<?php ".$afterCommand. "?>";
+
             case "var":
                 return '<?='. $afterCommand. '?>';
 
