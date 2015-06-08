@@ -8,12 +8,7 @@
 namespace Akari\system\tpl\engine;
 use Akari\system\tpl\TemplateCommandInvalid;
 
-/**
- * Class DefaultTemplateEngine
- * @package Akari\system\tpl\engine
- *
- */
-class DefaultTemplateEngine extends BaseTemplateEngine{
+class MinatoTemplateEngine extends BaseTemplateEngine{
 
     public function parse($tplPath, array $data, $type, $onlyCompile = false) {
         $this->engineArgs = $data;

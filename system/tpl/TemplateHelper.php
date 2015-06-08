@@ -21,6 +21,7 @@ class TemplateHelper {
     const TYPE_LAYOUT = 'layout';
     const TYPE_WIDGET = 'widget';
 
+    /** @var BaseTemplateEngine */
     protected $engine;
 
     protected $layoutPath;
@@ -40,6 +41,7 @@ class TemplateHelper {
     }
 
     public static function find($tplName, $type) {
+
         $suffix = Context::$appConfig->templateSuffix;
         $baseDirs = [];
 
@@ -89,6 +91,7 @@ class TemplateHelper {
         if ($screen) {
             $screen = $this->engine->parse($screen, $data, self::TYPE_SCREEN);
         }
+
 
         return $this->engine->getResult($layout, $screen);
     }

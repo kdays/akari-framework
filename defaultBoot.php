@@ -8,4 +8,4 @@
 
 $di = \Akari\system\ioc\DI::getDefault();
 
-$di->setShared('viewEngine', '\Akari\system\tpl\engine\DefaultTemplateEngine');
+$di->setShared('viewEngine', '\Akari\system\tpl\engine\MinatoTemplateEngine');
