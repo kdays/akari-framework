@@ -35,14 +35,15 @@ Class BaseConfig {
     ];
 
     public $cache = [
-        'default' => 'file',
+        'default' => [
+            'handler' => 'Akari\system\cache\handler\FileCacheHandler',
+            'baseDir' => '/runtime/cache/',
+            'indexPath' => 'index.json'
+        ],
 
-        'file' => [
-            'default' => [
-                /*'path' => '',
-                'index' => '',
-                'prefix' => ''*/
-            ]
+        'redis' => [
+            'handler' => 'Akari\system\cache\handler\RedisCacheHandler',
+            'host' => '127.0.0.1'
         ]
     ];
 

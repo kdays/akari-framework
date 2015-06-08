@@ -276,24 +276,23 @@ function import_exists($path) {
     return !!file_exists($path);
 }
 
-function cache($key, $value = NULL, $expired = -1, $confId = 'default', $drvName = NULL) {
+function cache($key, $value = NULL, $expired = -1, $confId = 'default') {
     $config = Context::$appConfig->cache;
-    $drvName = empty($drvName) ? $config['default'] : $drvName;
-
     !is_numeric($expired) && $expired = strtotime($expired);
 
-    $cacheDriver = implode(NAMESPACE_SEPARATOR, ["Akari", "system", "cache", ucfirst($drvName). "Cache"]);
-    $device = new $cacheDriver($confId);
+    if (empty($config[$confId])) {
+        return NULL;
+    }
+
+    $cache = \Akari\system\cache\Cache::getInstance($confId);
 
     if ($value === NULL && $expired === FALSE) {
-        return $device->remove($key);
+        return $cache->remove($key);
+    } elseif ($value === NULL) {
+        return $cache->get($key);
     }
 
-    if ($value === NULL) {
-        return $device->get($key);
-    }
-
-    return $device->set($key, $value, $expired);
+    return $cache->set($key, $value, $expired);
 }
 
 function cookie($key, $value = NULL, $expire = NULL, $encrypt = FALSE) {

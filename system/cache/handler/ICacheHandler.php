@@ -6,7 +6,7 @@
  * Time: 上午9:30
  */
 
-namespace Akari\system\c\handler;
+namespace Akari\system\cache\handler;
 
 /**
  * Interface ICacheHandler
@@ -64,7 +64,9 @@ interface ICacheHandler {
     /**
      * 开启缓存事务，直到commit才会递交
      *
-     * <b>部分缓存采用的是模拟实现，即临时存入数组，请注意内存消耗</b>
+     * 如果你一时要对大量缓存进行变更时，可以减少对于缓存索引的压力
+     *
+     * 请注意 和数据库不同，文件缓存的模拟事务并不会在commit前执行
      *
      * @return boolean
      */

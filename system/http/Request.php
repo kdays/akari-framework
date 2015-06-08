@@ -58,23 +58,28 @@ Class Request{
 
     // http://cn2.php.net/manual/en/function.ip2long.php#104163
     private function bin2ip($bin) {
-        if(strlen($bin) <= 32) // 32bits (ipv4)
+        if(strlen($bin) <= 32) {
             return long2ip(base_convert($bin,2,10));
-        if(strlen($bin) != 128)
+        } // 32bits (ipv4)
+
+        if(strlen($bin) != 128) {
             return false;
-        $pad = 128 - strlen($bin);
-        for ($i = 1; $i <= $pad; $i++)
-        {
-            $bin = "0".$bin;
         }
+
+        $pad = 128 - strlen($bin);
+        for ($i = 1; $i <= $pad; $i++) {
+            $bin = "0". $bin;
+        }
+
+        $ipv6 = "";
         $bits = 0;
-        while ($bits <= 7)
-        {
-            $bin_part = substr($bin,($bits*16),16);
+        while ($bits <= 7) {
+            $bin_part = substr($bin, ($bits * 16), 16);
             $ipv6 .= dechex(bindec($bin_part)).":";
             $bits++;
         }
-        return inet_ntop(inet_pton(substr($ipv6,0,-1)));
+
+        return inet_ntop(inet_pton(substr($ipv6, 0, -1)));
     }
 
     /**
