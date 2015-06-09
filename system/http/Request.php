@@ -248,4 +248,52 @@ Class Request{
     public function getRequestMethod() {
         return strtoupper($this->requestMethod);
     }
+
+    /**
+     * 是否是POST请求
+     *
+     * @return bool
+     */
+    public function isPost() {
+        return $this->getRequestMethod() == 'POST';
+    }
+
+    /**
+     * 是否是移动设备
+     * @return bool
+     */
+    public function isMobileDevice() {
+        if ($this->isIOSDevice()) {
+            return True;
+        }
+
+        $ua = $this->getUserAgent();
+        $keyword = ["ucweb", "Windows Phone", "android", "opera mini", "blackberry"];
+        foreach ($keyword as $value) {
+            if (preg_match("/$value/i", $ua)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 是否是iphone
+     * @return bool
+     */
+    public function isIOSDevice(){
+        $ua = $this->getUserAgent();
+
+        return (preg_match('/ipod/i', $ua) || preg_match('/iphone/i', $ua));
+    }
+
+    /**
+     * 判断是否是微信的
+     * @return bool
+     */
+    public function isInWeChat() {
+        $ua = $this->getUserAgent();
+        return (preg_match('/MicroMessenger/i', $ua) || preg_match('/Window Phone/i', $ua));
+    }
 }
