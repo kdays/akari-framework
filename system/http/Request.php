@@ -296,4 +296,32 @@ Class Request{
         $ua = $this->getUserAgent();
         return (preg_match('/MicroMessenger/i', $ua) || preg_match('/Window Phone/i', $ua));
     }
+
+    /**
+     * @return FileUpload[]
+     */
+    public function getUploadedFiles() {
+        $files = [];
+
+        foreach ($_FILES as $key => $now) {
+            if ($now['error'] == UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            $files[] = new FileUpload($now, $key);
+        }
+
+        return $files;
+    }
+
+    public function getUploadedFile($name) {
+        if (isset($_FILES[$name])) {
+            // 没有文件的话返回false 其余让用户判定
+            if ($_FILES[$name]['error'] == UPLOAD_ERR_NO_FILE) {
+                return false;
+            }
+            return new FileUpload($_FILES[$name], $name);
+        }
+
+        return NULL;
+    }
 }

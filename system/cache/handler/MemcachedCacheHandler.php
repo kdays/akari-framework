@@ -29,10 +29,10 @@ class MemcachedCacheHandler {
         $memcached->resetServerList();
         $memcached->addServer($host, $port);
 
-        $key = $host. ":". $port;
+        /*$key = $host. ":". $port;
         if ($this->handler->getVersion()[$key] == '255.255.255') {
             throw new \MemcachedException("memcached [ $key ] connection error");
-        }
+        }*/ //对于阿里云的OCS而言 永远都是ERROR
 
         $this->host = $host;
         $this->port = $port;
@@ -56,7 +56,12 @@ class MemcachedCacheHandler {
      * @return boolean
      */
     public function set($key, $value, $timeout = NULL) {
-        return $this->handler->set($key, $value, $timeout);
+        $this->handler->set($key, $value, $timeout);
+        if ($this->handler->getResultCode() == \Memcached::RES_SUCCESS) {
+            return True;
+        } else {
+            throw new \MemcachedException($this->handler->getResultMessage(), $this->handler->getResultCode());
+        }
     }
 
     /**
@@ -69,13 +74,20 @@ class MemcachedCacheHandler {
     public function get($key, $defaultValue = NULL) {
         $value = $this->handler->get($key);
 
-        if ($this->handler->getResultCode() == \Memcached::RES_NOTFOUND) {
-            CacheBenchmark::log(CacheBenchmark::MISS);
-            return $defaultValue;
-        }
+        $retCode = $this->handler->getResultCode();
+        switch ($retCode) {
+            case \Memcached::RES_SUCCESS:
+                CacheBenchmark::log(CacheBenchmark::HIT);
+                return unserialize($value);
 
-        CacheBenchmark::log(CacheBenchmark::HIT);
-        return unserialize($value);
+            case \Memcached::RES_NOTFOUND:
+            case \Memcached::RES_TIMEOUT:
+                CacheBenchmark::log(CacheBenchmark::MISS);
+                return $defaultValue;
+
+            default:
+                throw new \MemcachedException($this->handler->getResultMessage(), $this->handler->getResultCode());
+        }
     }
 
     /**
