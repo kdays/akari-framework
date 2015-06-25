@@ -235,6 +235,9 @@ Class akari {
         $config = Context::$appConfig;
 
         Benchmark::setTimer('app.start');
+        Context::$appConfig->appBaseURL = Dispatcher::getInstance()->rewriteBaseURL(
+            $config->appBaseURL);
+
 
         if (!$uri) {
             $router = Router::getInstance();
