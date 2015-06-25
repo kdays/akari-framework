@@ -175,24 +175,26 @@ Class SQLParser {
                 if(isset($match[3])){
                     if($match[3] == ""){
                         $wheres[] = $column . ' ' . $match[3] . '= ' . $this->parseValue($value);
-                    }elseif($match[3] == "!"){
-                        switch($type){
+                    }elseif($match[3] == "!") {
+                        switch ($type) {
                             case 'NULL':
-                                $wheres[] = "$column IS NOT NULL";break;
+                                $wheres[] = "$column IS NOT NULL";
+                                break;
                             case 'array':
-                                $wheres[] = "$column NOT IN (".$this->parseArray($value).")";
+                                $wheres[] = "$column NOT IN (" . $this->parseArray($value) . ")";
                                 break;
 
                             case 'integer':
                             case 'double':
-                                $wheres[] = "$column != $value";break;
+                                $wheres[] = "$column != $value";
+                                break;
 
                             case 'boolean':
-                                $wheres[] = "$column != ".($value ? '1' : '0');
+                                $wheres[] = "$column != " . ($value ? '1' : '0');
                                 break;
 
                             case 'string':
-                                $wheres[] = "$column != ".$this->parseValue($value);
+                                $wheres[] = "$column != " . $this->parseValue($value);
                                 break;
                         }
                     }elseif($match[3] == '<>' || $match[3] == '><'){

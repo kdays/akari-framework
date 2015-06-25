@@ -58,23 +58,28 @@ Class Request{
 
     // http://cn2.php.net/manual/en/function.ip2long.php#104163
     private function bin2ip($bin) {
-        if(strlen($bin) <= 32) // 32bits (ipv4)
+        if(strlen($bin) <= 32) {
             return long2ip(base_convert($bin,2,10));
-        if(strlen($bin) != 128)
+        } // 32bits (ipv4)
+
+        if(strlen($bin) != 128) {
             return false;
-        $pad = 128 - strlen($bin);
-        for ($i = 1; $i <= $pad; $i++)
-        {
-            $bin = "0".$bin;
         }
+
+        $pad = 128 - strlen($bin);
+        for ($i = 1; $i <= $pad; $i++) {
+            $bin = "0". $bin;
+        }
+
+        $ipv6 = "";
         $bits = 0;
-        while ($bits <= 7)
-        {
-            $bin_part = substr($bin,($bits*16),16);
+        while ($bits <= 7) {
+            $bin_part = substr($bin, ($bits * 16), 16);
             $ipv6 .= dechex(bindec($bin_part)).":";
             $bits++;
         }
-        return inet_ntop(inet_pton(substr($ipv6,0,-1)));
+
+        return inet_ntop(inet_pton(substr($ipv6, 0, -1)));
     }
 
     /**
@@ -242,5 +247,81 @@ Class Request{
      */
     public function getRequestMethod() {
         return strtoupper($this->requestMethod);
+    }
+
+    /**
+     * 是否是POST请求
+     *
+     * @return bool
+     */
+    public function isPost() {
+        return $this->getRequestMethod() == 'POST';
+    }
+
+    /**
+     * 是否是移动设备
+     * @return bool
+     */
+    public function isMobileDevice() {
+        if ($this->isIOSDevice()) {
+            return True;
+        }
+
+        $ua = $this->getUserAgent();
+        $keyword = ["ucweb", "Windows Phone", "android", "opera mini", "blackberry"];
+        foreach ($keyword as $value) {
+            if (preg_match("/$value/i", $ua)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 是否是iphone
+     * @return bool
+     */
+    public function isIOSDevice(){
+        $ua = $this->getUserAgent();
+
+        return (preg_match('/ipod/i', $ua) || preg_match('/iphone/i', $ua));
+    }
+
+    /**
+     * 判断是否是微信的
+     * @return bool
+     */
+    public function isInWeChat() {
+        $ua = $this->getUserAgent();
+        return (preg_match('/MicroMessenger/i', $ua) || preg_match('/Window Phone/i', $ua));
+    }
+
+    /**
+     * @return FileUpload[]
+     */
+    public function getUploadedFiles() {
+        $files = [];
+
+        foreach ($_FILES as $key => $now) {
+            if ($now['error'] == UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            $files[] = new FileUpload($now, $key);
+        }
+
+        return $files;
+    }
+
+    public function getUploadedFile($name) {
+        if (isset($_FILES[$name])) {
+            // 没有文件的话返回false 其余让用户判定
+            if ($_FILES[$name]['error'] == UPLOAD_ERR_NO_FILE) {
+                return false;
+            }
+            return new FileUpload($_FILES[$name], $name);
+        }
+
+        return NULL;
     }
 }

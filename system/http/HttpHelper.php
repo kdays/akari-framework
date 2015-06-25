@@ -16,8 +16,4 @@ trait HttpHelper {
         return isset($_SERVER['HTTP_X_REQUESTED_WITH']) || isset($_SERVER['HTTP_SEND_BY']);
     }
 
-    public static function _isPost() {
-        return $_SERVER['REQUEST_METHOD'] == 'POST';
-    }
-
 }

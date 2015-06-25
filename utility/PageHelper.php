@@ -2,6 +2,11 @@
 namespace Akari\utility;
 
 use Akari\config\ConfigItem;
+use Akari\system\ioc\DI;
+use Akari\system\tpl\engine\BaseTemplateEngine;
+use Akari\system\tpl\mod\BaseTemplateMod;
+use Akari\system\tpl\TemplateCommand;
+use Akari\system\tpl\TemplateHelper;
 
 Class PageHelper {
 
@@ -21,7 +26,7 @@ Class PageHelper {
     public $lastPage = NULL;
     public $pagination = [];
 
-    public $pageTemplate = 'pager';
+    public $template = 'pager';
 
     protected static $m = [];
 
@@ -33,7 +38,7 @@ Class PageHelper {
         if(!isset(self::$m[$name])){
             self::$m[ $name ] = new self();
             self::$m[ $name ]->objId = $name;
-            self::$m[ $name ]->pageTemplate = C(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'pager');
+            self::$m[ $name ]->template = C(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'pager');
         }
 
         return self::$m[ $name ];
@@ -81,7 +86,7 @@ Class PageHelper {
     }
 
     public function setTemplate($tplId) {
-        $this->pageTemplate = $tplId;
+        $this->template = $tplId;
     }
 
     public function getHTML() {
@@ -130,8 +135,9 @@ Class PageHelper {
         $this->lastPage = str_replace('(page)', $this->totalPage, $url);
         $this->pagination = $pagination;
 
-        // 调用展现
-        TemplateCommand::panel($this->pageTemplate, (array) $this);
+        /** @var BaseTemplateEngine $templateHelper */
+        $engine = DI::getDefault()->getShared('viewEngine');
+        return TemplateCommand::widgetAction($engine, $this->template, $this);
     }
 
     public function needPage() {

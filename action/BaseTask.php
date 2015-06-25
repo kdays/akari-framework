@@ -32,15 +32,15 @@ Class BaseTask {
         $this->params = Request::getInstance()->getParams();
     }
 
-    public function _getParam($key, $defaultValue = NULL) {
+    public function _getQuery($key, $defaultValue = NULL) {
         return isset($this->params[$key]) ? $this->params[$key] : $defaultValue;
     }
 
-    public function _input() {
-        return $this->input->read();
+    public function _getInput() {
+        return trim($this->input->read());
     }
 
-    public function _write($message) {
+    public function message($message) {
         return $this->output->write($message);
     }
 }

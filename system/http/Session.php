@@ -28,8 +28,10 @@ Class Session{
         unset($_SESSION[$key]);
     }
 
-    public static function get($key = NULL, $defaultValue = NULL){
-        if($key == NULL)	return $_SESSION;
+    public static function get($key, $defaultValue = NULL){
+        if($key == NULL) {
+            return $_SESSION;
+        }
 
         if(isset($_SESSION[$key])){
             return $_SESSION[$key];

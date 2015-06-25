@@ -6,12 +6,13 @@ use Akari\NotFoundClass;
 use Akari\system\http\Request;
 use Akari\system\result\Result;
 use Akari\utility\helper\Logging;
+use Akari\utility\helper\ValueHelper;
 
 !defined("AKARI_PATH") && exit;
 
 Class Dispatcher{
 
-    use Logging;
+    use Logging, ValueHelper;
 
     private $config;
     private static $r;
@@ -116,13 +117,45 @@ Class Dispatcher{
         return $URI;
     }
 
+    public function matchURLByString($now, $re) {
+        $uri = explode("/", $re);
+        $now = explode("/", $now);
+
+        $uri = array_filter($uri);
+        $now = array_filter($now);
+
+        $block = [];
+
+        foreach ($now as $key => $value) {
+            if (!isset($uri[$key])) {
+                return False;
+            }
+
+            if (substr($uri[$key], 0, 1) == '{') {
+                $k = substr($uri[$key], 1, -1);
+                $block[$k] = $value;
+
+                continue;
+            }
+
+            // 不然匹配内容是否一致
+            if ($value == $uri[$key]) {
+                continue;
+            }
+
+            return False;
+        }
+
+        return $block;
+    }
+
     /**
      * @param string $URI
      * @return array|mixed
      */
-    public function getRewriteURL($URI) {
+    public function getRewriteURL($URI, $rule = NULL) {
         $matchResult = False;
-        $URLRewrite = Context::$appConfig->uriRewrite;
+        $URLRewrite = $rule === NULL ? Context::$appConfig->uriRewrite : $rule;
 
         // 让路由重写时支持METHOD设定 而非CALLBACK时处理
         $nowRequestMethod = Request::getInstance()->getRequestMethod();
@@ -131,6 +164,12 @@ Class Dispatcher{
 
         /**@var mixed|callable|URL $value**/
         foreach($URLRewrite as $re => $value){
+            $matchMode = "NORMAL";
+            if (substr($re, 0, 1) == '!') {
+                $matchMode = "REGEXP";
+                $re = substr($re, 1);
+            }
+
             preg_match($methodRegexp, $re, $methodMatch);
             if (isset($methodMatch[1]) && in_array($methodMatch[1], $allowMethodHeader)) {
                 $needMethod = $methodMatch[1];
@@ -142,33 +181,55 @@ Class Dispatcher{
                 }
             }
 
-            $isMatched = preg_match($re, $URI);
+            if (substr($re, 0, 1) == '/' && $matchMode != 'REGEXP') {
+                $matchMode = "REGEXP";
+            }
+
+            // 判定方式
+            if ($matchMode == 'REGEXP') {
+                $isMatched = preg_match($re, $URI);
+            } else {
+                $isMatched = $this->matchURLByString($URI, $re);
+            }
+
+
             if (!$isMatched) continue;
 
             if (is_callable($value)) {
-                $value = $value($URI);
-                if ($value) {
-                    $matchResult = $value;
-                    break;
-                }
+                $matchResult = $value($URI);
+                if ($matchResult) break;
             } else {
-                $result = preg_split($re, $URI, -1, PREG_SPLIT_DELIM_CAPTURE);
-                foreach ($result as $k => $v) {
-                    $value = str_replace("@".$k, $v, $value);
+                $value = str_replace(".", "/", $value);
+                if ($matchMode == 'REGEXP') {
+                    $result = preg_split($re, $URI, -1, PREG_SPLIT_DELIM_CAPTURE);
+                    foreach ($result as $k => $v) {
+                        $value = str_replace("@".$k, $v, $value);
+                    }
+
+                    $matchResult = $value;
+
+                    if(strpos($matchResult, "?") !== FALSE) {
+                        $result = [];
+                        parse_str(substr($matchResult, strpos($matchResult, "?") + 1), $result);
+
+                        foreach ($result as $k => $v) {
+                            $this->_setValue("U:". $k, $v);
+                        }
+
+                        $matchResult = substr($matchResult, 0, strpos($matchResult, "?"));
+                    }
+                } else {
+                    $matchResult = $value;
+                    foreach ($isMatched as $k => $v) {
+                        $this->_setValue("U:". $k, $v);
+                    }
                 }
 
-                $matchResult = $value;
                 break;
             }
         }
 
-        if ($matchResult) {
-            $matchResult = explode("/", $matchResult);
-        } else {
-            $matchResult = explode("/", $URI);
-        }
-
-        return $matchResult;
+        return explode("/", empty($matchResult) ? $URI : $matchResult);
     }
 
     /**
@@ -216,13 +277,19 @@ Class Dispatcher{
 
 
     private function doAction($cls, $method) {
+        if (empty($method)) {
+            $method = "index";
+        }
+
         if ($method[0] == '_') {
             throw new MethodNameNotAllowed($method, $cls);
         }
         $clsObj = new $cls();
 
         if (!method_exists($clsObj, $method)) {
-            if (method_exists($clsObj, '_default')) {
+            if (method_exists($clsObj, $method. "Action")) {
+                $method = $method. "Action";
+            } elseif (method_exists($clsObj, '_default')) {
                 $method = '_default';
             } else {
                 throw new NotFoundURI($method, $cls);

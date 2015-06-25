@@ -35,14 +35,15 @@ Class BaseConfig {
     ];
 
     public $cache = [
-        'default' => 'file',
+        'default' => [
+            'handler' => 'Akari\system\cache\handler\FileCacheHandler',
+            'baseDir' => '/runtime/cache/',
+            'indexPath' => 'index.json'
+        ],
 
-        'file' => [
-            'default' => [
-                /*'path' => '',
-                'index' => '',
-                'prefix' => ''*/
-            ]
+        'redis' => [
+            'handler' => 'Akari\system\cache\handler\RedisCacheHandler',
+            'host' => '127.0.0.1'
         ]
     ];
 
@@ -72,9 +73,9 @@ Class BaseConfig {
         ]
     ];
 
-    public $cookiePrefix = '';
-    public $cookieTime = '';
-    public $cookiePath = '';
+    public $cookiePrefix = 'w_';
+    public $cookieTime = 86400;
+    public $cookiePath = '/';
     public $cookieSecure = false;
     public $cookieDomain = '';
     public $csrfTokenName = '_akari';
@@ -85,6 +86,9 @@ Class BaseConfig {
     ];
 
     public $uriRewrite = [];
+    public $uriMake = [
+
+    ];
 
     public $mail = [
         'Username' => '',
