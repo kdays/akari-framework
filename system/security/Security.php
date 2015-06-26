@@ -67,7 +67,7 @@ Class Security {
 
 	public static function encrypt($text, $mode = 'default') {
 		$cipher = Context::$appConfig->encrypt[ $mode ]['cipher'];
-		$instance = self::getCipher($cipher, $mode);
+        $instance = self::getCipher($cipher, $mode);
 
 		return $instance->encrypt($text);
 	}

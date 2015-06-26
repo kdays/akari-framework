@@ -384,6 +384,6 @@ function camel_case($in) {
     return $in;
 }
 
-function get_date($format, $timestamp = NULL) {
+function get_date($format, $timestamp = TIMESTAMP) {
     return date($format, $timestamp);
 }

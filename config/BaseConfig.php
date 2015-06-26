@@ -96,7 +96,7 @@ Class BaseConfig {
         'Host' => ''
     ];
 
-    public $uploadDir = 'web/attachment/upload';
+    public $uploadDir = 'web/attachment/';
     public $allowUploadExt = [];
 
     public function getDBConfig($name = "default"){
