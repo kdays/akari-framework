@@ -153,7 +153,7 @@ Class SQLParser {
         return implode($outer." ", $haystack);
     }
 
-    public function parseData($data, $flag = ' AND'){
+    public function  parseData($data, $flag = ' AND'){
         $wheres = array();
 
         if(gettype($data) == "object"){
@@ -186,7 +186,7 @@ Class SQLParser {
 
                             case 'integer':
                             case 'double':
-                                $wheres[] = "$column != $value";
+                                $wheres[] = "$column != ". $this->parseValue($value);
                                 break;
 
                             case 'boolean':
@@ -216,7 +216,7 @@ Class SQLParser {
                         }else{
                             $datetime = strtotime($value);
                             if($datetime){
-                                $wheres[] = "$column $match[3] ".date('Y-m-d H:i:s', $datetime);
+                                $wheres[] = "$column $match[3] ".$this->parseValue(date('Y-m-d H:i:s', $datetime));
                             }
                         }
                     }
@@ -233,7 +233,7 @@ Class SQLParser {
 
                         case 'integer':
                         case 'double':
-                            $wheres[] = "$column = $value";
+                            $wheres[] = "$column = ". $this->parseValue($value);
                             break;
 
                         case 'boolean':
