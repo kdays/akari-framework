@@ -260,6 +260,39 @@ Class Request{
     }
 
     /**
+     * @return bool
+     */
+    public function isGet() {
+        return $this->getRequestMethod() == 'GET';
+    }
+
+    /**
+     * @param string $key
+     * @param null|mixed $defaultValue
+     * @return NULL|string
+     */
+    public function getQuery($key, $defaultValue = NULL) {
+        return GP($key, 'GP', $defaultValue);
+    }
+
+    /**
+     * @param string $key
+     * @param null $defaultValue
+     * @return NULL|string
+     */
+    public function getPost($key, $defaultValue = NULL) {
+        return GP($key, 'P', $defaultValue);
+    }
+
+    /**
+     * 是否是Ajax请求
+     * @return bool
+     */
+    public function isAjax() {
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) || isset($_SERVER['HTTP_SEND_BY']);
+    }
+
+    /**
      * 是否是移动设备
      * @return bool
      */
@@ -277,6 +310,13 @@ Class Request{
         }
 
         return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRawBody() {
+        return file_get_contents('php://input');
     }
 
     /**
@@ -299,6 +339,7 @@ Class Request{
     }
 
     /**
+     * 获得所有文件上传
      * @return FileUpload[]
      */
     public function getUploadedFiles() {
@@ -314,6 +355,10 @@ Class Request{
         return $files;
     }
 
+    /**
+     * @param string $name
+     * @return FileUpload|bool|null
+     */
     public function getUploadedFile($name) {
         if (isset($_FILES[$name])) {
             // 没有文件的话返回false 其余让用户判定
