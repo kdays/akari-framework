@@ -79,7 +79,10 @@ Class Security {
 Class CSRFVerifyFailed extends \Exception {
 
     public function __construct() {
-        $this->message = "[Akari.Security] Verify CSRF Token Failed";
+        $this->message = "[Akari.Security]
+            表单验证失败，请返回上一页刷新重新提交试试。
+            如果多次失败可以尝试更换游览器再行提交。
+            (POST Security Token Verify Failed)";
     }
 
 }
