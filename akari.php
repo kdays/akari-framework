@@ -77,6 +77,14 @@ Class Context {
     public static $appEntryPath;
 
     /**
+     * 应用执行的文件位置
+     * array=控制器 string=直接执行
+     *
+     * @var string
+     */
+    public static $appExecute;
+
+    /**
      * 框架执行的入口文件名
      * @var string
      */
@@ -237,23 +245,31 @@ Class akari {
         $config = Context::$appConfig;
 
         Benchmark::setTimer('app.start');
-        Context::$appConfig->appBaseURL = Dispatcher::getInstance()->rewriteBaseURL(
-            $config->appBaseURL);
 
-
+        $router = Router::getInstance();
         if (!$uri) {
-            $router = Router::getInstance();
             $uri = $router->resolveURI();
+
+            Context::$appConfig->appBaseURL = $router->rewriteBaseURL($config->appBaseURL);
         }
+
         Context::$uri = $uri;
 
         if ($outputBuffer)  ob_start();
+
+        // 开始
+        if (!CLI_MODE) {
+            Dispatcher::getInstance()->appInvoke( $router->getRewriteURL($uri) );
+        }
+
         $result = Trigger::getInstance()->commitPreRule();
 
         // 如果没有result 说明触发都表示没啥可吐槽的
         if (!isset($result)) {
             $dispatcher = Dispatcher::getInstance();
-            $realResult = CLI_MODE ? $dispatcher->invokeTask($uri) : $dispatcher->invoke($uri);
+            $realResult = CLI_MODE ?
+                $dispatcher->dispatchTask($uri) :
+                $dispatcher->dispatch();
 
             if (!is_a($realResult, '\Akari\system\result\Result')) {
                 $defaultCallback = $config->nonResultCallback;

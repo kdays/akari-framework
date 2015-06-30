@@ -58,10 +58,6 @@ Class Security {
 	 */
 	public static function getCipher($type, $mode = 'default', $config = []) {
 		$cls = implode(NAMESPACE_SEPARATOR, ["Akari", "system", "security", "cipher", ucfirst($type)."Cipher"]);
-		if (!empty($config)) {
-			Context::$appConfig->encrypt[ $mode ] = array_merge($config, ['ciper' => ucfirst($type)]);
-		}
-
 		return $cls::getInstance($mode);
 	}
 

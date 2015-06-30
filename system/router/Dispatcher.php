@@ -44,7 +44,7 @@ Class Dispatcher{
      * @throws NotFoundClass
      * @throws NotFoundURI
      */
-    public function invokeTask($URI = ''){
+    public function dispatchTask($URI = '') {
         list($taskName, $methodName) = explode("/", $URI);
         $taskName = $taskName. "Task";
 
@@ -104,147 +104,14 @@ Class Dispatcher{
     }
 
     /**
-     * 由于应用使用了Context::$appBaseURL作为基础连接
-     * 但某些时候，如ajax之类 必须保证http和https在一个页面才可以触发
+     * @param $uri
+     * @return array|mixed|null
+     * @throws DispatcherException -> 层级过多时抛出
      *
-     * @param string $URI URI地址
-     * @return string
+     * @return bool
      */
-    public function rewriteBaseURL($URI) {
-        $isSSL = Request::getInstance()->isSSL();
-        $URI = preg_replace('/https|http/i', $isSSL ? 'https' : 'http' , $URI);
-
-        return $URI;
-    }
-
-    public function matchURLByString($now, $re) {
-        $uri = explode("/", $re);
-        $now = explode("/", $now);
-
-        $uri = array_filter($uri);
-        $now = array_filter($now);
-
-        $block = [];
-
-        foreach ($now as $key => $value) {
-            if (!isset($uri[$key])) {
-                return False;
-            }
-
-            if (substr($uri[$key], 0, 1) == '{') {
-                $k = substr($uri[$key], 1, -1);
-                $block[$k] = $value;
-
-                continue;
-            }
-
-            // 不然匹配内容是否一致
-            if ($value == $uri[$key]) {
-                continue;
-            }
-
-            return False;
-        }
-
-        return $block;
-    }
-
-    /**
-     * @param string $URI
-     * @return array|mixed
-     */
-    public function getRewriteURL($URI, $rule = NULL) {
-        $matchResult = False;
-        $URLRewrite = $rule === NULL ? Context::$appConfig->uriRewrite : $rule;
-
-        // 让路由重写时支持METHOD设定 而非CALLBACK时处理
-        $nowRequestMethod = Request::getInstance()->getRequestMethod();
-        $allowMethodHeader = ['GET', 'POST', 'PUT', 'DELETE', 'GP'];
-        $methodRegexp = "/^(GET|POST|PUT|DELETE|GP):(.*)/";
-
-        /**@var mixed|callable|URL $value**/
-        foreach($URLRewrite as $re => $value){
-            $matchMode = "NORMAL";
-            if (substr($re, 0, 1) == '!') {
-                $matchMode = "REGEXP";
-                $re = substr($re, 1);
-            }
-
-            preg_match($methodRegexp, $re, $methodMatch);
-            if (isset($methodMatch[1]) && in_array($methodMatch[1], $allowMethodHeader)) {
-                $needMethod = $methodMatch[1];
-                if ($nowRequestMethod == $needMethod ||
-                    ($needMethod == 'GP' && in_array($nowRequestMethod, ['GET', 'POST']))) {
-                    $re = $methodMatch[2];
-                } else {
-                    continue;
-                }
-            }
-
-            if (substr($re, 0, 1) == '/' && $matchMode != 'REGEXP') {
-                $matchMode = "REGEXP";
-            }
-
-            // 判定方式
-            if ($matchMode == 'REGEXP') {
-                $isMatched = preg_match($re, $URI);
-            } else {
-                $isMatched = $this->matchURLByString($URI, $re);
-            }
-
-
-            if (!$isMatched) continue;
-
-            if (is_callable($value)) {
-                $matchResult = $value($URI);
-                if ($matchResult) break;
-            } else {
-                $value = str_replace(".", "/", $value);
-                if ($matchMode == 'REGEXP') {
-                    $result = preg_split($re, $URI, -1, PREG_SPLIT_DELIM_CAPTURE);
-                    foreach ($result as $k => $v) {
-                        $value = str_replace("@".$k, $v, $value);
-                    }
-
-                    $matchResult = $value;
-
-                    if(strpos($matchResult, "?") !== FALSE) {
-                        $result = [];
-                        parse_str(substr($matchResult, strpos($matchResult, "?") + 1), $result);
-
-                        foreach ($result as $k => $v) {
-                            $this->_setValue("U:". $k, $v);
-                        }
-
-                        $matchResult = substr($matchResult, 0, strpos($matchResult, "?"));
-                    }
-                } else {
-                    $matchResult = $value;
-                    foreach ($isMatched as $k => $v) {
-                        $this->_setValue("U:". $k, $v);
-                    }
-                }
-
-                break;
-            }
-        }
-
-        return explode("/", empty($matchResult) ? $URI : $matchResult);
-    }
-
-    /**
-     * 根据URI分配路径
-     *
-     * @param string $uri
-     * @return Result
-     * @throws DispatcherException
-     * @throws NotFoundURI
-     */
-    public function invoke($uri = ''){
-        $uri = $this->getRewriteURL($uri);
-
-        // 首先查找有没有对应的BaseAction方法 如果有的话 直接invoke到方法执行
-        $parts = $uri;
+    public function appInvoke($uri) {
+        $parts = explode("/", $uri);
         $method = array_pop($parts);
         $class = ucfirst(array_pop($parts)).'Action';
 
@@ -257,26 +124,47 @@ Class Dispatcher{
         }
 
         if ($isExistCls) {
+            Context::$appExecute = $cls;
             Context::$appEntryName = implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR . $class . ".php";
-            return $this->doAction($cls, $method);
-        }
+            Context::$appEntryMethod = $method;
+        } else {
+            $path = $this->findWay($uri, 'action');
 
-        $path = $this->findWay($uri, 'action');
-        if (!$path) {
-            throw new NotFoundURI($uri);
-        }
-
-        Context::$appEntryName = str_replace([Context::$appEntryPath, 'action/'], '', $path);
-
-        // 如果没有找到类 就按照默认查询方式操作
-        $conResult = require($path);
-        if (isset($conResult)) {
-            return $conResult;
+            if ($path) {
+                Context::$appExecute = $path;
+                Context::$appEntryName = str_replace([Context::$appEntryPath, 'action/'], '', $path);
+            }
         }
     }
 
+    /**
+     * 根据URI分配路径
+     *
+     * @return Result|NULL
+     * @throws DispatcherException
+     * @throws NotFoundURI
+     */
+    public function dispatch() {
+        $method = Context::$appEntryMethod;
+        $execute = Context::$appExecute;
 
-    private function doAction($cls, $method) {
+        if (empty($execute)) {
+            throw new NotFoundURI(Context::$uri);
+        }
+
+        if (empty($method)) {
+            $conResult = require($execute);
+            if (isset($conResult)) {
+                return $conResult;
+            }
+        } else {
+            return $this->doAction($execute, $method);
+        }
+
+        return NULL;
+    }
+
+    protected function doAction($cls, $method) {
         if (empty($method)) {
             $method = "index";
         }
@@ -289,8 +177,8 @@ Class Dispatcher{
         if (!method_exists($clsObj, $method)) {
             if (method_exists($clsObj, $method. "Action")) {
                 $method = $method. "Action";
-            } elseif (method_exists($clsObj, '_default')) {
-                $method = '_default';
+            } elseif (method_exists($clsObj, '_handle')) {
+                $method = '_handle';
             } else {
                 throw new NotFoundURI($method, $cls);
             }
@@ -302,12 +190,13 @@ Class Dispatcher{
 
         Context::$appEntryMethod = $method;
 
-        // 如果说 这个path是一个class文件 Result需要调用对应方法执行
-        // 为何不允许在Class上用反射绑定类关系? 复杂用RequestModel  获得用GP
-        // 避免程序员偷懒只指定不做处理
+        /*
+            如果说 这个path是一个class文件 Result需要调用对应方法执行
+            为何不允许在Class上用反射绑定类关系? 复杂用RequestModel  获得用GP或者request
+            避免程序偷懒导致变量值无法正确的过滤
+        */
         $result = $clsObj->$method();
 
-        // 如果有_after方法 则会将获得的result转发给_after
         if (method_exists($clsObj, '_after')) {
             $result = $clsObj->_after($result);
         }

@@ -36,3 +36,8 @@ abstract Class Cipher implements ICipher {
     abstract public function decrypt($text);
 
 }
+
+
+Class CipherException extends \Exception {
+
+}
