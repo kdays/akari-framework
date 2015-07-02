@@ -15,7 +15,6 @@ Class Cookie {
 
     const FLAG_ENCRYPT = "|ENC";
     const FLAG_ARRAY = "|A";
-    const SPLIT = "\x00";
 
     protected static $c;
     public static function getInstance() {
@@ -36,9 +35,7 @@ Class Cookie {
         }
 
         if(is_array($value)){
-            $tmp = array();
-            foreach($value as $k => $v) $tmp[] = "$k".self::SPLIT."$v";
-            $value = implode("&", $tmp).self::FLAG_ARRAY;
+            $value = http_build_query($value). self::FLAG_ARRAY;
         }
 
         if ($encrypt) $value = Security::encrypt($value, 'cookie'). self::FLAG_ENCRYPT;
@@ -70,15 +67,10 @@ Class Cookie {
         }
 
         if(substr($cookie, -2, 2) == self::FLAG_ARRAY){
-            $result = array();
+            $result = [];
             $arrayFlagLen = strlen(self::FLAG_ARRAY) + 1;
 
-            $value = explode("&", substr($cookie, 0, sizeof($cookie) - $arrayFlagLen));
-            foreach($value as $v){
-                list($key, $val) = explode(self::SPLIT, $v);
-                $result[ $key ] = $val;
-            }
-
+            parse_str(substr($cookie, 0, sizeof($cookie) - $arrayFlagLen), $result);
             return $result;
         }
 
