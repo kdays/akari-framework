@@ -75,9 +75,17 @@ Class BaseConfig {
     public $cookieDomain = '';
     public $csrfTokenName = '_akari';
 
-    public $uriEvent = [
-        'pre' => [],
-        'post' => []
+    public $trigger = [
+        // URL路由分发前，可以对URL进行简单处理
+        'beforeDispatch' => [
+            //['/\.json/', 'JSONSupport']
+        ],
+
+        // URL路由分发后，执行操作前，可以对权限之类进行检查
+        'applicationStart' => [],
+
+        // 执行操作后返回结果的处理，可以记录性能或者繁体化等
+        'applicationEnd' => []
     ];
 
     public $uriRewrite = [];

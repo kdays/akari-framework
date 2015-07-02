@@ -257,13 +257,16 @@ Class akari {
         Context::$uri = $uri;
 
         if ($outputBuffer)  ob_start();
+        Trigger::initEvent();
 
-        // 开始
-        if (!CLI_MODE) {
-            Dispatcher::getInstance()->appInvoke( $router->getRewriteURL($uri) );
+        $result = Trigger::handle('beforeDispatch');
+        if ($result === NULL) {
+            if (!CLI_MODE) {
+                Dispatcher::getInstance()->appInvoke( $router->getRewriteURL(Context::$uri) );
+            }
+
+            $result = Trigger::handle('applicationStart', $result);
         }
-
-        $result = Trigger::getInstance()->commitPreRule();
 
         // 如果没有result 说明触发都表示没啥可吐槽的
         if (!isset($result)) {
@@ -282,7 +285,7 @@ Class akari {
                 }
             }
 
-            $result = Trigger::getInstance()->commitAfterRule($realResult);
+            $result = Trigger::handle('applicationEnd', $realResult);
         }
 
         // 下面是结果 如果有result 直接处理result

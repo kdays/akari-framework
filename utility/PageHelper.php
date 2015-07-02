@@ -145,7 +145,9 @@ Class PageHelper {
     }
 
     public function getStart() {
-        return ($this->currentPage - 1) * $this->pageSize;
+        $start = ($this->currentPage - 1) * $this->pageSize;
+        if ($start < 0) return 0;
+        return $start;
     }
 
     public function getLength() {
