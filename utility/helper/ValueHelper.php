@@ -37,6 +37,8 @@ trait ValueHelper {
     }
 
     /**
+     * 设置DataHelper的数据，不会在模板展现，模板展现用_bindValue
+     *
      * @param string $key
      * @param mixed $data
      * @param bool $isOverwrite

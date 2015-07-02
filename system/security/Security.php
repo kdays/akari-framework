@@ -49,28 +49,16 @@ Class Security {
 			throw new CSRFVerifyFailed();
 		}
 	}
-
-	/**
-	 * @param $type
-	 * @param string $mode
-	 * @param array $config
-	 * @return cipher\Cipher
-	 */
-	public static function getCipher($type, $mode = 'default', $config = []) {
-		$cls = implode(NAMESPACE_SEPARATOR, ["Akari", "system", "security", "cipher", ucfirst($type)."Cipher"]);
-		return $cls::getInstance($mode);
-	}
-
 	public static function encrypt($text, $mode = 'default') {
 		$cipher = Context::$appConfig->encrypt[ $mode ]['cipher'];
-        $instance = self::getCipher($cipher, $mode);
+        $instance = $cipher::getInstance($mode);
 
 		return $instance->encrypt($text);
 	}
 
 	public static function decrypt($text, $mode = 'default') {
 		$cipher = Context::$appConfig->encrypt[ $mode ]['cipher'];
-		$instance = self::getCipher($cipher, $mode);
+        $instance = $cipher::getInstance($mode);
 
 		return $instance->decrypt($text);
 	}

@@ -14,11 +14,12 @@ use Akari\system\http\Response;
 use Akari\utility\helper\ExceptionSetter;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
+use Akari\utility\helper\TemplateViewHelper;
 use Akari\utility\helper\ValueHelper;
 
 Class BaseAction {
 
-    use Logging, ValueHelper, ResultHelper, ExceptionSetter, HttpHelper;
+    use Logging, ValueHelper, ResultHelper, ExceptionSetter, HttpHelper, TemplateViewHelper;
 
     /**
      * @var Request

@@ -17,7 +17,6 @@ Class BaseConfig {
     public $appBaseURL;
     public $defaultURI = 'index';
 
-    //
     public $notFoundTemplate = "";
     public $serverErrorTemplate = "";
 
@@ -27,7 +26,7 @@ Class BaseConfig {
     public $logs = [
         [
             'level' => AKARI_LOG_LEVEL_PRODUCTION,
-            'appender' => 'Akari\system\logger\FileLogger',
+            'appender' => 'Akari\system\logger\handler\FileLogger',
             'params' => [
                 'filename' => 'runtime/log/all.log'
             ]
@@ -50,7 +49,6 @@ Class BaseConfig {
     public $database = [];
 
     public $defaultExceptionHandler = 'Akari\system\exception\DefaultExceptionHandler';
-    public $defaultPageTemplate = 'Pager';
 
     public $uriMode = AKARI_URI_AUTO;
     public $uriSuffix = '';
@@ -58,18 +56,15 @@ Class BaseConfig {
     public $templateSuffix = ".htm";
     public $templateCacheDir = '/runtime/tpl';
 
-    //public $defaultEncryptCipher = '\Akari\system\security\Cipher\AESCipher';
     public $encrypt = [
         'default' => [
-            'cipher' => 'AES',
-            'iv' => '',
-            'key' => 'Akaza Akari, Akkarin'
+            'cipher' => 'Akari\system\security\cipher\AESCipher',
+            'key' => 'Hello, Akari Framework'
         ],
 
         'cookie' => [
-            'cipher' => 'AES',
-            'iv' => '',
-            'key' => 'Akari Framework v3'
+            'cipher' => 'Akari\system\security\cipher\AESCipher',
+            'key' => 'Answer is 42.'
         ]
     ];
 
@@ -86,15 +81,6 @@ Class BaseConfig {
     ];
 
     public $uriRewrite = [];
-    public $uriMake = [
-
-    ];
-
-    public $mail = [
-        'Username' => '',
-        'Password' => '',
-        'Host' => ''
-    ];
 
     public $uploadDir = 'web/attachment/';
     public $allowUploadExt = [];

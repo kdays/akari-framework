@@ -124,15 +124,19 @@ Class Dispatcher{
         }
 
         if ($isExistCls) {
-            Context::$appExecute = $cls;
-            Context::$appEntryName = implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR . $class . ".php";
+            $pCls = implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR . $class;
+            Context::$appExecute = [$cls, $method];
+            Context::$appEntryName =  $pCls. ".php";
             Context::$appEntryMethod = $method;
+
+            Context::$appSpecAction = $pCls. ".". $method;
         } else {
             $path = $this->findWay($uri, 'action');
 
             if ($path) {
                 Context::$appExecute = $path;
                 Context::$appEntryName = str_replace([Context::$appEntryPath, 'action/'], '', $path);
+                Context::$appSpecAction = trim(Context::$appEntryName, '.php');
             }
         }
     }
@@ -145,20 +149,19 @@ Class Dispatcher{
      * @throws NotFoundURI
      */
     public function dispatch() {
-        $method = Context::$appEntryMethod;
         $execute = Context::$appExecute;
 
         if (empty($execute)) {
             throw new NotFoundURI(Context::$uri);
         }
 
-        if (empty($method)) {
+        if (!is_array($execute)) {
             $conResult = require($execute);
             if (isset($conResult)) {
                 return $conResult;
             }
         } else {
-            return $this->doAction($execute, $method);
+            return $this->doAction($execute[0], $execute[1]);
         }
 
         return NULL;

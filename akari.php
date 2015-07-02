@@ -78,11 +78,12 @@ Class Context {
 
     /**
      * 应用执行的文件位置
-     * array=控制器 string=直接执行
      *
      * @var string
      */
     public static $appExecute;
+
+    public static $appSpecAction;
 
     /**
      * 框架执行的入口文件名

@@ -6,7 +6,7 @@
  * Time: 23:12
  */
 
-namespace Akari\system\logger;
+namespace Akari\system\logger\handler;
 
 use Akari\Context;
 
