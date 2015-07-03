@@ -26,7 +26,7 @@ Class PageHelper {
     public $lastPage = NULL;
     public $pagination = [];
 
-    public $template = 'pager';
+    public $widgetName;
 
     protected static $m = [];
 
@@ -38,21 +38,34 @@ Class PageHelper {
         if(!isset(self::$m[$name])){
             self::$m[ $name ] = new self();
             self::$m[ $name ]->objId = $name;
-            self::$m[ $name ]->template = C(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'pager');
+            self::$m[ $name ]->widgetName = C(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'Pager');
         }
 
         return self::$m[ $name ];
     }
 
-    public function init($url, $nowPage, $totalRecord, array $extraParam = [], $pageSize = 20){
-        $this->currentPage = $nowPage;
+    public function setCurrentPage($page) {
+        $this->currentPage = $page;
+        return $this;
+    }
+
+    public function setPageSize($pageSize) {
         $this->pageSize = $pageSize;
-        $this->totalRecord = $totalRecord;
+        return $this;
+    }
 
-        $this->params = $extraParam;
+    public function setTotalCount($total) {
+        $this->totalRecord = $total;
+        return $this;
+    }
+
+    public function setUrl($url) {
         $this->url = $url;
+        return $this;
+    }
 
-        $totalPage = intval(ceil($totalRecord / $pageSize));
+    public function execute(){
+        $totalPage = intval(ceil($this->totalRecord / $this->pageSize));
         $this->totalPage = $totalPage;
 
         if (!$totalPage) {
@@ -66,27 +79,56 @@ Class PageHelper {
         return $this;
     }
 
-    public function addParam($key, $value) {
+    /**
+     * 绑定替换队列，但不会设置URL
+     *
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function bindValue($key, $value) {
+        $this->params[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * 单项设置URL
+     *
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function addUrlParam($key, $value) {
         if(!array_key_exists($key, $this->params)){
             $this->url .=  in_string($this->url, "?") ? "&" : "?";
             $this->url .= "$key=($key)";
         }
 
         $this->params[$key] = $value;
+        return $this;
     }
 
-    public function setParam($key, $value) {
-        $this->params[$key] = $value;
-    }
-
-    public function addParams(array $params) {
+    /**
+     * 同时设置多项，通过Skip可以跳过
+     *
+     * @param array $params
+     * @param array $skip
+     * @return $this
+     */
+    public function addUrlParams(array $params, $skip = []) {
         foreach ($params as $key => $value) {
-            $this->addParam($key, $value);
+            if (in_array($key, $skip)) {
+                continue;
+            }
+            $this->addUrlParam($key, $value);
         }
+
+        return $this;
     }
 
-    public function setTemplate($tplId) {
-        $this->template = $tplId;
+    public function setWidget($tplId) {
+        $this->widgetName = $tplId;
+        return $this;
     }
 
     public function getHTML() {
@@ -137,7 +179,7 @@ Class PageHelper {
 
         /** @var BaseTemplateEngine $templateHelper */
         $engine = DI::getDefault()->getShared('viewEngine');
-        return TemplateCommand::widgetAction($engine, $this->template, $this);
+        return TemplateCommand::widgetAction($engine, $this->widgetName, $this, True);
     }
 
     public function needPage() {

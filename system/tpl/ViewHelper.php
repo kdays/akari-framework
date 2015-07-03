@@ -44,6 +44,7 @@ class ViewHelper {
 
         if ($screenPath == NULL) {
             $screenPath = Dispatcher::getInstance()->findWay($screenName, 'template/view/', $suffix);
+
             $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'], '', $screenPath);
 
             if ($screenPath == '') {
