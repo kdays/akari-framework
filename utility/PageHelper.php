@@ -36,12 +36,14 @@ Class PageHelper {
      */
     public static function getInstance($name = 'default'){
         if(!isset(self::$m[$name])){
-            self::$m[ $name ] = new self();
-            self::$m[ $name ]->objId = $name;
-            self::$m[ $name ]->widgetName = C(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'Pager');
+            $helper = new self();
+            $helper->objId = $name;
+            $helper->widgetName = C(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'Pager');
+
+            self::$m[$name] = $helper;
         }
 
-        return self::$m[ $name ];
+        return self::$m[$name];
     }
 
     public function setCurrentPage($page) {
@@ -113,13 +115,19 @@ Class PageHelper {
      *
      * @param array $params
      * @param array $skip
+     * @param array $allow
      * @return $this
      */
-    public function addUrlParams(array $params, $skip = []) {
+    public function addUrlParams(array $params, $skip = [], $allow = NULL) {
         foreach ($params as $key => $value) {
             if (in_array($key, $skip)) {
                 continue;
             }
+
+            if ($allow !== NULL && !in_array($key, $allow)) {
+                continue;
+            }
+
             $this->addUrlParam($key, $value);
         }
 
