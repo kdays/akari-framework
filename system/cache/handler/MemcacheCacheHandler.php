@@ -8,7 +8,6 @@
 
 namespace Akari\system\cache\handler;
 
-
 use Akari\system\cache\CacheBenchmark;
 use Akari\system\event\Listener;
 
@@ -31,7 +30,7 @@ class MemcacheCacheHandler implements ICacheHandler{
         $this->port = $port;
 
         if (!$memcache->connect($host, $port, $timeout)) {
-            throw new \MemcachedException("Connect Failed: ". $host. ":". $port);
+            throw new \Exception("Connect Failed: ". $host. ":". $port);
         }
 
         $this->handler = $memcache;
@@ -48,7 +47,7 @@ class MemcacheCacheHandler implements ICacheHandler{
 
     public function set($key, $value, $timeout = NULL) {
         Listener::fire(CacheBenchmark::ACTION_CREATE, ['key' => $key]);
-        return $this->handler->set($key, $value, $timeout);
+        return $this->handler->set($key, $value, 0, $timeout);
     }
 
     /**

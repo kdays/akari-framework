@@ -60,6 +60,8 @@ class TemplateCommand {
     }
 
     public static function loadMod($modName, $args) {
+    	$modName = ucfirst($modName);
+    	
         $clsNames = [
             implode(NAMESPACE_SEPARATOR, [Context::$appBaseNS, "lib", $modName. "Mod"]),
             implode(NAMESPACE_SEPARATOR, ["Akari", "system", "tpl", "mod", $modName. "Mod"])
