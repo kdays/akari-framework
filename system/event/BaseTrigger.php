@@ -18,7 +18,7 @@ Class BaseTrigger {
     use ResultHelper, Logging, ExceptionSetter, ValueHelper;
 
     protected function stop() {
-        throw new BreakTriggerEvent();
+        throw new StopEventBubbling();
     }
 
 }

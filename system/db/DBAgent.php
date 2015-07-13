@@ -197,7 +197,18 @@ Class DBAgent {
     private function dispErrorInfo($errorArr) {
         list($errorCode, , $errorMsg) = $errorArr;
 
-        throw new DBAgentException("[Akari.DBAgent] Query Error: $errorMsg ($errorCode) With SQL: ". $this->lastQuery);
+        $expMsg = sprintf("Database Query Failed, message: %s (code: %s) ", $errorMsg, $errorCode);
+        if (!empty($this->lastQuery)) {
+            $expMsg .= "with SQL: ". $this->colorSql($this->lastQuery);
+        }
+
+        throw new DBAgentException($expMsg);
+    }
+
+    private function colorSql( $query ) {
+        $query = preg_replace("/['\"]([^'\"]*)['\"]/i", "'<span style='text-decoration: underline;'>$1</span>'", $query, -1);
+
+        return $query;
     }
 
     /**

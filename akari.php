@@ -77,6 +77,15 @@ Class Context {
     public static $appEntryPath;
 
     /**
+     * 应用执行的文件位置
+     *
+     * @var string
+     */
+    public static $appExecute;
+
+    public static $appSpecAction;
+
+    /**
      * 框架执行的入口文件名
      * @var string
      */
@@ -237,23 +246,34 @@ Class akari {
         $config = Context::$appConfig;
 
         Benchmark::setTimer('app.start');
-        Context::$appConfig->appBaseURL = Dispatcher::getInstance()->rewriteBaseURL(
-            $config->appBaseURL);
 
-
+        $router = Router::getInstance();
         if (!$uri) {
-            $router = Router::getInstance();
             $uri = $router->resolveURI();
+
+            Context::$appConfig->appBaseURL = $router->rewriteBaseURL($config->appBaseURL);
         }
+
         Context::$uri = $uri;
 
         if ($outputBuffer)  ob_start();
-        $result = Trigger::getInstance()->commitPreRule();
+        Trigger::initEvent();
+
+        $result = Trigger::handle('beforeDispatch');
+        if ($result === NULL) {
+            if (!CLI_MODE) {
+                Dispatcher::getInstance()->appInvoke( $router->getRewriteURL(Context::$uri) );
+            }
+
+            $result = Trigger::handle('applicationStart', $result);
+        }
 
         // 如果没有result 说明触发都表示没啥可吐槽的
         if (!isset($result)) {
             $dispatcher = Dispatcher::getInstance();
-            $realResult = CLI_MODE ? $dispatcher->invokeTask($uri) : $dispatcher->invoke($uri);
+            $realResult = CLI_MODE ?
+                $dispatcher->dispatchTask($uri) :
+                $dispatcher->dispatch();
 
             if (!is_a($realResult, '\Akari\system\result\Result')) {
                 $defaultCallback = $config->nonResultCallback;
@@ -265,7 +285,7 @@ Class akari {
                 }
             }
 
-            $result = Trigger::getInstance()->commitAfterRule($realResult);
+            $result = Trigger::handle('applicationEnd', $realResult);
         }
 
         // 下面是结果 如果有result 直接处理result

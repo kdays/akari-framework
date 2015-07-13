@@ -16,7 +16,7 @@
         <p>没有找到要访问的文件，可以选择：
         <ul>
             <li><a href="<?=$index?>">应用首页</a></li>
-            <li><a href="http://kdays.cn/">返回KDays</a></li>
+            <li><a href="http://kdays.net/">返回KDays</a></li>
             <div style="clear: both;"></div>
         </ul>
         </p>

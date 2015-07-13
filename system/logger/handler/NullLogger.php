@@ -6,7 +6,7 @@
  * Time: 下午11:42
  */
 
-namespace Akari\system\logger;
+namespace Akari\system\logger\handler;
 
 
 class NullLogger {

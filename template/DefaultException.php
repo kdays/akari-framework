@@ -11,7 +11,6 @@
             background: #FFF; color: #333; font-size: 12px;
         }
         #wrapper{margin: 0;}
-        #inner{margin: 5px 0; padding: 5px 20px;}
 
         ul{list-style: none; }
         li{padding: 5px 7px; }
@@ -20,7 +19,7 @@
         .func{display: block; margin: 8px 0; color: #666; padding: 3px 20px;}
         #trace{padding: 4px 10px; margin: 14px 0;}
         #message {padding: 10px 16px; }
-        #errorMessage {font-size: 15px; margin: 0; margin-top: 10px; margin-bottom: 5px; }
+        #errorMessage {font-size: 15px;  margin: 10px 0 5px;  line-height: 1.5; }
         #errorMessage #fileName {color: #999; font-size: 13px;}
 
         #header{font-size: 12px; color: #fff; background: darkred; padding: 12px 12px;}
@@ -95,7 +94,7 @@
 
         <div id="version">
             Akari Framework <span class="ver"><?=$version?></span>
-            / By <a href="http://kdays.cn/">KDays Team</a>
+            / By <a href="http://kdays.net/">KDays Team</a>
         </div>
     </div>
 </body>

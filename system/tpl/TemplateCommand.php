@@ -23,9 +23,13 @@ class TemplateCommand {
         return sprintf('<?php include(\Akari\system\tpl\TemplateCommand::loadBlock("%s", "%s"))?>', $cachePath, $tplPath);
     }
 
-    public static function widgetAction(BaseTemplateEngine $engine, $widgetName, $args) {
+    public static function widgetAction(BaseTemplateEngine $engine, $widgetName, $args, $direct = False) {
         $tplPath = TemplateHelper::find(str_replace('.', DIRECTORY_SEPARATOR, $widgetName), TemplateHelper::TYPE_WIDGET);
         $cachePath = $engine->parse($tplPath, [], TemplateHelper::TYPE_WIDGET, True);
+
+        if ($direct) {
+            return self::loadWidget($cachePath, $widgetName, $args);
+        }
         return sprintf('<?=\Akari\system\tpl\TemplateCommand::loadWidget("%s", "%s", "%s")?>', $cachePath, $widgetName, $args);
     }
 
@@ -82,6 +86,6 @@ class TemplateCommand {
             throw new TemplateCommandInvalid("loadMod", $modName);
         }
 
-        return $clsObj->run($args);
+        return empty($args) ? $clsObj->run() : $clsObj->run($args);
     }
 }

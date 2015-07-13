@@ -49,32 +49,16 @@ Class Security {
 			throw new CSRFVerifyFailed();
 		}
 	}
-
-	/**
-	 * @param $type
-	 * @param string $mode
-	 * @param array $config
-	 * @return cipher\Cipher
-	 */
-	public static function getCipher($type, $mode = 'default', $config = []) {
-		$cls = implode(NAMESPACE_SEPARATOR, ["Akari", "system", "security", "cipher", ucfirst($type)."Cipher"]);
-		if (!empty($config)) {
-			Context::$appConfig->encrypt[ $mode ] = array_merge($config, ['ciper' => ucfirst($type)]);
-		}
-
-		return $cls::getInstance($mode);
-	}
-
 	public static function encrypt($text, $mode = 'default') {
 		$cipher = Context::$appConfig->encrypt[ $mode ]['cipher'];
-        $instance = self::getCipher($cipher, $mode);
+        $instance = $cipher::getInstance($mode);
 
 		return $instance->encrypt($text);
 	}
 
 	public static function decrypt($text, $mode = 'default') {
 		$cipher = Context::$appConfig->encrypt[ $mode ]['cipher'];
-		$instance = self::getCipher($cipher, $mode);
+        $instance = $cipher::getInstance($mode);
 
 		return $instance->decrypt($text);
 	}
@@ -83,7 +67,10 @@ Class Security {
 Class CSRFVerifyFailed extends \Exception {
 
     public function __construct() {
-        $this->message = "[Akari.Security] Verify CSRF Token Failed";
+        $this->message = "[Akari.Security]
+            表单验证失败，请返回上一页刷新重新提交试试。
+            如果多次失败可以尝试更换游览器再行提交。
+            (POST Security Token Verify Failed)";
     }
 
 }

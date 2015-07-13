@@ -2,111 +2,78 @@
 /**
  * Created by PhpStorm.
  * User: kdays
- * Date: 14/12/28
- * Time: 23:09
+ * Date: 15/7/2
+ * Time: 下午9:08
  */
 
 namespace Akari\system\event;
 
 use Akari\Context;
-use Akari\exception\ExceptionProcessor;
-use Akari\utility\helper\Logging;
+use Akari\NotFoundClass;
 
-Class Trigger {
+class Trigger {
 
-    const KEY_URI = 0;
-    const KEY_CLASS = 1;
+    protected static $beforeDispatchEvent = [];
+    protected static $applicationStartEvent = [];
+    protected static $applicationEndEvent = [];
 
-    use Logging;
+    public static function initEvent() {
+        $trigger = Context::$appConfig->trigger;
+        $triggerBaseNS = Context::$appBaseNS. NAMESPACE_SEPARATOR. "trigger". NAMESPACE_SEPARATOR;
 
-    protected static $h;
-    private $preRules = [];
-    private $afterRules = [];
+        $beforeDispatch = empty($trigger['beforeDispatch']) ? [] : $trigger['beforeDispatch'];
+        self::$beforeDispatchEvent = $beforeDispatch;
 
-    public static function getInstance() {
-        if(!isset(self::$h)){
-            self::$h = new self();
-            self::$h->initRules();
+        $appStart = empty($trigger['applicationStart']) ? [] : $trigger['applicationStart'];
+        if (class_exists($triggerBaseNS. "ApplicationStart")) {
+            $appStart[] =  ['/.*/', "ApplicationStart"];
         }
+        self::$applicationStartEvent = $appStart;
 
-        return self::$h;
+
+        $appEnd = empty($trigger['applicationEnd']) ? [] : $trigger['applicationEnd'];
+        if (class_exists($triggerBaseNS. "ApplicationEnd")) {
+            $appEnd[] = ['/.*/', "ApplicationEnd"];
+        }
+        self::$applicationEndEvent = $appEnd;
     }
 
-    public function initRules() {
-        $config = Context::$appConfig->uriEvent;
-        if (!empty($config['pre'])) $this->preRules = $config['pre'];
-        if (!empty($config['after']))   $this->afterRules = $config['after'];
+    public static function handle($eventType, $requestResult = NULL) {
+        $list = self::${$eventType. "Event"};
+        $triggerBaseNS = Context::$appBaseNS. NAMESPACE_SEPARATOR. "trigger". NAMESPACE_SEPARATOR;
 
-        $baseDir = implode(DIRECTORY_SEPARATOR, Array(
-            Context::$appEntryPath, 'trigger', ''
-        ));
+        foreach ($list as $value) {
+            list($re, $cls) = $value;
 
-        if (file_exists($baseDir. "AfterInit.php")) {
-            $this->preRules[] = Array("/.*/", "AfterInit");
-        }
+            if (!preg_match($re, Context::$uri)) {
+                break;
+            }
 
+            $clsName = $triggerBaseNS. $cls;
 
-        if (file_exists($baseDir. "ApplicationEnd.php")) {
-            $this->afterRules[] = Array("/.*/", "ApplicationEnd");
-        }
-
-        if (file_exists($baseDir. "ApplicationStart.php")) {
-            array_unshift($this->preRules, ['/.*/', 'ApplicationStart']);
-        }
-    }
-
-    private function dispatch($type, $requestResult = NULL) {
-        $uri = Context::$uri;
-        $commitName = $type."Rules";
-
-        foreach ($this->$commitName as $rule) {
-            $re = $rule[ self::KEY_URI ];
-            $clsName = $rule[ self::KEY_CLASS ];
-
-            if (preg_match($re, $uri)) {
-                $cls = Context::$appBaseNS. NAMESPACE_SEPARATOR ."trigger". NAMESPACE_SEPARATOR. $clsName;
-                if (!class_exists($cls)) {
-                    throw new MissingTrigger($clsName);
-                }
-
-                /**
-                 * @var $nowCls \Akari\system\event\Rule
-                 */
-                $nowCls = new $cls();
-                try {
-                    $result = $nowCls->process($requestResult);
-                    if ($result !== NULL) {
-                        if (!is_a($result, '\Akari\system\result\Result')) {
-                            throw new WrongTriggerResultType(gettype($result),  $clsName);
-                        }
-                        $requestResult = $result;
+            /** @var Rule $handler */
+            try {
+                $handler = new $clsName();
+                $result = $handler->process($requestResult);
+                if ($result !== NULL) {
+                    if (!is_a($result, '\Akari\system\result\Result')) {
+                        throw new WrongTriggerResultType(gettype($result),  $clsName);
                     }
-                } catch (BreakTriggerEvent $e) {
-                    break;
+                    $requestResult = $result;
                 }
+            } catch (StopEventBubbling $e) {
+                break;
+            } catch (NotFoundClass $e) {
+                throw new MissingTrigger($clsName);
             }
         }
 
         return $requestResult;
     }
 
-    /**
-     * Pre预处理事件
-     */
-    public function commitPreRule(){
-        return $this->dispatch('pre');
-    }
-
-    /**
-     * After之后的事件
-     *
-     * @param $result
-     * @return \Akari\system\result\Result
-     */
-    public function commitAfterRule($result){
-        return $this->dispatch('after', $result);
-    }
 }
+
+
 
 Class WrongTriggerResultType extends \Exception {
 
@@ -117,15 +84,12 @@ Class WrongTriggerResultType extends \Exception {
 }
 
 
+
+
 Class MissingTrigger extends \Exception {
 
     public function __construct($clsName) {
         $this->message = "Trigger Not Found: ". $clsName;
     }
-
-}
-
-Class BreakTriggerEvent extends \Exception {
-
 
 }

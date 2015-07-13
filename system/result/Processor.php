@@ -8,12 +8,9 @@
 
 namespace Akari\system\result;
 
-use Akari\Context;
 use Akari\system\http\Response;
-use Akari\system\router\Dispatcher;
 use Akari\system\tpl\TemplateHelper;
-use Akari\system\tpl\TemplateNotFound;
-use Akari\utility\helper\ValueHelper;
+use Akari\system\tpl\ViewHelper;
 
 Class Processor {
 
@@ -64,33 +61,15 @@ Class Processor {
         $h = new TemplateHelper();
 
         if ($screenPath == NULL || $layoutPath == NULL) {
-            $screenName = str_replace('.php', '', trim(Context::$appEntryName));
+            if ($screenPath !== NULL)   ViewHelper::setScreen($screenPath);
+            if ($layoutPath !== NULL)   ViewHelper::setLayout($layoutPath);
 
-            if (Context::$appEntryMethod !== NULL) {
-                $screenName = strtolower(substr($screenName, 0, strlen($screenName) - strlen('Action')));
-                $screenName .= DIRECTORY_SEPARATOR. Context::$appEntryMethod;
-            }
+            $realScreenPath = ViewHelper::getScreen();
+            $h->setScreen($realScreenPath);
 
-            $suffix = Context::$appConfig->templateSuffix;
-
-            if ($screenPath == NULL) {
-                $screenPath = Dispatcher::getInstance()->findWay($screenName, 'template/view/', $suffix);
-                $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'], '', $screenPath);
-
-                if ($screenPath == '') {
-                    throw new TemplateNotFound('screen Default');
-                }
-            }
-
-            $h->setScreen($screenPath);
-
-            if ($layoutPath == NULL) {
-                $layoutPath = Dispatcher::getInstance()->findWay($screenName, 'template/layout/', $suffix);
-                $layoutPath = str_replace([Context::$appEntryPath, $suffix, '/template/layout/'], '', $layoutPath);
-            }
-
-            if ($layoutPath) {
-                $h->setLayout($layoutPath);
+            $realLayoutPath = ViewHelper::getLayout();
+            if (!empty($realLayoutPath)) {
+                $h->setLayout($realLayoutPath);
             }
         }
 

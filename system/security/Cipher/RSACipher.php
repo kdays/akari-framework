@@ -213,7 +213,7 @@ Class RSACipher extends Cipher {
     }
 }
 
-Class RSAException extends \Exception {
+Class RSAException extends CipherException {
     public function __construct($message) {
         $this->message = "[Akari.RSACipher] ".$message;
     }

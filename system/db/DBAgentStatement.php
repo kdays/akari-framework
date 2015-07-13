@@ -150,7 +150,7 @@ Class DBAgentStatement {
                 $sql = str_replace('(where)', $replace, $sql);
             }
         }
-        $sql = str_replace('(where)', '', $sql);
+        $sql = str_ireplace('(where)', '', $sql);
 
         if (!empty($this->_args['DATA'])) {
             $data = [];
@@ -158,9 +158,9 @@ Class DBAgentStatement {
                 $data[] = "`$key` = ".$parser->parseValue($value);
             }
 
-            $sql = str_replace("(data)", implode(",", $data), $sql);
+            $sql = str_ireplace("(data)", implode(",", $data), $sql);
         }
-        $sql = str_replace("(data)", "", $sql);
+        $sql = str_ireplace("(data)", "", $sql);
 
         if (!empty($this->_args['ORDER'])) {
             $sql .= " ORDER BY ".implode(",", $this->_args['ORDER']);

@@ -91,27 +91,28 @@ Class Request{
 
         // try ipv6 => ipv4
         if (filter_var($onlineIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
-            $onlineIp = $this->bin2ip(base_convert(ip2long($onlineIp), 10, 2));
+            $ipv4Addr = $this->bin2ip(base_convert(ip2long($onlineIp), 10, 2));
+            if ($ipv4Addr) $onlineIp = $ipv4Addr;
         }
 
         // 如果onlineip是内网ip
         $isInternal = false;
-        $ip_address = explode(".", $onlineIp);
-        if ($ip_address[0] == 10) {
+        $ipAddr = explode(".", $onlineIp);
+        if ($ipAddr[0] == 10) {
             $isInternal = true;
-        } elseif ($ip_address[0] == 172 && $ip_address[1] > 15 && $ip_address[1] < 32) {
+        } elseif ($ipAddr[0] == 172 && $ipAddr[1] > 15 && $ipAddr[1] < 32) {
             $isInternal = true;
-        } elseif ($ip_address[0] == 192 && $ip_address[1] == 168) {
+        } elseif ($ipAddr[0] == 192 && $ipAddr[1] == 168) {
             $isInternal = true;
         }
 
         if ($isInternal && isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $onlineIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        }
 
-        if ($onlineIp && strstr($onlineIp, ',')) {
-            $x = explode(',', $onlineIp);
-            $onlineIp = end($x);
+            if ($onlineIp && strstr($onlineIp, ',')) {
+                $x = explode(',', $onlineIp);
+                $onlineIp = end($x);
+            }
         }
 
         if (!filter_var($onlineIp, FILTER_VALIDATE_IP)) {
@@ -259,6 +260,39 @@ Class Request{
     }
 
     /**
+     * @return bool
+     */
+    public function isGet() {
+        return $this->getRequestMethod() == 'GET';
+    }
+
+    /**
+     * @param string $key
+     * @param null|mixed $defaultValue
+     * @return NULL|string
+     */
+    public function getQuery($key, $defaultValue = NULL) {
+        return GP($key, 'GP', $defaultValue);
+    }
+
+    /**
+     * @param string $key
+     * @param null $defaultValue
+     * @return NULL|string
+     */
+    public function getPost($key, $defaultValue = NULL) {
+        return GP($key, 'P', $defaultValue);
+    }
+
+    /**
+     * 是否是Ajax请求
+     * @return bool
+     */
+    public function isAjax() {
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) || isset($_SERVER['HTTP_SEND_BY']);
+    }
+
+    /**
      * 是否是移动设备
      * @return bool
      */
@@ -276,6 +310,13 @@ Class Request{
         }
 
         return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRawBody() {
+        return file_get_contents('php://input');
     }
 
     /**
@@ -298,6 +339,7 @@ Class Request{
     }
 
     /**
+     * 获得所有文件上传
      * @return FileUpload[]
      */
     public function getUploadedFiles() {
@@ -313,6 +355,10 @@ Class Request{
         return $files;
     }
 
+    /**
+     * @param string $name
+     * @return FileUpload|bool|null
+     */
     public function getUploadedFile($name) {
         if (isset($_FILES[$name])) {
             // 没有文件的话返回false 其余让用户判定

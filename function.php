@@ -126,9 +126,12 @@ function movefile($dstfile, $srcfile){
 }
 
 
-function C($key, $value = NULL) {
+function C($key, $value = NULL, $defaultValue = NULL) {
     if ($value === NULL) {
-        return Context::$appConfig->$key;
+        $conf = Context::$appConfig->$key;
+
+        if ($conf === NULL) return $defaultValue;
+        return $conf;
     }
 
     Context::$appConfig->$key = $value;
@@ -305,14 +308,18 @@ function cookie($key, $value = NULL, $expire = NULL, $encrypt = FALSE) {
     $cookie->set($key, $value, $expire, $encrypt);
 }
 
-function array_flat($list, $key) {
-    if (!is_array($list) && !is_object($list)) {
-        return [];
-    }
-
+function array_flat($list, $columnKey, $indexKey = NULL) {
     $result = [];
-    foreach ($list as $v) {
-        $result[] = is_array($v) ? $v[$key] : $v->$key;
+
+    foreach ($list as $value) {
+        $colValue = is_array($value) ? $value[$columnKey] : $value->$columnKey;
+
+        if ($indexKey !== NULL) {
+            $colKey = is_array($value) ? $value[$indexKey] : $value->$indexKey;
+            $result[$colKey] = $colValue;
+        } else {
+            $result[] = $colValue;
+        }
     }
 
     return $result;
