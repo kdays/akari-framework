@@ -308,7 +308,7 @@ function cookie($key, $value = NULL, $expire = NULL, $encrypt = FALSE) {
     $cookie->set($key, $value, $expire, $encrypt);
 }
 
-function array_flat($list, $columnKey, $indexKey = NULL) {
+function array_flat($list, $columnKey, $indexKey = NULL, $multi = FALSE) {
     $result = [];
 
     foreach ($list as $value) {
@@ -316,7 +316,11 @@ function array_flat($list, $columnKey, $indexKey = NULL) {
 
         if ($indexKey !== NULL) {
             $colKey = is_array($value) ? $value[$indexKey] : $value->$indexKey;
-            $result[$colKey] = $colValue;
+            if ($multi) {
+                $result[$colKey][] = $colValue;
+            } else {
+                $result[$colKey] = $colValue;
+            }
         } else {
             $result[] = $colValue;
         }
@@ -333,6 +337,15 @@ function array_index($list, $indexKey) {
     $result = [];
     foreach ($list as $v) {
         $result[is_array($v) ? $v[$indexKey] : $v->$indexKey] = $v;
+    }
+
+    return $result;
+}
+
+function array_reindex($list, array $index) {
+    $result = [];
+    foreach ($index as $k) {
+        $result[] = $list[$k];
     }
 
     return $result;
@@ -392,5 +405,6 @@ function camel_case($in) {
 }
 
 function get_date($format, $timestamp = TIMESTAMP) {
+    if (!is_numeric($timestamp))    $timestamp = strtotime($timestamp);
     return date($format, $timestamp);
 }

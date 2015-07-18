@@ -139,14 +139,17 @@ Class Router{
 
         $block = [];
 
+        if (count($uri) != count($now)) {
+            return false;
+        }
+
         foreach ($now as $key => $value) {
             if (!isset($uri[$key])) {
                 return False;
             }
 
             if (substr($uri[$key], 0, 1) == '{') {
-                $k = substr($uri[$key], 1, -1);
-                $block[$k] = $value;
+                $block[ substr($uri[$key], 1, -1) ] = $value;
 
                 continue;
             }
@@ -211,7 +214,7 @@ Class Router{
                 $isMatched = $this->matchURLByString($URI, $re);
             }
 
-            if (!$isMatched) continue;
+            if ($isMatched === FALSE) continue;
 
             if (is_callable($value)) {
                 $matchResult = $value($URI);
@@ -246,7 +249,6 @@ Class Router{
                 break;
             }
         }
-
 
         return empty($matchResult) ? $URI : $matchResult;
     }

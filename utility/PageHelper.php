@@ -15,8 +15,8 @@ Class PageHelper {
     public $params = [];
     public $url;
     public $display = 10;
-    public $mixedUrl;
-    public $objId;
+    protected $mixedUrl;
+    protected $name;
 
     public $totalPage = NULL;
     public $currentPage = NULL;
@@ -37,7 +37,7 @@ Class PageHelper {
     public static function getInstance($name = 'default'){
         if(!isset(self::$m[$name])){
             $helper = new self();
-            $helper->objId = $name;
+            $helper->name = $name;
             $helper->widgetName = C(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'Pager');
 
             self::$m[$name] = $helper;
@@ -64,6 +64,26 @@ Class PageHelper {
     public function setUrl($url) {
         $this->url = $url;
         return $this;
+    }
+
+    public function makeUrl(array $skip, $page = 1) {
+        $url = $this->url;
+        $params = $this->params + ["page" => $page];
+
+        foreach ($params as $k => $v) {
+            $url = str_replace('('. $k. ')', $v, $url);
+        }
+
+        $url = parse_url($url);
+        $query = array_key_exists('query', $url) ? $url['query'] : '';
+
+        $result = [];
+        parse_str($query, $result);
+
+        foreach ($skip as $k) unset($result[$k]);
+
+        $resultUrl = make_url($url['path'], $result);
+        return in_string($result, "?") ? $resultUrl : $resultUrl. "?";
     }
 
     public function execute(){
@@ -191,7 +211,7 @@ Class PageHelper {
     }
 
     public function needPage() {
-        return $this->currentPage > 1;
+        return $this->totalPage > 1;
     }
 
     public function getStart() {

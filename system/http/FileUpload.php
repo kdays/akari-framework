@@ -26,6 +26,10 @@ class FileUpload {
         return $this->id;
     }
 
+    public function getForm() {
+        return $this->upload;
+    }
+
     public function getExtension() {
         $ext = end(explode('.', $this->upload['name']));
         return strtolower($ext);
