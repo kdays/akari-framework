@@ -137,31 +137,51 @@ Class Router{
         $uri = array_filter($uri);
         $now = array_filter($now);
 
-        $block = [];
-
         if (count($uri) != count($now)) {
             return false;
         }
-
+        
+        $block = [];
+        
         foreach ($now as $key => $value) {
             if (!isset($uri[$key])) {
                 return False;
             }
-
+            
+            /**
+             * @todo 可处理某些特殊非标准的 /后面跟特殊字符的 比如 /subject/{id}!index这种处理
+             * 不支持 index_{id}
+            **/
             if (substr($uri[$key], 0, 1) == '{') {
-                $block[ substr($uri[$key], 1, -1) ] = $value;
-
+                $lastUriPos = strpos($uri[$key], '}');
+                $maxUriPos = strlen($uri[$key]);
+                
+                if ($lastUriPos + 1 == $maxUriPos) {
+                    $block[ substr($uri[$key], 1, -1) ] = $value;
+                } else {
+                    $nonKeyword = substr($uri[$key], $lastUriPos + 1);
+                    $nonKeywordLen = strlen($nonKeyword);
+                    if ($nonKeyword != substr($value, -$nonKeywordLen)) {
+                        return false;
+                    }
+                    
+                    $block[ substr($uri[$key], 1, $lastUriPos - 1) ] = substr($value, 0, -$nonKeywordLen);
+                }
+                
                 continue;
             }
 
             // 不然匹配内容是否一致
-            if ($value == $uri[$key]) {
+            if ($value == $uri[$key] || $uri[$key] == "*") {
+                if ($uri[$key] == '*') {
+                    $block['Mark:'. $key] = $now[$key];
+                }
                 continue;
             }
 
             return False;
         }
-
+        
         return $block;
     }
 
@@ -228,28 +248,45 @@ Class Router{
                     }
 
                     $matchResult = $value;
-
-                    if(strpos($matchResult, "?") !== FALSE) {
-                        $result = [];
-                        parse_str(substr($matchResult, strpos($matchResult, "?") + 1), $result);
-
-                        foreach ($result as $k => $v) {
-                            $this->_setValue("U:". $k, $v);
-                        }
-
-                        $matchResult = substr($matchResult, 0, strpos($matchResult, "?"));
-                    }
                 } else {
                     $matchResult = $value;
                     foreach ($isMatched as $k => $v) {
                         $this->_setValue("U:". $k, $v);
                     }
                 }
+                
+                // ?后的参数视为URL本来就有的参数处理 而不是存入U:变量
+                if(strpos($matchResult, "?") !== FALSE) {
+                    $result = [];
+                    parse_str(substr($matchResult, strpos($matchResult, "?") + 1), $result);
+
+                    foreach ($result as $k => $v) {
+                        $_GET[$k] = $v;
+                        if (!array_key_exists($k, $_REQUEST)) {
+                            $_REQUEST[$k] = $v;
+                        }
+                    }
+                    
+                    $matchResult = substr($matchResult, 0, strpos($matchResult, "?"));
+                }
+
+                if (strpos($matchResult, "*") !== false) {
+                    $matches = explode("/", $matchResult);
+
+                    foreach ($matches as $k => $match) {
+                        if ($match == '*' && isset($isMatched['Mark:'.$k])) {
+                            $matches[$k] = $isMatched['Mark:'. $k];
+                        }
+                    }
+
+                    $matchResult = implode("/", $matches);
+                }
+
 
                 break;
             }
         }
-
+        
         return empty($matchResult) ? $URI : $matchResult;
     }
 }
