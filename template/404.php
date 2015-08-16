@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>404 Not Found 找不到呀就是找不到</title>
 
-    <link rel="stylesheet" href="http://kdays.cn/images/error/404.css" />
+    <link rel="stylesheet" href="http://kdays.net/images/error/404.css" />
 </head>
 
 <body>

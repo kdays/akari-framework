@@ -23,7 +23,7 @@
 
 
 <div id="wrapper">
-    <img src="http://kdays.cn/images/error/500p/sig.jpg" />
+    <img src="http://kdays.net/images/error/500p/sig.jpg" />
     <h1>程序掉进坑里了!</h1>
     <p>可能是程序员偷懒忘记把坑填上；或者是服务器娘迷路了。</p>
     <p>你可以稍等片刻，然后刷新再试试。</p>
