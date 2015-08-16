@@ -41,14 +41,14 @@ class Trigger {
     public static function handle($eventType, $requestResult = NULL) {
         $list = self::${$eventType. "Event"};
         $triggerBaseNS = Context::$appBaseNS. NAMESPACE_SEPARATOR. "trigger". NAMESPACE_SEPARATOR;
-
+        
         foreach ($list as $value) {
             list($re, $cls) = $value;
 
             if (!preg_match($re, Context::$uri)) {
-                break;
+                continue;
             }
-
+            
             $clsName = $triggerBaseNS. $cls;
 
             /** @var Rule $handler */
