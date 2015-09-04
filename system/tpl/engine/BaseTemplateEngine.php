@@ -14,6 +14,7 @@ use Akari\Context;
 abstract class BaseTemplateEngine {
 
     public $engineArgs = [];
+    public $options = [];
 
     abstract public function parse($tplPath, array $data, $type, $onlyCompile = false);
     abstract public function getResult($layoutResult, $screenResult);
@@ -23,6 +24,14 @@ abstract class BaseTemplateEngine {
             basename($tplPath, Context::$appConfig->templateSuffix),
             md5($content),
             TIMESTAMP]). "-->";
+    }
+    
+    public function getOption($key, $defaultValue = NULL) {
+        return isset($this->options[$key]) ? $this->options[$key] : $defaultValue;
+    }
+    
+    public function setOption($key, $value) {
+        $this->options[$key] = $value;
     }
 
     public function getCachePath($tplPath) {

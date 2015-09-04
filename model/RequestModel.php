@@ -40,15 +40,16 @@ Class RequestModel extends Model {
      * 如果有mapList，则按照mapList反向导出数组
      *
      * @param bool $toURL 转换是以URL为准还是以RequestModel参数为准
+     * @param bool $includeNull
      * @return array
      */
-    public function toArray($toURL = false) {
+    public function toArray($toURL = false, $includeNull = false) {
         $map = !$toURL ? array_flip(static::$keyMapList) : static::$keyMapList;
         $result = [];
 
         foreach ($this as $key => $value) {
             $reqKey = isset($map[$key]) ? $map[$key] : $key;
-            if ($value !== NULL) {
+            if ($value !== NULL || $includeNull) {
                 $result[ $reqKey ] = $value;
             }
         }

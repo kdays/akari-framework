@@ -15,5 +15,5 @@ Class ConfigItem {
     const DEFAULT_PAGE_TEMPLATE = 'defaultPageTemplate';
 
     const LANGUAGE_ID = "languageId";
-
+    
 }

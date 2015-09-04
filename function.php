@@ -308,14 +308,14 @@ function cookie($key, $value = NULL, $expire = NULL, $encrypt = FALSE) {
     $cookie->set($key, $value, $expire, $encrypt);
 }
 
-function array_flat($list, $columnKey, $indexKey = NULL, $multi = FALSE) {
+function array_flat($list, $columnKey, $indexKey = NULL, $multi = FALSE, $allowObject = FALSE) {
     $result = [];
 
     foreach ($list as $value) {
-        $colValue = is_array($value) ? $value[$columnKey] : $value->$columnKey;
+        $colValue = (is_array($value) || !$allowObject) ? $value[$columnKey] : $value->$columnKey;
 
         if ($indexKey !== NULL) {
-            $colKey = is_array($value) ? $value[$indexKey] : $value->$indexKey;
+            $colKey = (is_array($value) || !$allowObject) ? $value[$indexKey] : $value->$indexKey;
             if ($multi) {
                 $result[$colKey][] = $colValue;
             } else {
@@ -329,14 +329,14 @@ function array_flat($list, $columnKey, $indexKey = NULL, $multi = FALSE) {
     return $result;
 }
 
-function array_index($list, $indexKey) {
+function array_index($list, $indexKey, $allowObject = false) {
     if (!is_array($list) && !is_object($list)) {
         return [];
     }
 
     $result = [];
     foreach ($list as $v) {
-        $result[is_array($v) ? $v[$indexKey] : $v->$indexKey] = $v;
+        $result[(is_array($v) || !$allowObject) ? $v[$indexKey] : $v->$indexKey] = $v;
     }
 
     return $result;

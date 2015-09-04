@@ -20,7 +20,7 @@ trait ValueHelper {
      * @param $value
      * @return array
      */
-    public static function _bindValue($key, $value = NULL) {
+    protected static function _bindValue($key, $value = NULL) {
         TemplateHelper::assign($key, $value);
     }
 
@@ -32,7 +32,7 @@ trait ValueHelper {
      * @param null $defaultValue
      * @return array|null|object
      */
-    public static function _getValue($key, $subKey = false, $defaultValue = NULL) {
+    protected static function _getValue($key, $subKey = false, $defaultValue = NULL) {
         return DataHelper::get($key, $subKey, $defaultValue);
     }
 
@@ -44,7 +44,7 @@ trait ValueHelper {
      * @param bool $isOverwrite
      * @return bool
      */
-    public static function _setValue($key, $data, $isOverwrite = TRUE) {
+    protected static function _setValue($key, $data, $isOverwrite = TRUE) {
         return DataHelper::set($key, $data, $isOverwrite);
     }
 

@@ -10,9 +10,12 @@ namespace Akari\system\security;
 
 use Akari\Context;
 use Akari\system\http\Request;
+use Akari\utility\helper\ValueHelper;
 
 Class Security {
-
+	
+	use ValueHelper;
+	
     /**
      * 获得CSRF的token
      *
@@ -20,14 +23,17 @@ Class Security {
      * @return string
      */
 	public static function getCSRFToken($key = FALSE){
-		if(!$key && defined("CSRF_KEY"))	$key = CSRF_KEY;
+		$request = Request::getInstance();
+		if (!$key) {
+			$key = self::_getValue(
+				"Security:CSRF", FALSE, $request->getUserIP()
+			);
+		}
 
-		$req = Request::getInstance();
 		$str = implode("_", [
             Context::$appConfig->appName,
 			$key,
-			$req->getUserAgent(),
-			$req->getUserIP()
+			$request->getUserAgent()
 		]);
 
 		return substr(md5($str) ,7, 9);

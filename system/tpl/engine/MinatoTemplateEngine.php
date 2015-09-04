@@ -13,8 +13,10 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
     public function parse($tplPath, array $data, $type, $onlyCompile = false) {
         $this->engineArgs = $data;
         $cachePath = $this->getCachePath($tplPath);
+        
+        $isAlwaysCompile = $this->getOption('alwaysCompile', false);
 
-        if (filemtime($tplPath) > filemtime($cachePath) || !file_exists($cachePath)) {
+        if (filemtime($tplPath) > filemtime($cachePath) || !file_exists($cachePath) || $isAlwaysCompile) {
             $template = file_get_contents($tplPath);
 
             $const_regexp = "([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";
