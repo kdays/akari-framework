@@ -50,36 +50,40 @@ Class FrameworkExceptionHandler {
             // 没有找到URI
             case 'Akari\system\router\NotFoundURI':
                 $response->setStatusCode(HttpCode::NOT_FOUND);
-                if (file_exists($config->notFoundTemplate)) {
-                    return $this->_genTplResult([], $config->notFoundTemplate);
+
+                $msg = $ex->getMessage();
+                if ($ex->getPrevious() !== NULL) {
+                    $msg = $ex->getPrevious()->getMessage();
+                }
+                
+                $message = [
+                    'msg' => $msg,
+                    "url" => Context::$uri,
+                    "index" => Context::$appConfig->appBaseURL
+                ];
+                
+                if ($config->notFoundTemplate != "") {
+                    return $this->_genTplResult($message, NULL, $config->notFoundTemplate);
                 } else {
                     // 处理$ex
-                    if ($ex->getPrevious() !== NULL) {
-                        $msg = $ex->getPrevious()->getMessage();
-                    } else {
-                        $msg = $ex->getMessage();
-                    }
-
                     return $this->_genHTMLResult(
-                        $view(404, [
-                            'msg' => $msg,
-                            "url" => Context::$uri,
-                            "index" => Context::$appConfig->appBaseURL
-                        ])
+                        $view(404, $message)
                     );
                 }
 
             // 系统的fatal
             case 'Akari\system\exception\FatalException':
                 $response->setStatusCode(HttpCode::INTERNAL_SERVER_ERROR);
-                if (file_exists($config->serverErrorTemplate)) {
-                    return $this->_genTplResult([], $config->serverErrorTemplate);
+                $message = [
+                    "message" => $ex->getMessage(),
+                    "file" => basename($ex->getFile()).":".$ex->getLine()
+                ];
+                 
+                if ($config->serverErrorTemplate != "") {
+                    return $this->_genTplResult($message, NULL, $config->serverErrorTemplate);
                 } else {
                     return $this->_genHTMLResult(
-                        $view(500, [
-                            "message" => $ex->getMessage(),
-                            "file" => basename($ex->getFile()).":".$ex->getLine()
-                        ])
+                        $view(500, $message)
                     );
                 }
         }
