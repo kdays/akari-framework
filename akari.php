@@ -284,24 +284,20 @@ Class akari {
                     $realResult = new Result(Result::TYPE_HTML, $realResult, NULL);
                 }
             }
-
+            
             $result = Trigger::handle('applicationEnd', $realResult);
         }
 
         // 下面是结果 如果有result 直接处理result
         $processor = Processor::getInstance();
         Benchmark::logParams('app.time', ['time' => Benchmark::getTimerDiff('app.start')]);
-
+        
         if (isset($result)) {
             $processor->processResult($result);
-        } else {
-            if (isset($realResult)) {
-                // 如果不是result 则会调用设置nonResultCallback来处理result 如果没有设置则按照HTML返回
-                $processor->processResult($realResult);
-            }
+        } elseif (isset($realResult)) {
+            // 如果不是result 则会调用设置nonResultCallback来处理result 如果没有设置则按照HTML返回
+            $processor->processResult($realResult);
         }
-
-        return $this;
     }
 
     public function getMode() {

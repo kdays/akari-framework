@@ -77,7 +77,8 @@ Class Processor {
             TemplateHelper::assign($result->data, NULL);
         }
 
-        echo $h->getResult(NULL);
+        $screenResult = $h->getResult(NULL);
+        echo $screenResult;
     }
 
     public function processHTML(Result $result) {
@@ -163,7 +164,11 @@ Class Processor {
         $resp->setContentType($result->contentType);
         $resp->doOutput();
 
-        $this->$method($result);
+        if (method_exists($this, $method)) {
+            $this->$method($result);
+        } else {
+            die("Result Processor Execute Failed");
+        }
     }
 
 }

@@ -91,9 +91,10 @@ class TemplateHelper {
         if ($screen) {
             $screen = $this->engine->parse($screen, $data, self::TYPE_SCREEN);
         }
-
-
-        return $this->engine->getResult($layout, $screen);
+        
+        $result = $this->engine->getResult($layout, $screen);
+        
+        return $result;
     }
 }
 

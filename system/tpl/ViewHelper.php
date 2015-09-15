@@ -28,12 +28,18 @@ class ViewHelper {
 
     protected static function getScreenName() {
         $screenName = str_replace('.php', '', trim(Context::$appEntryName));
-
-        if (Context::$appEntryMethod !== NULL) {
-            $screenName = strtolower(substr($screenName, 0, strlen($screenName) - strlen('Action')));
-            $screenName .= DIRECTORY_SEPARATOR. Context::$appEntryMethod;
+        if (substr($screenName, -6) == 'Action') {
+            $screenName = substr($screenName, 0, strlen($screenName) - 6);
         }
-
+        $contMethod = Context::$appEntryMethod;
+        
+        if ($contMethod !== NULL) {
+            if (substr($contMethod, -6) == 'Action') {
+                $contMethod = substr($contMethod, 0, strlen($contMethod) - 6);
+            }
+            $screenName .= DIRECTORY_SEPARATOR. $contMethod;
+        }
+        
         return $screenName;
     }
 
@@ -41,10 +47,9 @@ class ViewHelper {
         $screenName = self::getScreenName();
         $screenPath = self::$screen;
         $suffix = Context::$appConfig->templateSuffix;
-
+        
         if ($screenPath == NULL) {
             $screenPath = Dispatcher::getInstance()->findWay($screenName, 'template/view/', $suffix);
-
             $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'], '', $screenPath);
 
             if ($screenPath == '') {

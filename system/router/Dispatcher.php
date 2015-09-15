@@ -169,7 +169,7 @@ Class Dispatcher{
 
     protected function doAction($cls, $method) {
         if (empty($method)) {
-            $method = "index";
+            $method = "indexAction";
         }
 
         if ($method[0] == '_') {
@@ -177,20 +177,17 @@ Class Dispatcher{
         }
         $clsObj = new $cls();
 
-        if (!method_exists($clsObj, $method)) {
-            if (method_exists($clsObj, $method. "Action")) {
-                $method = $method. "Action";
-            } elseif (method_exists($clsObj, '_handle')) {
-                $method = '_handle';
-            } else {
-                throw new NotFoundURI($method, $cls);
-            }
+        if (method_exists($clsObj, $method. "Action")) {
+            $method = $method. "Action";
+        } elseif (method_exists($clsObj, '_handle')) {
+            $method = '_handle';
+        } else {
+            throw new NotFoundURI($method, $cls);
         }
 
         if (method_exists($clsObj, '_pre')) {
             $clsObj->_pre();
         }
-
         Context::$appEntryMethod = $method;
 
         /*

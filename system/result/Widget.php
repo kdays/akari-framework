@@ -8,6 +8,7 @@
 
 namespace Akari\system\result;
 
+use Akari\system\http\Request;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
@@ -15,6 +16,13 @@ use Akari\utility\helper\ValueHelper;
 class Widget {
 
     use ResultHelper, ValueHelper, Logging;
+    
+    /** @var Request $request */
+    protected $request;
+    
+    public function __construct() {
+        $this->request = Request::getInstance();
+    }
 
     /**
      * @param null $userData
