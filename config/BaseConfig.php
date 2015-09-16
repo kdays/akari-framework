@@ -13,7 +13,7 @@ use Akari\exception\ExceptionProcessor;
 
 Class BaseConfig {
 
-    public $appName;
+    public $appName = "Application";
     public $appBaseURL;
     public $defaultURI = 'index';
 
@@ -22,16 +22,6 @@ Class BaseConfig {
 
     // 如果没有result时的callback
     public $nonResultCallback = NULL;
-
-    public $logs = [
-        [
-            'level' => AKARI_LOG_LEVEL_PRODUCTION,
-            'appender' => 'Akari\system\logger\handler\FileLogger',
-            'params' => [
-                'filename' => 'runtime/log/all.log'
-            ]
-        ]
-    ];
 
     public $cache = [
         'default' => [
@@ -96,6 +86,8 @@ Class BaseConfig {
     public function getDBConfig($name = "default"){
         if(!is_array(current($this->database)))	return $this->database;
         if($name == "default")	return current($this->database);
+        if (!isset($this->database[$name])) throw new \Exception("not found DB config: ". $name);
+        
         return $this->database[$name];
     }
 

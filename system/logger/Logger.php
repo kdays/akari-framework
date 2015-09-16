@@ -2,71 +2,34 @@
 /**
  * Created by PhpStorm.
  * User: kdays
- * Date: 15/7/1
- * Time: 下午11:26
+ * Date: 15/9/16
+ * Time: 下午9:27
  */
 
 namespace Akari\system\logger;
 
 
-use Akari\Context;
+use Akari\system\ioc\DI;
 
 class Logger {
+    
+    public static $levelStrs = [
+        AKARI_LOG_LEVEL_DEBUG => "debug",
+        AKARI_LOG_LEVEL_INFO => "info",
+        AKARI_LOG_LEVEL_ERROR => "error",
+        AKARI_LOG_LEVEL_WARN => "warning",
+        AKARI_LOG_LEVEL_FATAL => "emergency"
+    ];
 
-    public static function log($msg, $level = AKARI_LOG_LEVEL_DEBUG, $strLevel = FALSE){
-        $config = Context::$appConfig;
-        $logs = array();
-        $strLevels = Array(
-            AKARI_LOG_LEVEL_DEBUG => "DEBUG",
-            AKARI_LOG_LEVEL_INFO => "INFO",
-            AKARI_LOG_LEVEL_WARN => "WARNING",
-            AKARI_LOG_LEVEL_ERROR => "ERROR",
-            AKARI_LOG_LEVEL_FATAL => "FATAL"
-        );
-
-        foreach ($config->logs as $idx => $log) {
-            if(array_key_exists("enabled", $log)){
-                if(!$log['enabled']) {
-                    continue;
-                }
-            }
-
-            if(array_key_exists("url", $log)){
-                if(!preg_match($log['url'], Context::$uri))	{
-                    continue;
-                }
-            }
-
-            if (array_key_exists("action", $log)) {
-                if (!in_array($log['action'], Context::$appSpecAction)) {
-                    continue;
-                }
-            }
-
-            $logs[] = $log;
+    public static function log($message, $level = AKARI_LOG_LEVEL_INFO) {
+        /** @var \Akari\system\logger\handler\ILoggerHandler $logger */
+        $logger = DI::getDefault()->getShared('logger');
+        
+        if ($logger) {
+            $logger->append(self::_dumpObj($message), $level);
         }
-
-        if(!$strLevel) {
-            $strLevel = $strLevels[$level];
-        }
-
-        $toLower = [
-            'DEBUG' => 'DBG',
-            'INFO' => 'INF',
-            'WARNING' => 'WRN',
-            'ERROR' => 'ERR',
-            'FATAL' => 'FAT'
-        ];
-
-        foreach($logs as $log){
-            $logLevel = $log['level'];
-            if($level & $logLevel){
-                $appender = $log['appender']::getInstance($log['params']);
-                $appender->append(
-                    '[' . $toLower[$strLevel] . '] ' .
-                    self::_dumpObj($msg), $strLevel);
-            }
-        }
+        
+        return $logger;
     }
 
     /**
@@ -83,5 +46,6 @@ class Logger {
             return $obj;
         }
     }
+
 
 }

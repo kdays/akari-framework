@@ -310,6 +310,11 @@ Class akari {
             if (isset($lock[0])) {
                 $mode = ucfirst(basename($lock[0], ".lock"));
             }
+            
+            $cfgMode = get_cfg_var("akari.MODE");
+            if (!empty($cfgMode)) {
+                $mode = ucfirst($cfgMode);
+            }
         }
 
         return $mode;
