@@ -15,7 +15,7 @@ Class BaseConfig {
 
     public $appName = "Application";
     public $appBaseURL;
-    public $defaultURI = 'index';
+    public $defaultURI = 'index/index';
 
     public $notFoundTemplate = "";
     public $serverErrorTemplate = "";

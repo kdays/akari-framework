@@ -114,6 +114,9 @@ Class Dispatcher{
         $parts = explode("/", $uri);
         $method = array_pop($parts);
         $class = ucfirst(array_pop($parts)).'Action';
+        
+        //避免爆炸
+        if ($class == 'Action') $class = 'IndexAction';
 
         $cls = Context::$appBaseNS. NAMESPACE_SEPARATOR. 'action'. NAMESPACE_SEPARATOR. implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
         $isExistCls = False;
@@ -192,7 +195,7 @@ Class Dispatcher{
 
         /*
             如果说 这个path是一个class文件 Result需要调用对应方法执行
-            为何不允许在Class上用反射绑定类关系? 复杂用RequestModel  获得用GP或者request
+            为何不允许在Class上用反射绑定类关系? 复杂用RequestModel  获得用GP或者$this->request
             避免程序偷懒导致变量值无法正确的过滤
         */
         $result = $clsObj->$method();
