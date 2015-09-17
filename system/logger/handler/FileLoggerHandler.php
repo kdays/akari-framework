@@ -15,7 +15,7 @@ class FileLoggerHandler implements ILoggerHandler{
     
     protected $handler;
     protected $opts;
-    protected $level;
+    protected $level = AKARI_LOG_LEVEL_PRODUCTION;
 
     public function getHandler() {
         $logPath = $this->opts['path'];

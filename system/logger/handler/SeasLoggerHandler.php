@@ -14,22 +14,20 @@ use \SeasLog;
 class SeasLoggerHandler implements ILoggerHandler{
     
     protected $levels = [
-        SEASLOG_DEBUG => AKARI_LOG_LEVEL_DEBUG,
-        SEASLOG_INFO => AKARI_LOG_LEVEL_INFO,
-        SEASLOG_NOTICE => AKARI_LOG_LEVEL_INFO,
-        SEASLOG_WARNING => AKARI_LOG_LEVEL_WARN,
-        SEASLOG_ERROR => AKARI_LOG_LEVEL_ERROR,
-        SEASLOG_CRITICAL => AKARI_LOG_LEVEL_ERROR,
-        SEASLOG_ALERT => AKARI_LOG_LEVEL_FATAL,
-        SEASLOG_EMERGENCY => AKARI_LOG_LEVEL_FATAL
+        AKARI_LOG_LEVEL_DEBUG => SEASLOG_DEBUG,
+        AKARI_LOG_LEVEL_INFO => SEASLOG_INFO,
+        AKARI_LOG_LEVEL_WARN => SEASLOG_WARNING,
+        AKARI_LOG_LEVEL_ERROR => SEASLOG_ERROR,
+        AKARI_LOG_LEVEL_FATAL => SEASLOG_EMERGENCY
     ];
-    protected $maxLogLevel;
+    protected $maxLogLevel = AKARI_LOG_LEVEL_ALL;
     
     public function append($message, $level) {
         if (!($level & $this->maxLogLevel)) {
             return NULL;
         }
-        return call_user_func_array(['\SeasLog', $this->levels[$level]], [$message]);
+        
+        return SeasLog::log($this->levels[$level], $message);
     }
     
     public function setOption($key, $value) {
@@ -41,7 +39,7 @@ class SeasLoggerHandler implements ILoggerHandler{
     }
     
     public function setLevel($level) {
-        
+        $this->maxLogLevel = $level;
     }
 
 }
