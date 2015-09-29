@@ -17,11 +17,12 @@ use Akari\system\router\Dispatcher;
 
 trait ResultHelper {
 
-    public static function _outputFileDownload($fileContent, $fileName) {
+    public static function _setFileToSend($fileContent, $fileName) {
         return new Result(Result::TYPE_CUSTOM, $fileContent, ['name' => $fileName], Result::CONTENT_BINARY, function($result) {
             $resp = Response::getInstance();
-            $resp->setHeader('Accept-Ranges', 'bytes');
-            $resp->setHeader('Content-Disposition', "attachment; filename=".$result->meta['name']);
+            $resp
+                ->setHeader('Accept-Ranges', 'bytes')
+                ->setHeader('Content-Disposition', "attachment; filename=".$result->meta['name']);
 
             return TRUE;
         });

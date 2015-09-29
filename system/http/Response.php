@@ -26,11 +26,15 @@ Class Response {
 
     public function setStatusCode($code = HttpCode::OK) {
         $this->responseCode = $code;
+        
+        return $this;
     }
 
     public function setNoCache() {
         $this->setHeader('Pragma', 'no-cache');
         $this->setHeader('Cache-Control', 'no-cache');
+        
+        return $this;
     }
 
     public function setCacheTime($time) {
@@ -39,14 +43,20 @@ Class Response {
         }
 
         $this->setHeader("Cache-Control", "max-age=". $time);
+        
+        return $this;
     }
 
     public function setHeader($key, $value) {
         $this->headers[$key] = $value;
+        
+        return $this;
     }
 
     public function setContentType($contentType = Result::CONTENT_HTML) {
         $this->setHeader('Content-Type', $contentType);
+        
+        return $this;
     }
 
     public function doOutput() {
