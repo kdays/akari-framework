@@ -60,8 +60,8 @@ class FileUpload {
     }
 
     public function isImage() {
-        $imageExts = ['png', 'jpg', 'gif', 'jpeg'];
-        if (!in_array($this->getExtension(), $imageExts)) {
+        $allowExt = ['png', 'jpg', 'gif', 'jpeg'];
+        if (!in_array($this->getExtension(), $allowExt)) {
             return False;
         }
 

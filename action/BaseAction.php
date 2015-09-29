@@ -11,15 +11,16 @@ namespace Akari\action;
 use Akari\system\http\HttpHelper;
 use Akari\system\http\Request;
 use Akari\system\http\Response;
+use Akari\system\ioc\DIHelper;
 use Akari\utility\helper\ExceptionSetter;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\TemplateViewHelper;
 use Akari\utility\helper\ValueHelper;
 
-Class BaseAction {
+abstract class BaseAction {
 
-    use Logging, ValueHelper, ResultHelper, ExceptionSetter, HttpHelper, TemplateViewHelper;
+    use Logging, ValueHelper, ResultHelper, ExceptionSetter, HttpHelper, TemplateViewHelper, DIHelper;
 
     /**
      * @var Request

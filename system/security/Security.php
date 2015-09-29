@@ -14,21 +14,18 @@ use Akari\utility\helper\ValueHelper;
 
 Class Security {
 	
+    const KEY_TOKEN = "Security:CSRF";
+    
 	use ValueHelper;
 	
     /**
      * 获得CSRF的token
      *
-     * @param bool|string $key 设置FALSE时使用CSRF_KEY的值
      * @return string
      */
-	public static function getCSRFToken($key = FALSE){
+	public static function getCSRFToken(){
 		$request = Request::getInstance();
-		if (!$key) {
-			$key = self::_getValue(
-				"Security:CSRF", FALSE, $request->getUserIP()
-			);
-		}
+		$key = self::_getValue(self::KEY_TOKEN, false, $request->getUserIP());
 
 		$str = implode("_", [
             Context::$appConfig->appName,
@@ -42,19 +39,34 @@ Class Security {
     /**
      * 检查CSRF的token是否正常
      *
-     * @param bool|string $key csrf-key，false时自动获得
-     * @param string $token token，为空时自动获得
      * @throws CSRFVerifyFailed
      */
-	public static function verifyCSRFToken($key = FALSE, $token = ''){
+	public static function verifyCSRFToken(){
 		$tokenName = Context::$appConfig->csrfTokenName;
-		if($token == '')	$token = $_REQUEST[$tokenName];
-		if(!$key && defined("CSRF_KEY"))	$key = CSRF_KEY;
+		$token = NULL;
+		
+		if (!empty($_COOKIE[$tokenName])) {
+			$token = $_COOKIE[$tokenName];
+		} elseif (!empty($_REQUEST[$tokenName])) {
+			$token = $_REQUEST[$tokenName];
+		}
 
-		if($token != self::getCSRFToken($key)){
+		if($token != self::getCSRFToken()){
 			throw new CSRFVerifyFailed();
 		}
 	}
+	
+	public static function autoVerifyCSRFToken() {
+		if (!empty(Context::$appConfig->csrfTokenName) && !CLI_MODE) {
+			$tokenValue = self::getCSRFToken();
+			if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+				setCookie(Context::$appConfig->csrfTokenName, $tokenValue);
+			} else {
+				self::verifyCSRFToken();
+			}
+		}
+	}
+	
 	public static function encrypt($text, $mode = 'default') {
 		$cipher = Context::$appConfig->encrypt[ $mode ]['cipher'];
         $instance = $cipher::getInstance($mode);

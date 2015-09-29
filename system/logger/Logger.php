@@ -8,10 +8,11 @@
 
 namespace Akari\system\logger;
 
-
-use Akari\system\ioc\DI;
+use Akari\system\ioc\DIHelper;
 
 class Logger {
+    
+    use DIHelper;
     
     public static $levelStrs = [
         AKARI_LOG_LEVEL_DEBUG => "debug",
@@ -23,7 +24,7 @@ class Logger {
 
     public static function log($message, $level = AKARI_LOG_LEVEL_INFO) {
         /** @var \Akari\system\logger\handler\ILoggerHandler $logger */
-        $logger = DI::getDefault()->getShared('logger');
+        $logger = self::_getDI()->getShared('logger');
         
         if ($logger) {
             $logger->append(self::_dumpObj($message), $level);

@@ -22,3 +22,7 @@ $di->setShared('logger', function() {
     
     return $logger;
 });
+
+$di->setShared('cookieEncrypt', function() {
+    return new \Akari\system\security\CookieEncryptHelper();
+});

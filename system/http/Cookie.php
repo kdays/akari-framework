@@ -9,9 +9,12 @@
 namespace Akari\system\http;
 
 use Akari\Context;
-use Akari\system\security\Security;
+use Akari\system\ioc\DIHelper;
+use Akari\system\security\cipher\Cipher;
 
 Class Cookie {
+    
+    use DIHelper;
 
     const FLAG_ENCRYPT = "|ENC";
     const FLAG_ARRAY = "|A";
@@ -24,7 +27,7 @@ Class Cookie {
         return self::$c;
     }
 
-    public function set($name, $value, $expire = NULL, $encrypt = FALSE, $opts = []) {
+    public function set($name, $value, $expire = NULL, $useEncrypt = FALSE, $opts = []) {
         $config = Context::$appConfig;
 
         $expire = isset($expire) ? $expire : $config->cookieTime;
@@ -37,8 +40,12 @@ Class Cookie {
         if(is_array($value)){
             $value = http_build_query($value). self::FLAG_ARRAY;
         }
-
-        if ($encrypt) $value = Security::encrypt($value, 'cookie'). self::FLAG_ENCRYPT;
+        
+        if ($useEncrypt) {
+            /** @var Cipher $cipher */
+            $cipher = $this->_getDI()->getShared("cookieEncrypt");
+            $value = $cipher->encrypt($value);
+        } 
         $path = array_key_exists("path", $opts) ? $opts['path'] : $config->cookiePath;
         $domain  = array_key_exists("domain", $opts) ? $opts['domain'] : $config->cookieDomain;
 
@@ -60,11 +67,10 @@ Class Cookie {
 
         if(!array_key_exists($name, $_COOKIE)) return NULL;
         $cookie = $_COOKIE[$name];
-
-        $len = strlen(self::FLAG_ENCRYPT);
-        if (substr($cookie, -$len, $len) == self::FLAG_ENCRYPT) {
-            $cookie = Security::decrypt(substr($cookie, 0, -$len), 'cookie');
-        }
+        
+        /** @var Cipher $encrypt */
+        $encrypt = $this->_getDI()->getShared("cookieEncrypt");
+        $cookie = $encrypt->decrypt($cookie);
 
         if(substr($cookie, -2, 2) == self::FLAG_ARRAY){
             $result = [];

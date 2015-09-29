@@ -15,6 +15,7 @@ use Akari\system\result\Result;
 use Akari\system\router\Dispatcher;
 use Akari\system\router\Router;
 use Akari\system\router\URL;
+use Akari\system\security\Security;
 use Akari\utility\Benchmark;
 use Akari\utility\helper\Logging;
 
@@ -270,6 +271,8 @@ Class akari {
 
         // 如果没有result 说明触发都表示没啥可吐槽的
         if (!isset($result)) {
+            Security::autoVerifyCSRFToken(); // Token检查
+            
             $dispatcher = Dispatcher::getInstance();
             $realResult = CLI_MODE ?
                 $dispatcher->dispatchTask($uri) :

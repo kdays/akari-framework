@@ -12,8 +12,8 @@ use Akari\system\logger\Logger;
 
 trait Logging{
 
-    protected static function _log($msg, $level = AKARI_LOG_LEVEL_DEBUG, $strLevel = FALSE){
-        Logger::log($msg, $level, $strLevel);
+    protected static function _log($msg, $level = AKARI_LOG_LEVEL_DEBUG){
+        Logger::log($msg, $level);
     }
 
     protected static function _logDebug($msg){

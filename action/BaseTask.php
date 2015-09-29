@@ -11,13 +11,14 @@ namespace Akari\action;
 use Akari\system\console\ConsoleInput;
 use Akari\system\console\ConsoleOutput;
 use Akari\system\console\Request;
+use Akari\system\ioc\DIHelper;
 use Akari\utility\helper\ExceptionSetter;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ValueHelper;
 
 Class BaseTask {
 
-    use Logging, ValueHelper, ExceptionSetter;
+    use Logging, ValueHelper, ExceptionSetter, DIHelper;
 
     protected $input;
 

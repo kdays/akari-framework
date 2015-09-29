@@ -255,7 +255,6 @@ function import($path, $once = TRUE, $params = []){
     extract($params);
 
     if(!file_exists($path)){
-        Logging::_logErr("Import not found: $path");
         throw new Exception("$path not load");
     }else{
         if(!in_array($path, $loadedPath) || !$once){
