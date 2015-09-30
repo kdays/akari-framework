@@ -28,14 +28,15 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
                 return $that->parseCommand($matches[1]);
             }, $template);
 
-            $template = preg_replace_callback('/\{\%(.*?)\}/iu', function($matches) {
-                return "<?=L('$matches[1]')?>";
-            }, $template);
-
             $template = preg_replace_callback('/\{'.$const_regexp.'\}/s', function($matches) {
                 return '<?='.$matches[1].'?>';
             }, $template);
-
+            
+            $template = preg_replace_callback('/\{\%(.*?)\}/iu', function($matches) {
+                $matches[1] = str_replace("$", "_#_", $matches[1]);
+                return "<?=L(\"$matches[1]\")?>";
+            }, $template);
+            
             $template = preg_replace_callback("/$var_regexp/s", function($matches) use($that) {
                 return $that->addQuote('<?='.$matches[1].'?>');
             }, $template);
