@@ -146,10 +146,10 @@
 </div>
 
 <script>
-    var isClose = false;
+    var Bh_isClose = false;
     function closeBenchmark() {
-        isClose = !isClose;
-        document.getElementById("benchmarkResult").className = isClose ? 'close' : 'open';
+        Bh_isClose = !Bh_isClose;
+        document.getElementById("benchmarkResult").className = Bh_isClose ? 'close' : 'open';
     }
 </script>
-<!-- 结束，如果需要关闭请修改const的DISPLAY_BENCHMARK为FALSE -->
+<!-- 结束，如果需要关闭请修改DISPLAY_BENCHMARK为FALSE -->

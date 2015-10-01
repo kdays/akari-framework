@@ -7,6 +7,7 @@
  */
 namespace Akari\system\tpl\engine;
 use Akari\system\tpl\TemplateCommandInvalid;
+use Akari\utility\FileHelper;
 
 class MinatoTemplateEngine extends BaseTemplateEngine{
 
@@ -56,7 +57,7 @@ use Akari\Context;
 TAG;
 
             $template = $tempHeader. $template;
-            writeover($cachePath, $template);
+            FileHelper::write($cachePath, $template);
         }
 
         return $onlyCompile ? $cachePath : self::_getView($cachePath, $data);
