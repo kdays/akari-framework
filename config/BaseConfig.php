@@ -9,7 +9,7 @@
 namespace Akari\config;
 
 use Akari\Context;
-use Akari\exception\ExceptionProcessor;
+use Akari\system AS Sys;
 
 Class BaseConfig {
 
@@ -25,20 +25,20 @@ Class BaseConfig {
 
     public $cache = [
         'default' => [
-            'handler' => 'Akari\system\cache\handler\FileCacheHandler',
+            'handler' => Sys\cache\handler\FileCacheHandler::class,
             'baseDir' => '/runtime/cache/',
             'indexPath' => 'index.json'
         ],
 
         'redis' => [
-            'handler' => 'Akari\system\cache\handler\RedisCacheHandler',
+            'handler' => Sys\cache\handler\RedisCacheHandler::class,
             'host' => '127.0.0.1'
         ]
     ];
 
     public $database = [];
 
-    public $defaultExceptionHandler = 'Akari\system\exception\DefaultExceptionHandler';
+    public $defaultExceptionHandler = Sys\exception\DefaultExceptionHandler::class;
 
     public $uriMode = AKARI_URI_AUTO;
     public $uriSuffix = '';
@@ -48,12 +48,12 @@ Class BaseConfig {
 
     public $encrypt = [
         'default' => [
-            'cipher' => 'Akari\system\security\cipher\AESCipher',
+            'cipher' => Sys\security\cipher\AESCipher::class,
             'key' => 'Hello, Akari Framework'
         ],
 
         'cookie' => [
-            'cipher' => 'Akari\system\security\cipher\AESCipher',
+            'cipher' => Sys\security\cipher\AESCipher::class,
             'key' => 'Answer is 42.'
         ]
     ];

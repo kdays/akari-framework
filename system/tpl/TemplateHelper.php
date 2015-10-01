@@ -45,8 +45,8 @@ class TemplateHelper {
         $suffix = Context::$appConfig->templateSuffix;
         $baseDirs = [];
 
-        if (C(ConfigItem::BASE_TPL_DIR)) {
-            $baseDirs[] = Context::$appEntryPath. C(ConfigItem::BASE_TPL_DIR). DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
+        if (Context::env(ConfigItem::BASE_TPL_DIR)) {
+            $baseDirs[] = Context::$appEntryPath. Context::env(ConfigItem::BASE_TPL_DIR). DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
         }
 
         $baseDirs[] = Context::$appEntryPath. "template". DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;

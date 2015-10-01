@@ -10,6 +10,7 @@ namespace Akari\system\http;
 
 
 use Akari\Context;
+use Akari\utility\FileHelper;
 use Akari\utility\UploadHelper;
 
 class FileUpload {
@@ -55,7 +56,7 @@ class FileUpload {
         return UploadHelper::formatFileSize($this->getFileSize());
     }
 
-    public function getErrorNo() {
+    public function getError() {
         return $this->upload['error'];
     }
 
@@ -74,6 +75,6 @@ class FileUpload {
 
     public function save($target) {
         $savePath = Context::$appBasePath. Context::$appConfig->uploadDir.DIRECTORY_SEPARATOR. $target;
-        return movefile($savePath, $this->getTempPath());
+        return FileHelper::moveFile($savePath, $this->getTempPath());
     }
 }

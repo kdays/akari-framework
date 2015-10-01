@@ -13,6 +13,7 @@ use Akari\Context;
 use Akari\system\cache\Cache;
 use Akari\system\cache\CacheBenchmark;
 use Akari\system\event\Listener;
+use Akari\utility\FileHelper;
 
 class FileCacheHandler implements ICacheHandler{
 
@@ -35,10 +36,10 @@ class FileCacheHandler implements ICacheHandler{
 
         // 读取fileIndex
         if (!file_exists($indexPath)) {
-            file_put_contents($indexPath, json_encode([]));
+            FileHelper::write($indexPath, json_encode([]));
         }
 
-        $this->fileIndex = json_decode(file_get_contents($indexPath), True);
+        $this->fileIndex = json_decode(FileHelper::read($indexPath), True);
         $this->removeExpired();
     }
 
@@ -53,7 +54,7 @@ class FileCacheHandler implements ICacheHandler{
     }
 
     private function _updateIndex(){
-        file_put_contents($this->indexPath, json_encode($this->fileIndex));
+        FileHelper::write($this->indexPath, json_encode($this->fileIndex));
     }
 
     private function _getFileName($key) {
@@ -82,7 +83,7 @@ class FileCacheHandler implements ICacheHandler{
             'expire' => $timeout > 0 ? (TIMESTAMP + $timeout) : $timeout
         ];
 
-        file_put_contents($this->baseDir. $index, serialize($value));
+        FileHelper::write($this->baseDir. $index, serialize($value));
         if ($doUpdateIndex) $this->_updateIndex();
     }
 

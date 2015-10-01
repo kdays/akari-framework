@@ -21,8 +21,7 @@ Class I18n {
             Context::$appEntryPath, 'language', ''
         ]);
 
-        $languageId = FALSE;
-        if (C(ConfigItem::LANGUAGE_ID)) $languageId = C(ConfigItem::LANGUAGE_ID);
+        $languageId = Context::env(ConfigItem::LANGUAGE_ID, NULL, FALSE);
 
         if ($languageId) {
             if (file_exists($baseDir. $languageId. "/$name.php")) {

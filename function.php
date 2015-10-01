@@ -7,135 +7,8 @@
  */
 
 use Akari\Context;
-use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\I18n;
-
-/**
- * 读取文件
- *
- * @param string $filename 文件路径
- * @param string $method 读取方式
- * @return string
- */
-function readover($filename, $method = 'rb'){
-    if(function_exists("file_get_contents")){
-        return file_get_contents($filename);
-    }else{
-        $data = '';
-        if ($handle = @fopen($filename,$method)) {
-            flock($handle,LOCK_SH);
-            $data = @fread($handle,filesize($filename));
-            fclose($handle);
-        }
-
-        return $data;
-    }
-}
-
-/**
- * 写入文件
- *
- * @param string $fileName 文件路径
- * @param string $data 数据
- * @param string $method 写入方式
- * @param bool $ifChmod 是否权限进行777设定
- */
-function writeover($fileName, $data, $method = 'rb+', $ifChmod = true){
-    $baseDir = dirname($fileName);
-    createdir($baseDir);
-
-    touch($fileName);
-    $handle = fopen($fileName, $method);
-    flock($handle, LOCK_EX);
-    fwrite($handle, $data);
-    $method == 'rb+' && ftruncate($handle, strlen($data));
-    fclose($handle);
-    $ifChmod && @chmod($fileName, 0777);
-}
-
-/**
- * 创建目录
- *
- * @param string $path 路径
- * @param boolean $index 是否自动创建index.html文件
- */
-function createdir($path, $index = false){
-    if(is_dir($path))	return ;
-    createdir(dirname($path), $index);
-
-    @mkdir($path);
-    @chmod($path,0777);
-    if(!$index){
-        @fclose(@fopen($path.'/index.html','w'));
-        @chmod($path.'/index.html',0777);
-    }
-}
-
-/**
- * 删除目录
- *
- * @param string $path 路径
- * @return boolean
- */
-function deletedir($path){
-    if(!is_dir($path))  return false;
-
-    if(rmdir($path) == false){
-        if(!$dp = opendir($path))   return false;
-
-        while(($fp = readdir($dp)) !== false){
-            if($fp == "." || $fp == "..")   continue;
-            if(is_dir("$path/$fp")){
-                deletedir("$path/$fp");
-            }else{
-                unlink("$path/$fp");
-            }
-        }
-
-        closedir($dp);
-        rmdir($path);
-    }
-}
-
-/**
- * 移动文件
- *
- * @param string $dstfile 目标路径
- * @param string $srcfile 来源路径
- * @return boolean
- */
-function movefile($dstfile, $srcfile){
-    createdir(dirname($dstfile));
-    if (rename($srcfile,$dstfile)) {
-        @chmod($dstfile,0777);
-        return true;
-    } elseif (@copy($srcfile,$dstfile)) {
-        @chmod($dstfile,0777);
-        unlink($srcfile);
-        return true;
-    } elseif (is_readable($srcfile)) {
-        writeover($dstfile,readover($srcfile));
-        if (file_exists($dstfile)) {
-            @chmod($dstfile,0777);
-            unlink($srcfile);
-            return true;
-        }
-    }
-    return false;
-}
-
-
-function C($key, $value = NULL, $defaultValue = NULL) {
-    if ($value === NULL) {
-        $conf = Context::$appConfig->$key;
-
-        if ($conf === NULL) return $defaultValue;
-        return $conf;
-    }
-
-    Context::$appConfig->$key = $value;
-}
 
 /**
  * 检查字符串中是否有某个字符
@@ -155,35 +28,6 @@ function in_string($string,$findme){
         }
     }
     return false;
-}
-
-/**
- * 字符串过滤
- *
- * @param string $mixed 数据
- * @param bool|string $isint 是否为int
- * @param bool|string $istrim 是否进行trim
- * @return mixed
- */
-function Char_cv($mixed,$isint=false,$istrim=false) {
-    if (is_array($mixed)) {
-        foreach ($mixed as $key => $value) {
-            $mixed[$key] = Char_cv($value,$isint,$istrim);
-        }
-    } elseif ($isint) {
-        $mixed = (int)$mixed;
-    } elseif (!is_numeric($mixed) && ($istrim ? $mixed = trim($mixed) : $mixed) && $mixed) {
-        $mixed = str_replace(array("\0","%00","\r"),'',$mixed);
-        $mixed = preg_replace(
-            array('/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]/','/&(?!(#[0-9]+|[a-z]+);)/is'),
-            array('','&amp;'),
-            $mixed
-        );
-        $mixed = str_replace(array("%3C",'<'),'&lt;',$mixed);
-        $mixed = str_replace(array("%3E",'>'),'&gt;',$mixed);
-        $mixed = str_replace(array('"',"'","\t",'  '),array('&quot;','&#39;','	','&nbsp;&nbsp;'),$mixed);
-    }
-    return $mixed;
 }
 
 /**
@@ -213,9 +57,9 @@ function GP($key, $method = 'GP', $defaultValue = NULL){
     }
 
     if ($method != 'P' && isset($_GET[$key])) {
-        return Char_cv($_GET[$key], false, true);
+        return \Akari\utility\TextHelper::filter($_GET[$key]);
     } elseif ($method != 'G' && isset($_POST[$key])) {
-        return Char_cv($_POST[$key], false, true);
+        return \Akari\utility\TextHelper::filter($_POST[$key]);
     }
 
     return $defaultValue;
@@ -278,33 +122,14 @@ function import_exists($path) {
     return !!file_exists($path);
 }
 
-function cache($key, $value = NULL, $expired = -1, $confId = 'default') {
-    $config = Context::$appConfig->cache;
-    !is_numeric($expired) && $expired = strtotime($expired);
-
-    if (empty($config[$confId])) {
-        return NULL;
-    }
-
-    $cache = \Akari\system\cache\Cache::getInstance($confId);
-
-    if ($value === NULL && $expired === FALSE) {
-        return $cache->remove($key);
-    } elseif ($value === NULL) {
-        return $cache->get($key);
-    }
-
-    return $cache->set($key, $value, $expired);
-}
-
-function cookie($key, $value = NULL, $expire = NULL, $encrypt = FALSE) {
+function cookie($key, $value = NULL, $expire = NULL, $useEncrypt = FALSE) {
     $cookie = \Akari\system\http\Cookie::getInstance();
 
     if ($value == NULL) {
         return $cookie->get($key);
     }
 
-    $cookie->set($key, $value, $expire, $encrypt);
+    $cookie->set($key, $value, $expire, $useEncrypt);
 }
 
 function array_flat($list, $columnKey, $indexKey = NULL, $multi = FALSE, $allowObject = FALSE) {
@@ -367,40 +192,6 @@ function json_decode_nice($json, $assoc = TRUE){
     $json = preg_replace('/(,)\s*}$/', '}', $json);
 
     return json_decode($json, $assoc);
-}
-
-function snake_case($in) {
-    static $upperA = 65;
-    static $upperZ = 90;
-    $len = strlen($in);
-    $positions = [];
-    for ($i = 0; $i < $len; $i++) {
-        if (ord($in[$i]) >= $upperA && ord($in[$i]) <= $upperZ) {
-            $positions[] = $i;
-        }
-    }
-    $positions = array_reverse($positions);
-
-    foreach ($positions as $pos) {
-        $in = substr_replace($in, '_' . lcfirst(substr($in, $pos)), $pos);
-    }
-    return $in;
-}
-
-function camel_case($in) {
-    $positions = [];
-    $lastPos = 0;
-    while (($lastPos = strpos($in, '_', $lastPos)) !== false) {
-        $positions[] = $lastPos;
-        $lastPos++;
-    }
-    $positions = array_reverse($positions);
-
-    foreach ($positions as $pos) {
-        $in = substr_replace($in, strtoupper($in[$pos + 1]), $pos, 2);
-    }
-
-    return $in;
 }
 
 function get_date($format, $timestamp = TIMESTAMP) {

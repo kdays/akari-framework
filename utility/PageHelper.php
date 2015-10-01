@@ -2,11 +2,10 @@
 namespace Akari\utility;
 
 use Akari\config\ConfigItem;
+use Akari\Context;
 use Akari\system\ioc\DI;
 use Akari\system\tpl\engine\BaseTemplateEngine;
-use Akari\system\tpl\mod\BaseTemplateMod;
 use Akari\system\tpl\TemplateCommand;
-use Akari\system\tpl\TemplateHelper;
 
 Class PageHelper {
 
@@ -38,7 +37,7 @@ Class PageHelper {
         if(!isset(self::$m[$name])){
             $helper = new self();
             $helper->name = $name;
-            $helper->widgetName = C(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'Pager');
+            $helper->widgetName = Context::env(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'Pager');
 
             self::$m[$name] = $helper;
         }

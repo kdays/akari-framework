@@ -35,7 +35,8 @@ Class Context {
     ];
 
     /**
-     * 当前已载入的
+     * 当前已载入的类列表
+     * 
      * @var array
      */
     public static $classes = [];
@@ -84,22 +85,30 @@ Class Context {
      */
     public static $appExecute;
 
+    /**
+     * 应用唯一行为标示符
+     * 
+     * @var string
+     */
     public static $appSpecAction;
 
     /**
      * 框架执行的入口文件名
+     * 
      * @var string
      */
     public static $appEntryName;
 
     /**
      * 应用调用方法，使用直接调用时为NULL
+     * 
      * @var NULL|string
      */
     public static $appEntryMethod = NULL;
 
     /**
      * 应用配置
+     * 
      * @var \Akari\config\BaseConfig $appConfig
      */
     public static $appConfig;
@@ -109,6 +118,7 @@ Class Context {
      * @var bool
      */
     public static $testing = FALSE;
+    
 
     public static function autoload($cls) {
         $clsPath = false;
@@ -136,6 +146,14 @@ Class Context {
         if(!$clsPath){
             throw new NotFoundClass($cls);
         }
+    }
+
+    public static function env($key, $value = NULL, $defaultValue = NULL) {
+        if ($value === NULL) {
+            return Context::$appConfig->$key ?: $defaultValue;
+        }
+
+        Context::$appConfig->$key = $value;
     }
 }
 spl_autoload_register(Array('Akari\Context', 'autoload'));
@@ -245,7 +263,6 @@ Class akari {
 
     public function run($uri = NULL, $outputBuffer = TRUE) {
         $config = Context::$appConfig;
-
         Benchmark::setTimer('app.start');
 
         $router = Router::getInstance();
@@ -278,7 +295,7 @@ Class akari {
                 $dispatcher->dispatchTask($uri) :
                 $dispatcher->dispatch();
 
-            if (!is_a($realResult, '\Akari\system\result\Result')) {
+            if (!is_a($realResult, \Akari\system\result\Result::class)) {
                 $defaultCallback = $config->nonResultCallback;
 
                 if (is_callable($defaultCallback)) {
