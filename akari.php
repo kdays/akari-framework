@@ -227,7 +227,7 @@ Class akari {
         // 应该是实际执行的Action被赋值
         //Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
-        Header("X-Framework: Akari Framework ". AKARI_BUILD);
+        Header("X-Akari-Version: ". self::getVersion(false));
         include("defaultBoot.php");
         if (file_exists(Context::$appBasePath . "boot.php")) {
             include(Context::$appBasePath . "boot.php");

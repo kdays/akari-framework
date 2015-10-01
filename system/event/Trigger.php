@@ -24,9 +24,13 @@ class Trigger {
         $beforeDispatch = empty($trigger['beforeDispatch']) ? [] : $trigger['beforeDispatch'];
         self::$beforeDispatchEvent = $beforeDispatch;
 
-        $appStart = empty($trigger['applicationStart']) ? [] : $trigger['applicationStart'];
+        $appStart = [];
         if (class_exists($triggerBaseNS. "ApplicationStart")) {
             $appStart[] =  ['/.*/', "ApplicationStart"];
+        }
+        $appStart += $trigger['applicationStart'];
+        if (class_exists($triggerBaseNS. "AfterInit")) {
+            $appStart[] =  ['/.*/', "AfterInit"];
         }
         self::$applicationStartEvent = $appStart;
 
