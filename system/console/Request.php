@@ -10,35 +10,47 @@ namespace Akari\system\console;
 
 Class Request {
 
-    protected static $r;
-    public static function getInstance() {
-        if (!isset(self::$r)) {
-            self::$r = new self();
-        }
-
-        return self::$r;
-    }
-
-    protected function __construct() {
-
-    }
-
     protected $params;
-    public function getParams() {
-        if (!isset($this->params)) {
-            $params = [];
-            if (isset($_SERVER['argv'])) {
-                $params = $_SERVER['argv'];
-                array_shift($params);
-            }
-
-            $this->params = $this->resolve($params);
+    protected $input;
+    
+    protected function __construct() {
+        $params = [];
+        if (isset($_SERVER['argv'])) {
+            $params = $_SERVER['argv'];
+            array_shift($params);
         }
 
-        return $this->params;
+        $this->params = $this->resolve($params);
+        $this->input = new ConsoleInput();
     }
 
-    protected function resolve(array $params) {
+
+    private static $instance = null;
+    public static function getInstance(){
+        if(self::$instance == null){
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
+
+    public function getQuery($key, $defaultValue = NULL) {
+        if (empty($key)) {
+            return $this->params;
+        }
+        
+        return isset($this->params[$key]) ? $this->params[$key] : $defaultValue;
+    }
+    
+    public function input($message) {
+        if (!empty($message) ) {
+            Response::getInstance()->message($message);
+        }
+        return $this->input->read();
+    }
+
+    private function resolve(array $params) {
         $now = [];
         foreach ($params as $param) {
             if (preg_match('/^--(\w+)(=(.*))?$/', $param, $matches)) {

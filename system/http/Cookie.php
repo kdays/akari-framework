@@ -46,6 +46,7 @@ Class Cookie {
             $cipher = $this->_getDI()->getShared("cookieEncrypt");
             $value = $cipher->encrypt($value);
         } 
+        
         $path = array_key_exists("path", $opts) ? $opts['path'] : $config->cookiePath;
         $domain  = array_key_exists("domain", $opts) ? $opts['domain'] : $config->cookieDomain;
 

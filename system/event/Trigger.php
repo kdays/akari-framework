@@ -28,10 +28,15 @@ class Trigger {
         if (class_exists($triggerBaseNS. "ApplicationStart")) {
             $appStart[] =  ['/.*/', "ApplicationStart"];
         }
-        $appStart += $trigger['applicationStart'];
+        
+        if (is_array($trigger['applicationStart'])) {
+            $appStart = array_merge($appStart, $trigger['applicationStart']);
+        }  
+        
         if (class_exists($triggerBaseNS. "AfterInit")) {
             $appStart[] =  ['/.*/', "AfterInit"];
         }
+        
         self::$applicationStartEvent = $appStart;
 
 
