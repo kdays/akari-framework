@@ -314,7 +314,7 @@ Class CUrlResponseObj {
      * @param $target
      */
     public function save($target) {
-        writeover($target, $this->getBody());
+        FileHelper::write($target, $this->getBody());
     }
 
     /**

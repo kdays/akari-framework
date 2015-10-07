@@ -95,7 +95,7 @@ Class UploadHelper{
         $target = Context::$appBasePath.Context::$appConfig->uploadDir."/".$saveDir."/".$newName;
 
 
-        if(!movefile($target, $uploadForm['tmp_name'])){
+        if(!FileHelper::moveFile($target, $uploadForm['tmp_name'])){
             throw new UploadFileCannotAccess();
         }
 
@@ -135,11 +135,11 @@ Class UploadHelper{
                 throw new UploadExtensionError($pathInfo['extension'], $allowExt);
             }
 
-            if (!movefile($savePath, $uploadForm['tmp_name'])) {
+            if (!FileHelper::moveFile($savePath, $uploadForm['tmp_name'])) {
                 throw new UploadFileCannotAccess();
             }
         } else {
-            writeover($savePath, $uploadForm);
+            FileHelper::write($savePath, $uploadForm);
         }
 
         return $savePath;
