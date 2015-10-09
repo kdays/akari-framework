@@ -56,6 +56,8 @@ class MemcachedCacheHandler implements ICacheHandler {
      * @return boolean
      */
     public function set($key, $value, $timeout = NULL) {
+        $value = serialize($value);
+        
         $this->handler->set($key, $value, $timeout);
         if ($this->handler->getResultCode() == \Memcached::RES_SUCCESS) {
             return True;

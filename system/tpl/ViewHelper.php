@@ -28,9 +28,18 @@ class ViewHelper {
 
     protected static function getScreenName() {
         $screenName = str_replace('.php', '', trim(Context::$appEntryName));
-        if (substr($screenName, -6) == 'Action') {
-            $screenName = substr($screenName, 0, strlen($screenName) - 6);
+        // Action名称应该保证被处理..
+        $screenName = explode(DIRECTORY_SEPARATOR, $screenName);
+        foreach ($screenName as &$name) {
+            if (substr($name, -6) == 'Action') {
+                $name[0] = strtolower($name[0]);
+                $name = substr($name, 0, strlen($name) - 6);
+            } else {
+                $name = strtolower($name);
+            }
         }
+        
+        $screenName = implode(DIRECTORY_SEPARATOR, $screenName);
         $contMethod = Context::$appEntryMethod;
         
         if ($contMethod !== NULL) {

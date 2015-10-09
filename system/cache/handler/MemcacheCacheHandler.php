@@ -42,11 +42,13 @@ class MemcacheCacheHandler implements ICacheHandler{
             return $defaultValue;
         }
 
-        return $value;
+        return unserialize($value);
     }
 
     public function set($key, $value, $timeout = NULL) {
         Listener::fire(CacheBenchmark::ACTION_CREATE, ['key' => $key]);
+        $value = serialize($value);
+        
         return $this->handler->set($key, $value, 0, $timeout);
     }
 

@@ -49,7 +49,8 @@ class RedisCacheHandler implements ICacheHandler{
      * @return boolean
      */
     public function set($key, $value, $timeout = NULL) {
-        return $this->redisHandler->set($key, serialize($value), $timeout);
+        $value = serialize($value);
+        return $this->redisHandler->set($key, $value, $timeout);
     }
 
     /**
@@ -66,7 +67,9 @@ class RedisCacheHandler implements ICacheHandler{
         }
 
         CacheBenchmark::log(CacheBenchmark::HIT);
-        return unserialize($this->redisHandler->get($key));
+        $value = $this->redisHandler->get($key);
+        
+        return unserialize($value);
     }
 
     /**
