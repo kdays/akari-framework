@@ -23,7 +23,6 @@ Class Request{
     protected $userAgent;
     protected $requestTime;
     protected $pathInfo;
-    protected $parameters;
 
     /**
      * 构造函数
@@ -52,8 +51,6 @@ Class Request{
 
         $this->cookies = $_COOKIE;
         $this->requestTime = isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
-
-        $this->parameters = $_REQUEST;
     }
 
     // http://cn2.php.net/manual/en/function.ip2long.php#104163
@@ -149,7 +146,7 @@ Class Request{
      * @return bool
      */
     public function hasParameter($name) {
-        return array_key_exists($name, $this->parameters);
+        return array_key_exists($name, $_REQUEST);
     }
 
     /**
@@ -160,8 +157,8 @@ Class Request{
      * @return NULL|string
      */
     public function getParameter($name, $defaultValue = NULL) {
-        if (array_key_exists($name, $this->parameters)) {
-            return $this->parameters[$name];
+        if (array_key_exists($name, $_REQUEST)) {
+            return $_REQUEST[$name];
         }else{
             return $defaultValue;
         }
@@ -172,7 +169,7 @@ Class Request{
      * @return array
      */
     public function getParameters() {
-        return $this->parameters;
+        return $_REQUEST;
     }
 
     /**

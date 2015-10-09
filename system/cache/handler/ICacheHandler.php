@@ -62,6 +62,37 @@ interface ICacheHandler {
     public function all();
 
     /**
+     * 清空数据库
+     * @return mixed
+     */
+    public function flush();
+
+    /**
+     * 原子计数，加
+     * 
+     * @param string $key
+     * @param int $value
+     * @return int
+     */
+    public function increment($key, $value = 1);
+
+    /**
+     * 原子计数，减
+     * 
+     * @param string $key
+     * @param int $value
+     * @return int
+     */
+    public function decrement($key, $value = 1);
+
+    /**
+     * 是否支持事务
+     * 
+     * @return bool
+     */
+    public function isSupportTransaction();
+
+    /**
      * 开启缓存事务，直到commit才会递交
      *
      * 如果你一时要对大量缓存进行变更时，可以减少对于缓存索引的压力

@@ -121,4 +121,25 @@ class MemcacheCacheHandler implements ICacheHandler{
     public function getHandler() {
         return $this->handler;
     }
+
+    public function flush() {
+        return $this->handler->flush();
+    }
+
+    public function increment($key, $value = 1) {
+        return $this->handler->increment($key, $value);
+    }
+
+    public function decrement($key, $value = 1) {
+        return $this->handler->decrement($key, $value);
+    }
+
+    /**
+     * 是否支持事务
+     *
+     * @return bool
+     */
+    public function isSupportTransaction() {
+        return FALSE;
+    }
 }

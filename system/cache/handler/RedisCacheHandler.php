@@ -170,4 +170,24 @@ class RedisCacheHandler implements ICacheHandler{
         return $this->redisHandler;
     }
 
+    public function flush() {
+        return $this->redisHandler->flushDB();
+    }
+
+    public function increment($key, $value = 1) {
+        return $this->redisHandler->incrBy($key, $value);
+    }
+
+    public function decrement($key, $value = 1) {
+        return $this->redisHandler->decrBy($key, $value);
+    }
+
+    /**
+     * 是否支持事务
+     *
+     * @return bool
+     */
+    public function isSupportTransaction() {
+        return TRUE;
+    }
 }

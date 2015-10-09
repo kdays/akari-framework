@@ -10,7 +10,7 @@ namespace Akari\system\cache\handler;
 
 use Akari\system\cache\CacheBenchmark;
 
-class MemcachedCacheHandler {
+class MemcachedCacheHandler implements ICacheHandler {
 
     /** @var \Memcached */
     protected $handler;
@@ -146,4 +146,24 @@ class MemcachedCacheHandler {
         return $this->handler;
     }
 
+    public function flush() {
+        return $this->handler->flush();
+    }
+
+    public function increment($key, $value = 1) {
+        return $this->handler->increment($key, $value);
+    }
+
+    public function decrement($key, $value = 1) {
+        return $this->handler->decrement($key, $value);
+    }
+
+    /**
+     * 是否支持事务
+     *
+     * @return bool
+     */
+    public function isSupportTransaction() {
+        return FALSE;
+    }
 }
