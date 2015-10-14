@@ -12,7 +12,7 @@ $di = \Akari\system\ioc\DI::getDefault();
 
 $di->setShared('viewEngine', \Akari\system\tpl\engine\MinatoTemplateEngine::class);
 
-$di->setShared('logger', function() {
+$di->setShared('logger', function() use($di) {
     $logger = new Akari\system\logger\handler\FileLoggerHandler();
     $logger->setLevel(AKARI_LOG_LEVEL_PRODUCTION);
     

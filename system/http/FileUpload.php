@@ -30,9 +30,13 @@ class FileUpload {
     public function getForm() {
         return $this->upload;
     }
+    
+    protected function getNameSection() {
+        return explode(".", $this->upload['name']);
+    }
 
     public function getExtension() {
-        $ext = end(explode('.', $this->upload['name']));
+        $ext = end($this->getNameSection());
         return strtolower($ext);
     }
 

@@ -133,15 +133,7 @@ Class Dispatcher{
             Context::$appEntryMethod = $method;
 
             Context::$appSpecAction = $pCls. ".". $method;
-        } else {
-            $path = $this->findWay($uri, 'action');
-
-            if ($path) {
-                Context::$appExecute = $path;
-                Context::$appEntryName = str_replace([Context::$appEntryPath, 'action/'], '', $path);
-                Context::$appSpecAction = trim(Context::$appEntryName, '.php');
-            }
-        }
+        } 
     }
 
     /**

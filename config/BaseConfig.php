@@ -22,6 +22,17 @@ Class BaseConfig {
 
     // 如果没有result时的callback
     public $nonResultCallback = NULL;
+    
+    public $logging = [
+        [
+            'handler' => Sys\logger\handler\FileLoggerHandler::class,
+            'match' => NULL,
+            'level' => AKARI_LOG_LEVEL_PRODUCTION,
+            'parameters' => [
+                'path' => '/runtime/log/default.log'
+            ]
+        ]
+    ];
 
     public $cache = [
         'default' => [

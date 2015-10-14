@@ -39,8 +39,13 @@ class FileHelper {
         $ifChmod && @chmod($fileName, 0777);
     }
     
+    public static function remove($fileName) {
+        unlink($fileName);
+    }
+    
     public static function moveFile($target, $source){
         self::createDir(dirname($target));
+        
         if (rename($source,$target)) {
             @chmod($target,0777);
             return true;
@@ -72,7 +77,7 @@ class FileHelper {
         }
     }
     
-    public static function deleteDir($path){
+    public static function removeDir($path){
         if(!is_dir($path))  return false;
 
         if(rmdir($path) == false){

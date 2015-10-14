@@ -2,6 +2,7 @@
 namespace Akari\utility;
 
 use Akari\Context;
+use Akari\system\http\FileUpload;
 use Exception;
 
 !defined("AKARI_PATH") && exit;
@@ -125,6 +126,10 @@ Class UploadHelper{
         $savePath = Context::$appBasePath.
             Context::$appConfig->uploadDir.DIRECTORY_SEPARATOR.$savePath;
 
+        if (is_object($uploadForm) && $uploadForm instanceof FileUpload) {
+            $uploadForm = $uploadForm->getForm();
+        }
+        
         if (is_array($uploadForm)) {
             if (!$this->isUploadedFile($uploadForm['tmp_name'])) {
                 throw new UploadFileCannotAccess();
@@ -159,6 +164,10 @@ Class UploadHelper{
 
 Class UploadFileCannotAccess extends Exception{
 
+    public function __construct() {
+        $this->message = "Upload file cannot access";
+    }
+    
 }
 
 Class UploadExtensionError extends Exception {
@@ -169,6 +178,8 @@ Class UploadExtensionError extends Exception {
     public function __construct($nowFileExtension, array $allowFileExtensions) {
         $this->nowFileExtension = $nowFileExtension;
         $this->allowFileExtensions = $allowFileExtensions;
+        
+        $this->message = "Upload file extension error";
     }
 
 }
