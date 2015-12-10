@@ -6,6 +6,7 @@
  * Time: 上午12:49
  */
 namespace Akari\system\tpl\engine;
+use Akari\system\tpl\TemplateCommand;
 use Akari\system\tpl\TemplateCommandInvalid;
 use Akari\utility\FileHelper;
 
@@ -121,12 +122,18 @@ TAG;
                 return "<?php endfor; ?>";
         }
 
-        $cmdAction = '\Akari\system\tpl\TemplateCommand::'. $cmd. "Action";
-        if (!method_exists('\Akari\system\tpl\TemplateCommand', $cmd. "Action")) {
-            throw new TemplateCommandInvalid($cmd, $afterCommand);
+        
+        $tplCmdCls = TemplateCommand::class;
+        $cmdMethod = strtolower($cmd). 'Action';
+        
+        if (!method_exists($tplCmdCls, $cmdMethod)) {
+            $cmdMethod = 'moduleAction';
+            
+            // 处理$afterCommend之前的cmd会丢失掉 就无法得知了
+            $afterCommand = $cmd. ' '. $afterCommand;
         }
 
-        return call_user_func_array($cmdAction, array_merge([$this], $command));
+        return call_user_func_array([$tplCmdCls, $cmdMethod], [$this, $afterCommand]);
     }
 
 }

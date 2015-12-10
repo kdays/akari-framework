@@ -11,7 +11,7 @@ namespace Akari\system\event;
 
 Class Event {
 
-    public $result = NULL;
+    public $params = NULL;
 
     public $eventName;
 

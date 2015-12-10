@@ -22,15 +22,17 @@ Class DBAgentStatement {
      * @var $parser SQLParser
      */
     protected $parser;
+    
     protected $_parsedSQL;
+    
+    protected $pdo;
 
     private $_bind = [];
     private $_args = [];
 
-    public function __construct($SQL, DBAgent $dbAgent) {
-        $this->pdo = $dbAgent->getPDOInstance();
+    public function __construct($SQL, \PDO $pdo) {
         $this->SQL = $SQL;
-        $this->parser = SQLParser::getInstance($this->pdo);
+        $this->parser = SQLParser::getInstance($pdo);
     }
 
     public function close() {
@@ -71,25 +73,33 @@ Class DBAgentStatement {
     }
 
     /**
-     * 添加where的替换字段，SQL语句需要有(where)用来替换
-     * 举例添加一个field=a,value=b 那么会自动替换成 WHERE a = 'b'
-     * 此外语句中如果已经有WHERE时，(where)的替换开头会自动变成 AND `a` = 'b'
-     * 此外value如果为数组时，自动会解析为IN查询
+     * 添加where的替换字段，SQL语句需要有(where)用来替换<br />
+     * 举例添加一个field=a,value=b 那么会自动替换成 WHERE a = 'b'<br />
+     * 此外语句中如果已经有WHERE时，(where)的替换开头会自动变成 AND `a` = 'b'<br />
+     * <p>$value==NULL时,field会自动循环数组</p>
      *
      * @param string $field
      * @param mixed $value
      */
     public function addWhere($field, $value) {
+        if ($value === NULL && is_array($field)) {
+            foreach ($field as $k => $v) {
+                $this->_args['WHERE'][$k] = $v;
+            }
+        
+            return;
+        }
+        
         $this->_args['WHERE'][$field] = $value;
     }
-
+    
     /**
      * 注意和addWhere不同，调用的是parse的parseWhere的方法
      * 即支持AND/OR的方法【必须写嗯】
      *
      * @param array $data
      */
-    public function setWhere($data) {
+    public function setWheres($data) {
         $this->_args['WHERES'] = $data;
     }
 
@@ -200,16 +210,17 @@ Class DBAgentStatement {
     /**
      * 获得PDOStatement对象
      *
+     * @param \PDO $pdo
      * @return \PDOStatement
      * @throws DBAgentException
      */
-    public function getDoc() {
+    public function getDoc(\PDO $pdo) {
         $sql = $this->getParsedSQL();
 
         try {
-            $this->stmt = $this->pdo->prepare($sql);
+            $this->stmt = $pdo->prepare($sql);
         } catch (\PDOException $e) {
-            throw new DBAgentException('SQL prepared error [' . $e->getCode() . '], Message: ' . $e->getMessage() . '. SQL: ' . $sql . PHP_EOL . ' With PDO Message:' . $this->pdo->errorInfo()[2]);
+            throw new DBAgentException('SQL prepared error [' . $e->getCode() . '], Message: ' . $e->getMessage() . '. SQL: ' . $sql . PHP_EOL . ' With PDO Message:' . $pdo->errorInfo()[2]);
         }
 
         if (!empty($this->_bind)) {

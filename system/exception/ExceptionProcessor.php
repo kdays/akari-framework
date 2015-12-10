@@ -55,7 +55,7 @@ Class ExceptionProcessor {
     }
 
     public function processException(\Exception $ex) {
-        Listener::fire(self::EVENT_EXCEPTION_EXECUTE, ['ex' => $ex]);
+        Listener::fire(self::EVENT_EXCEPTION_EXECUTE, $ex);
 
         if (ob_get_level() !== 0) {
             ob_end_clean();
@@ -77,9 +77,18 @@ Class ExceptionProcessor {
 
     public function processFatal() {
         $fatal = error_get_last();
-        if (!$fatal)    return FALSE;
-
-        if (in_array($fatal['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_USER_ERROR])) {
+        if (!$fatal) {
+            return FALSE;
+        }
+        
+        $needCatchExceptionLevel = [
+            E_ERROR,
+            E_PARSE,
+            E_CORE_ERROR,
+            E_USER_ERROR
+        ];
+        
+        if (in_array($fatal['type'], $needCatchExceptionLevel)) {
             $ex = new FatalException($fatal['message'], $fatal['file'], $fatal['line'], $fatal['type']);
             $this->processException($ex);
         }

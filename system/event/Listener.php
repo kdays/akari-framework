@@ -32,14 +32,11 @@ Class Listener {
      * 名称最多2层，即a.b
      *
      * 添加成功后，会返回事件id，通过事件id可以使用remove删除
-     *
-     * 注意监听时，fire的选择！
-     * 系统全局的请使用fire类型，战斗系统严重依赖返回值的，使用fireSync
-     * 两者回调时参数不同，请注意区分。
+     * 由于框架内部分事件也使用了Listener,如果做全局监听,务必做好区分.
      * </pre>
      *
      * @param string $eventName 事件名
-     * @param callable $callback 回调的参数见fire和fireSync，2者回调内容不同
+     * @param callable $callback 回调见fire函数,永远返回Event对象,通过Event的params对象获得参数
      * @param int $priority 排序权重 数字越小的越先执行，全局性的
      * @return int 事件id
      */
@@ -84,62 +81,41 @@ Class Listener {
     }
 
     /**
-     * 异步事件调用
-     * <pre>
-     * 和fireSync不同，2者callback返回不一致，
-     * fire是array $params, string $eventName, int $eventId
-     * </pre>
+     * 事件唤起
      *
      * @param string $eventName
-     * @param array $params
-     */
-    public static function fire($eventName, array $params) {
-        $queue = self::_getFireQueue($eventName);
-
-        foreach ($queue as $_) {
-            try {
-                call_user_func_array($_[self::EVENT_CALLBACK], [
-                            $params,
-                            $eventName,
-                            $_[self::EVENT_ID]
-                        ]);
-            } catch(StopEventBubbling $e) {
-                break;
-            }
-        }
-    }
-
-    /**
-     * 链式事件调用
-     * <pre>
-     * 和fire不同，2者callback返回不一致
-     * fireSync回调callback是Event $e
-     * </pre>
-     *
-     * @param string $eventName
-     * @param mixed $inResult
+     * @param string $resultParams
      * @return mixed
      */
-    public static function fireSync($eventName, $inResult) {
+    public static function fire($eventName, $resultParams) {
         $queue = self::_getFireQueue($eventName);
 
         $event = new Event();
-        $event->result = $inResult;
+        $event->params = $resultParams;
         $event->chainPos = 0;
         $event->eventName = $eventName;
 
-        foreach ($queue as $_) {
+        foreach ($queue as $nowEvent) {
             ++$event->chainPos;
-            $event->eventId = $_[self::EVENT_ID];
-
-            $event->result = call_user_func($_[self::EVENT_CALLBACK], $event);
+            $event->eventId = $nowEvent[self::EVENT_ID];
+            
+            $returnValue = call_user_func($nowEvent[self::EVENT_CALLBACK], $event);
+            if ($returnValue !== NULL) {
+                // 如果有return 就判断如果返回Event就更新全部 不然就只更新result
+                if ($returnValue instanceof Event) {
+                    $event = $returnValue;
+                } else {
+                    $event->params = $returnValue;
+                }
+            }
+            
             if ($event->isPropagationStopped()) {
                 break;
             }
         }
 
         unset($queue);
-        return $event->result;
+        return $event->params;
     }
 
     /**
@@ -163,7 +139,7 @@ Class Listener {
 
             return FALSE;
         }
-
+        
         array_walk(self::$queue, function($queue, $gloSpace) use($eventId) {
             foreach ($queue as $subSpace => $events) {
                 foreach ($events as $i => $nowEvent) {

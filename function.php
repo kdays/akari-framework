@@ -196,5 +196,9 @@ function json_decode_nice($json, $assoc = TRUE){
 
 function get_date($format, $timestamp = TIMESTAMP) {
     if (!is_numeric($timestamp))    $timestamp = strtotime($timestamp);
+    if (Context::$appConfig->timeZone) {
+        $timestamp += Context::$appConfig->timeZone * 3600;
+    }
+    
     return date($format, $timestamp);
 }
