@@ -30,7 +30,14 @@ class TemplateUtil {
     
     public static function form($url, $arr, $method = 'POST') {
         $url = self::url($url, $arr);
-        $form = '<form method="'. $method. '" action="'. $url . '">'. "\n";
+        $extraForm = '';
+        
+        if (strtoupper($method) == 'FILE') {
+            $method = 'POST';
+            $extraForm = ' enctype="multipart/form-data"';
+        }
+        
+        $form = '<form method="'. $method. '" action="'. $url . '"'. $extraForm .  '>'. "\n";
         if (Context::$appConfig->csrfTokenName) {
             $csrf =  new CsrfMod();
             $form .= $csrf->run();

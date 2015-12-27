@@ -8,30 +8,46 @@
 
 namespace Akari\model;
 
-Class RequestModel extends Model {
+abstract Class RequestModel extends Model {
 
     const METHOD_POST = 'P';
     const METHOD_GET = 'G';
     const METHOD_GET_AND_POST = 'GP';
 
     /**
-     * @var array $keyMapList 映射表 RequestModel参数 => URL参数
+     * 检查参数回调，在取值时调用，可以通过$this->键名重设值
      */
-    protected static $keyMapList = [];
+    abstract protected function checkParameters();
+
+    /**
+     * 获得的方式，是允许GET还是POST 方式见METHOD_*
+     *
+     * @param string $key 键名
+     * @return string
+     */
+    abstract protected function getKeyMethod($key);
+
+    /**
+     * 映射表
+     * RequestModel参数 => URL参数
+     *
+     * @return array
+     */
+    abstract protected function getColumnMap();
 
     public function __construct(){
-        $map = static::$keyMapList;
+        $map = $this->getColumnMap();
 
         foreach($this as $key => $value){
             $reqKey = isset($map[$key]) ? $map[$key] : $key;
 
-            $value = GP($reqKey, $this->_getKeyMethod($key));
+            $value = GP($reqKey, $this->getKeyMethod($key));
             if($value !== NULL){
                 $this->$key = $value;
             }
         }
 
-        $this->_checkParams();
+        $this->checkParameters();
 
         return $this;
     }
@@ -44,7 +60,8 @@ Class RequestModel extends Model {
      * @return array
      */
     public function toArray($toURL = false, $includeNull = false) {
-        $map = !$toURL ? array_flip(static::$keyMapList) : static::$keyMapList;
+        $map = $this->getColumnMap();
+        if (!$toURL)    $map = array_flip($map);
         $result = [];
 
         foreach ($this as $key => $value) {
@@ -55,22 +72,5 @@ Class RequestModel extends Model {
         }
 
         return $result;
-    }
-
-    /**
-     * 检查参数回调，在取值时调用，可以通过$this->键名重设值
-     */
-    protected function _checkParams(){
-
-    }
-
-    /**
-     * 获得的方式，是允许GET还是POST 方式见METHOD_*
-     *
-     * @param string $key 键名
-     * @return string
-     */
-    protected function _getKeyMethod($key){
-        return RequestModel::METHOD_GET_AND_POST;
     }
 }
