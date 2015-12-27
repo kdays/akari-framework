@@ -19,7 +19,7 @@ class Cache {
      * @param $configKey
      * @return Cache
      */
-    public static function getInstance($configKey) {
+    public static function getInstance($configKey = 'default') {
         if (!isset(self::$s[$configKey])) {
             $conf = Context::$appConfig->cache[$configKey];
             self::$s[$configKey] = new self($conf['handler'], $conf);

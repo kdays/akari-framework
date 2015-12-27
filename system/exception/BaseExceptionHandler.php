@@ -13,10 +13,12 @@ use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
 
-Class BaseExceptionHandler {
+abstract Class BaseExceptionHandler {
 
     use Logging, ResultHelper, ValueHelper;
 
+    abstract public function handleException(\Exception $ex);
+    
     protected function crash($file, $line, $trace) {
         $count = count($trace);
         $padLen = strlen($count);

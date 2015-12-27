@@ -261,6 +261,10 @@ Class Router{
                     parse_str(substr($matchResult, strpos($matchResult, "?") + 1), $result);
 
                     foreach ($result as $k => $v) {
+                        if (substr($v, 0, 1) == ':') {
+                            $v = isset($isMatched[substr($v, 1)]) ? $isMatched[substr($v, 1)] : ''; 
+                        }
+                        
                         $_GET[$k] = $v;
                         if (!array_key_exists($k, $_REQUEST)) {
                             $_REQUEST[$k] = $v;
@@ -274,8 +278,8 @@ Class Router{
                     $matches = explode("/", $matchResult);
 
                     foreach ($matches as $k => $match) {
-                        if ($match == '*' && isset($isMatched['Mark:'.$k])) {
-                            $matches[$k] = $isMatched['Mark:'. $k];
+                        if ($match == '*' && isset($isMatched['Mark:'.($k + 1)])) {
+                            $matches[$k] = $isMatched['Mark:'. ($k + 1)];
                         }
                     }
 

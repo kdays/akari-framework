@@ -17,7 +17,14 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
         $cachePath = $this->getCachePath($tplPath);
         
         $isAlwaysCompile = $this->getOption('alwaysCompile', false);
-
+        
+        $beginCmdMark = preg_quote($this->getOption('beginCmdMark', '<!--#'));
+        $endCmdMark = preg_quote($this->getOption('endCmdMark', '-->'));
+        $beginLangMark = preg_quote($this->getOption('beginI18nMark', '{%'));
+        $endLangMark = preg_quote($this->getOption('endI18nMark', "}"));
+        $beginUtilMark = preg_quote($this->getOption('beginUtilMark', '{{'));
+        $endUtilMark = preg_quote($this->getOption('endUtilMark', '}}'));
+        
         if (filemtime($tplPath) > filemtime($cachePath) || !file_exists($cachePath) || $isAlwaysCompile) {
             $template = file_get_contents($tplPath);
 
@@ -26,7 +33,7 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
 
             $that = $this;
 
-            $template = preg_replace_callback('/<!--#(.*?)-->/iu', function($matches) use($that) {
+            $template = preg_replace_callback('/'.$beginCmdMark.'(.*?)'. $endCmdMark .'/iu', function($matches) use($that) {
                 return $that->parseCommand($matches[1]);
             }, $template);
 
@@ -34,7 +41,12 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
                 return '<?='.$matches[1].'?>';
             }, $template);
             
-            $template = preg_replace_callback('/\{\%(.*?)\}/iu', function($matches) {
+            $template = preg_replace_callback('/'. $beginUtilMark.  '(.*?)'. $endUtilMark .'/iu', function($matches) use($that) {
+                $matches[1] = str_replace("$", "_#_", $matches[1]);
+                return '<?= \Akari\system\tpl\TemplateUtil::'. trim($matches[1]). "?>";
+            }, $template);
+            
+            $template = preg_replace_callback('/'. $beginLangMark .'(.*?)'. $endLangMark .'/iu', function($matches) {
                 $matches[1] = str_replace("$", "_#_", $matches[1]);
                 return "<?=L(\"$matches[1]\")?>";
             }, $template);
