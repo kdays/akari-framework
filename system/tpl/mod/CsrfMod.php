@@ -16,9 +16,11 @@ class CsrfMod implements BaseTemplateMod {
 
     public function run($args = '') {
         $tokenName = Context::$appConfig->csrfTokenName;
-        $token = Security::getCSRFToken();
-
-        return sprintf('<input type="hidden" name="%s" value="%s" />', $tokenName, $token). "\n";
+        
+        if ($tokenName) {
+            $token = Security::getCSRFToken();
+            return sprintf('<input type="hidden" name="%s" value="%s" />', $tokenName, $token). "\n";
+        }
     }
 
 }
