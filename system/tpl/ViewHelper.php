@@ -42,11 +42,13 @@ class ViewHelper {
         $screenName = implode(DIRECTORY_SEPARATOR, $screenName);
         $contMethod = Context::$appEntryMethod;
         
+        $prefix = Context::$appConfig->templateNamePrefix;
+        
         if ($contMethod !== NULL) {
             if (substr($contMethod, -6) == 'Action') {
                 $contMethod = substr($contMethod, 0, strlen($contMethod) - 6);
             }
-            $screenName .= DIRECTORY_SEPARATOR. $contMethod;
+            $screenName .= DIRECTORY_SEPARATOR. $prefix. $contMethod;
         }
         
         return $screenName;
@@ -78,7 +80,7 @@ class ViewHelper {
             $layoutPath = Dispatcher::getInstance()->findWay($screenName, 'template/layout/', $suffix);
             $layoutPath = str_replace([Context::$appEntryPath, $suffix, '/template/layout/'], '', $layoutPath);
         }
-
+        
         return $layoutPath;
     }
 

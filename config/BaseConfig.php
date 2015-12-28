@@ -57,6 +57,7 @@ Class BaseConfig {
     public $uriSuffix = '';
 
     public $templateSuffix = ".htm";
+    public $templateNamePrefix = '';
     public $templateCacheDir = '/runtime/tpl';
 
     public $encrypt = [
