@@ -363,7 +363,7 @@ Class Request{
         return Cookie::getInstance()->has($name);
     }
     
-    public function getCookie($name, $autoPrefix = false) {
+    public function getCookie($name, $autoPrefix = TRUE) {
         return Cookie::getInstance()->get($name, $autoPrefix);
     }
 }
