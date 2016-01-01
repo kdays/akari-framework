@@ -2,15 +2,6 @@
 namespace Akari\system\http;
 
 Class Request{
-    private static $http = null;
-    public static function getInstance(){
-        if(self::$http == null){
-            self::$http = new self();
-        }
-
-        return self::$http;
-    }
-
     protected $requestMethod;
     protected $requestURI;
     protected $host;
@@ -27,7 +18,7 @@ Class Request{
     /**
      * 构造函数
      */
-    private function __construct(){
+    public function __construct(){
         $arr = Array(
             'requestMethod' => 'REQUEST_METHOD',
             'requestURI' => 'REQUEST_URI',
@@ -366,5 +357,13 @@ Class Request{
         }
 
         return NULL;
+    }
+    
+    public function hasCookie($name) {
+        return Cookie::getInstance()->has($name);
+    }
+    
+    public function getCookie($name, $autoPrefix = false) {
+        return Cookie::getInstance()->get($name, $autoPrefix);
     }
 }

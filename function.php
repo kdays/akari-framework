@@ -202,3 +202,9 @@ function get_date($format, $timestamp = TIMESTAMP) {
     
     return date($format, $timestamp);
 }
+
+if (!function_exists("hex2bin")) {
+    function hex2bin($hex) {
+        return $hex !== false && preg_match('/^[0-9a-fA-F]+$/i', $hex) ? pack("H*", $hex) : false;
+    } 
+}

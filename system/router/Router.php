@@ -3,32 +3,29 @@ namespace Akari\system\router;
 
 use Akari\Context;
 use Akari\system\http\Request;
+use Akari\system\ioc\DIHelper;
 use Akari\utility\helper\ValueHelper;
 
 !defined("AKARI_PATH") && exit;
 
 Class Router{
 
-    use ValueHelper;
+    use ValueHelper, DIHelper;
 
     private $config;
+    
+    /**
+     * @var Request
+     */
     private $request;
-    private static $r;
 
-    public static function getInstance() {
-        if (self::$r == null) {
-            self::$r = new self();
-        }
-        return self::$r;
-    }
-
-    private function __construct(){
-        $this->request = Request::getInstance();
+    public function __construct(){
+        $this->request = $this->_getDI()->getShared("request");
         $this->config = Context::$appConfig;
     }
 
     private function clearURI($uri){
-        $queryString = $_SERVER['QUERY_STRING'];
+        $queryString = $this->request->getQueryString();
         if(strlen($queryString) > 0){
             $uri = substr($uri, 0, -strlen($queryString)  -1);
         }
@@ -118,7 +115,7 @@ Class Router{
      * @return string
      */
     public function rewriteBaseURL($URI) {
-        $isSSL = Request::getInstance()->isSSL();
+        $isSSL = $this->request->isSSL();
         $URI = preg_replace('/https|http/i', $isSSL ? 'https' : 'http' , $URI);
 
         return $URI;
@@ -200,7 +197,7 @@ Class Router{
         $URLRewrite = $rule === NULL ? Context::$appConfig->uriRewrite : $rule;
 
         // 让路由重写时支持METHOD设定 而非CALLBACK时处理
-        $nowRequestMethod = Request::getInstance()->getRequestMethod();
+        $nowRequestMethod = $this->request->getRequestMethod();
         $allowMethodHeader = ['GET', 'POST', 'PUT', 'DELETE', 'GP'];
         $methodRegexp = "/^(GET|POST|PUT|DELETE|GP):(.*)/";
 

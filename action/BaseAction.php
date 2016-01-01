@@ -31,10 +31,10 @@ abstract class BaseAction {
      * @var Response
      */
     protected $response;
-
+    
     public function __construct() {
-        $this->request = Request::getInstance();
-        $this->response = Response::getInstance();
+        $this->request = $this->_getDI()->getShared('request');
+        $this->response = $this->_getDI()->getShared('response');
     }
 
 }

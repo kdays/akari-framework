@@ -2,42 +2,33 @@
 /**
  * Created by PhpStorm.
  * User: kdays
- * Date: 14/12/29
- * Time: 17:01
+ * Date: 15/12/31
+ * Time: 下午9:29
  */
 
 namespace Akari\system\security\cipher;
 
-use Akari\Context;
+abstract class Cipher {
 
-abstract Class Cipher implements ICipher {
-
-    public $pMode = 'default';
-    protected static $instance = [];
-
-    protected static $d = NULL;
-    protected static function _instance($mode) {
-        $instanceName = get_called_class(). "_". $mode;
-        if (!isset(self::$instance[ $instanceName ])) {
-            $cls = get_called_class();
-            self::$instance[ $instanceName ] = new $cls($mode);
-            self::$instance[ $instanceName ]->pMode = $mode;
-        }
-
-        return self::$instance[ $instanceName ];
+    protected $options = [];
+    
+    public function __construct(array $opts = []) {
+        $this->options = $opts;
     }
 
-    protected function getConfig($mode, $subKey = FALSE) {
-        $config = Context::$appConfig->encrypt[$mode];
-        return $subKey ? $config[$subKey] : $config;
+    protected function setOption($key, $value) {
+        $this->options[$key] = $value;
     }
-
+    
+    protected function getOption($key, $defaultValue = false) {
+        return array_key_exists($key, $this->options) ? $this->options[$key] : $defaultValue;
+    }
+    
     abstract public function encrypt($text);
     abstract public function decrypt($text);
-
+    
 }
 
-
-Class CipherException extends \Exception {
-
+Class EncryptFailed extends \Exception {
+    
 }

@@ -2,30 +2,26 @@
 /**
  * Created by PhpStorm.
  * User: kdays
- * Date: 15/7/1
- * Time: 下午11:47
+ * Date: 15/12/31
+ * Time: 下午9:46
  */
 
 namespace Akari\system\security\cipher;
 
+
 /**
- * Warning: 这不是一个加密方式
- *
+ * 警告 这不是一种加密!
+ * 
+ * Class RawCipher
  * @package Akari\system\security\cipher
  */
-class RawCipher extends Cipher {
+class RawCipher extends Cipher{
 
-    public static function getInstance($mode = 'default'){
-        return self::_instance($mode);
+    public function encrypt($text) {
+        return $text;
     }
 
-    public function encrypt($str){
-        return $str;
+    public function decrypt($text) {
+        return $text;
     }
-
-    public function decrypt($str){
-        return $str;
-    }
-
-
 }

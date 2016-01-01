@@ -11,9 +11,11 @@ namespace Akari\utility\helper;
 use Akari\system\exception\ExceptionProcessor;
 
 trait ExceptionSetter {
-
+    
     public static function _setExceptionHandler($cls) {
-        ExceptionProcessor::getInstance()->setHandler($cls);
+        /** @var ExceptionProcessor $processor */
+        $processor = ExceptionProcessor::getInstance();
+        $processor->setHandler($cls);
     }
 
 }

@@ -63,12 +63,16 @@ Class BaseConfig {
     public $encrypt = [
         'default' => [
             'cipher' => Sys\security\cipher\AESCipher::class,
-            'key' => 'Hello, Akari Framework'
+            'options' => [
+                'secret' => 'Hello, Akari Framework'
+            ]
         ],
 
         'cookie' => [
             'cipher' => Sys\security\cipher\AESCipher::class,
-            'key' => 'Answer is 42.'
+            'options' => [
+                'secret' => 'Answer is 42.'
+            ]
         ]
     ];
 

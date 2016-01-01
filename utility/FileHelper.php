@@ -44,7 +44,13 @@ class FileHelper {
     }
     
     public static function moveFile($target, $source){
-        self::createDir(dirname($target));
+        if (!$target) {
+            return false;
+        }
+        
+        if (!is_dir(dirname($target))) {
+            self::createDir(dirname($target));
+        }
         
         if (rename($source,$target)) {
             @chmod($target,0777);
@@ -65,13 +71,14 @@ class FileHelper {
         return false;
     }
     
-    public static function createDir($path, $index = false){
-        if(is_dir($path))	return ;
-        self::createDir(dirname($path), $index);
+    public static function createDir($path, $makeIndex = false){
+        if (is_dir($path)) {
+            return ;
+        }
+        self::createDir(dirname($path), $makeIndex);
 
-        @mkdir($path);
-        @chmod($path,0777);
-        if(!$index){
+        mkdir($path, 0777);
+        if($makeIndex){
             @fclose(@fopen($path.'/index.html','w'));
             @chmod($path.'/index.html',0777);
         }
@@ -86,7 +93,7 @@ class FileHelper {
             while(($fp = readdir($dp)) !== false){
                 if($fp == "." || $fp == "..")   continue;
                 if(is_dir("$path/$fp")){
-                    self::deleteDir("$path/$fp");
+                    self::removeDir("$path/$fp");
                 }else{
                     unlink("$path/$fp");
                 }
@@ -94,6 +101,20 @@ class FileHelper {
 
             closedir($dp);
             rmdir($path);
+        }
+    }
+    
+    public static function copyDir($src, $dst) {
+        if (is_dir($src)) {
+            mkdir($dst);
+            
+            $files = scandir($src);
+            foreach ($files as $file){
+                if ($file == "." || $file == "..") continue;
+                self::copyDir($src. DIRECTORY_SEPARATOR. $file, $dst. DIRECTORY_SEPARATOR. $file);
+            }
+        } elseif (file_exists($src)) {
+            copy($src, $dst);
         }
     }
     

@@ -2,96 +2,66 @@
 /**
  * Created by PhpStorm.
  * User: kdays
- * Date: 14/12/28
- * Time: 23:07
+ * Date: 15/12/31
+ * Time: 下午9:29
  */
 
 namespace Akari\system\security\cipher;
 
-Class AESCipher extends Cipher {
-    public $cipher = MCRYPT_RIJNDAEL_256;
-    public $mode = MCRYPT_MODE_ECB;
-    public $iv = '';
-    public $secretKey;
 
-    /**
-     * @param string $mode
-     * @return AESCipher
-     */
-    public static function getInstance($mode = 'default'){
-        return self::_instance($mode);
+use Akari\Context;
+
+class AESCipher extends Cipher{
+    
+    private $_cipher = MCRYPT_RIJNDAEL_256;
+    private $_mode = MCRYPT_MODE_ECB;
+    private $_iv;
+    private $_secret;
+    
+    public function __construct(array $opts) {
+        parent::__construct($opts);
+        
+        if (!function_exists('mcrypt_module_open')) {
+            throw new EncryptFailed("please install MCrypt.");
+        }
+        
+        $this->_iv = $this->getOption('iv');
+        $this->_secret = md5($this->getOption('secret', Context::$appConfig->appName));
     }
+    
+    public function encrypt($text) {
+        $td = mcrypt_module_open($this->_cipher, '', $this->_mode, '');
+        
+        $blockSize = mcrypt_get_block_size($this->_cipher, $this->_mode);
+        $text = CipherUtil::pkcs5_pad($text, $blockSize);
 
-    protected function __construct($mode){
-        $this->iv = $this->getConfig($mode, 'iv');
-        $this->secretKey = md5($this->getConfig($mode, 'key'));
-    }
-
-    public function setCipherIv($iv) {
-        $this->iv = $iv;
-    }
-
-    public function setSecretKey($key) {
-        $this->secretKey = $key;
-    }
-
-    public function encrypt($str){
-        $str = $this->pkcs5_pad($str);
-        $td = mcrypt_module_open($this->cipher, '', $this->mode, '');
-
-        if(empty($this->iv)){
+        $iv = $this->_iv;
+        if (empty($iv)) {
             $iv = @mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
-        }else{
-            $iv = $this->iv;
         }
 
-        mcrypt_generic_init($td, $this->secretKey, $iv);
-        $cyperText = mcrypt_generic($td, $str);
-        $result = bin2hex($cyperText);
+        mcrypt_generic_init($td, $this->_secret, $iv);
+        $encrypted = mcrypt_generic($td, $text);
+        $result = bin2hex($encrypted);
+        
         mcrypt_generic_deinit($td);
         mcrypt_module_close($td);
-
+        
         return $result;
     }
 
-    public function decrypt($str){
-        $td = mcrypt_module_open($this->cipher, '', $this->mode, '');
-        if(empty($this->iv)){
+    public function decrypt($text) {
+        $td = mcrypt_module_open($this->_cipher, '', $this->_mode, '');
+        $iv = $this->_iv;
+        if (empty($iv)) {
             $iv = @mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
-        }else{
-            $iv = $this->iv;
         }
-
-        mcrypt_generic_init($td, $this->secretKey, $iv);
-        $decryptedText = mdecrypt_generic($td, $this->hex2bin($str));
+        
+        mcrypt_generic_init($td, $this->_secret, $iv);
+        $decryptedText = mdecrypt_generic($td, hex2bin($text));
         mcrypt_generic_deinit($td);
         mcrypt_module_close($td);
-
-        return $this->pkcs5_unpad($decryptedText);
-    }
-
-
-    public function hex2bin($hex) {
-        if (function_exists("hex2bin")) {
-            return hex2bin($hex);
-        }
-        return $hex !== false && preg_match('/^[0-9a-fA-F]+$/i', $hex) ? pack("H*", $hex) : false;
-    }
-
-    public function pkcs5_pad($text, $blockSize = FALSE){
-        if(!$blockSize){
-            $blockSize = mcrypt_get_block_size($this->cipher, $this->mode);
-        }
-        $pad = $blockSize - (strlen($text) % $blockSize);
-        return $text . str_repeat(chr($pad), $pad);
-    }
-
-    public function pkcs5_unpad($text){
-        $pad = ord($text{strlen($text) - 1});
-        if ($pad > strlen($text)) return false;
-        if (strspn($text, chr($pad), strlen($text) - $pad) != $pad) return false;
-        $ret = substr($text, 0, -1 * $pad);
-
-        return $ret;
+        
+        return CipherUtil::pkcs5_unpad($decryptedText);
     }
 }

@@ -65,5 +65,14 @@ Class Response {
             Header($key. ": ". $value);
         }
     }
-
+    
+    public function setCookie($name, $value, $expire = NULL, $useEncrypt = FALSE, $opts = []) {
+        $cookie = Cookie::getInstance();
+        $cookie->set($name, $value, $expire, $useEncrypt, $opts);
+    }
+    
+    public function removeCookie($name) {
+        $cookie = Cookie::getInstance();
+        $cookie->remove($name);
+    }
 }
