@@ -13,7 +13,7 @@ Class Request {
     protected $params;
     protected $input;
     
-    protected function __construct() {
+    public function __construct() {
         $params = [];
         if (isset($_SERVER['argv'])) {
             $params = $_SERVER['argv'];
@@ -23,17 +23,6 @@ Class Request {
         $this->params = $this->resolve($params);
         $this->input = new ConsoleInput();
     }
-
-
-    private static $instance = null;
-    public static function getInstance(){
-        if(self::$instance == null){
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
-
 
     public function getQuery($key, $defaultValue = NULL) {
         if (empty($key)) {

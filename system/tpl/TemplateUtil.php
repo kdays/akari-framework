@@ -28,21 +28,34 @@ class TemplateUtil {
         return $url. (!empty($arr) ? ("?". http_build_query($arr)) : '');
     }
     
-    public static function form($url, $arr, $method = 'POST') {
-        $url = self::url($url, $arr);
+    public static function form($url, $urlParameters, $method = 'POST') {
+        $url = self::url($url, $urlParameters);
         $extraForm = '';
+        $afterForm = '';
         
-        if (strtoupper($method) == 'FILE') {
-            $method = 'POST';
-            $extraForm = ' enctype="multipart/form-data"';
+        $method = strtoupper($method);
+        
+        switch ($method) {
+            case 'FILE':
+            case 'POST':
+                if ($method == 'FILE')  $extraForm = ' enctype="multipart/form-data"';
+                $method = 'POST';
+
+                if (Context::$appConfig->csrfTokenName) {
+                    $csrf =  new CsrfMod();
+                    $afterForm = $csrf->run();
+                }
+                break;
+            
+            case 'GET':
+                break;
         }
         
-        $form = '<form method="'. $method. '" action="'. $url . '"'. $extraForm .  '>'. "\n";
-        if (Context::$appConfig->csrfTokenName) {
-            $csrf =  new CsrfMod();
-            $form .= $csrf->run();
-        }
-        return $form;
+        return sprintf(<<<'EOT'
+<form method="%s" action="%s" %s>%s
+EOT
+        ,$method, $url, $extraForm, $afterForm
+);
     }
     
     public static function end_form() {

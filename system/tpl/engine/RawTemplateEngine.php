@@ -20,7 +20,8 @@ class RawTemplateEngine extends BaseTemplateEngine{
             return $layoutResult;
         }
 
-        return str_replace('#SCREEN#', $screenResult, $layoutResult);
+        $screenCmd = $this->getOption('screenCmdMark', '#SCREEN#');
+        return str_replace($screenCmd, $screenResult, $layoutResult);
     }
 
 }

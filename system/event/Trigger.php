@@ -16,34 +16,52 @@ class Trigger {
     protected static $beforeDispatchEvent = [];
     protected static $applicationStartEvent = [];
     protected static $applicationEndEvent = [];
+    
+    const TYPE_BEFORE_DISPATCH = "beforeDispatch";
+    const TYPE_APPLICATION_START = "applicationStart";
+    const TYPE_APPLICATION_END = "applicationEnd";
 
     public static function initEvent() {
         $trigger = Context::$appConfig->trigger;
         $triggerBaseNS = Context::$appBaseNS. NAMESPACE_SEPARATOR. "trigger". NAMESPACE_SEPARATOR;
 
-        $beforeDispatch = empty($trigger['beforeDispatch']) ? [] : $trigger['beforeDispatch'];
+        $prefix = CLI_MODE ? 'CLI_' : '';
+        
+        $beforeDispatch = empty($trigger[$prefix. self::TYPE_BEFORE_DISPATCH]) ? [] : $trigger[$prefix. self::TYPE_BEFORE_DISPATCH];
         self::$beforeDispatchEvent = $beforeDispatch;
 
         $appStart = [];
-        if (class_exists($triggerBaseNS. "ApplicationStart")) {
-            $appStart[] =  ['/.*/', "ApplicationStart"];
+        try {
+            if (class_exists($triggerBaseNS. $prefix. "ApplicationStart")) {
+                $appStart[] =  ['/.*/', $prefix. "ApplicationStart"];
+            }
+        } catch (NotFoundClass $e) {
+            
         }
         
-        if (is_array($trigger['applicationStart'])) {
-            $appStart = array_merge($appStart, $trigger['applicationStart']);
+        if (!empty($trigger[$prefix. self::TYPE_APPLICATION_START])) {
+            $appStart = array_merge($appStart, $trigger[$prefix. self::TYPE_APPLICATION_START]);
         }  
         
-        if (class_exists($triggerBaseNS. "AfterInit")) {
-            $appStart[] =  ['/.*/', "AfterInit"];
+        try {
+            if (class_exists($triggerBaseNS. $prefix. "AfterInit")) {
+                $appStart[] =  ['/.*/',$prefix . "AfterInit"];
+            }
+        } catch (NotFoundClass $e) {
+            
         }
         
         self::$applicationStartEvent = $appStart;
 
-
-        $appEnd = empty($trigger['applicationEnd']) ? [] : $trigger['applicationEnd'];
-        if (class_exists($triggerBaseNS. "ApplicationEnd")) {
-            $appEnd[] = ['/.*/', "ApplicationEnd"];
+        $appEnd = empty($trigger[$prefix. self::TYPE_APPLICATION_END]) ? [] : $trigger[$prefix. self::TYPE_APPLICATION_END];
+        try {
+            if (class_exists($triggerBaseNS. $prefix. "ApplicationEnd")) {
+                $appEnd[] = ['/.*/', $prefix. "ApplicationEnd"];
+            }
+        } catch (NotFoundClass $e) {
+            
         }
+        
         self::$applicationEndEvent = $appEnd;
     }
 
