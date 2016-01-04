@@ -49,8 +49,13 @@ class TemplateHelper {
             $baseDirs[] = Context::$appEntryPath. Context::env(ConfigItem::BASE_TPL_DIR). DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
         }
 
+        if (Context::env(ConfigItem::TEMPLATE_PREFIX)) {
+            $baseDirs[] = Context::$appEntryPath. "template". DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR. Context::env(ConfigItem::TEMPLATE_PREFIX). DIRECTORY_SEPARATOR;
+        }
+        
         $baseDirs[] = Context::$appEntryPath. "template". DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
 
+        
         foreach ($baseDirs as $baseDir) {
             if (file_exists($tplPath = $baseDir. $tplName. $suffix)) {
                 return realpath($tplPath);

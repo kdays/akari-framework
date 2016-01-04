@@ -9,6 +9,7 @@
 namespace Akari\system\tpl;
 
 
+use Akari\config\ConfigItem;
 use Akari\Context;
 use Akari\system\ioc\DIHelper;
 use Akari\system\router\Dispatcher;
@@ -45,13 +46,11 @@ class ViewHelper {
         $screenName = implode(DIRECTORY_SEPARATOR, $screenName);
         $contMethod = Context::$appEntryMethod;
         
-        $prefix = Context::$appConfig->templateNamePrefix;
-        
         if ($contMethod !== NULL) {
             if (substr($contMethod, -6) == 'Action') {
                 $contMethod = substr($contMethod, 0, strlen($contMethod) - 6);
             }
-            $screenName .= DIRECTORY_SEPARATOR. $prefix. $contMethod;
+            $screenName .= DIRECTORY_SEPARATOR. $contMethod;
         }
         
         return $screenName;
@@ -66,8 +65,18 @@ class ViewHelper {
             /** @var Dispatcher $dispatcher */
             $dispatcher = self::_getDI()->getShared('dispatcher');
             
-            $screenPath = $dispatcher->findWay($screenName, 'template/view/', $suffix);
-            $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'], '', $screenPath);
+            $prefix = Context::env(ConfigItem::TEMPLATE_PREFIX);
+            if ($prefix) {
+                $screenPath = $dispatcher->findWay($screenName, 'template/view/'.$prefix. "/", $suffix);
+                if ($screenPath) {
+                    $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'. $prefix. "/"], '', $screenPath);
+                }
+            }
+            
+            if (!$screenPath) {
+                $screenPath = $dispatcher->findWay($screenName, 'template/view/', $suffix);
+                $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'], '', $screenPath);
+            }
 
             if ($screenPath == '') {
                 throw new TemplateNotFound('screen Default');
