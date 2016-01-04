@@ -17,6 +17,15 @@ class FileUpload {
 
     protected $upload;
     protected $id;
+    
+    private $codeMessage = [
+        UPLOAD_ERR_INI_SIZE => "文件大小超过系统配置",
+        UPLOAD_ERR_FORM_SIZE => "文件大小超过表单配置",
+        UPLOAD_ERR_PARTIAL => "文件只有部分被上传",
+        UPLOAD_ERR_NO_FILE => "没有文件被上传",
+        UPLOAD_ERR_NO_TMP_DIR => "系统错误,没有找到临时文件夹",
+        UPLOAD_ERR_CANT_WRITE => "系统错误,文件写入失败"
+    ];
 
     public function __construct(array $form, $formId) {
         $this->upload = $form;
@@ -79,6 +88,18 @@ class FileUpload {
 
     public function save($target) {
         $savePath = Context::$appBasePath. Context::$appConfig->uploadDir.DIRECTORY_SEPARATOR. $target;
+        if (empty($this->getTempPath())) {
+            throw new UploadFailed($this->codeMessage[$this->getError()], $this->getError());
+        }
         return FileHelper::moveFile($savePath, $this->getTempPath());
     }
+}
+
+Class UploadFailed extends \Exception {
+    
+    public function __construct($message, $code) {
+        $this->message = "文件上传失败, 原因:" . $message;
+        $this->code = $code;
+    }
+
 }

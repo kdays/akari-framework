@@ -10,6 +10,8 @@ namespace Akari\system\tpl;
 
 
 use Akari\Context;
+use Akari\system\ioc\DI;
+use Akari\system\tpl\engine\BaseTemplateEngine;
 use Akari\system\tpl\mod\CsrfMod;
 
 class TemplateUtil {
@@ -60,5 +62,14 @@ EOT
     
     public static function end_form() {
         return '</form>';
+    }
+    
+    public static function load_block($block_name) {
+        /** @var BaseTemplateEngine $viewEngine */
+        $viewEngine = DI::getDefault()->getShared('viewEngine');
+        $tplPath = TemplateHelper::find($block_name, TemplateHelper::TYPE_BLOCK);
+        
+        $c = $viewEngine->parse($tplPath, [], TemplateHelper::TYPE_BLOCK, False);
+        return $c;
     }
 }
