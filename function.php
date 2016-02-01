@@ -14,10 +14,10 @@ use Akari\utility\I18n;
  * 检查字符串中是否有某个字符
  *
  * @param string $string 字符串
- * @param mixed $findme 要查找的字符，支持传入数组
+ * @param string|array $findme 要查找的字符，支持传入数组
  * @return boolean
  */
-function in_string($string,$findme){
+function in_string($string, $findme){
     !is_array($findme) && $findme = Array($findme);
     foreach($findme as $value){
         if($value == '')	continue;
@@ -132,6 +132,16 @@ function cookie($key, $value = NULL, $expire = NULL, $useEncrypt = FALSE) {
     $cookie->set($key, $value, $expire, $useEncrypt);
 }
 
+/**
+ * 平行化数组,和array_column相比支持对象的操作
+ * 
+ * @param array|object $list 
+ * @param string $columnKey 内容键
+ * @param string|null $indexKey 索引键,NULL时索引按照自增索引
+ * @param bool $multi 是否允许重复的索引键
+ * @param bool $allowObject 是否始终使用数组方式读取
+ * @return array
+ */
 function array_flat($list, $columnKey, $indexKey = NULL, $multi = FALSE, $allowObject = FALSE) {
     $result = [];
 
@@ -153,6 +163,14 @@ function array_flat($list, $columnKey, $indexKey = NULL, $multi = FALSE, $allowO
     return $result;
 }
 
+/**
+ * 根据$indexKey为Key生成
+ * 
+ * @param array|object $list 数组或对象
+ * @param string $indexKey 索引键
+ * @param bool $allowObject 是否始终使用数组,如果Model有使用ArrayAccess请保持false
+ * @return array
+ */
 function array_index($list, $indexKey, $allowObject = false) {
     if (!is_array($list) && !is_object($list)) {
         return [];
@@ -166,6 +184,13 @@ function array_index($list, $indexKey, $allowObject = false) {
     return $result;
 }
 
+/**
+ * 按照$index的数组对$list按顺序取值
+ * 
+ * @param array $list
+ * @param array $index
+ * @return array
+ */
 function array_reindex($list, array $index) {
     $result = [];
     foreach ($index as $k) {

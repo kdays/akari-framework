@@ -149,6 +149,10 @@ Class UploadHelper{
 
         return $savePath;
     }
+    
+    public static function getFilePath($path) {
+        return Context::$appBasePath. Context::$appConfig->uploadDir. DIRECTORY_SEPARATOR. $path;
+    }
 
     public static function formatFileSize($size, $dec = 2){
         $a = array("B", "KB", "MB", "GB", "TB", "PB");

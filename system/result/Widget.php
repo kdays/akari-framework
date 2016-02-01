@@ -14,7 +14,7 @@ use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
 
-class Widget {
+abstract class Widget {
 
     use ResultHelper, ValueHelper, Logging, DIHelper;
     
@@ -26,11 +26,9 @@ class Widget {
     }
 
     /**
-     * @param null $userData
+     * @param mixed $userData
      * @return array
      */
-    public function execute($userData = NULL) {
-        return [];
-    }
+    abstract public function execute($userData = NULL);
 
 }

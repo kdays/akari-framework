@@ -11,6 +11,7 @@ namespace Akari\system\tpl;
 
 use Akari\Context;
 use Akari\system\ioc\DI;
+use Akari\system\security\Security;
 use Akari\system\tpl\engine\BaseTemplateEngine;
 use Akari\system\tpl\mod\CsrfMod;
 
@@ -20,7 +21,22 @@ class TemplateUtil {
         return empty($var) ? $defaultValue : sprintf($tplValue, $var);
     }
     
-    public static function url($url, $arr) {
+    public static function csrf_token() {
+        return Security::getCSRFToken();
+    }
+    
+    public static function csrf_form() {
+        if (empty(Context::$appConfig->csrfTokenName)) {
+            return "";
+        }
+        
+        return sprintf('<input type="hidden" name="%s" value="%s" />', 
+            Context::$appConfig->csrfTokenName, 
+            Security::getCSRFToken()
+        );
+    }
+    
+    public static function url($url, $arr = []) {
         if (substr($url, 0, 1) == '.') {
             // 这个时候检查Rewrite语法代表重发到特定Rewrite方法中
             if (Context::$appConfig->uriGenerator !== NULL) {

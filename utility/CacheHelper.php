@@ -9,6 +9,7 @@
 namespace Akari\utility;
 
 
+use Akari\Context;
 use Akari\system\cache\Cache;
 
 class CacheHelper {
@@ -16,7 +17,7 @@ class CacheHelper {
     public static function get($key, callable $failback, $timeout = NULL) {
         $cache = Cache::getInstance();
         
-        if ($cache->exists($key)) {
+        if ($cache->exists($key) && Context::$mode != 'Dev') {
             return $cache->get($key);
         }
         

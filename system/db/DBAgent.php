@@ -123,9 +123,11 @@ Class DBAgent {
      *
      * @param string|DBAgentStatement $sql
      * @param null|array $params
+     * @param int $resultType
      * @return array|mixed
+     * @throws DBAgentException
      */
-    public function getOne($sql, $params = NULL) {
+    public function getOne($sql, $params = NULL, $resultType = PDO::FETCH_ASSOC) {
         $pdo = $this->getReadConnection();
         $query = $this->getQuery($sql, $params);
 
@@ -136,13 +138,29 @@ Class DBAgent {
             $this->dispErrorInfo($doc->errorInfo());
         } 
 
-        $rs = $doc->fetch(PDO::FETCH_ASSOC);
+        $rs = $doc->fetch($resultType);
 
         $query->close();
         $this->benchmarkEnd();
 
         return $rs;
     }
+
+    /**
+     * get one result of value
+     * 
+     * @param string|DBAgentStatement $sql
+     * @param null|array $params
+     * @param mixed $defaultValue
+     * @return bool
+     */
+    public function getValue($sql, $params = NULL, $defaultValue = false) {
+        $result = $this->getOne($sql, $params, PDO::FETCH_NUM);
+        $field = 0;
+        
+        return isset($result[$field]) ? $result[$field] : $defaultValue;
+    }
+    
 
     /**
      * execute sql

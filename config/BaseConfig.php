@@ -114,7 +114,7 @@ Class BaseConfig {
      * @var string $key
      * @return null
      */
-    public function loadExternalConfig($key) {
+    public final function loadExternalConfig($key) {
         $namePolicies = [
             Context::$mode. DIRECTORY_SEPARATOR. $key,
             Context::$mode. ".". $key,

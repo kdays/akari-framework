@@ -260,6 +260,9 @@ Class Request{
      * @return NULL|string
      */
     public function getQuery($key, $defaultValue = NULL) {
+        if ($key == NULL) {
+            return $_REQUEST;
+        }
         return GP($key, 'GP', $defaultValue);
     }
 
@@ -269,6 +272,9 @@ Class Request{
      * @return NULL|string
      */
     public function getPost($key, $defaultValue = NULL) {
+        if ($key == NULL) {
+            return $_POST;
+        }
         return GP($key, 'P', $defaultValue);
     }
 
