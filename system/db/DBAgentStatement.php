@@ -8,6 +8,8 @@
 
 namespace Akari\system\db;
 
+use Akari\utility\PageHelper;
+
 Class DBAgentStatement {
 
     protected $agent;
@@ -117,10 +119,14 @@ Class DBAgentStatement {
      * 设置SQL的LIMIT
      * 传入[0, 10] => LIMIT 0, 10  传入10 => LIMIT 10
      *
-     * @param int|array $limit [skip, limit] or limit
+     * @param int|array|PageHelper $limit [skip, limit] or limit
      * @return $this
      */
     public function setLimit($limit) {
+        if ($limit instanceof PageHelper) {
+            $limit = [$limit->getStart(), $limit->getLength()];
+        }
+        
         $this->_args['LIMIT'] = $this->parser->parseLimit($limit);
         return $this;
     }
@@ -143,6 +149,7 @@ Class DBAgentStatement {
      * 传入一个数组
      *
      * @param array $data
+     * @return $this
      */
     public function setData($data) {
         $this->_args['DATA'] = $data;
@@ -235,7 +242,10 @@ Class DBAgentStatement {
         try {
             $this->stmt = $pdo->prepare($sql);
         } catch (\PDOException $e) {
-            throw new DBAgentException('SQL prepared error [' . $e->getCode() . '], Message: ' . $e->getMessage() . '. SQL: ' . $sql . PHP_EOL . ' With PDO Message:' . $pdo->errorInfo()[2]);
+            throw new DBAgentException(
+                'SQL prepared error [' . $e->getCode() . '], 
+                Message: ' . $e->getMessage() . '. 
+                SQL: ' . $sql . PHP_EOL . ' With PDO Message:' . $pdo->errorInfo()[2]);
         }
 
         if (!empty($this->_bind)) {

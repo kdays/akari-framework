@@ -8,8 +8,12 @@
 
 namespace Akari\system\console;
 
+use Akari\system\ioc\DIHelper;
+
 Class Request {
 
+    use DIHelper;
+    
     protected $params;
     protected $input;
     
@@ -34,7 +38,9 @@ Class Request {
     
     public function input($message) {
         if (!empty($message) ) {
-            Response::getInstance()->message($message);
+            /** @var Response $resp */
+            $resp = $this->_getDI()->getShared("response");
+            $resp->message($message);
         }
         return $this->input->read();
     }

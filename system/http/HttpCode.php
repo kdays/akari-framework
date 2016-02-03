@@ -28,10 +28,12 @@ Class HttpCode {
     const FORBIDDEN = 403;
     const NOT_FOUND = 404;
     const METHOD_NOT_ALLOWED = 405;
+    const UNAVAILABLE_FOR_LEGAL_REASON = 451;
+    
     const INTERNAL_SERVER_ERROR = 500;
     const SERVICE_UNAVAILABLE = 503;
     const GATEWAY_TIMEOUT = 504;
-
+    
     public static $statusCode = Array(
         "200" => "OK",
         "201" => "Created",
@@ -66,6 +68,8 @@ Class HttpCode {
         "415" => "Unsupported Media Type",
         "416" => "Requested Range Not Satisfiable",
         "417" => "Expectation Failed",
+        
+        "451" => "Unavailable For Legal Reasons",
 
         "500" => "Internal Server Error",
         "501" => "Not Implemented",
