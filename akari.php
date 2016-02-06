@@ -100,7 +100,7 @@ Class Context {
     public static $appEntryName;
 
     /**
-     * 应用调用方法，使用直接调用时为NULL
+     * 应用调用方法
      * 
      * @var NULL|string
      */

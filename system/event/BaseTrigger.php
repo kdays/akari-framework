@@ -13,7 +13,7 @@ use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
 
-Class BaseTrigger {
+abstract Class BaseTrigger {
 
     use ResultHelper, Logging, ExceptionSetter, ValueHelper;
 

@@ -10,6 +10,7 @@ namespace Akari\system\event;
 
 use Akari\Context;
 use Akari\NotFoundClass;
+use Akari\system\result\Result;
 
 class Trigger {
 
@@ -20,7 +21,7 @@ class Trigger {
     public static function initEvent() {
         $trigger = Context::$appConfig->trigger;
         $triggerBaseNS = Context::$appBaseNS. NAMESPACE_SEPARATOR. "trigger". NAMESPACE_SEPARATOR;
-
+        
         $beforeDispatch = empty($trigger['beforeDispatch']) ? [] : $trigger['beforeDispatch'];
         self::$beforeDispatchEvent = $beforeDispatch;
 
@@ -53,21 +54,26 @@ class Trigger {
         
         foreach ($list as $value) {
             list($re, $cls) = $value;
-
             if (!preg_match($re, Context::$uri)) {
                 continue;
             }
             
-            $clsName = $triggerBaseNS. $cls;
+            if (strpos($cls, Context::$appBaseNS) === FALSE) {
+                $clsName = $triggerBaseNS. $cls;
+            } else {
+                $clsName = $cls;
+            }
 
             /** @var Rule $handler */
             try {
                 $handler = new $clsName();
                 $result = $handler->process($requestResult);
+                
                 if ($result !== NULL) {
-                    if (!is_a($result, '\Akari\system\result\Result')) {
+                    if (!is_a($result, Result::class)) {
                         throw new WrongTriggerResultType(gettype($result),  $clsName);
                     }
+                    
                     $requestResult = $result;
                 }
             } catch (StopEventBubbling $e) {

@@ -196,5 +196,9 @@ function json_decode_nice($json, $assoc = TRUE){
 
 function get_date($format, $timestamp = TIMESTAMP) {
     if (!is_numeric($timestamp))    $timestamp = strtotime($timestamp);
+    if (is_numeric(Context::$appConfig->offsetTime)) {
+        $timestamp += Context::$appConfig->offsetTime;
+    }
+    
     return date($format, $timestamp);
 }
