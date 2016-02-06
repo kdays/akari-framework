@@ -119,6 +119,11 @@ Class Request{
         if (isset($_SERVER['HTTPS'])) {
             return !!(strtoupper($_SERVER['HTTPS']) == 'ON');
         }
+        
+        if (isset($_SERVER['KEL_SSL'])) {
+            //HOSTKER
+            return TRUE;
+        }
 
         return !!(strpos($protocol, 'HTTPS') !== FALSE);
     }

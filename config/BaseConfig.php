@@ -25,6 +25,8 @@ Class BaseConfig {
     // 如果没有result时的callback
     public $nonResultCallback = NULL;
     
+    public $offsetTime = 28800;
+    
     public $logging = [
         [
             'handler' => Sys\logger\handler\FileLoggerHandler::class,
