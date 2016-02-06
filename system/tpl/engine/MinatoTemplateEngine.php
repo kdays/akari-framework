@@ -122,7 +122,7 @@ TAG;
                 return "<?php endif; ?>";
 
             case "loop":
-                return "<?php if(is_array($command[0])||is_object($command[0]))foreach($afterCommand): ?>";
+                return "<?php foreach($afterCommand): ?>";
 
             case "endloop":
             case "loopend":

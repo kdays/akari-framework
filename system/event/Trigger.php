@@ -76,7 +76,8 @@ class Trigger {
                 continue;
             }
             
-            $clsName = $triggerBaseNS. $cls;
+            // clsName里如果已经有baseNS 那么就不用拼接了
+            $clsName = in_string($cls, NAMESPACE_SEPARATOR) ? $cls : $triggerBaseNS . $cls;
 
             /** @var Rule $handler */
             try {
