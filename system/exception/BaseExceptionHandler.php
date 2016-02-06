@@ -9,14 +9,25 @@
 namespace Akari\system\exception;
 
 use Akari\Context;
+use Akari\system\http\Request;
+use Akari\system\ioc\DIHelper;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
 
-Class BaseExceptionHandler {
+abstract Class BaseExceptionHandler {
 
-    use Logging, ResultHelper, ValueHelper;
+    use Logging, ResultHelper, ValueHelper, DIHelper;
+    
+    /** @var  Request $request */
+    protected $request;
+    
+    public function __construct() {
+        $this->request = $this->_getDI()->getShared("request");
+    }
 
+    abstract public function handleException(\Exception $ex);
+    
     protected function crash($file, $line, $trace) {
         $count = count($trace);
         $padLen = strlen($count);

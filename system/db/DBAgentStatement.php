@@ -8,6 +8,8 @@
 
 namespace Akari\system\db;
 
+use Akari\utility\PageHelper;
+
 Class DBAgentStatement {
 
     protected $agent;
@@ -46,9 +48,11 @@ Class DBAgentStatement {
      * 在当前SQL语句后面追加str
      *
      * @param string $str
+     * @return $this
      */
     public function addSQL($str) {
         $this->SQL .= $str;
+        return $this;
     }
 
     /**
@@ -57,9 +61,11 @@ Class DBAgentStatement {
      *
      * @param string $key 键
      * @param string|int $value 值
+     * @return $this
      */
     public function bindValue($key, $value) {
         $this->_bind[':'. $key] = $value;
+        return $this;
     }
 
     /**
@@ -67,9 +73,11 @@ Class DBAgentStatement {
      * 可多次调用
      *
      * @param $order
+     * @return $this
      */
     public function addOrder($order) {
         $this->_args['ORDER'][] = $order;
+        return $this;
     }
 
     /**
@@ -80,6 +88,7 @@ Class DBAgentStatement {
      *
      * @param string $field
      * @param mixed $value
+     * @return $this
      */
     public function addWhere($field, $value) {
         if ($value === NULL && is_array($field)) {
@@ -87,30 +96,39 @@ Class DBAgentStatement {
                 $this->_args['WHERE'][$k] = $v;
             }
         
-            return;
+            return $this;
         }
         
         $this->_args['WHERE'][$field] = $value;
+        return $this;
     }
-    
+
     /**
      * 注意和addWhere不同，调用的是parse的parseWhere的方法
      * 即支持AND/OR的方法【必须写嗯】
      *
      * @param array $data
+     * @return $this
      */
     public function setWheres($data) {
         $this->_args['WHERES'] = $data;
+        return $this;
     }
 
     /**
      * 设置SQL的LIMIT
      * 传入[0, 10] => LIMIT 0, 10  传入10 => LIMIT 10
      *
-     * @param int|array $limit
+     * @param int|array|PageHelper $limit [skip, limit] or limit
+     * @return $this
      */
     public function setLimit($limit) {
+        if ($limit instanceof PageHelper) {
+            $limit = [$limit->getStart(), $limit->getLength()];
+        }
+        
         $this->_args['LIMIT'] = $this->parser->parseLimit($limit);
+        return $this;
     }
 
     /**
@@ -119,9 +137,11 @@ Class DBAgentStatement {
      *
      * @param string $field
      * @param string|int $value
+     * @return $this
      */
     public function addData($field, $value) {
         $this->_args['DATA'][$field] = $value;
+        return $this;
     }
 
     /**
@@ -129,9 +149,11 @@ Class DBAgentStatement {
      * 传入一个数组
      *
      * @param array $data
+     * @return $this
      */
     public function setData($data) {
         $this->_args['DATA'] = $data;
+        return $this;
     }
 
     /**
@@ -220,7 +242,10 @@ Class DBAgentStatement {
         try {
             $this->stmt = $pdo->prepare($sql);
         } catch (\PDOException $e) {
-            throw new DBAgentException('SQL prepared error [' . $e->getCode() . '], Message: ' . $e->getMessage() . '. SQL: ' . $sql . PHP_EOL . ' With PDO Message:' . $pdo->errorInfo()[2]);
+            throw new DBAgentException(
+                'SQL prepared error [' . $e->getCode() . '], 
+                Message: ' . $e->getMessage() . '. 
+                SQL: ' . $sql . PHP_EOL . ' With PDO Message:' . $pdo->errorInfo()[2]);
         }
 
         if (!empty($this->_bind)) {

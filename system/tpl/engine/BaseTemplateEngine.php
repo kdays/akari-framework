@@ -32,6 +32,7 @@ abstract class BaseTemplateEngine {
     
     public function setOption($key, $value) {
         $this->options[$key] = $value;
+        return $this;
     }
 
     public function getCachePath($tplPath) {

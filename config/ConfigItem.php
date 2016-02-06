@@ -16,4 +16,6 @@ Class ConfigItem {
 
     const LANGUAGE_ID = "languageId";
     
+    const TEMPLATE_PREFIX = "templateNamePrefix";
+    
 }

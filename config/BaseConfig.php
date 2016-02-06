@@ -59,17 +59,22 @@ Class BaseConfig {
     public $uriSuffix = '';
 
     public $templateSuffix = ".htm";
+    public $templateNamePrefix = '';
     public $templateCacheDir = '/runtime/tpl';
 
     public $encrypt = [
         'default' => [
             'cipher' => Sys\security\cipher\AESCipher::class,
-            'key' => 'Hello, Akari Framework'
+            'options' => [
+                'secret' => 'Hello, Akari Framework'
+            ]
         ],
 
         'cookie' => [
             'cipher' => Sys\security\cipher\AESCipher::class,
-            'key' => 'Answer is 42.'
+            'options' => [
+                'secret' => 'Answer is 42.'
+            ]
         ]
     ];
 
@@ -94,6 +99,7 @@ Class BaseConfig {
     ];
 
     public $uriRewrite = [];
+    public $uriGenerator = NULL;
 
     public $uploadDir = 'web/attachment/';
     public $allowUploadExt = [];
@@ -110,7 +116,7 @@ Class BaseConfig {
      * @var string $key
      * @return null
      */
-    public function loadExternalConfig($key) {
+    public final function loadExternalConfig($key) {
         $namePolicies = [
             Context::$mode. DIRECTORY_SEPARATOR. $key,
             Context::$mode. ".". $key,

@@ -12,6 +12,7 @@ use Akari\Context;
 use Akari\system\console\Request;
 use Akari\system\http\HttpCode;
 use Akari\system\http\Response;
+use Akari\system\ioc\DI;
 use Akari\system\result\Result;
 use Akari\system\router\Dispatcher;
 
@@ -19,7 +20,8 @@ trait ResultHelper {
 
     public static function _setFileToSend($fileContent, $fileName) {
         return new Result(Result::TYPE_CUSTOM, $fileContent, ['name' => $fileName], Result::CONTENT_BINARY, function($result) {
-            $resp = Response::getInstance();
+            /** @var Response $resp */
+            $resp = DI::getDefault()->getShared("response");
             $resp
                 ->setHeader('Accept-Ranges', 'bytes')
                 ->setHeader('Content-Disposition', "attachment; filename=".$result->meta['name']);
@@ -77,7 +79,9 @@ trait ResultHelper {
     }
 
     public static function _redirect($uri, $code = HttpCode::FOUND) {
-        Response::getInstance()->setStatusCode($code);
+        /** @var Response $response */
+        $response = DI::getDefault()->getShared("response");
+        $response->setStatusCode($code);
 
         Header("Location: ". $uri);
         return self::_genNoneResult();

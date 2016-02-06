@@ -10,11 +10,14 @@ namespace Akari\system\exception;
 
 use Akari\system\event\Event;
 use Akari\system\event\Listener;
+use Akari\system\ioc\DIHelper;
 use Akari\system\result\Processor;
 use Akari\utility\helper\ExceptionSetter;
 
 Class ExceptionProcessor {
-
+    
+    use DIHelper;
+    
     /**
      * 异常被执行时
      *
@@ -38,6 +41,7 @@ Class ExceptionProcessor {
         $this->fkExceptionHandler = new FrameworkExceptionHandler();
     }
 
+    /** @var  BaseExceptionHandler */
     protected $handler;
 
     public function setHandler($clsPath){
@@ -72,7 +76,9 @@ Class ExceptionProcessor {
             }
         }
 
-        Processor::getInstance()->processResult($result);
+        /** @var Processor $processor */
+        $processor = $this->_getDI()->getShared("processor");
+        $processor->processResult($result);
     }
 
     public function processFatal() {

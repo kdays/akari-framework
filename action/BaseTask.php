@@ -24,11 +24,19 @@ Class BaseTask {
     protected $response;
 
     public function __construct() {
-        $this->request = Request::getInstance();
-        $this->response = Response::getInstance();
+        $this->request = $this->_getDI()->getShared('request');
+        $this->response = $this->_getDI()->getShared('response');
     }
     
     protected function message($text, $style = NULL) {
+        if (is_array($text)) {
+            $r = '';
+            foreach ($text as $k => $p) {
+                $r .= " [Array] ". $k . " -> ". $p;
+            }
+            
+            $text = $r;
+        }
         return $this->response->message($text, $style);
     }
     

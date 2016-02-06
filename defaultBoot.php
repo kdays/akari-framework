@@ -22,6 +22,16 @@ $di->setShared('logger', function() use($di) {
     return $logger;
 });
 
-$di->setShared('cookieEncrypt', function() {
-    return new \Akari\system\security\CookieEncryptHelper();
-});
+if (!CLI_MODE) {
+    $di->setShared('request', \Akari\system\http\Request::class);
+    $di->setShared('response', \Akari\system\http\Response::class);
+} else {
+    $di->setShared('request', \Akari\system\console\Request::class);
+    $di->setShared('response', \Akari\system\console\Response::class);
+}
+
+$di->setShared("dispatcher", Akari\system\router\Dispatcher::class);
+$di->setShared("router", Akari\system\router\Router::class);
+$di->setShared("processor", Akari\system\result\Processor::class);
+
+$di->setShared('cookieEncrypt', \Akari\system\security\CookieEncryptHelper::class);

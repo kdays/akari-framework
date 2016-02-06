@@ -13,17 +13,8 @@ use Akari\system\tpl\TemplateHelper;
 use Akari\system\tpl\ViewHelper;
 
 Class Processor {
-
-    protected static $p;
-    public static function getInstance() {
-        if (!isset(self::$p)) {
-            self::$p = new self();
-        }
-
-        return self::$p;
-    }
-
-    protected function processJPEG(Result $result) {
+    
+    public function processJPEG(Result $result) {
         if (is_resource($result->data)) {
             if (isset($result->meta['quality'])) {
                 imagejpeg($result->data, NULL, $result->meta['quality']);
@@ -36,12 +27,12 @@ Class Processor {
         }
     }
 
-    protected function processGIF(Result $result) {
+    public function processGIF(Result $result) {
         imagegif($result->data);
         imagedestroy($result->data);
     }
 
-    protected function processPNG(Result $result) {
+    public function processPNG(Result $result) {
         if (isset($result->meta['quality'])) {
             imagepng($result->data, NULL, $result->meta['quality']);
         } else {

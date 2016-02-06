@@ -26,6 +26,10 @@ Class Cookie {
         }
         return self::$c;
     }
+    
+    public function has($name) {
+        return !!array_key_exists($name, $_COOKIE);
+    }
 
     public function set($name, $value, $expire = NULL, $useEncrypt = FALSE, $opts = []) {
         $config = Context::$appConfig;

@@ -10,13 +10,15 @@ namespace Akari\system\security;
 
 use Akari\Context;
 use Akari\system\http\Request;
+use Akari\system\ioc\DIHelper;
+use Akari\system\security\cipher\Cipher;
 use Akari\utility\helper\ValueHelper;
 
 Class Security {
 	
     const KEY_TOKEN = "Security:CSRF";
     
-	use ValueHelper;
+	use ValueHelper, DIHelper;
 	
     /**
      * 获得CSRF的token
@@ -24,7 +26,8 @@ Class Security {
      * @return string
      */
 	public static function getCSRFToken(){
-		$request = Request::getInstance();
+		/** @var Request $request */
+		$request = self::_getDI()->getShared("request");
 		$key = self::_getValue(self::KEY_TOKEN, false, $request->getUserIP());
 
 		$str = implode("_", [
@@ -60,25 +63,54 @@ Class Security {
 		if (!empty(Context::$appConfig->csrfTokenName) && !CLI_MODE) {
 			$tokenValue = self::getCSRFToken();
 			if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-				setCookie(Context::$appConfig->csrfTokenName, $tokenValue);
+				setCookie(Context::$appConfig->csrfTokenName, $tokenValue, NULL, Context::$appConfig->cookiePath);
 			} else {
 				self::verifyCSRFToken();
 			}
 		}
 	}
 	
-	public static function encrypt($text, $mode = 'default') {
-		$cipher = Context::$appConfig->encrypt[ $mode ]['cipher'];
-        $instance = $cipher::getInstance($mode);
+	protected static $cipherInstances = [];
 
-		return $instance->encrypt($text);
+	/**
+	 * 获得加密实例
+	 * 
+	 * @param string $mode Config中encrypt的设置名
+	 * @param bool $newInstance 强制创建新实例
+	 * @return Cipher
+	 */
+	public static function getCipher($mode = 'default', $newInstance = false) {
+		if (isset(self::$cipherInstances[$mode]) && !$newInstance) {
+			return self::$cipherInstances[$mode];
+		}
+
+		$options = Context::$appConfig->encrypt[$mode];
+
+		$cipher = $options['cipher'];
+		
+		/** @var Cipher $instance */
+		$instance = new $cipher($options['options']);
+		self::$cipherInstances[$mode] = $instance;
+		
+		return $instance;
 	}
 
-	public static function decrypt($text, $mode = 'default') {
-		$cipher = Context::$appConfig->encrypt[ $mode ]['cipher'];
-        $instance = $cipher::getInstance($mode);
+	/**
+	 * @param $text
+	 * @param string $mode
+	 * @return mixed
+	 */
+	public static function encrypt($text, $mode = 'default') {
+		return self::getCipher($mode)->encrypt($text);
+	}
 
-		return $instance->decrypt($text);
+	/**
+	 * @param $text
+	 * @param string $mode
+	 * @return mixed
+	 */
+	public static function decrypt($text, $mode = 'default') {
+		return self::getCipher($mode)->decrypt($text);
 	}
 }
 

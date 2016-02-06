@@ -13,6 +13,7 @@ Class CURL {
     protected $options = array(
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 5,
+        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
         CURLOPT_USERAGENT => "Akari/1.0",
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false

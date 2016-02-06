@@ -11,17 +11,8 @@ namespace Akari\system\console;
 Class Response {
 
     protected $output;
-    
-    private static $instance = null;
-    public static function getInstance(){
-        if(self::$instance == null){
-            self::$instance = new self();
-        }
 
-        return self::$instance;
-    }
-
-    protected function __construct() {
+    public function __construct() {
         $this->output = new ConsoleOutput();
     }
     

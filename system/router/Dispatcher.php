@@ -15,23 +15,11 @@ Class Dispatcher{
     use Logging, ValueHelper;
 
     private $config;
-    private static $r;
-
-    /**
-     * 单例
-     * @return Dispatcher
-     */
-    public static function getInstance() {
-        if (self::$r == null) {
-            self::$r = new self();
-        }
-        return self::$r;
-    }
 
     /**
      * 构造函数
      */
-    private function __construct(){
+    public function __construct(){
         $this->config = Context::$appConfig;
     }
 
@@ -120,7 +108,7 @@ Class Dispatcher{
 
         $cls = Context::$appBaseNS. NAMESPACE_SEPARATOR. 'action'. NAMESPACE_SEPARATOR. implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
         $isExistCls = False;
-
+        
         try {
             $isExistCls = !!class_exists($cls);
         } catch (NotFoundClass $e) {
@@ -133,7 +121,7 @@ Class Dispatcher{
             Context::$appEntryMethod = $method;
 
             Context::$appSpecAction = $pCls. ".". $method;
-        } 
+        }
     }
 
     /**

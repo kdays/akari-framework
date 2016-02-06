@@ -8,12 +8,16 @@
 
 namespace Akari\system\console;
 
+use Akari\system\ioc\DIHelper;
+
 Class Request {
 
+    use DIHelper;
+    
     protected $params;
     protected $input;
     
-    protected function __construct() {
+    public function __construct() {
         $params = [];
         if (isset($_SERVER['argv'])) {
             $params = $_SERVER['argv'];
@@ -23,17 +27,6 @@ Class Request {
         $this->params = $this->resolve($params);
         $this->input = new ConsoleInput();
     }
-
-
-    private static $instance = null;
-    public static function getInstance(){
-        if(self::$instance == null){
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
-
 
     public function getQuery($key, $defaultValue = NULL) {
         if (empty($key)) {
@@ -45,7 +38,9 @@ Class Request {
     
     public function input($message) {
         if (!empty($message) ) {
-            Response::getInstance()->message($message);
+            /** @var Response $resp */
+            $resp = $this->_getDI()->getShared("response");
+            $resp->message($message);
         }
         return $this->input->read();
     }

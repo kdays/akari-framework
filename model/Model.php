@@ -10,7 +10,7 @@ namespace Akari\model;
 
 use Akari\utility\helper\Logging;
 
-Class Model {
+abstract Class Model {
 
     use Logging;
 

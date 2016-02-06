@@ -9,12 +9,16 @@
 namespace Akari\system\tpl;
 
 
+use Akari\config\ConfigItem;
 use Akari\Context;
+use Akari\system\ioc\DIHelper;
 use Akari\system\router\Dispatcher;
 use Akari\system\tpl\TemplateNotFound;
 
 class ViewHelper {
 
+    use DIHelper;
+    
     protected static $layout;
     protected static $screen;
 
@@ -58,8 +62,21 @@ class ViewHelper {
         $suffix = Context::$appConfig->templateSuffix;
         
         if ($screenPath == NULL) {
-            $screenPath = Dispatcher::getInstance()->findWay($screenName, 'template/view/', $suffix);
-            $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'], '', $screenPath);
+            /** @var Dispatcher $dispatcher */
+            $dispatcher = self::_getDI()->getShared('dispatcher');
+            
+            $prefix = Context::env(ConfigItem::TEMPLATE_PREFIX);
+            if ($prefix) {
+                $screenPath = $dispatcher->findWay($screenName, 'template/view/'.$prefix. "/", $suffix);
+                if ($screenPath) {
+                    $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'. $prefix. "/"], '', $screenPath);
+                }
+            }
+            
+            if (!$screenPath) {
+                $screenPath = $dispatcher->findWay($screenName, 'template/view/', $suffix);
+                $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'], '', $screenPath);
+            }
 
             if ($screenPath == '') {
                 throw new TemplateNotFound('screen Default');
@@ -75,10 +92,13 @@ class ViewHelper {
         $suffix = Context::$appConfig->templateSuffix;
 
         if ($layoutPath == NULL) {
-            $layoutPath = Dispatcher::getInstance()->findWay($screenName, 'template/layout/', $suffix);
+            /** @var Dispatcher $dispatcher */
+            $dispatcher = self::_getDI()->getShared('dispatcher');
+            
+            $layoutPath = $dispatcher->findWay($screenName, 'template/layout/', $suffix);
             $layoutPath = str_replace([Context::$appEntryPath, $suffix, '/template/layout/'], '', $layoutPath);
         }
-
+        
         return $layoutPath;
     }
 

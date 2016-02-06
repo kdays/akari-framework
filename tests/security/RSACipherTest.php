@@ -10,7 +10,7 @@ namespace Akari\tests\security;
 
 use Akari\system\security\Cipher\RSACipher;
 
-require_once __DIR__ . "/../../TestLoader.php";
+require_once __DIR__ . "/../../testLoader.php";
 \Akari\TestLoader::initForTest(__NAMESPACE__, '\Akari\config\BaseConfig');
 
 class RSACipherTest extends \PHPUnit_Framework_TestCase {
@@ -46,9 +46,10 @@ EOT;
         /**
          * @var $cipher RSACipher
          */
-        $cipher = RSACipher::getInstance();
-        $cipher->loadPrivateKey($this->privateKey);
-        $cipher->loadPublicKey($this->publicKey);
+        $cipher = new RSACipher([
+            'public_key' => $this->publicKey,
+            'private_key' => $this->privateKey
+        ]);
 
         $text = "我是一段测试文字";
         $encrypt = $cipher->encrypt($text);

@@ -9,27 +9,26 @@
 namespace Akari\system\result;
 
 use Akari\system\http\Request;
+use Akari\system\ioc\DIHelper;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
 
-class Widget {
+abstract class Widget {
 
-    use ResultHelper, ValueHelper, Logging;
+    use ResultHelper, ValueHelper, Logging, DIHelper;
     
     /** @var Request $request */
     protected $request;
     
     public function __construct() {
-        $this->request = Request::getInstance();
+        $this->request = $this->_getDI()->getShared("request");
     }
 
     /**
-     * @param null $userData
+     * @param mixed $userData
      * @return array
      */
-    public function execute($userData = NULL) {
-        return [];
-    }
+    abstract public function execute($userData = NULL);
 
 }
