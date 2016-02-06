@@ -6,8 +6,8 @@
  * Time: 13:53
  */
 
-define("AKARI_VERSION", "3.6.5 (Sora)");
-define("AKARI_BUILD", "2015.10.9");
+define("AKARI_VERSION", "3.6.6 (Sora)");
+define("AKARI_BUILD", "2015.12.10");
 define("NAMESPACE_SEPARATOR", "\\");
 
 define("CLI_MODE", php_sapi_name()=="cli" ? TRUE : FALSE);

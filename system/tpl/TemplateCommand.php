@@ -34,7 +34,12 @@ class TemplateCommand {
     }
 
     public static function moduleAction(BaseTemplateEngine $engine, $modName, $args) {
-        return sprintf('<?=\Akari\system\tpl\TemplateCommand::loadMod("%s", "%s")?>', $modName, $args);
+        if (strpos($modName, ' ') !== FALSE) {
+            $args = explode(" ", $modName);
+            $modName = array_shift($args);
+        }
+
+        return sprintf('<?=\Akari\system\tpl\TemplateCommand::loadMod("%s", "%s")?>', $modName, is_array($args) ? implode(" ", $args) : '');
     }
 
     public static function loadBlock($cachePath, $templatePath) {

@@ -7,6 +7,7 @@
 
 namespace Akari;
 
+use Akari\system\event\Event;
 use Akari\system\event\Listener;
 use Akari\system\exception\ExceptionProcessor;
 use Akari\system\event\Trigger;
@@ -243,9 +244,9 @@ Class akari {
         ExceptionProcessor::getInstance()->setHandler(Context::$appConfig->defaultExceptionHandler);
 
         // 异常发生时Event发射到Logging方法
-        Listener::add(ExceptionProcessor::EVENT_EXCEPTION_EXECUTE, function($params, $eventName, $eventId) {
+        Listener::add(ExceptionProcessor::EVENT_EXCEPTION_EXECUTE, function(Event $event) {
             /** @var \Exception $ex */
-            $ex = $params['ex'];
+            $ex = $event->params;
 
             $level = AKARI_LOG_LEVEL_ERROR;
             if (isset($ex->logLevel)) {
