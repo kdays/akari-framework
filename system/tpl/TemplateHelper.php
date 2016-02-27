@@ -43,21 +43,20 @@ class TemplateHelper {
     public static function getBaseDirs($type) {
         $baseDirs = [];
 
+        $baseTplDir = Context::env(ConfigItem::BASE_TPL_DIR, NULL, 'template'. DIRECTORY_SEPARATOR);
+        $dirPrefix = Context::env(ConfigItem::TEMPLATE_PREFIX);
+        
         if ($type == self::TYPE_SCREEN && !empty(ViewHelper::$screenDir)) {
-            $baseDirs[] = ViewHelper::$screenDir;
+            $baseDirs[] = $baseTplDir. ViewHelper::$screenDir;
         } elseif ($type == self::TYPE_LAYOUT && !empty(ViewHelper::$layoutDir)) {
-            $baseDirs[] = ViewHelper::$layoutDir;
+            $baseDirs[] = $baseTplDir. ViewHelper::$layoutDir;
         }
 
-        if (Context::env(ConfigItem::BASE_TPL_DIR)) {
-            $baseDirs[] = Context::env(ConfigItem::BASE_TPL_DIR). DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
+        if ($dirPrefix) {
+            $baseDirs[] =  $baseTplDir. $type. DIRECTORY_SEPARATOR. $dirPrefix. DIRECTORY_SEPARATOR;
         }
 
-        if (Context::env(ConfigItem::TEMPLATE_PREFIX)) {
-            $baseDirs[] =  "template". DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR. Context::env(ConfigItem::TEMPLATE_PREFIX). DIRECTORY_SEPARATOR;
-        }
-
-        $baseDirs[] =  "template". DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
+        $baseDirs[] =  $baseTplDir. $type. DIRECTORY_SEPARATOR;
         
         return $baseDirs;
     }
