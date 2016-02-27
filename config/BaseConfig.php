@@ -37,6 +37,10 @@ Class BaseConfig {
             ]
         ]
     ];
+    
+    public $bindDomain = [
+        //'default' => '\action'
+    ];
 
     public $cache = [
         'default' => [

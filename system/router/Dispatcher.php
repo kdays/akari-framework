@@ -4,6 +4,7 @@ namespace Akari\system\router;
 use Akari\Context;
 use Akari\NotFoundClass;
 use Akari\system\http\Request;
+use Akari\system\ioc\DIHelper;
 use Akari\system\result\Result;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ValueHelper;
@@ -12,15 +13,19 @@ use Akari\utility\helper\ValueHelper;
 
 Class Dispatcher{
 
-    use Logging, ValueHelper;
+    use Logging, ValueHelper, DIHelper;
 
     private $config;
+    
+    /** @var  Request $request */
+    private $request;
 
     /**
      * 构造函数
      */
     public function __construct(){
         $this->config = Context::$appConfig;
+        $this->request = $this->_getDI()->getShared('request');
     }
 
     /**
@@ -106,7 +111,7 @@ Class Dispatcher{
         //避免爆炸
         if ($class == 'Action') $class = 'IndexAction';
 
-        $cls = Context::$appBaseNS. NAMESPACE_SEPARATOR. 'action'. NAMESPACE_SEPARATOR. implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
+        $cls = $this->getAppActionNS(). NAMESPACE_SEPARATOR. implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
         $isExistCls = False;
         
         try {
@@ -122,6 +127,18 @@ Class Dispatcher{
 
             Context::$appSpecAction = $pCls. ".". $method;
         }
+    }
+    
+    protected function getAppActionNS() {
+        if (isset($this->config->bindDomain[$this->request->getHost()])) {
+            return Context::$appBaseNS. $this->config->bindDomain[$this->request->getHost()];
+        }
+        
+        if (isset($this->config->bindDomain['default'])) {
+            return Context::$appBaseNS. $this->config->bindDomain['default'];
+        }
+        
+        return Context::$appBaseNS. NAMESPACE_SEPARATOR. 'action';
     }
 
     /**

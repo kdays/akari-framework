@@ -218,6 +218,10 @@ Class Request{
     public function getFullURI() {
         return $this->host. $this->requestURI;
     }
+    
+    public function getHost() {
+        return $this->host;
+    }
 
     /**
      * 获得请求的脚本名称
@@ -257,6 +261,14 @@ Class Request{
      */
     public function isGet() {
         return $this->getRequestMethod() == 'GET';
+    }
+    
+    public function hasPost($key) {
+        return array_key_exists($key, $_POST);
+    }
+    
+    public function hasGet($key) {
+        return array_key_exists($key, $_GET);
     }
 
     /**
