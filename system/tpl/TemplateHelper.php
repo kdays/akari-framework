@@ -39,24 +39,36 @@ class TemplateHelper {
             self::$assignKeys[$key] = $value;
         }
     }
-
-    public static function find($tplName, $type) {
-
-        $suffix = Context::$appConfig->templateSuffix;
+    
+    public static function getBaseDirs($type) {
         $baseDirs = [];
 
+        if ($type == self::TYPE_SCREEN && !empty(ViewHelper::$screenDir)) {
+            $baseDirs[] = ViewHelper::$screenDir;
+        } elseif ($type == self::TYPE_LAYOUT && !empty(ViewHelper::$layoutDir)) {
+            $baseDirs[] = ViewHelper::$layoutDir;
+        }
+
         if (Context::env(ConfigItem::BASE_TPL_DIR)) {
-            $baseDirs[] = Context::$appEntryPath. Context::env(ConfigItem::BASE_TPL_DIR). DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
+            $baseDirs[] = Context::env(ConfigItem::BASE_TPL_DIR). DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
         }
 
         if (Context::env(ConfigItem::TEMPLATE_PREFIX)) {
-            $baseDirs[] = Context::$appEntryPath. "template". DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR. Context::env(ConfigItem::TEMPLATE_PREFIX). DIRECTORY_SEPARATOR;
+            $baseDirs[] =  "template". DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR. Context::env(ConfigItem::TEMPLATE_PREFIX). DIRECTORY_SEPARATOR;
         }
-        
-        $baseDirs[] = Context::$appEntryPath. "template". DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
 
+        $baseDirs[] =  "template". DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
         
+        return $baseDirs;
+    }
+
+    public static function find($tplName, $type) {
+        $baseDirs = self::getBaseDirs($type);
+
+        $suffix = Context::$appConfig->templateSuffix;
         foreach ($baseDirs as $baseDir) {
+            $baseDir = Context::$appEntryPath. $baseDir;
+            
             if (file_exists($tplPath = $baseDir. $tplName. $suffix)) {
                 return realpath($tplPath);
             }
@@ -70,11 +82,19 @@ class TemplateHelper {
     }
 
     public function setLayout($layoutName) {
-        $this->layoutPath = $this->find($layoutName, self::TYPE_LAYOUT);
+        if (file_exists($layoutName)) {
+            $this->layoutPath = $layoutName;
+        } else {
+            $this->layoutPath = $this->find($layoutName, self::TYPE_LAYOUT); 
+        }
     }
 
     public function setScreen($screenName) {
-        $this->screenPath = $this->find($screenName, self::TYPE_SCREEN);
+        if (file_exists($screenName)) {
+            $this->screenPath = $screenName;
+        } else {
+            $this->screenPath = $this->find($screenName, self::TYPE_SCREEN);
+        }
     }
 
     public function getResult($data) {

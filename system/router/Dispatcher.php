@@ -69,28 +69,28 @@ Class Dispatcher{
         if ($uriLevels > 10) {
             throw new DispatcherException('invalid URI');
         }
-
+        
         for ($i = 0; $i < $uriLevels - 1; $i++) {
             $fileName = array_pop($uri);
             $filePath = implode(DIRECTORY_SEPARATOR, $uri);
 
             $path = $baseDirPath. $filePath. DIRECTORY_SEPARATOR. $fileName. $ext;
             if(file_exists($path)){
-                return $path;
+                return realpath($path);
             }
 
             $path = $baseDirPath. $filePath. DIRECTORY_SEPARATOR. "default". $ext;
             if(file_exists($path)){
-                return $path;
+                return realpath($path);
             }
         }
 
         if(file_exists($path = $baseDirPath. array_shift($uri). $ext)){
-            return $path;
+            return realpath($path);
         }
 
         if(file_exists($path = $baseDirPath. "default". $ext)){
-            return $path;
+            return realpath($path);
         }
 
         return FALSE;

@@ -24,7 +24,6 @@ Class BaseConfig {
 
     // 如果没有result时的callback
     public $nonResultCallback = NULL;
-    
     public $offsetTime = 28800;
     
     public $logging = [
@@ -39,7 +38,7 @@ Class BaseConfig {
     ];
     
     public $bindDomain = [
-        //'default' => '\action'
+        'default' => '\action'
     ];
 
     public $cache = [

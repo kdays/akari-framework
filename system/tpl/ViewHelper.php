@@ -21,6 +21,9 @@ class ViewHelper {
     
     protected static $layout;
     protected static $screen;
+    
+    public static $layoutDir = NULL;
+    public static $screenDir = NULL;
 
     public static function setLayout($layoutName) {
         self::$layout = $layoutName;
@@ -29,7 +32,15 @@ class ViewHelper {
     public static function setScreen($screeName) {
         self::$screen = $screeName;
     }
-
+    
+    public static function setLayoutDir($layoutDir) {
+        self::$layoutDir = $layoutDir;
+    }
+    
+    public static function setScreenDir($screenDir) {
+        self::$screenDir = $screenDir;
+    }
+    
     protected static function getScreenName() {
         $screenName = str_replace('.php', '', trim(Context::$appEntryName));
         // Action名称应该保证被处理..
@@ -42,61 +53,52 @@ class ViewHelper {
                 $name = strtolower($name);
             }
         }
-        
+
         $screenName = implode(DIRECTORY_SEPARATOR, $screenName);
         $contMethod = Context::$appEntryMethod;
-        
+
         if ($contMethod !== NULL) {
             if (substr($contMethod, -6) == 'Action') {
                 $contMethod = substr($contMethod, 0, strlen($contMethod) - 6);
             }
-            $screenName .= DIRECTORY_SEPARATOR. $contMethod;
+            $screenName .= DIRECTORY_SEPARATOR . $contMethod;
         }
-        
+
         return $screenName;
     }
 
     public static function getScreen() {
-        $screenName = self::getScreenName();
-        $screenPath = self::$screen;
+        $screenName = empty(self::$screen) ? self::getScreenName() : self::$screen;
         $suffix = Context::$appConfig->templateSuffix;
         
-        if ($screenPath == NULL) {
-            /** @var Dispatcher $dispatcher */
-            $dispatcher = self::_getDI()->getShared('dispatcher');
-            
-            $prefix = Context::env(ConfigItem::TEMPLATE_PREFIX);
-            if ($prefix) {
-                $screenPath = $dispatcher->findWay($screenName, 'template/view/'.$prefix. "/", $suffix);
-                if ($screenPath) {
-                    $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'. $prefix. "/"], '', $screenPath);
-                }
-            }
-            
-            if (!$screenPath) {
-                $screenPath = $dispatcher->findWay($screenName, 'template/view/', $suffix);
-                $screenPath = str_replace([Context::$appEntryPath, $suffix, '/template/view/'], '', $screenPath);
-            }
-
-            if ($screenPath == '') {
-                throw new TemplateNotFound('screen Default');
-            }
+        $baseDirs = TemplateHelper::getBaseDirs(TemplateHelper::TYPE_SCREEN);
+        
+        /** @var Dispatcher $dispatcher */
+        $dispatcher = self::_getDI()->getShared('dispatcher');
+        $screenPath = NULL;
+        
+        foreach ($baseDirs as $screenDir) {
+            $screenPath = $dispatcher->findWay($screenName, $screenDir. DIRECTORY_SEPARATOR, $suffix);
+            if ($screenPath) break;
         }
-
+            
+        if (empty($screenPath)) throw new TemplateNotFound('screen Default');
         return $screenPath;
     }
 
     public static function getLayout() {
-        $screenName = self::getScreenName();
-        $layoutPath = self::$layout;
+        $screenName = empty(self::$layout) ? self::getScreenName() : self::$layout;
         $suffix = Context::$appConfig->templateSuffix;
 
-        if ($layoutPath == NULL) {
-            /** @var Dispatcher $dispatcher */
-            $dispatcher = self::_getDI()->getShared('dispatcher');
-            
-            $layoutPath = $dispatcher->findWay($screenName, 'template/layout/', $suffix);
-            $layoutPath = str_replace([Context::$appEntryPath, $suffix, '/template/layout/'], '', $layoutPath);
+        $baseDirs = TemplateHelper::getBaseDirs(TemplateHelper::TYPE_LAYOUT);
+
+        /** @var Dispatcher $dispatcher */
+        $dispatcher = self::_getDI()->getShared('dispatcher');
+        $layoutPath = NULL;
+
+        foreach ($baseDirs as $layoutDir) {
+            $layoutPath = $dispatcher->findWay($screenName, $layoutDir. DIRECTORY_SEPARATOR, $suffix);
+            if ($layoutPath) break;
         }
         
         return $layoutPath;
