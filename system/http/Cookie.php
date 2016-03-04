@@ -27,7 +27,12 @@ Class Cookie {
         return self::$c;
     }
     
-    public function has($name) {
+    public function exists($name, $autoPrefix = TRUE) {
+        $config = Context::$appConfig;
+        if(!in_string($name, $config->cookiePrefix) && $autoPrefix){
+            $name = $config->cookiePrefix.$name;
+        }
+        
         return !!array_key_exists($name, $_COOKIE);
     }
 
