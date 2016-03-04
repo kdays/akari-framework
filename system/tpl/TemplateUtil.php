@@ -85,12 +85,12 @@ EOT
         return '</form>';
     }
     
-    public static function load_block($block_name) {
+    public static function load_block($block_name, $params = []) {
         /** @var BaseTemplateEngine $viewEngine */
         $viewEngine = DI::getDefault()->getShared('viewEngine');
         $tplPath = TemplateHelper::find($block_name, TemplateHelper::TYPE_BLOCK);
         
-        $c = $viewEngine->parse($tplPath, [], TemplateHelper::TYPE_BLOCK, False);
+        $c = $viewEngine->parse($tplPath, $params, TemplateHelper::TYPE_BLOCK, False);
         return $c;
     }
 }

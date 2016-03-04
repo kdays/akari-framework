@@ -19,8 +19,10 @@ Class BaseTask {
 
     use Logging, ValueHelper, ExceptionSetter, DIHelper;
 
+    /** @var  Request */
     protected $request;
 
+    /** @var  Response */
     protected $response;
 
     public function __construct() {

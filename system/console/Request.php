@@ -14,7 +14,7 @@ Class Request {
 
     use DIHelper;
     
-    protected $params;
+    protected $parameters;
     protected $input;
     
     public function __construct() {
@@ -24,39 +24,44 @@ Class Request {
             array_shift($params);
         }
 
-        $this->params = $this->resolve($params);
+        function resolve(array $params) {
+            $now = [];
+            foreach ($params as $param) {
+                if (preg_match('/^--(\w+)(=(.*))?$/', $param, $matches)) {
+                    $name = $matches[1];
+                    $now[$name] = isset($matches[3]) ? $matches[3] : true;
+                } else {
+                    $now[] = $param;
+                }
+            }
+
+            return $now;
+        }
+        
+        $this->parameters = resolve($params);
         $this->input = new ConsoleInput();
     }
 
-    public function getQuery($key, $defaultValue = NULL) {
-        if (empty($key)) {
-            return $this->params;
-        }
-        
-        return isset($this->params[$key]) ? $this->params[$key] : $defaultValue;
+    public function has($key) {
+        return !!array_key_exists($key, $this->parameters);
     }
     
-    public function input($message) {
+    public function get($key, $defaultValue = NULL) {
+        if (empty($key)) {
+            return $this->parameters;
+        }
+        
+        return isset($this->parameters[$key]) ? $this->parameters[$key] : $defaultValue;
+    }
+    
+    public function input($message = NULL) {
         if (!empty($message) ) {
             /** @var Response $resp */
             $resp = $this->_getDI()->getShared("response");
             $resp->message($message);
         }
+        
         return $this->input->read();
     }
-
-    private function resolve(array $params) {
-        $now = [];
-        foreach ($params as $param) {
-            if (preg_match('/^--(\w+)(=(.*))?$/', $param, $matches)) {
-                $name = $matches[1];
-                $now[$name] = isset($matches[3]) ? $matches[3] : true;
-            } else {
-                $now[] = $param;
-            }
-        }
-
-        return $now;
-    }
-
+    
 }
