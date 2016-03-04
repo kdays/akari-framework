@@ -11,27 +11,40 @@ namespace Akari\utility\helper;
 
 use Akari\config\ConfigItem;
 use Akari\Context;
+use Akari\system\tpl\TemplateHelper;
 use Akari\system\tpl\ViewHelper;
 
-trait TemplateViewHelper {
+// 
+class TemplateViewHelper {
 
-    public static function _setLayout($layoutName) {
+    /**
+     * 将参数绑定到模板 别的不会执行  
+     *
+     * @param string|array $key
+     * @param mixed $value
+     * @return array
+     */
+    public function bindVar($key, $value = NULL) {
+        TemplateHelper::assign($key, $value);
+    }
+    
+    public function setLayout($layoutName) {
         ViewHelper::setLayout($layoutName);
     }
 
-    public static function _setScreen($screenName) {
+    public function setScreen($screenName) {
         ViewHelper::setScreen($screenName);
     }
     
-    public static function _setBaseViewDir($viewDir) {
+    public function setBaseViewDir($viewDir) {
         Context::env(ConfigItem::BASE_TPL_DIR, $viewDir);
     }
     
-    public static function _setLayoutDir($layoutDir) {
+    public function setLayoutDir($layoutDir) {
         ViewHelper::setLayoutDir($layoutDir);
     }
     
-    public static function _setScreenDir($screenDir) {
+    public function setScreenDir($screenDir) {
         ViewHelper::setScreenDir($screenDir);
     }
 

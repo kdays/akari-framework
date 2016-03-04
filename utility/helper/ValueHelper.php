@@ -14,17 +14,6 @@ use Akari\utility\DataHelper;
 trait ValueHelper {
 
     /**
-     * 将参数绑定到模板 别的不会执行
-     *
-     * @param $key
-     * @param $value
-     * @return array
-     */
-    protected static function _bindValue($key, $value = NULL) {
-        TemplateHelper::assign($key, $value);
-    }
-
-    /**
      * 获得在DataHelper的数据 不会在模板展现
      *
      * @param string $key

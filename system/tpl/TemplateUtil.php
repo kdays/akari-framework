@@ -36,13 +36,18 @@ class TemplateUtil {
         );
     }
     
-    public static function url($url, $arr = []) {
+    public static function url($url, $arr = [], $withToken = false) {
         if (substr($url, 0, 1) == '.') {
             // 这个时候检查Rewrite语法代表重发到特定Rewrite方法中
             if (Context::$appConfig->uriGenerator !== NULL) {
                 return call_user_func_array([Context::$appConfig->uriGenerator, 'make'], [$url, $arr]);
             }
         }
+        
+        if ($withToken && Context::$appConfig->csrfTokenName) {
+            $arr[ Context::$appConfig->csrfTokenName ] = Security::getCSRFToken();
+        }
+        
         return $url. (!empty($arr) ? ("?". http_build_query($arr)) : '');
     }
     

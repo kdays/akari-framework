@@ -85,9 +85,17 @@ class FileUpload {
 
         return True;
     }
+    
+    public function getSavePath($target) {
+        if (is_callable(Context::$appConfig->uploadDir)) {
+            return Context::$appConfig->uploadDir($target, TRUE);
+        }
+        
+        return Context::$appBasePath. Context::$appConfig->uploadDir.DIRECTORY_SEPARATOR. $target;   
+    }
 
     public function save($target) {
-        $savePath = Context::$appBasePath. Context::$appConfig->uploadDir.DIRECTORY_SEPARATOR. $target;
+        $savePath = $this->getSavePath($target);
         if (empty($this->getTempPath())) {
             throw new UploadFailed($this->codeMessage[$this->getError()], $this->getError());
         }

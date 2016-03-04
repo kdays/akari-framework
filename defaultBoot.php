@@ -30,6 +30,7 @@ if (!CLI_MODE) {
     $di->setShared('response', \Akari\system\console\Response::class);
 }
 
+$di->setShared('viewHelper', Akari\utility\helper\TemplateViewHelper::class);
 $di->setShared("dispatcher", Akari\system\router\Dispatcher::class);
 $di->setShared("router", Akari\system\router\Router::class);
 $di->setShared("processor", Akari\system\result\Processor::class);

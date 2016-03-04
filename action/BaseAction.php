@@ -8,7 +8,7 @@
 
 namespace Akari\action;
 
-use Akari\system\http\HttpHelper;
+use Akari\system\cache\CacheHelper;
 use Akari\system\http\Request;
 use Akari\system\http\Response;
 use Akari\system\ioc\DIHelper;
@@ -20,7 +20,7 @@ use Akari\utility\helper\ValueHelper;
 
 abstract class BaseAction {
 
-    use Logging, ValueHelper, ResultHelper, ExceptionSetter, HttpHelper, TemplateViewHelper, DIHelper;
+    use Logging, ValueHelper, ResultHelper, ExceptionSetter, DIHelper, CacheHelper;
 
     /**
      * @var Request
@@ -32,9 +32,15 @@ abstract class BaseAction {
      */
     protected $response;
     
+    /** 
+     * @var TemplateViewHelper 
+     */
+    protected $view;
+    
     public function __construct() {
         $this->request = $this->_getDI()->getShared('request');
         $this->response = $this->_getDI()->getShared('response');
+        $this->view = $this->_getDI()->getShared('viewHelper');
     }
 
 }
