@@ -2,6 +2,7 @@
 namespace Akari\system\http;
 
 Class Request{
+    
     protected $requestMethod;
     protected $requestURI;
     protected $host;
@@ -40,7 +41,6 @@ Class Request{
             }
         }
 
-        $this->cookies = $_COOKIE;
         $this->requestTime = isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
     }
 
@@ -137,38 +137,6 @@ Class Request{
     }
 
     /**
-     * 是否存在这个参数
-     * @param string $name 名称
-     * @return bool
-     */
-    public function hasParameter($name) {
-        return array_key_exists($name, $_REQUEST);
-    }
-
-    /**
-     * 获得参数
-     *
-     * @param string $name 参数
-     * @param null $defaultValue
-     * @return NULL|string
-     */
-    public function getParameter($name, $defaultValue = NULL) {
-        if (array_key_exists($name, $_REQUEST)) {
-            return $_REQUEST[$name];
-        }else{
-            return $defaultValue;
-        }
-    }
-
-    /**
-     * 获得全部参数
-     * @return array
-     */
-    public function getParameters() {
-        return $_REQUEST;
-    }
-
-    /**
      * 获得PathInfo
      * @return string
      */
@@ -215,10 +183,16 @@ Class Request{
         return $this->requestURI;
     }
 
+    /**
+     * @return string
+     */
     public function getFullURI() {
         return $this->host. $this->requestURI;
     }
-    
+
+    /**
+     * @return string
+     */
     public function getHost() {
         return $this->host;
     }
@@ -232,7 +206,7 @@ Class Request{
     }
 
     /**
-     * 获得useragent
+     * 获得userAgent
      * @return string
      */
     public function getUserAgent(){
@@ -262,37 +236,74 @@ Class Request{
     public function isGet() {
         return $this->getRequestMethod() == 'GET';
     }
-    
-    public function hasPost($key) {
-        return array_key_exists($key, $_POST);
-    }
-    
-    public function hasGet($key) {
+
+    /**
+     * 
+     * 
+     * @param string $key
+     * @return bool
+     */
+    public function has($key) {
         return array_key_exists($key, $_GET);
     }
 
     /**
-     * @param string $key
-     * @param null|mixed $defaultValue
-     * @return NULL|string
+     * 获得REQUEST(GET|POST)下的参数
+     * 
+     * @param string|NULL $key
+     * @param mixed $defaultValue
+     * @return mixed
      */
-    public function getQuery($key, $defaultValue = NULL) {
+    public function get($key, $defaultValue = NULL) {
         if ($key == NULL) {
             return $_REQUEST;
         }
+        
         return GP($key, 'GP', $defaultValue);
     }
 
     /**
+     * POST中是否有参数
+     * 
      * @param string $key
-     * @param null $defaultValue
-     * @return NULL|string
+     * @return bool
+     */
+    public function hasPost($key) {
+        return array_key_exists($key, $_POST);
+    }
+
+    /**
+     * 
+     * 
+     * @param string|NULL $key
+     * @param mixed $defaultValue
+     * @return mixed
      */
     public function getPost($key, $defaultValue = NULL) {
         if ($key == NULL) {
             return $_POST;
         }
+        
         return GP($key, 'P', $defaultValue);
+    }
+
+    public function hasQuery($key) {
+        return array_key_exists($key, $_GET);
+    }
+
+    /**
+     * 
+     * 
+     * @param string|NULL $key
+     * @param mixed $defaultValue
+     * @return mixed
+     */
+    public function getQuery($key, $defaultValue = NULL) {
+        if ($key == NULL) {
+            return $_GET;
+        }
+        
+        return GP($key, 'G', $defaultValue);
     }
 
     /**
@@ -383,7 +394,7 @@ Class Request{
     }
     
     public function hasCookie($name) {
-        return Cookie::getInstance()->has($name);
+        return Cookie::getInstance()->exists($name);
     }
     
     public function getCookie($name, $autoPrefix = TRUE) {

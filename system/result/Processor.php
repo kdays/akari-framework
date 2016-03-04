@@ -153,7 +153,7 @@ Class Processor {
         $resp = Response::getInstance();
 
         $resp->setContentType($result->contentType);
-        $resp->doOutput();
+        $resp->send();
 
         if (method_exists($this, $method)) {
             $this->$method($result);

@@ -30,7 +30,7 @@ Class Response {
         return $this;
     }
 
-    public function setNoCache() {
+    public function useNoCache() {
         $this->setHeader('Pragma', 'no-cache');
         $this->setHeader('Cache-Control', 'no-cache');
         
@@ -59,7 +59,7 @@ Class Response {
         return $this;
     }
 
-    public function doOutput() {
+    public function send() {
         http_response_code($this->responseCode);
         foreach ($this->headers as $key => $value) {
             Header($key. ": ". $value);
