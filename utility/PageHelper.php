@@ -14,8 +14,9 @@ Class PageHelper {
     public $params = [];
     public $url;
     public $display = 10;
-    protected $mixedUrl;
-    protected $name;
+    
+    public $mixedUrl;
+    public $name;
 
     public $totalPage = NULL;
     public $currentPage = NULL;

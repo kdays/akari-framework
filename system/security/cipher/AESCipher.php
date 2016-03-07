@@ -11,7 +11,7 @@ namespace Akari\system\security\cipher;
 
 use Akari\Context;
 
-class AESCipher extends Cipher{
+class AESCipher extends Cipher{ 
     
     private $_cipher = MCRYPT_RIJNDAEL_256;
     private $_mode = MCRYPT_MODE_ECB;
