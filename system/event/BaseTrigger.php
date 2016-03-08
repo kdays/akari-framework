@@ -10,6 +10,7 @@ namespace Akari\system\event;
 
 use Akari\system\http\Request;
 use Akari\system\ioc\DIHelper;
+use Akari\system\tpl\TemplateHelper;
 use Akari\utility\helper\ExceptionSetter;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
@@ -24,6 +25,16 @@ abstract Class BaseTrigger {
     
     public function __construct() {
         $this->request = $this->_getDI()->getShared("request");
+    }
+
+    /**
+     * 绑定模板参数
+     *
+     * @param string $key
+     * @param mixed $value
+     */
+    protected function _bindVar($key, $value = NULL) {
+        TemplateHelper::assign($key, $value);
     }
 
     protected function stop() {

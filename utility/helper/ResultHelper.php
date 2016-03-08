@@ -19,15 +19,16 @@ use Akari\system\router\Dispatcher;
 trait ResultHelper {
 
     public static function _setFileToSend($fileContent, $fileName) {
-        return new Result(Result::TYPE_CUSTOM, $fileContent, ['name' => $fileName], Result::CONTENT_BINARY, function($result) {
-            /** @var Response $resp */
-            $resp = DI::getDefault()->getShared("response");
-            $resp
-                ->setHeader('Accept-Ranges', 'bytes')
-                ->setHeader('Content-Disposition', "attachment; filename=".$result->meta['name']);
-
-            return TRUE;
-        });
+        return new Result(Result::TYPE_CUSTOM, $fileContent, ['name' => $fileName], 
+            Result::CONTENT_BINARY, function($result) {
+                /** @var Response $resp */
+                $resp = DI::getDefault()->getShared("response");
+                $resp
+                    ->setHeader('Accept-Ranges', 'bytes')
+                    ->setHeader('Content-Disposition', "attachment; filename=". urlencode($result->meta['name']));
+    
+                return TRUE;
+            });
     }
 
     public static function _genJSONResult($data = [], $contentType = Result::CONTENT_JSON) {

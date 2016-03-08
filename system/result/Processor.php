@@ -9,10 +9,13 @@
 namespace Akari\system\result;
 
 use Akari\system\http\Response;
+use Akari\system\ioc\DIHelper;
 use Akari\system\tpl\TemplateHelper;
 use Akari\system\tpl\ViewHelper;
 
 Class Processor {
+    
+    use DIHelper;
     
     public function processJPEG(Result $result) {
         if (is_resource($result->data)) {
@@ -150,16 +153,31 @@ Class Processor {
 
     public function processResult(Result $result) {
         $method = "process".$result->type;
-        $resp = Response::getInstance();
-
+        /** @var Response $resp */
+        $resp = $this->_getDI()->getShared('response');
         $resp->setContentType($result->contentType);
-        $resp->send();
-
+        
         if (method_exists($this, $method)) {
             $this->$method($result);
+            $resp->send();
         } else {
-            die("Result Processor Execute Failed");
+            throw new ResultTypeUnknown($result);
         }
+    }
+
+}
+
+Class ResultTypeUnknown extends \Exception {
+    
+    protected $errResult;
+    
+    public function __construct($errResult) {
+        $this->message = "Result Type Unknown";
+        $this->errResult = $errResult;
+    }
+    
+    public function getResult() {
+        return $this->errResult;
     }
 
 }

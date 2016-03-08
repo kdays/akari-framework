@@ -17,7 +17,7 @@ use Akari\system\tpl\mod\BaseTemplateMod;
 
 class TemplateCommand {
 
-    public static function widgetAction(BaseTemplateEngine $engine, $widgetName, $args, $direct = False) {
+    public static function widgetAction(BaseTemplateEngine $engine, $widgetName, $args = "", $direct = False) {
         $tplPath = TemplateHelper::find(str_replace('.', DIRECTORY_SEPARATOR, $widgetName), TemplateHelper::TYPE_WIDGET);
         $cachePath = $engine->parse($tplPath, [], TemplateHelper::TYPE_WIDGET, True);
 
