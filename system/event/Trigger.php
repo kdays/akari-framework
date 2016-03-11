@@ -92,7 +92,11 @@ class Trigger {
             } catch (StopEventBubbling $e) {
                 break;
             } catch (NotFoundClass $e) {
-                throw new MissingTrigger($clsName);
+                if ($e->className == $clsName) {
+                    throw new MissingTrigger($clsName);
+                }
+                
+                throw $e;
             }
         }
 

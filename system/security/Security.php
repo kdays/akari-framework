@@ -60,7 +60,7 @@ Class Security {
 	}
 	
 	public static function autoVerifyCSRFToken() {
-		if (!empty(Context::$appConfig->csrfTokenName) && !CLI_MODE) {
+		if (!empty(Context::$appConfig->csrfTokenName) && !CLI_MODE && Context::$appConfig->autoPostTokenCheck) {
 			$tokenValue = self::getCSRFToken();
 			if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 				setCookie(Context::$appConfig->csrfTokenName, $tokenValue, NULL, Context::$appConfig->cookiePath);

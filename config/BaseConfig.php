@@ -86,6 +86,8 @@ Class BaseConfig {
     public $cookiePath = '/';
     public $cookieSecure = false;
     public $cookieDomain = '';
+    
+    public $autoPostTokenCheck = true; // 开启时,POST提交会自动检查令牌
     public $csrfTokenName = '_akari';
 
     public $trigger = [

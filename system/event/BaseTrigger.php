@@ -9,6 +9,7 @@
 namespace Akari\system\event;
 
 use Akari\system\http\Request;
+use Akari\system\http\Response;
 use Akari\system\ioc\DIHelper;
 use Akari\system\tpl\TemplateHelper;
 use Akari\utility\helper\ExceptionSetter;
@@ -21,10 +22,14 @@ abstract Class BaseTrigger {
     use ResultHelper, Logging, ExceptionSetter, ValueHelper, DIHelper;
 
     /** @var  Request */
-    public $request;
+    protected $request;
+    
+    /** @var  Response */
+    protected $response;
     
     public function __construct() {
         $this->request = $this->_getDI()->getShared("request");
+        $this->response = $this->_getDI()->getShared('response');
     }
 
     /**
