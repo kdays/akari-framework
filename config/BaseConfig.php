@@ -26,16 +26,8 @@ Class BaseConfig {
     public $nonResultCallback = NULL;
     public $offsetTime = 28800;
     
-    public $logging = [
-        [
-            'handler' => Sys\logger\handler\FileLoggerHandler::class,
-            'match' => NULL,
-            'level' => AKARI_LOG_LEVEL_PRODUCTION,
-            'parameters' => [
-                'path' => '/runtime/log/default.log'
-            ]
-        ]
-    ];
+    /** @var bool|callable  */
+    public $exceptionAutoLogging = true;
     
     public $bindDomain = [
         'default' => '\action'

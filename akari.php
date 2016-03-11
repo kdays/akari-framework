@@ -12,6 +12,7 @@ use Akari\system\event\Listener;
 use Akari\system\exception\ExceptionProcessor;
 use Akari\system\event\Trigger;
 use Akari\system\ioc\DIHelper;
+use Akari\system\logger\DefaultExceptionAutoLogger;
 use Akari\system\result\Processor;
 use Akari\system\result\Result;
 use Akari\system\router\Dispatcher;
@@ -246,23 +247,14 @@ Class akari {
         $exceptionProcessor = ExceptionProcessor::getInstance();
         $exceptionProcessor->setHandler(Context::$appConfig->defaultExceptionHandler);
 
-        // 异常发生时Event发射到Logging方法
-        Listener::add(ExceptionProcessor::EVENT_EXCEPTION_EXECUTE, function(Event $event) {
-            /** @var \Exception $ex */
-            $ex = $event->params;
-
-            $level = AKARI_LOG_LEVEL_ERROR;
-            if (isset($ex->logLevel)) {
-                $level = $ex->logLevel;
-            }
-
-            $this->_log(
-                sprintf("Message: %s File: %s",
-                    $ex->getMessage(),
-                    str_replace(Context::$appBasePath, '', $ex->getFile()). ":" .$ex->getLine()),
-                $level
-            );
-        });
+        $autoLogger = Context::$appConfig->exceptionAutoLogging;
+        if ($autoLogger) {
+            $autoLoggerCls = is_bool($autoLogger) ? DefaultExceptionAutoLogger::class : $autoLogger;
+            
+            Listener::add(ExceptionProcessor::EVENT_EXCEPTION_EXECUTE, function(Event $event) use($autoLoggerCls) {
+                return $autoLoggerCls::log($event);
+            });
+        }
     }
 
     public function run($uri = NULL, $outputBuffer = TRUE) {
