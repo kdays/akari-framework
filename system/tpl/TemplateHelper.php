@@ -40,6 +40,10 @@ class TemplateHelper {
         }
     }
     
+    public static function getAssignValues() {
+        return self::$assignKeys;
+    }
+    
     public static function getBaseDirs($type) {
         $baseDirs = [];
 
@@ -97,26 +101,27 @@ class TemplateHelper {
     }
 
     public function getResult($data) {
-        $layout = $this->layoutPath;
-        $screen = $this->screenPath;
+        $layoutResult = $screenResult = NULL;
+        $layoutPath = $this->layoutPath;
+        $screenPath = $this->screenPath;
 
-        if ($data == NULL) {
-            $data = self::$assignKeys;
-        }
+        if (empty($data)) {
+            $data = self::getAssignValues();
+        }  
 
-        if (empty($layout) && empty($screen)) {
+        if (empty($layoutPath) && empty($screenPath)) {
             throw new TemplateCommandInvalid('getResult', 'templateHelper');
         }
-
-        if ($layout) {
-            $layout = $this->engine->parse($layout, $data, self::TYPE_LAYOUT);
+        
+        if ($layoutPath) {
+            $layoutResult = $this->engine->parse($layoutPath, $data, self::TYPE_LAYOUT);
         }
 
-        if ($screen) {
-            $screen = $this->engine->parse($screen, $data, self::TYPE_SCREEN);
+        if ($screenPath) {
+            $screenResult = $this->engine->parse($screenPath, $data, self::TYPE_SCREEN);
         }
         
-        $result = $this->engine->getResult($layout, $screen);
+        $result = $this->engine->getResult($layoutResult, $screenResult);
         
         return $result;
     }

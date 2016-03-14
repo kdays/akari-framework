@@ -37,7 +37,7 @@ abstract class BaseTemplateEngine {
 
     public function getCachePath($tplPath) {
         $tpl = str_replace(Context::$appEntryPath, '', $tplPath);
-        $tpl = str_replace([ '.', '/'],  '_', $tpl);
+        $tpl = str_replace([ '.', '/', DIRECTORY_SEPARATOR],  '_', $tpl);
 
         $cachePath = realpath(Context::$appBasePath. Context::$appConfig->templateCacheDir). '/'. $tpl . ".php";
         return $cachePath;

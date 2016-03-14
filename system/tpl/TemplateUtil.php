@@ -90,7 +90,8 @@ EOT
         $viewEngine = DI::getDefault()->getShared('viewEngine');
         $tplPath = TemplateHelper::find($block_name, TemplateHelper::TYPE_BLOCK);
         
-        $c = $viewEngine->parse($tplPath, $params, TemplateHelper::TYPE_BLOCK, False);
+        $bindVars = array_merge(TemplateHelper::getAssignValues(), $params);
+        $c = $viewEngine->parse($tplPath, $bindVars, TemplateHelper::TYPE_BLOCK, False);
         return $c;
     }
 }

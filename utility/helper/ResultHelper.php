@@ -18,14 +18,15 @@ use Akari\system\router\Dispatcher;
 
 trait ResultHelper {
 
-    public static function _setFileToSend($fileContent, $fileName) {
+    public static function _sendFileResult($fileContent, $fileName) {
         return new Result(Result::TYPE_CUSTOM, $fileContent, ['name' => $fileName], 
-            Result::CONTENT_BINARY, function($result) {
+            Result::CONTENT_BINARY, function(Result $result) {
                 /** @var Response $resp */
                 $resp = DI::getDefault()->getShared("response");
                 $resp
                     ->setHeader('Accept-Ranges', 'bytes')
-                    ->setHeader('Content-Disposition', "attachment; filename=". urlencode($result->meta['name']));
+                    ->setHeader('Content-Length', strlen($result->data))
+                    ->setHeader('Content-Disposition', "attachment; filename=". rawurlencode($result->meta['name']));
     
                 return TRUE;
             });
