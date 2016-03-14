@@ -105,7 +105,7 @@ class TemplateHelper {
         $layoutPath = $this->layoutPath;
         $screenPath = $this->screenPath;
 
-        if (empty($data)) {
+        if (empty($data) && !is_array($data)) {
             $data = self::getAssignValues();
         }  
 
