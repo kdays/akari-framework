@@ -22,7 +22,7 @@ Class DefaultExceptionHandler extends BaseExceptionHandler {
      * @return \Akari\system\result\Result
      */
     public function handleException(\Exception $ex) {
-        Response::getInstance()->setStatusCode(HttpCode::INTERNAL_SERVER_ERROR);
+        $this->response->setStatusCode(HttpCode::INTERNAL_SERVER_ERROR);
 
         self::_logErr($ex);
         $view = function($path, $data) {

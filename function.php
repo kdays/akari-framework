@@ -20,16 +20,15 @@ use Akari\utility\I18n;
  * @return boolean
  */
 function in_string($string, $findme){
-    !is_array($findme) && $findme = Array($findme);
-    foreach($findme as $value){
-        if($value == '')	continue;
-        if(strpos($string, $value) === false) {
-            continue;
-        } else {
-            return true;
+    if (!is_array($findme)) $findme = [$findme];
+    $findme = array_filter($findme);
+    
+    foreach($findme as $find){
+        if(strpos($string, $find) !== false) {
+            return TRUE;
         }
     }
-    return false;
+    return FALSE;
 }
 
 /**

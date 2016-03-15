@@ -174,10 +174,9 @@ Class akari {
         return self::$f;
     }
 
-    public static function getVersion($dispCodeName = true) {
+    public static function getVersion($withCodeName = true) {
         $version = AKARI_VERSION;
-
-        return $dispCodeName ? $version : preg_replace('/\(\w+\)/', "", $version);
+        return $withCodeName ? $version : preg_replace('/\(\w+\)/', "", $version);
     }
 
     /**

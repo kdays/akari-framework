@@ -10,6 +10,7 @@ namespace Akari\system\exception;
 
 use Akari\Context;
 use Akari\system\http\Request;
+use Akari\system\http\Response;
 use Akari\system\ioc\DIHelper;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
@@ -22,8 +23,12 @@ abstract Class BaseExceptionHandler {
     /** @var  Request $request */
     protected $request;
     
+    /** @var  Response $response */
+    protected $response;
+    
     public function __construct() {
         $this->request = $this->_getDI()->getShared("request");
+        $this->response = $this->_getDI()->getShared("response");
     }
 
     abstract public function handleException(\Exception $ex);

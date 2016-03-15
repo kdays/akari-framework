@@ -29,7 +29,7 @@ class DI {
     }
 
     public function get($serviceName) {
-        if (array_key_exists($serviceName, $this->services)) {
+        if ($this->has($serviceName)) {
             if (is_string($this->services[$serviceName])) {
                 $clsObj = new $this->services[$serviceName]();
             } else {
@@ -38,6 +38,12 @@ class DI {
 
             return $clsObj;
         }
+        
+        throw new DINotRegistered("service [". $serviceName. "] not registered!");
+    }
+    
+    public function has($serviceName) {
+        return !!array_key_exists($serviceName, $this->services);
     }
 
     public function setShared($serviceName, $cls) {
@@ -53,5 +59,13 @@ class DI {
     public function getShared($serviceName) {
         return $this->instance[$serviceName];
     }
+    
+    public function hasShared($serviceName) {
+        return !!isset($this->instance[$serviceName]);
+    }
 
+}
+
+Class DINotRegistered extends \Exception {
+    
 }
