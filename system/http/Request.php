@@ -1,6 +1,8 @@
 <?php
 namespace Akari\system\http;
 
+use Akari\system\security\FilterFactory;
+
 Class Request{
     
     protected $requestMethod;
@@ -38,10 +40,10 @@ Class Request{
         foreach($arr as $key => $value){
             if(isset($_SERVER[$value])){
                 $this->$key = $_SERVER[$value];
-            }
+            } 
         }
 
-        $this->requestTime = isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+        $this->requestTime = isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : TIMESTAMP;
     }
 
     // http://cn2.php.net/manual/en/function.ip2long.php#104163
@@ -79,21 +81,21 @@ Class Request{
 
         // try ipv6 => ipv4
         if (filter_var($onlineIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
-            $ipv4Addr = $this->bin2ip(base_convert(ip2long($onlineIp), 10, 2));
-            if ($ipv4Addr) $onlineIp = $ipv4Addr;
+            $ipv4Address = $this->bin2ip(base_convert(ip2long($onlineIp), 10, 2));
+            if ($ipv4Address) $onlineIp = $ipv4Address;
         }
 
-        // 如果onlineip是内网ip
         $isInternal = false;
-        $ipAddr = explode(".", $onlineIp);
-        if ($ipAddr[0] == 10) {
+        $ipAddress = explode(".", $onlineIp);
+        if ($ipAddress[0] == 10) {
             $isInternal = true;
-        } elseif ($ipAddr[0] == 172 && $ipAddr[1] > 15 && $ipAddr[1] < 32) {
+        } elseif ($ipAddress[0] == 172 && $ipAddress[1] > 15 && $ipAddress[1] < 32) {
             $isInternal = true;
-        } elseif ($ipAddr[0] == 192 && $ipAddr[1] == 168) {
+        } elseif ($ipAddress[0] == 192 && $ipAddress[1] == 168) {
             $isInternal = true;
         }
 
+        // 如果确定是内网IP的话 再检查X-FORWARDED-FOR字段,避免伪造
         if ($isInternal && isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $onlineIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
 
@@ -120,8 +122,7 @@ Class Request{
             return !!(strtoupper($_SERVER['HTTPS']) == 'ON');
         }
         
-        if (isset($_SERVER['KEL_SSL'])) {
-            //HOSTKER
+        if (isset($_SERVER['KEL_SSL'])) { // HOSTKER判断字段
             return TRUE;
         }
 
@@ -238,29 +239,31 @@ Class Request{
     }
 
     /**
-     * 
+     * GET或者POST是否有参数
      * 
      * @param string $key
      * @return bool
      */
     public function has($key) {
-        return array_key_exists($key, $_GET);
+        return array_key_exists($key, $_REQUEST);
     }
 
     /**
-     * 获得REQUEST(GET|POST)下的参数
-     * 
+     * 获得REQUEST(GET或者POST)下的参数
+     *
      * @param string|NULL $key
      * @param mixed $defaultValue
+     * @param string $filter
      * @return mixed
      */
-    public function get($key, $defaultValue = NULL) {
-        if ($key == NULL) {
-            return $_REQUEST;
+    public function get($key, $defaultValue = NULL, $filter = "default") {
+        if ($key == NULL) return $_REQUEST;
+        if (array_key_exists($key, $_REQUEST)) {
+            return FilterFactory::doFilter($_REQUEST[$key], $filter);
         }
         
-        return GP($key, 'GP', $defaultValue);
-    }
+        return $defaultValue;
+    } 
 
     /**
      * POST中是否有参数
@@ -273,18 +276,20 @@ Class Request{
     }
 
     /**
-     * 
-     * 
+     * 获得POST参数
+     *
      * @param string|NULL $key
      * @param mixed $defaultValue
+     * @param string $filter
      * @return mixed
      */
-    public function getPost($key, $defaultValue = NULL) {
-        if ($key == NULL) {
-            return $_POST;
+    public function getPost($key, $defaultValue = NULL, $filter = "default") {
+        if ($key == NULL) return $_POST;
+        if (array_key_exists($key, $_POST)) {
+            return FilterFactory::doFilter($_POST[$key], $filter);
         }
         
-        return GP($key, 'P', $defaultValue);
+        return $defaultValue;
     }
 
     public function hasQuery($key) {
@@ -292,18 +297,19 @@ Class Request{
     }
 
     /**
-     * 
-     * 
+     * 获得GET的参数
+     *
      * @param string|NULL $key
      * @param mixed $defaultValue
+     * @param string $filter
      * @return mixed
      */
-    public function getQuery($key, $defaultValue = NULL) {
-        if ($key == NULL) {
-            return $_GET;
+    public function getQuery($key, $defaultValue = NULL, $filter = "default") {
+        if ($key == NULL) return $_GET;
+        if (array_key_exists($key, $_GET)) {
+            return FilterFactory::doFilter($_GET[$key], $filter);
         }
-        
-        return GP($key, 'G', $defaultValue);
+        return $defaultValue;
     }
 
     /**

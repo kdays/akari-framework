@@ -7,6 +7,8 @@
  */
 
 use Akari\Context;
+use Akari\system\security\FilterFactory;
+use Akari\utility\DataHelper;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\I18n;
 
@@ -36,30 +38,25 @@ function in_string($string, $findme){
  * @param string $key 关键词
  * @param string $method 获得类型(G=GET P=POST GP=GET&POST)
  * @param string $defaultValue 默认值
- * @return string|NULL
- *
+ * @param string $filter 过滤器
+ * @return mixed
+ * 
  * @todo key为U.开头时，调用DataHelper，主要是为了方便URL重写的参数处理
  */
-function GP($key, $method = 'GP', $defaultValue = NULL){
-    $header = substr($key, 0, 2);
-    $t = substr($key, 2);
-
-    if ($header == 'U.') {
+function GP($key, $method = 'GP', $defaultValue = NULL, $filter = "default"){
+    if (substr($key, 0, 2) == 'U.') {
+        $t = substr($key, 2);
         if ($method != 'GP' || $method === TRUE) {
-            return \Akari\utility\DataHelper::set($t, $method);
+            return DataHelper::set($t, $method);
         } 
         
-        return \Akari\utility\DataHelper::get($t, FALSE, $defaultValue);
-    } elseif ($header == 'P.') {
-        return GP($t, 'P');
-    } elseif ($header == 'G.') {
-        return GP($t, 'G');
+        return DataHelper::get($t, FALSE, $defaultValue);
     }
-
+    
     if ($method != 'P' && isset($_GET[$key])) {
-        return \Akari\utility\TextHelper::filter($_GET[$key]);
+        return FilterFactory::doFilter($_GET[$key], $filter);
     } elseif ($method != 'G' && isset($_POST[$key])) {
-        return \Akari\utility\TextHelper::filter($_POST[$key]);
+        return FilterFactory::doFilter($_POST[$key], $filter);
     }
 
     return $defaultValue;
@@ -140,6 +137,7 @@ function cookie($key, $value = NULL, $expire = NULL, $useEncrypt = FALSE) {
  * @param string|null $indexKey 索引键,NULL时索引按照自增索引
  * @param bool $multi 是否允许重复的索引键
  * @param bool $allowObject 是否始终使用数组方式读取
+ * 
  * @return array
  */
 function array_flat($list, $columnKey, $indexKey = NULL, $multi = FALSE, $allowObject = FALSE) {
@@ -169,6 +167,7 @@ function array_flat($list, $columnKey, $indexKey = NULL, $multi = FALSE, $allowO
  * @param array|object $list 数组或对象
  * @param string $indexKey 索引键
  * @param bool $allowObject 是否始终使用数组,如果Model有使用ArrayAccess请保持false
+ * 
  * @return array
  */
 function array_index($list, $indexKey, $allowObject = false) {

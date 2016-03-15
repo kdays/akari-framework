@@ -46,6 +46,10 @@ Class BaseConfig {
         ]
     ];
 
+    public $filters = [
+        'default' => Sys\security\filter\DefaultFilter::class
+    ];
+    
     public $database = [];
 
     public $defaultExceptionHandler = Sys\exception\DefaultExceptionHandler::class;
