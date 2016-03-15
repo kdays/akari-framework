@@ -11,6 +11,7 @@ namespace Akari\system\exception;
 use Akari\Context;
 use Akari\system\http\HttpCode;
 use Akari\system\http\Response;
+use Akari\system\ioc\DIHelper;
 use Akari\utility\helper\ResultHelper;
 use \Exception;
 
@@ -23,11 +24,12 @@ use \Exception;
  */
 Class FrameworkExceptionHandler {
 
-    use ResultHelper;
+    use ResultHelper, DIHelper;
 
     public function handleException(Exception $ex) {
         $config = Context::$appConfig;
-        $response = Response::getInstance();
+        /** @var Response $response */
+        $response = $this->_getDI()->getShared('response');
 
         // 调用框架的模板
         $view = function($path, $data) {
@@ -42,7 +44,8 @@ Class FrameworkExceptionHandler {
 
         // CLI模式时为了方便调试 任何错误不捕获时全调用
         if (CLI_MODE) {
-            return $this->_genTEXTResult($ex);
+            echo $ex->getMessage(). "\n\n". $ex->getTraceAsString();
+            die;
         }
 
         switch (get_class($ex)) {
@@ -62,13 +65,11 @@ Class FrameworkExceptionHandler {
                     "index" => Context::$appConfig->appBaseURL
                 ];
                 
-                if ($config->notFoundTemplate != "") {
+                if (!empty($config->notFoundTemplate)) {
                     return $this->_genTplResult($message, NULL, $config->notFoundTemplate);
                 } else {
                     // 处理$ex
-                    return $this->_genHTMLResult(
-                        $view(404, $message)
-                    );
+                    return $this->_genHTMLResult( $view(404, $message) );
                 }
 
             // 系统的fatal
@@ -79,12 +80,10 @@ Class FrameworkExceptionHandler {
                     "file" => basename($ex->getFile()).":".$ex->getLine()
                 ];
                  
-                if ($config->serverErrorTemplate != "") {
+                if (!empty($config->serverErrorTemplate)) {
                     return $this->_genTplResult($message, NULL, $config->serverErrorTemplate);
                 } else {
-                    return $this->_genHTMLResult(
-                        $view(500, $message)
-                    );
+                    return $this->_genHTMLResult( $view(500, $message) );
                 }
         }
 

@@ -8,6 +8,7 @@
 
 namespace Akari\system\result;
 
+use Akari\NotAllowConsole;
 use Akari\system\http\Response;
 use Akari\system\ioc\DIHelper;
 use Akari\system\tpl\TemplateHelper;
@@ -153,6 +154,11 @@ Class Processor {
 
     public function processResult(Result $result) {
         $method = "process".$result->type;
+        
+        if (CLI_MODE) {
+            throw new NotAllowConsole('return result on Processor');
+        }
+        
         /** @var Response $resp */
         $resp = $this->_getDI()->getShared('response');
         $resp->setContentType($result->contentType);

@@ -11,18 +11,9 @@ namespace Akari\system\http;
 use Akari\system\result\Result;
 
 Class Response {
-
-    protected static $h;
-
+    
     private $responseCode = HttpCode::OK;
     private $headers = [];
-
-    public static function getInstance() {
-        if (!isset(self::$h)) {
-            self::$h = new self();
-        }
-        return self::$h;
-    }
 
     public function setStatusCode($code = HttpCode::OK) {
         $this->responseCode = $code;

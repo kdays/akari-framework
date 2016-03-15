@@ -28,6 +28,11 @@ class TemplateViewHelper {
         TemplateHelper::assign($key, $value);
     }
     
+    public function hasVar($key) {
+        $vars = TemplateHelper::getAssignValues();
+        return array_key_exists($key, $vars);
+    }
+    
     public function setLayout($layoutName) {
         ViewHelper::setLayout($layoutName);
     }

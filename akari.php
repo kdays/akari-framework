@@ -402,3 +402,11 @@ Class NotFoundClass extends \Exception {
     }
 
 }
+
+Class NotAllowConsole extends \Exception {
+
+    public function __construct($message) {
+        $this->message = "This action not allow on console. ". $message;
+    }
+
+}

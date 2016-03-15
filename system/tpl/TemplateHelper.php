@@ -110,7 +110,7 @@ class TemplateHelper {
         }  
 
         if (empty($layoutPath) && empty($screenPath)) {
-            throw new TemplateCommandInvalid('getResult', 'templateHelper');
+            throw new TemplateCommandInvalid('getResult', 'TemplateHelper Core (NO LAYOUT AND NO SCREEN)');
         }
         
         if ($layoutPath) {
