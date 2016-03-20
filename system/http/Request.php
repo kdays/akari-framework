@@ -215,6 +215,18 @@ Class Request{
     }
 
     /**
+     * 获得不带参数的URL地址
+     * 
+     * @return string
+     */
+    public function getUrlPath() {
+        $url = $this->requestURI;
+        $urlInfo = parse_url($url);
+
+        return $urlInfo['path'];
+    }
+
+    /**
      * 获得请求模式 (PUT/GET/POST)
      * @return mixed
      */

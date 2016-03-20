@@ -331,7 +331,7 @@ Class DBAgent {
         if (CLI_MODE) {
             return $query;
         }
-        $query = preg_replace("/['\"]([^'\"]*)['\"]/i", "'<span style='text-decoration: underline;'>$1</span>'", $query, -1);
+        $query = preg_replace("/['\"]([^'\"]*)['\"]/i", "'<u>$1</u>'", $query, -1);
 
         return $query;
     }

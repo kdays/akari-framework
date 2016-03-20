@@ -9,7 +9,7 @@
 namespace Akari\model;
 
 
-abstract class DatabaseModel extends Model implements \ArrayAccess{
+abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSerializable {
 
     public static function model() {
         return new static();
@@ -18,7 +18,7 @@ abstract class DatabaseModel extends Model implements \ArrayAccess{
     /**
      * @return array
      */
-    abstract  public function columnMap();
+    abstract public function columnMap();
 
     public function toArray($except = [], $useModelKey = False) {
         $result = [];
@@ -48,17 +48,17 @@ abstract class DatabaseModel extends Model implements \ArrayAccess{
 
     public function offsetSet($offset, $value) {
         if (is_null($offset)) {
-            throw new \Exception("Model offsetSet error");
-        } else {
-            $offsetFunc = $offset;
-            $offsetFunc[0] = strtoupper($offsetFunc[0]);
+            throw new ModelOffsetUnknown("Model offset is NULL");
+        }
 
-            if (method_exists($this, 'set'. $offsetFunc)) {
-                $f = "set". $offsetFunc;
-                $this->$f($value);
-            } else {
-                $this->$offset = $value;
-            }
+        $magicName = $offset;
+        $magicName[0] = strtoupper($magicName[0]);
+
+        if (method_exists($this, 'set'. $magicName)) {
+            $f = "set". $magicName;
+            $this->$f($value);
+        } else {
+            $this->$offset = $value;
         }
     }
 
@@ -71,15 +71,29 @@ abstract class DatabaseModel extends Model implements \ArrayAccess{
     }
 
     public function offsetGet($offset) {
-        $offsetFunc = $offset;
-        $offsetFunc[0] = strtoupper($offsetFunc[0]);
-        if (method_exists($this, 'get'. $offsetFunc)) {
-            $f = 'get'. $offsetFunc;
+        $magicName = $offset;
+        $magicName[0] = strtoupper($magicName[0]);
+
+        if (method_exists($this, 'get'. $magicName)) {
+            $f = 'get'. $magicName;
             return $this->$f();
         }
 
         return isset($this->$offset) ? $this->$offset : null;
     }
 
+    /**
+     * json_encode时方法,如果有字段不希望json_encode时被重写,可自行实现
+     *
+     * @return array
+     */
+    public function jsonSerialize() {
+        return $this->toArray([], TRUE);
+    }
+    
+}
+
+
+Class ModelOffsetUnknown extends \Exception {
 
 }

@@ -93,7 +93,7 @@ class TemplateHelper {
     }
 
     public function setScreen($screenName) {
-        if (file_exists($screenName)) {
+        if (file_exists($screenName) || empty($screenName)) {
             $this->screenPath = $screenName;
         } else {
             $this->screenPath = $this->find($screenName, self::TYPE_SCREEN);
@@ -107,8 +107,8 @@ class TemplateHelper {
 
         if (empty($data) && !is_array($data)) {
             $data = self::getAssignValues();
-        }  
-
+        }
+        
         if (empty($layoutPath) && empty($screenPath)) {
             throw new TemplateCommandInvalid('getResult', 'TemplateHelper Core (NO LAYOUT AND NO SCREEN)');
         }

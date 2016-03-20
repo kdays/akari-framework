@@ -7,7 +7,7 @@
  */
 
 define("AKARI_VERSION", "4.0.3 (Kotori)");
-define("AKARI_BUILD", "2016.3.15");
+define("AKARI_BUILD", "2016.3.20");
 define("NAMESPACE_SEPARATOR", "\\");
 
 define("CLI_MODE", php_sapi_name()=="cli" ? TRUE : FALSE);

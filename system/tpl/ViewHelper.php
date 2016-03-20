@@ -82,7 +82,6 @@ class ViewHelper {
             if ($screenPath) break;
         }
             
-        if (empty($screenPath)) throw new TemplateNotFound('screen Default');
         return $screenPath;
     }
 
