@@ -24,7 +24,6 @@ Class DefaultExceptionHandler extends BaseExceptionHandler {
     public function handleException(\Exception $ex) {
         $this->response->setStatusCode(HttpCode::INTERNAL_SERVER_ERROR);
 
-        self::_logErr($ex);
         $view = function($path, $data) {
             ob_start();
             @extract($data, EXTR_PREFIX_SAME, 'a_');

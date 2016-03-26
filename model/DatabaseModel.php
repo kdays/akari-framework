@@ -9,6 +9,8 @@
 namespace Akari\model;
 
 
+use Akari\utility\TextHelper;
+
 abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSerializable {
 
     public static function model() {
@@ -19,6 +21,19 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
      * @return array
      */
     abstract public function columnMap();
+
+    /**
+     * 获得表名,如果没有的话则从class中启发
+     * 
+     * @return string
+     */
+    public function tableName() {
+        $cls = explode(NAMESPACE_SEPARATOR, get_called_class());
+        $tName = array_pop($cls);
+        $tName[0] = strtolower($tName[0]);
+        
+        return TextHelper::snakeCase($tName);
+    }
 
     public function toArray($except = [], $useModelKey = False) {
         $result = [];

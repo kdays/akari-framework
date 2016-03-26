@@ -10,6 +10,7 @@ namespace Akari\system\logger;
 
 use Akari\Context;
 use Akari\system\event\Event;
+use Akari\system\router\NotFoundURI;
 use Akari\utility\helper\Logging;
 
 class DefaultExceptionAutoLogger {
@@ -23,6 +24,10 @@ class DefaultExceptionAutoLogger {
         $level = AKARI_LOG_LEVEL_ERROR;
         if (isset($ex->logLevel)) {
             $level = $ex->logLevel;
+        }
+        
+        if ($ex instanceof NotFoundURI) {
+            return ;
         }
 
         self::_log(
