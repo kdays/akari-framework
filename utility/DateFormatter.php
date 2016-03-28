@@ -13,7 +13,7 @@ class DateFormatter {
     public static function friendlyTime($timestamp) {
         if ($timestamp == TIMESTAMP)    return '刚刚';
         if (empty($timestamp) || $timestamp == '0000-00-00 00:00:00')  return '未知';
-        if (!is_numeric($timestamp))    $timestamp  = strtotime($timestamp); 
+        if (!is_numeric($timestamp))    $timestamp  = strtotime($timestamp);
         
         $now = new \DateTime();
         $lastDate = date("Y-m-d H:i:s", $timestamp);

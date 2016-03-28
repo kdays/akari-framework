@@ -122,7 +122,10 @@ Class Context {
      */
     public static $testing = FALSE;
     
-
+    public static function registerNamespace($namespace, $dir) {
+        Context::$nsPaths[$namespace] = $dir;
+    }
+    
     public static function autoload($cls) {
         $clsPath = false;
         if(isset(self::$aliases[$cls])){
