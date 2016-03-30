@@ -37,10 +37,12 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
     }
 
     /**
-     * @param array $except
+     * 返回数组
+     * 
+     * @param array $except 例外列表
      * @param bool $useModelKey 是否使用模型键
-     * @param bool $useGetter 
-     * @param bool $allowExceptObject
+     * @param bool $useGetter 是否自动调用模型的get方法
+     * @param bool $allowExceptObject 设置TRUE时,你在columnMap中未设置,但模型中用数组方法设置的项目也会返回
      * @return array
      */
     public function toArray($except = [], $useModelKey = False, $useGetter = False, $allowExceptObject = False) {
