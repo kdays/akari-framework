@@ -35,13 +35,13 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
         return TextHelper::snakeCase($tName);
     }
 
-    public function toArray($except = [], $useModelKey = False) {
+    public function toArray($except = [], $useModelKey = False, $useGetter = False) {
         $result = [];
         foreach ($this->columnMap() as $dbField => $modelField) {
             if (in_array($modelField, $except)) {
                 continue;
             }
-            $result[$useModelKey ? $modelField : $dbField] = $this->$modelField;
+            $result[$useModelKey ? $modelField : $dbField] = $useGetter ? $this[$modelField] : $this->$modelField;
         }
         return $result;
     }
@@ -103,7 +103,7 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
      * @return array
      */
     public function jsonSerialize() {
-        return $this->toArray([], TRUE);
+        return $this->toArray([], TRUE, TRUE);
     }
     
 }
