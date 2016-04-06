@@ -139,6 +139,7 @@ Class Router{
         }
         
         $block = [];
+        $nowMarkKey = 0;
         
         foreach ($now as $key => $value) {
             if (!isset($uri[$key])) {
@@ -171,7 +172,8 @@ Class Router{
             // 不然匹配内容是否一致
             if ($value == $uri[$key] || $uri[$key] == "*") {
                 if ($uri[$key] == '*') {
-                    $block['Mark:'. $key] = $now[$key];
+                    $block[$nowMarkKey] = $now[$key];
+                    ++$nowMarkKey;
                 }
                 continue;
             }
@@ -271,22 +273,26 @@ Class Router{
                     $matchResult = substr($matchResult, 0, strpos($matchResult, "?"));
                 }
 
-                if (strpos($matchResult, "*") !== false) {
+                if (strpos($matchResult, ":") !== FALSE) {
                     $matches = explode("/", $matchResult);
-
+                    
                     foreach ($matches as $k => $match) {
-                        if ($match == '*' && isset($isMatched['Mark:'.($k + 1)])) {
-                            $matches[$k] = $isMatched['Mark:'. ($k + 1)];
+                        if (substr($match, 0, 1) == ':') {
+                            $matchKey = substr($match, 1);
+                            
+                            if (isset($isMatched[$matchKey])) {
+                                $matches[$k] = $isMatched[$matchKey];
+                            }
                         }
                     }
-
+                    
                     $matchResult = implode("/", $matches);
                 }
-
-
+                
                 break;
             }
         }
+        
         
         return empty($matchResult) ? $URI : $matchResult;
     }
