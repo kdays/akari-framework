@@ -17,24 +17,26 @@ trait ValueHelper {
      * 获得在DataHelper的数据 不会在模板展现
      *
      * @param string $key
-     * @param bool $subKey
-     * @param null $defaultValue
-     * @return array|null|object
+     * @param null|string $subKey
+     * @param mixed $defaultValue
+     * @return mixed
      */
-    protected static function _getValue($key, $subKey = false, $defaultValue = NULL) {
+    protected static function _getValue($key, $subKey = NULL, $defaultValue = NULL) {
         return DataHelper::get($key, $subKey, $defaultValue);
     }
+    
+    protected static function _hasValue($key, $subKey = NULL) {
+        return DataHelper::has($key, $subKey);
+    } 
 
     /**
      * 设置DataHelper的数据，不会在模板展现，模板展现用_bindValue
      *
      * @param string $key
      * @param mixed $data
-     * @param bool $isOverwrite
-     * @return bool
      */
-    protected static function _setValue($key, $data, $isOverwrite = TRUE) {
-        return DataHelper::set($key, $data, $isOverwrite);
+    protected static function _setValue($key, $data) {
+        DataHelper::set($key, $data);
     }
 
 }
