@@ -16,7 +16,7 @@ use Akari\utility\UploadHelper;
 class FileUpload {
 
     protected $upload;
-    protected $id;
+    protected $formName;
     
     private $codeMessage = [
         UPLOAD_ERR_INI_SIZE => "文件大小超过系统配置",
@@ -29,11 +29,11 @@ class FileUpload {
 
     public function __construct(array $form, $formId) {
         $this->upload = $form;
-        $this->id = $formId;
+        $this->formName = $formId;
     }
 
     public function getName() {
-        return $this->id;
+        return $this->formName;
     }
 
     public function getForm() {
@@ -72,6 +72,11 @@ class FileUpload {
     public function getError() {
         return $this->upload['error'];
     }
+    
+    public function getErrorMessage() {
+        $code = $this->getError();
+        return isset($this->codeMessage[$code]) ? $this->codeMessage[$code] : "#Err.". $code;
+    }
 
     public function isImage() {
         $allowExt = ['png', 'jpg', 'gif', 'jpeg'];
@@ -97,8 +102,9 @@ class FileUpload {
     public function save($target) {
         $savePath = $this->getSavePath($target);
         if (empty($this->getTempPath())) {
-            throw new UploadFailed($this->codeMessage[$this->getError()], $this->getError());
+            throw new UploadFailed($this->getErrorMessage(), $this->getError());
         }
+        
         return FileHelper::moveFile($savePath, $this->getTempPath());
     }
 }
