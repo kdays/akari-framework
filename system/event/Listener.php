@@ -74,7 +74,7 @@ Class Listener {
 
         // 排序
         usort($fireQueue, function($a, $b) {
-            return $a[Listener::EVENT_PRIORITY] - $b[Listener::EVENT_PRIORITY];
+            return $a[Listener::EVENT_PRIORITY] > $b[Listener::EVENT_PRIORITY] ? 1 : -1;
         });
 
         return $fireQueue;
@@ -84,14 +84,14 @@ Class Listener {
      * 事件唤起
      *
      * @param string $eventName
-     * @param string $resultParams
+     * @param mixed $resultParameters
      * @return mixed
      */
-    public static function fire($eventName, $resultParams) {
+    public static function fire($eventName, $resultParameters) {
         $queue = self::_getFireQueue($eventName);
 
         $event = new Event();
-        $event->params = $resultParams;
+        $event->parameters = $resultParameters;
         $event->chainPos = 0;
         $event->eventName = $eventName;
 
@@ -105,7 +105,7 @@ Class Listener {
                 if ($returnValue instanceof Event) {
                     $event = $returnValue;
                 } else {
-                    $event->params = $returnValue;
+                    $event->parameters = $returnValue;
                 }
             }
             
@@ -115,7 +115,7 @@ Class Listener {
         }
 
         unset($queue);
-        return $event->params;
+        return $event->parameters;
     }
 
     /**

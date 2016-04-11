@@ -53,7 +53,7 @@ Class Response {
     public function send() {
         http_response_code($this->responseCode);
         foreach ($this->headers as $key => $value) {
-            Header($key. ": ". $value);
+            header($key. ": ". $value);
         }
     }
     

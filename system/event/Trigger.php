@@ -16,55 +16,55 @@ class Trigger {
     protected static $beforeDispatchEvent = [];
     protected static $applicationStartEvent = [];
     protected static $applicationEndEvent = [];
+    protected static $applicationOutputEvent = [];
     
     const TYPE_BEFORE_DISPATCH = "beforeDispatch";
     const TYPE_APPLICATION_START = "applicationStart";
     const TYPE_APPLICATION_END = "applicationEnd";
-
-    public static function initEvent() {
-        $trigger = Context::$appConfig->trigger;
-        $triggerBaseNS = Context::$appBaseNS. NAMESPACE_SEPARATOR. "trigger". NAMESPACE_SEPARATOR;
-
-        $prefix = CLI_MODE ? 'CLI_' : '';
-        
-        $beforeDispatch = empty($trigger[$prefix. self::TYPE_BEFORE_DISPATCH]) ? [] : $trigger[$prefix. self::TYPE_BEFORE_DISPATCH];
-        self::$beforeDispatchEvent = $beforeDispatch;
-
-        $appStart = [];
-        try {
-            if (class_exists($triggerBaseNS. $prefix. "ApplicationStart")) {
-                $appStart[] =  ['/.*/', $prefix. "ApplicationStart"];
-            }
-        } catch (NotFoundClass $e) {
-            
-        }
-        
-        if (!empty($trigger[$prefix. self::TYPE_APPLICATION_START])) {
-            $appStart = array_merge($appStart, $trigger[$prefix. self::TYPE_APPLICATION_START]);
-        }  
-        
-        try {
-            if (class_exists($triggerBaseNS. $prefix. "AfterInit")) {
-                $appStart[] =  ['/.*/',$prefix . "AfterInit"];
-            }
-        } catch (NotFoundClass $e) {
-            
-        }
-        
-        self::$applicationStartEvent = $appStart;
-
-        $appEnd = empty($trigger[$prefix. self::TYPE_APPLICATION_END]) ? [] : $trigger[$prefix. self::TYPE_APPLICATION_END];
-        try {
-            if (class_exists($triggerBaseNS. $prefix. "ApplicationEnd")) {
-                $appEnd[] = ['/.*/', $prefix. "ApplicationEnd"];
-            }
-        } catch (NotFoundClass $e) {
-            
-        }
-        
-        self::$applicationEndEvent = $appEnd;
+    const TYPE_APPLICATION_OUTPUT = "applicationOutput";
+    
+    public static function getPrefix() {
+        return CLI_MODE ? 'CLI_' : '';
     }
 
+    public static function initEvent() {
+        function _getTriggerList($type) {
+            $prefix = Trigger::getPrefix();
+            $trigger = Context::$appConfig->trigger;
+
+            return empty($trigger[$prefix. $type]) ? [] : $trigger[$prefix. $type];
+        }
+
+        function _pushTrigger($trigger, array &$lists) {
+            $triggerBaseNS = Context::$appBaseNS. NAMESPACE_SEPARATOR. "trigger". NAMESPACE_SEPARATOR;
+            $prefix = Trigger::getPrefix();
+
+            try {
+                if (class_exists($triggerBaseNS. $prefix. $trigger)) {
+                    $lists[] = ['/.*/', $prefix. $trigger];
+                }
+            } catch (NotFoundClass $e) {
+
+            }
+        }
+        
+        self::$beforeDispatchEvent = _getTriggerList(self::TYPE_BEFORE_DISPATCH);
+        
+        $appStart = [];
+        _pushTrigger("ApplicationStart", $appStart);
+        $appStart = array_merge($appStart, _getTriggerList(self::TYPE_APPLICATION_START));
+        _pushTrigger("AfterInit", $appStart);
+        self::$applicationStartEvent = $appStart;
+        
+        unset($appStart);
+        
+        self::$applicationEndEvent = _getTriggerList(self::TYPE_APPLICATION_END);
+        _pushTrigger("ApplicationEnd", self::$applicationEndEvent);
+        
+        self::$applicationOutputEvent = _getTriggerList(self::TYPE_APPLICATION_OUTPUT);
+        _pushTrigger("ApplicationOutput", self::$applicationOutputEvent);
+    }
+    
     public static function handle($eventType, $requestResult = NULL) {
         $list = self::${$eventType. "Event"};
         $triggerBaseNS = Context::$appBaseNS. NAMESPACE_SEPARATOR. "trigger". NAMESPACE_SEPARATOR;
@@ -110,7 +110,7 @@ class Trigger {
 Class WrongTriggerResultType extends \Exception {
 
     public function __construct($returnType, $clsName) {
-        $this->message = "Wrong Trigger Result Type: ". $returnType. " on ". $clsName;
+        $this->message = "Wrong Trigger Result: ". $returnType. " on ". $clsName;
     }
 
 }

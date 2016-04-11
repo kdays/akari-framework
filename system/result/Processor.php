@@ -9,6 +9,8 @@
 namespace Akari\system\result;
 
 use Akari\NotAllowConsole;
+use Akari\system\event\Event;
+use Akari\system\event\Listener;
 use Akari\system\http\Response;
 use Akari\system\ioc\DIHelper;
 use Akari\system\tpl\TemplateHelper;
@@ -17,6 +19,8 @@ use Akari\system\tpl\ViewHelper;
 Class Processor {
     
     use DIHelper;
+    
+    const EVT_RESULT_SENT = "Result.sent";
     
     public function processJPEG(Result $result) {
         if (is_resource($result->data)) {
@@ -166,6 +170,8 @@ Class Processor {
         if (method_exists($this, $method)) {
             $this->$method($result);
             $resp->send();
+
+            Listener::fire(self::EVT_RESULT_SENT, $this);
         } else {
             throw new ResultTypeUnknown($result);
         }

@@ -1,8 +1,7 @@
 <?php
 /**
- * Akari Framework 3
- *
- *
+ * Akari Framework 4
+ * 
  */
 
 namespace Akari;
@@ -232,10 +231,10 @@ Class akari {
         // 应该是实际执行的Action被赋值
         //Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
-        Header("X-Akari-Version: ". self::getVersion(false));
+        header("X-Akari-Version: ". self::getVersion(false));
         include("defaultBoot.php");
-        if (file_exists(Context::$appBasePath . "boot.php")) {
-            include(Context::$appBasePath . "boot.php");
+        if (file_exists(Context::$appBasePath . "/boot.php")) {
+            include(Context::$appBasePath . "/boot.php");
         }
 
         $this->loadExternal();
@@ -254,7 +253,8 @@ Class akari {
             $autoLoggerCls = is_bool($autoLogger) ? DefaultExceptionAutoLogger::class : $autoLogger;
             
             Listener::add(ExceptionProcessor::EVENT_EXCEPTION_EXECUTE, function(Event $event) use($autoLoggerCls) {
-                return $autoLoggerCls::log($event);
+                /** @var DefaultExceptionAutoLogger $autoLoggerCls */
+                $autoLoggerCls::log($event);
             });
         }
     }
@@ -317,6 +317,9 @@ Class akari {
             // 如果不是result 则会调用设置nonResultCallback来处理result 如果没有设置则按照HTML返回
             $processor->processResult($realResult);
         }
+        
+        // 这里是已经输出HTML时调用
+        Trigger::handle('applicationOutput', NULL);
     }
 
     public function getMode() {
