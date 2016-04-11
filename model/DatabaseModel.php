@@ -9,6 +9,7 @@
 namespace Akari\model;
 
 
+use Akari\config\DbAgentConfig;
 use Akari\utility\TextHelper;
 
 abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSerializable {
@@ -35,13 +36,33 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
         return TextHelper::snakeCase($tName);
     }
 
-    public function toArray($except = [], $useModelKey = False) {
+    /**
+     * 返回数组
+     * 
+     * @param array $except 例外列表
+     * @param bool $useModelKey 是否使用模型键
+     * @param bool $useGetter 是否自动调用模型的get方法
+     * @param bool $allowExceptObject 设置TRUE时,你在columnMap中未设置,但模型中用数组方法设置的项目也会返回
+     * @return array
+     */
+    public function toArray($except = [], $useModelKey = False, $useGetter = False, $allowExceptObject = False) {
         $result = [];
-        foreach ($this->columnMap() as $dbField => $modelField) {
+        
+        $columnMap = $this->columnMap();
+        $flipMap = array_flip($columnMap);
+        
+        if  ($allowExceptObject) {
+            foreach ($this as $k => $v) {
+                if (!isset($flipMap[$k])) $columnMap[$k] = $k;
+            }
+        }
+        
+        foreach ($columnMap as $dbField => $modelField) {
             if (in_array($modelField, $except)) {
                 continue;
             }
-            $result[$useModelKey ? $modelField : $dbField] = $this->$modelField;
+            
+            $result[$useModelKey ? $modelField : $dbField] = $useGetter ? $this[$modelField] : $this->$modelField;
         }
         return $result;
     }
@@ -103,7 +124,10 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
      * @return array
      */
     public function jsonSerialize() {
-        return $this->toArray([], TRUE);
+        return $this->toArray([], 
+            DbAgentConfig::JSON_AUTO_MODEL_KEY, 
+            DbAgentConfig::JSON_AUTO_USE_GETTER, 
+            DbAgentConfig::JSON_AUTO_ARRAY_EXCEPT);
     }
     
 }

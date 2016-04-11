@@ -27,6 +27,8 @@ Class Cookie {
         return self::$c;
     }
     
+    private $_directFast = [];
+    
     public function exists($name, $autoPrefix = TRUE) {
         $config = Context::$appConfig;
         if(!in_string($name, $config->cookiePrefix) && $autoPrefix){
@@ -54,7 +56,7 @@ Class Cookie {
             /** @var Cipher $cipher */
             $cipher = $this->_getDI()->getShared("cookieEncrypt");
             $value = $cipher->encrypt($value);
-        } 
+        }
         
         $path = array_key_exists("path", $opts) ? $opts['path'] : $config->cookiePath;
         $domain  = array_key_exists("domain", $opts) ? $opts['domain'] : $config->cookieDomain;
@@ -62,9 +64,13 @@ Class Cookie {
         if($config->cookiePrefix)   $name = $config->cookiePrefix.$name;
 
         if($value === FALSE){
-            setCookie($name, '', time() - 3600, $path, $domain);
+            setcookie($name, '', time() - 3600, $path, $domain);
+            unset($this->_directFast[$name]);
         }else{
-            setCookie($name, $value, $expire, $path, $domain);
+            setcookie($name, $value, $expire, $path, $domain);
+            if (array_key_exists("direct", $opts) && $opts['direct']) {
+                $this->_directFast[$name] = $value;
+            }
         }
     }
 
@@ -73,6 +79,10 @@ Class Cookie {
 
         if(!in_string($name, $config->cookiePrefix) && $autoPrefix){
             $name = $config->cookiePrefix.$name;
+        }
+        
+        if (isset($this->_directFast[$name])) {
+            return $this->_directFast[$name];
         }
 
         if(!array_key_exists($name, $_COOKIE)) return NULL;
