@@ -41,6 +41,14 @@ class TemplateViewHelper {
         ViewHelper::setScreen($screenName);
     }
     
+    public function getLayout() {
+        return ViewHelper::$layout;
+    }
+    
+    public function getScreen() {
+        return ViewHelper::$screen;
+    }
+    
     public function setBaseViewDir($viewDir) {
         Context::env(ConfigItem::BASE_TPL_DIR, $viewDir);
     }

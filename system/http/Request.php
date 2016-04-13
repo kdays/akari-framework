@@ -1,9 +1,12 @@
 <?php
 namespace Akari\system\http;
 
+use Akari\system\ioc\DIHelper;
 use Akari\system\security\FilterFactory;
 
 Class Request{
+    
+    use DIHelper;
     
     protected $requestMethod;
     protected $requestURI;
@@ -410,12 +413,29 @@ Class Request{
 
         return NULL;
     }
-    
+
+    /**
+     * 
+     * 
+     * @param string $name
+     * @return bool
+     */
     public function hasCookie($name) {
-        return Cookie::getInstance()->exists($name);
+        /** @var Cookie $cookie */
+        $cookie = $this->_getDI()->getShared('cookies');
+        return $cookie->exists($name);
     }
-    
+
+    /**
+     * 
+     * 
+     * @param string $name
+     * @param bool $autoPrefix
+     * @return array|mixed|null
+     */
     public function getCookie($name, $autoPrefix = TRUE) {
-        return Cookie::getInstance()->get($name, $autoPrefix);
+        /** @var Cookie $cookie */
+        $cookie = $this->_getDI()->getShared('cookies');
+        return $cookie->get($name, $autoPrefix);
     }
 }

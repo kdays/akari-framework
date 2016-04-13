@@ -57,6 +57,10 @@ class DI {
     }
 
     public function getShared($serviceName) {
+        if (!$this->hasShared($serviceName)) {
+            throw new DINotRegistered("shared service [" . $serviceName. "] not registered!");
+        }
+        
         return $this->instance[$serviceName];
     }
     

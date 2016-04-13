@@ -59,10 +59,10 @@ Class Processor {
 
         $h = new TemplateHelper();
 
-        if ($screenPath == NULL || $layoutPath == NULL) {
-            if ($screenPath !== NULL)   ViewHelper::setScreen($screenPath);
-            if ($layoutPath !== NULL)   ViewHelper::setLayout($layoutPath);
+        if ($screenPath !== NULL)   ViewHelper::setScreen($screenPath);
+        if ($layoutPath !== NULL)   ViewHelper::setLayout($layoutPath);
 
+        if ($screenPath == NULL || $layoutPath == NULL) {
             $realScreenPath = ViewHelper::getScreen();
             $h->setScreen($realScreenPath);
 
@@ -158,10 +158,6 @@ Class Processor {
 
     public function processResult(Result $result) {
         $method = "process".$result->type;
-        
-        if (CLI_MODE) {
-            throw new NotAllowConsole('return result on Processor');
-        }
         
         /** @var Response $resp */
         $resp = $this->_getDI()->getShared('response');

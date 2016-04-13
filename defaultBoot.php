@@ -22,17 +22,15 @@ $di->setShared('logger', function() use($di) {
     return $logger;
 });
 
-if (!CLI_MODE) {
-    $di->setShared('request', \Akari\system\http\Request::class);
-    $di->setShared('response', \Akari\system\http\Response::class);
-} else {
-    $di->setShared('request', \Akari\system\console\Request::class);
-    $di->setShared('response', \Akari\system\console\Response::class);
-}
+$di->setShared('request', \Akari\system\http\Request::class);
+$di->setShared('response', \Akari\system\http\Response::class);
 
-$di->setShared('viewHelper', Akari\utility\helper\TemplateViewHelper::class);
+$di->setShared('session', \Akari\system\http\Session::class);
+$di->setShared('cookies', \Akari\system\http\Cookie::class);
+$di->setShared('cookieEncrypt', \Akari\system\security\DefaultCookieEncrypt::class);
+
+$di->setShared('view', Akari\utility\helper\TemplateViewHelper::class);
 $di->setShared("dispatcher", Akari\system\router\Dispatcher::class);
 $di->setShared("router", Akari\system\router\Router::class);
 $di->setShared("processor", Akari\system\result\Processor::class);
 
-$di->setShared('cookieEncrypt', \Akari\system\security\CookieEncryptHelper::class);

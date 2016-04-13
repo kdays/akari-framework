@@ -19,14 +19,6 @@ Class Cookie {
     const FLAG_ENCRYPT = "|ENC";
     const FLAG_ARRAY = "|A";
 
-    protected static $c;
-    public static function getInstance() {
-        if (self::$c == NULL){
-            self::$c = new self();
-        }
-        return self::$c;
-    }
-    
     private $_directFast = [];
     
     public function exists($name, $autoPrefix = TRUE) {

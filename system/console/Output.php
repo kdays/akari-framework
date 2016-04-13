@@ -8,7 +8,7 @@
 
 namespace Akari\system\console;
 
-Class ConsoleOutput {
+Class Output {
 
     const PLAIN = 1;
     const COLOR = 2;

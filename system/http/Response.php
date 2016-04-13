@@ -8,12 +8,16 @@
 
 namespace Akari\system\http;
 
+use Akari\system\ioc\DIHelper;
 use Akari\system\result\Result;
 
 Class Response {
     
+    use DIHelper;
+    
     private $responseCode = HttpCode::OK;
     private $headers = [];
+    
 
     public function setStatusCode($code = HttpCode::OK) {
         $this->responseCode = $code;
@@ -58,12 +62,14 @@ Class Response {
     }
     
     public function setCookie($name, $value, $expire = NULL, $useEncrypt = FALSE, $opts = []) {
-        $cookie = Cookie::getInstance();
+        /** @var Cookie $cookie */
+        $cookie = $this->_getDI()->getShared('cookies');
         $cookie->set($name, $value, $expire, $useEncrypt, $opts);
     }
     
     public function removeCookie($name) {
-        $cookie = Cookie::getInstance();
+        /** @var Cookie $cookie */
+        $cookie = $this->_getDI()->getShared('cookies');
         $cookie->remove($name);
     }
 }

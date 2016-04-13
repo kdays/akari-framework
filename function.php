@@ -46,7 +46,9 @@ function GP($key, $method = 'GP', $defaultValue = NULL, $filter = "default"){
     if (substr($key, 0, 2) == 'U.') {
         $t = substr($key, 2);
         if ($method != 'GP' || $method === TRUE) {
-            return DataHelper::set($t, $method);
+            DataHelper::set($t, $method);
+            
+            return NULL;
         } 
         
         return DataHelper::get($t, FALSE, $defaultValue);
@@ -119,12 +121,12 @@ function import_exists($path) {
 }
 
 function cookie($key, $value = NULL, $expire = NULL, $useEncrypt = FALSE) {
-    $cookie = \Akari\system\http\Cookie::getInstance();
+    /** @var \Akari\system\http\Cookie $cookie */
+    $cookie = \Akari\system\ioc\DI::getDefault()->getShared('cookies');
 
     if ($value == NULL) {
         return $cookie->get($key);
     }
-
     $cookie->set($key, $value, $expire, $useEncrypt);
 }
 

@@ -11,26 +11,16 @@ namespace Akari\system\result;
 use Akari\system\http\Request;
 use Akari\system\http\Response;
 use Akari\system\ioc\DIHelper;
+use Akari\system\ioc\Injectable;
 use Akari\system\tpl\TemplateHelper;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
 
-abstract class Widget {
+abstract class Widget extends Injectable{
 
-    use ResultHelper, ValueHelper, Logging, DIHelper;
+    use ResultHelper, ValueHelper, Logging;
     
-    /** @var Request $request */
-    protected $request;
-    
-    /** @var  Response */
-    protected $response;
-    
-    public function __construct() {
-        $this->request = $this->_getDI()->getShared("request");
-        $this->response = $this->_getDI()->getShared("response");
-    }
-
     /**
      * 绑定模板参数
      * 

@@ -19,8 +19,8 @@ class ViewHelper {
 
     use DIHelper;
     
-    protected static $layout;
-    protected static $screen;
+    public static $layout;
+    public static $screen;
     
     public static $layoutDir = NULL;
     public static $screenDir = NULL;

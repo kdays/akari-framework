@@ -8,26 +8,27 @@
 
 namespace Akari\action;
 
-use Akari\system\console\Request;
-use Akari\system\console\Response;
-use Akari\system\ioc\DIHelper;
+use Akari\system\console AS console;
+use Akari\system\http AS http;
+use Akari\system\ioc\Injectable;
 use Akari\utility\helper\ExceptionSetter;
 use Akari\utility\helper\Logging;
+use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
 
-Class BaseTask {
+Class BaseTask extends Injectable{
 
-    use Logging, ValueHelper, ExceptionSetter, DIHelper;
+    use Logging, ValueHelper, ExceptionSetter, ResultHelper;
 
-    /** @var  Request */
-    protected $request;
-
-    /** @var  Response */
-    protected $response;
+    /** @var  console\Input */
+    protected $input;
+    
+    /** @var  console\Output */
+    protected $output;
 
     public function __construct() {
-        $this->request = $this->_getDI()->getShared('request');
-        $this->response = $this->_getDI()->getShared('response');
+        $this->input = new console\Input();
+        $this->output = new console\Output();
     }
     
     protected function message($text, $style = NULL) {
@@ -39,7 +40,12 @@ Class BaseTask {
             
             $text = $r;
         }
-        return $this->response->message($text, $style);
+        
+        if ($style !== NULL) {
+            $text = "<". $style . ">". $text . "</". $style. ">";
+        }
+        
+        return $this->output->write($text);
     }
     
 }

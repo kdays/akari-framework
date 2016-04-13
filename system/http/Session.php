@@ -20,8 +20,12 @@ Class Session{
         session_start();
     }
 
-    public static function set($key, $value){
-        $_SESSION[$key] = $value;
+    public static function set($key, $value) {
+        $_SESSION[ $key ] = $value;
+    }
+    
+    public static function destroy() {
+        session_destroy();
     }
     
     public static function has($key) {
