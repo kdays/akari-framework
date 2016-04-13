@@ -12,6 +12,7 @@ use Akari\system\http\Request;
 use Akari\system\http\Response;
 use Akari\system\ioc\DIHelper;
 use Akari\system\ioc\Injectable;
+use Akari\system\result\Result;
 use Akari\system\tpl\TemplateHelper;
 use Akari\utility\helper\ExceptionSetter;
 use Akari\utility\helper\Logging;
@@ -26,4 +27,12 @@ abstract Class BaseTrigger extends Injectable{
         throw new StopEventBubbling();
     }
 
+    /**
+     * 处理规则请求器
+     *
+     * @param Result|NULL $result
+     * @return Result
+     */
+    abstract public function process(Result $result = NULL);
+    
 }

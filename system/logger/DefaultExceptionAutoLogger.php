@@ -19,7 +19,7 @@ class DefaultExceptionAutoLogger {
 
     public static function log(Event $event) {
         /** @var \Exception $ex */
-        $ex = $event->parameters;
+        $ex = $event->getData();
 
         $level = AKARI_LOG_LEVEL_ERROR;
         if (isset($ex->logLevel)) {

@@ -10,20 +10,16 @@ namespace Akari\system\event;
 
 /**
  * Class Listener
- * Event Listener并不能改变结果，只是用来监听特定的数据变动进行处理
- * 实际的结果处理或根据URL处理，应使用Ruler而非Listener
+ * 事件机制
  *
  * @package Akari\system\router
  */
 Class Listener {
 
-    protected static $queue = [];
+    /** @var EventHandler[][] $_listeners  */
+    protected static $_listeners = [];
 
-    const EVENT_CALLBACK = 0;
-    const EVENT_PRIORITY = 1;
-    const EVENT_ID = 2;
-
-    protected static $eventId = 0;
+    protected static $_id = 0;
 
     /**
      * 添加监听器
@@ -38,43 +34,39 @@ Class Listener {
      * @param string $eventName 事件名
      * @param callable $callback 回调见fire函数,永远返回Event对象,通过Event的params对象获得参数
      * @param int $priority 排序权重 数字越小的越先执行，全局性的
-     * @return int 事件id
+     * @return EventHandler
      */
     public static function add($eventName, callable $callback, $priority = 0) {
         list($gloSpace, $subSpace) = explode(".", $eventName);
 
-        if (!isset(self::$queue[$gloSpace][$subSpace])) {
-            self::$queue[$gloSpace][$subSpace] = [];
+        if (!isset(self::$_listeners[$gloSpace])) {
+            self::$_listeners[$gloSpace] = [];
         }
-
-        self::$queue[$gloSpace][$subSpace][] = [$callback, $priority, ++self::$eventId];
-        return self::$eventId;
+        
+        $event = new EventHandler($callback, $subSpace, ++self::$_id, $priority);
+        self::$_listeners[$gloSpace][] = $event;
+        
+        return $event;
     }
 
     /**
-     * 获得事件要执行的队列
-     *
-     * @param string $eventName 事件名
-     * @return mixed
+     * @param $eventName
+     * @return EventHandler[]
      */
     protected static function _getFireQueue($eventName) {
         list($gloSpace, $subSpace) = explode(".", $eventName);
 
         $fireQueue = [];
-        $nowQueue = self::$queue;
+        $nowQueue = self::$_listeners;
 
-        // 监听范围是这样的 event.specialName => event.* => *.specialName, *.*
-        foreach ([$gloSpace, "*"] as $frontSpaceName) {
-            foreach ([$subSpace, "*"] as $subSpaceName) {
-                if (isset($nowQueue[$frontSpaceName][$subSpaceName])) {
-                    $fireQueue = array_merge(array_reverse($nowQueue[$frontSpaceName][$subSpaceName]) ,$fireQueue);
-                }
+        foreach ($nowQueue[$gloSpace] as $event) {
+            if ($event->getType() == '*' || $event->getType() == $subSpace) {
+                $fireQueue[] = $event;
             }
         }
-
-        // 排序
-        usort($fireQueue, function($a, $b) {
-            return $a[Listener::EVENT_PRIORITY] > $b[Listener::EVENT_PRIORITY] ? 1 : -1;
+        
+        usort($fireQueue, function(EventHandler $a, EventHandler $b) {
+            return $a->getPriority() > $b->getPriority() ? 1 : -1;
         });
 
         return $fireQueue;
@@ -82,6 +74,7 @@ Class Listener {
 
     /**
      * 事件唤起
+     * 如果resultParameters有设置值时,每次事件如果有额外返回的也会被处理返回
      *
      * @param string $eventName
      * @param mixed $resultParameters
@@ -89,70 +82,60 @@ Class Listener {
      */
     public static function fire($eventName, $resultParameters) {
         $queue = self::_getFireQueue($eventName);
-
-        $event = new Event();
-        $event->parameters = $resultParameters;
-        $event->chainPos = 0;
-        $event->eventName = $eventName;
-
-        foreach ($queue as $nowEvent) {
-            ++$event->chainPos;
-            $event->eventId = $nowEvent[self::EVENT_ID];
+        $event = new Event($eventName, $resultParameters);
+        
+        foreach ($queue as $listener) {
+            $event->_setListener($listener);
             
-            $returnValue = call_user_func($nowEvent[self::EVENT_CALLBACK], $event);
-            if ($returnValue !== NULL) {
-                // 如果有return 就判断如果返回Event就更新全部 不然就只更新result
-                if ($returnValue instanceof Event) {
-                    $event = $returnValue;
-                } else {
-                    $event->parameters = $returnValue;
-                }
-            }
-            
-            if ($event->isPropagationStopped()) {
+            try {
+                $event = $event->_tick();
+            } catch (StopEventBubbling $e) {
                 break;
             }
         }
-
-        unset($queue);
-        return $event->parameters;
+        
+        $result = $event->getData();
+        unset($queue, $event);
+        
+        return $result;
     }
 
-    /**
-     * 删除事件，支持2种方式
-     * <pre>
-     * 1. eventId传入数字时，根据eventId删除
-     * 2. 传入一个非数字型，只删除对应这个项目的事件列表
-     * （举例：你传入battle.*，不会删除battle.buff之类的事件，只是删除battle.*下的事件）
-     * </pre>
-     *
-     * @param string|int $eventId 事件id
-     * @return bool
-     */
-    public static function remove($eventId) {
-        if (!is_numeric($eventId)) {
-            list($gloSpace, $subSpace) = explode(".", $eventId);
-            if (isset(self::$queue[$gloSpace][$subSpace])) {
-                unset(self::$queue[$gloSpace][$subSpace]);
+    public static function detach($eventType, $handler) {
+        list($gEvent, $sEvent) = explode(".", $eventType);
+        foreach (self::$_listeners[$gEvent] as $key => $listener) {
+            if ($listener->getType() == $sEvent && $listener->getHandler() == $handler) {
+                unset(self::$_listeners[$gEvent][$key]);
                 return TRUE;
             }
-
-            return FALSE;
         }
         
-        array_walk(self::$queue, function($queue, $gloSpace) use($eventId) {
-            foreach ($queue as $subSpace => $events) {
-                foreach ($events as $i => $nowEvent) {
-                    if ($nowEvent[self::EVENT_ID] == $eventId) {
-                        unset(self::$queue[$gloSpace][$subSpace][$i]);
-                        return TRUE;
-                    }
+        return FALSE;
+    }
+    
+    public static function detachById($id) {
+        $queue = self::$_listeners;
+        
+        foreach ($queue as $eventType => $events) {
+            foreach ($events as $sk => $event) {
+                if ($event->getId() == $id) {
+                    unset($queue[$eventType][$sk]);   
+                    
+                    self::$_listeners = $queue;
+                    return TRUE;
                 }
             }
-        });
-
+        }
+        
         return FALSE;
     }
 
+    public static function detachAll($eventType) {
+        unset(self::$_listeners[$eventType]);
+    }
+    
+    public static function getListeners() {
+        return self::$_listeners;
+    }
+    
 }
 
