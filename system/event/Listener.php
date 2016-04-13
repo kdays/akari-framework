@@ -18,26 +18,33 @@ Class Listener {
 
     /** @var EventHandler[][] $_listeners  */
     protected static $_listeners = [];
-
     protected static $_id = 0;
 
     /**
      * 添加监听器
      * <pre>
-     * 添加事件的eventName允许使用*作为通配符，举例：*.*可以监听所有的事件；battle.*监听battle下的事件
-     * 名称最多2层，即a.b
-     *
-     * 添加成功后，会返回事件id，通过事件id可以使用remove删除
-     * 由于框架内部分事件也使用了Listener,如果做全局监听,务必做好区分.
+     * 添加事件的eventName允许使用*作为通配符，举例：battle.*监听battle下的事件
+     * 名称最多2层，即a.b 不支持类似*.battle这样的写法
      * </pre>
      *
      * @param string $eventName 事件名
-     * @param callable $callback 回调见fire函数,永远返回Event对象,通过Event的params对象获得参数
-     * @param int $priority 排序权重 数字越小的越先执行，全局性的
-     * @return EventHandler
+     * @param mixed $callback 回调见fire函数 调用参数为(Event $event)
+     * <pre>
+     * $callback支持2种方式 一种是匿名函数方式(callable)
+     * 另外种传入一个类,调用时会检查:
+     *
+     * 举例事件调用是Processor.sent 那么会尝试调用类中的2个方法: sentAction 和 handle
+     * </pre>
+     * 
+     * @param int $priority 排序权重 数字越小的越先执行
+     * @return int 事件id
+     * @throws ListenerException
      */
     public static function add($eventName, callable $callback, $priority = 0) {
         list($gloSpace, $subSpace) = explode(".", $eventName);
+        if ($gloSpace == '*') {
+            throw new ListenerException("Event global space can not be *");
+        }
 
         if (!isset(self::$_listeners[$gloSpace])) {
             self::$_listeners[$gloSpace] = [];
@@ -50,7 +57,7 @@ Class Listener {
     }
 
     /**
-     * @param $eventName
+     * @param string $eventName
      * @return EventHandler[]
      */
     protected static function _getFireQueue($eventName) {
@@ -100,6 +107,13 @@ Class Listener {
         return $result;
     }
 
+    /**
+     * 撤销某个事件监听 和add方法一致
+     * 
+     * @param string $eventType
+     * @param mixed $handler
+     * @return bool
+     */
     public static function detach($eventType, $handler) {
         list($gEvent, $sEvent) = explode(".", $eventType);
         foreach (self::$_listeners[$gEvent] as $key => $listener) {
@@ -111,7 +125,13 @@ Class Listener {
         
         return FALSE;
     }
-    
+
+    /**
+     * 根据EventHandler中的id撤销事件监听
+     * 
+     * @param int $id
+     * @return bool
+     */
     public static function detachById($id) {
         $queue = self::$_listeners;
         
@@ -129,13 +149,27 @@ Class Listener {
         return FALSE;
     }
 
+    /**
+     * 撤销某个事件下的所有监听
+     * 
+     * @param string $eventType
+     */
     public static function detachAll($eventType) {
         unset(self::$_listeners[$eventType]);
     }
-    
+
+    /**
+     * 返回所有监听器
+     * 
+     * @return EventHandler[][]
+     */
     public static function getListeners() {
         return self::$_listeners;
     }
     
 }
 
+
+Class ListenerException extends \Exception {
+    
+}
