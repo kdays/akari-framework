@@ -54,15 +54,15 @@ Class EventHandler {
     public function _handle(Event $event) {
         // 先判断一下handler的类型
         if (is_callable($this->handler)) {
-            return call_user_func_array($this->getHandler(), [$event]);
+            return call_user_func_array($this->handler, [$event]);
         }
         
         // 不然的话假设是Class
         $method = $event->getSubType(). 'Action';
         if (method_exists($this->handler, $method)) {
-            return call_user_func_array([$this->getHandler(), $method], [$event]);
+            return call_user_func_array([$this->handler, $method], [$event]);
         } elseif (method_exists($this->handler, 'handle')) {
-            return call_user_func_array([$this->getHandler(), 'handle'], [$event]);
+            return call_user_func_array([$this->handler, 'handle'], [$event]);
         }
     }
 }
