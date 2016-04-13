@@ -1,7 +1,7 @@
 <?php
 namespace Akari\utility;
 
-Class DataHelper {
+Class ApplicationDataMgr {
     
     protected static $_values = [];
     

@@ -13,7 +13,7 @@ namespace Akari\system\ioc;
  * Class Injectable
  * @package Akari\system\ioc
  * 
- * @property \Akari\system\tpl\ViewHelper $view
+ * @property \Akari\system\tpl\View $view
  * @property \Akari\system\http\Request $request
  * @property \Akari\system\http\Response $response
  * @property \Akari\system\http\Session $session

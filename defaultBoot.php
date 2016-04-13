@@ -29,7 +29,7 @@ $di->setShared('session', \Akari\system\http\Session::class);
 $di->setShared('cookies', \Akari\system\http\Cookie::class);
 $di->setShared('cookieEncrypt', \Akari\system\security\DefaultCookieEncrypt::class);
 
-$di->setShared('view', Akari\utility\helper\TemplateViewHelper::class);
+$di->setShared('view', Akari\system\tpl\View::class);
 $di->setShared("dispatcher", Akari\system\router\Dispatcher::class);
 $di->setShared("router", Akari\system\router\Router::class);
 $di->setShared("processor", Akari\system\result\Processor::class);

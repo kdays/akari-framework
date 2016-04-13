@@ -1,7 +1,8 @@
 <?php
 /**
- * External 默认载入文件
- * @todo composer的会自动发现载入，无需在此配置
+ * 框架额外载入文件配置
+ * 
+ * composer会自动启发 无需配置
  **/
 
 !defined("AKARI_PATH") && exit;

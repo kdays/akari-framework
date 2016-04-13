@@ -8,7 +8,6 @@
 
 use Akari\Context;
 use Akari\system\security\FilterFactory;
-use Akari\utility\DataHelper;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\I18n;
 
@@ -46,12 +45,12 @@ function GP($key, $method = 'GP', $defaultValue = NULL, $filter = "default"){
     if (substr($key, 0, 2) == 'U.') {
         $t = substr($key, 2);
         if ($method != 'GP' || $method === TRUE) {
-            DataHelper::set($t, $method);
+            \Akari\utility\ApplicationDataMgr::set($t, $method);
             
             return NULL;
         } 
         
-        return DataHelper::get($t, FALSE, $defaultValue);
+        return \Akari\utility\ApplicationDataMgr::get($t, FALSE, $defaultValue);
     }
     
     if ($method != 'P' && isset($_GET[$key])) {

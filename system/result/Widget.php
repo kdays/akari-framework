@@ -20,16 +20,6 @@ use Akari\utility\helper\ValueHelper;
 abstract class Widget extends Injectable{
 
     use ResultHelper, ValueHelper, Logging;
-    
-    /**
-     * 绑定模板参数
-     * 
-     * @param string $key
-     * @param mixed $value
-     */
-    protected function _bindVar($key, $value = NULL) {
-        TemplateHelper::assign($key, $value);
-    }
 
     /**
      * @param mixed $userData

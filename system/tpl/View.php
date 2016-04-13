@@ -6,16 +6,13 @@
  * Time: 上午8:44
  */
 
-namespace Akari\utility\helper;
-
+namespace Akari\system\tpl;
 
 use Akari\config\ConfigItem;
 use Akari\Context;
-use Akari\system\tpl\TemplateHelper;
-use Akari\system\tpl\ViewHelper;
 
 // 
-class TemplateViewHelper {
+class View {
 
     /**
      * 将参数绑定到模板 别的不会执行  

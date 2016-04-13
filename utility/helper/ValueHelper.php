@@ -8,8 +8,7 @@
 
 namespace Akari\utility\helper;
 
-use Akari\system\tpl\TemplateHelper;
-use Akari\utility\DataHelper;
+use Akari\utility\ApplicationDataMgr;
 
 trait ValueHelper {
 
@@ -22,11 +21,11 @@ trait ValueHelper {
      * @return mixed
      */
     protected static function _getValue($key, $subKey = NULL, $defaultValue = NULL) {
-        return DataHelper::get($key, $subKey, $defaultValue);
+        return ApplicationDataMgr::get($key, $subKey, $defaultValue);
     }
     
     protected static function _hasValue($key, $subKey = NULL) {
-        return DataHelper::has($key, $subKey);
+        return ApplicationDataMgr::has($key, $subKey);
     } 
 
     /**
@@ -36,7 +35,7 @@ trait ValueHelper {
      * @param mixed $data
      */
     protected static function _setValue($key, $data) {
-        DataHelper::set($key, $data);
+        ApplicationDataMgr::set($key, $data);
     }
 
 }

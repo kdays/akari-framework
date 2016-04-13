@@ -11,6 +11,7 @@ namespace Akari\action;
 use Akari\system\console AS console;
 use Akari\system\http AS http;
 use Akari\system\ioc\Injectable;
+use Akari\utility\helper\CacheHelper;
 use Akari\utility\helper\ExceptionSetter;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
@@ -18,7 +19,7 @@ use Akari\utility\helper\ValueHelper;
 
 Class BaseTask extends Injectable{
 
-    use Logging, ValueHelper, ExceptionSetter, ResultHelper;
+    use Logging, ValueHelper, ExceptionSetter, ResultHelper, CacheHelper;
 
     /** @var  console\Input */
     protected $input;
