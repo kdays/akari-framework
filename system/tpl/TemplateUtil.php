@@ -11,11 +11,15 @@ namespace Akari\system\tpl;
 
 use Akari\Context;
 use Akari\system\ioc\DI;
+use Akari\system\ioc\DIHelper;
 use Akari\system\security\Security;
 use Akari\system\tpl\engine\BaseTemplateEngine;
 use Akari\system\tpl\mod\CsrfMod;
+use Akari\utility\ResourceMgr;
 
 class TemplateUtil {
+    
+    use DIHelper;
     
     public static function get($var, $defaultValue = NULL, $tplValue = '%s') {
         return empty($var) ? $defaultValue : sprintf($tplValue, $var);
@@ -87,11 +91,19 @@ EOT
     
     public static function load_block($block_name, $params = []) {
         /** @var BaseTemplateEngine $viewEngine */
-        $viewEngine = DI::getDefault()->getShared('viewEngine');
-        $tplPath = TemplateHelper::find($block_name, TemplateHelper::TYPE_BLOCK);
+        $viewEngine = self::_getDI()->getShared('viewEngine');
         
-        $bindVars = array_merge(TemplateHelper::getAssignValues(), $params);
-        $c = $viewEngine->parse($tplPath, $bindVars, TemplateHelper::TYPE_BLOCK, False);
+        /** @var View $view */
+        $view = self::_getDI()->getShared('view');
+        
+        $tplPath = View::find($block_name, View::TYPE_BLOCK);
+        
+        $bindVars = array_merge($view->getVar(NULL), $params);
+        $c = $viewEngine->parse($tplPath, $bindVars, View::TYPE_BLOCK, False);
         return $c;
+    }
+    
+    public static function res($path) {
+        ResourceMgr::push($path);
     }
 }

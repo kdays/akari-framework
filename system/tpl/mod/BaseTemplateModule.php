@@ -9,8 +9,8 @@
 namespace Akari\system\tpl\mod;
 
 
-interface BaseTemplateMod {
+abstract class BaseTemplateModule {
 
-    public function run($args = '');
+    abstract public function run($args = '');
 
 }

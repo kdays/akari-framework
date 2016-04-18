@@ -30,7 +30,6 @@ Class EventHandler {
         return $this->_id;
     }
     
-    // 自觉删除
     public function detach() {
         Listener::detachById($this->_id);
     }

@@ -11,7 +11,7 @@ namespace Akari\system\tpl\mod;
 
 use Akari\utility\PageHelper;
 
-class PageMod implements BaseTemplateMod{
+class PageMod extends BaseTemplateModule {
 
     public function run($args = 'default') {
         return PageHelper::getInstance($args)->getHTML();

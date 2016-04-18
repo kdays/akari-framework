@@ -18,6 +18,7 @@ namespace Akari\system\ioc;
  * @property \Akari\system\http\Response $response
  * @property \Akari\system\http\Session $session
  * @property \Akari\system\http\Cookie $cookies
+ * @property \Akari\system\router\Dispatcher $dispatcher
  */
 abstract class Injectable {
     

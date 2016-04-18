@@ -65,6 +65,10 @@ Class Listener {
 
         $fireQueue = [];
         $nowQueue = self::$_listeners;
+        
+        if (!isset($nowQueue[$gloSpace])) {
+            return [];
+        }
 
         foreach ($nowQueue[$gloSpace] as $event) {
             if ($event->getType() == '*' || $event->getType() == $subSpace) {

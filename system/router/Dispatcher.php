@@ -5,29 +5,22 @@ use Akari\Context;
 use Akari\NotFoundClass;
 use Akari\system\http\Request;
 use Akari\system\ioc\DIHelper;
+use Akari\system\ioc\DINotRegistered;
+use Akari\system\ioc\Injectable;
 use Akari\system\result\Result;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ValueHelper;
 
 !defined("AKARI_PATH") && exit;
 
-Class Dispatcher{
+Class Dispatcher extends Injectable{
 
-    use Logging, ValueHelper, DIHelper;
+    use Logging, ValueHelper;
 
-    private $config;
+    private $_controllerName;
+    private $_fullControllerName;
+    private $_actionName;
     
-    /** @var  Request $request */
-    private $request;
-
-    /**
-     * 构造函数
-     */
-    public function __construct(){
-        $this->config = Context::$appConfig;
-        $this->request = $this->_getDI()->getShared('request');
-    }
-
     /**
      * CLI模式下 任务路径的分发
      *
@@ -41,16 +34,13 @@ Class Dispatcher{
         list($taskName, $methodName) = explode("/", $URI);
         $taskName = $taskName. "Task";
 
-        $path = implode(DIRECTORY_SEPARATOR, [
-            Context::$appEntryPath, "task",
-            $taskName.".php"
-        ]);
-
-        if(!file_exists($path)){
-            throw new NotFoundClass($taskName);
-        }
-
         $cls = implode(NAMESPACE_SEPARATOR, [Context::$appBaseNS, 'task', $taskName]);
+        try {
+            $isExistCls = !!class_exists($cls);
+        } catch (NotFoundClass $e) {
+            throw new NotFoundURI($methodName, $cls);
+        }
+       
         return $this->doAction($cls, $methodName);
     }
 
@@ -120,22 +110,25 @@ Class Dispatcher{
         }
 
         if ($isExistCls) {
-            $pCls = implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR . $class;
+            $this->_actionName = $method;
+            $this->_fullControllerName = $cls;
+            $this->_controllerName = implode(NAMESPACE_SEPARATOR,array_merge($parts, [$class]));
+            
             Context::$appExecute = [$cls, $method];
-            Context::$appEntryName =  $pCls. ".php";
             Context::$appEntryMethod = $method;
-
-            Context::$appSpecAction = $pCls. ".". $method;
+            Context::$appEntryName = implode(DIRECTORY_SEPARATOR, $parts). DIRECTORY_SEPARATOR . $class. '.php';
         }
     }
     
     protected function getAppActionNS() {
-        if (isset($this->config->bindDomain[$this->request->getHost()])) {
-            return Context::$appBaseNS. $this->config->bindDomain[$this->request->getHost()];
+        $config = Context::env('bindDomain', NULL, []);
+        
+        if (isset($config[$this->request->getHost()])) {
+            return Context::$appBaseNS. $config[$this->request->getHost()];
         }
         
-        if (isset($this->config->bindDomain['default'])) {
-            return Context::$appBaseNS. $this->config->bindDomain['default'];
+        if (isset($config['default'])) {
+            return Context::$appBaseNS. $config['default'];
         }
         
         return Context::$appBaseNS. NAMESPACE_SEPARATOR. 'action';
@@ -149,22 +142,11 @@ Class Dispatcher{
      * @throws NotFoundURI
      */
     public function dispatch() {
-        $execute = Context::$appExecute;
-
-        if (empty($execute)) {
+        if (empty($this->getControllerName())) {
             throw new NotFoundURI(Context::$uri);
         }
-
-        if (!is_array($execute)) {
-            $conResult = require($execute);
-            if (isset($conResult)) {
-                return $conResult;
-            }
-        } else {
-            return $this->doAction($execute[0], $execute[1]);
-        }
-
-        return NULL;
+        
+        return $this->doAction($this->_fullControllerName, $this->getActionName());
     }
 
     protected function doAction($cls, $method) {
@@ -188,7 +170,6 @@ Class Dispatcher{
         if (method_exists($clsObj, '_pre')) {
             $clsObj->_pre();
         }
-        Context::$appEntryMethod = $method;
 
         /*
             如果说 这个path是一个class文件 Result需要调用对应方法执行
@@ -200,8 +181,15 @@ Class Dispatcher{
         if (method_exists($clsObj, '_after')) {
             $result = $clsObj->_after($result);
         }
-
         return $result;
+    }
+    
+    public function getControllerName() {
+        return $this->_controllerName;
+    }
+    
+    public function getActionName() {
+        return $this->_actionName;
     }
 }
 

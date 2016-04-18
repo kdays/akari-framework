@@ -8,17 +8,10 @@
 
 namespace Akari\system\result;
 
-use Akari\NotAllowConsole;
-use Akari\system\event\Event;
 use Akari\system\event\Listener;
-use Akari\system\http\Response;
-use Akari\system\ioc\DIHelper;
-use Akari\system\tpl\TemplateHelper;
-use Akari\system\tpl\ViewHelper;
+use Akari\system\ioc\Injectable;
 
-Class Processor {
-    
-    use DIHelper;
+Class Processor extends Injectable{
     
     const EVT_RESULT_SENT = "Result.sent";
     
@@ -56,28 +49,15 @@ Class Processor {
     public function processTPL(Result $result) {
         $layoutPath = $result->meta['layout'];
         $screenPath = $result->meta['view'];
-
-        $h = new TemplateHelper();
-
-        if ($screenPath !== NULL)   ViewHelper::setScreen($screenPath);
-        if ($layoutPath !== NULL)   ViewHelper::setLayout($layoutPath);
-
-        if ($screenPath == NULL || $layoutPath == NULL) {
-            $realScreenPath = ViewHelper::getScreen();
-            $h->setScreen($realScreenPath);
-
-            $realLayoutPath = ViewHelper::getLayout();
-            if (!empty($realLayoutPath)) {
-                $h->setLayout($realLayoutPath);
-            }
-        }
-
+        
+        if ($screenPath !== NULL)   $this->view->setScreen($screenPath);
+        if ($layoutPath !== NULL)   $this->view->setLayout($layoutPath);
+        
         if (is_array($result->data)) {
-            TemplateHelper::assign($result->data, NULL);
+            $this->view->bindVar($result->data);
         }
-
-        $screenResult = $h->getResult(NULL);
-        echo $screenResult;
+        
+        echo $this->view->getResult(NULL);
     }
 
     public function processHTML(Result $result) {
@@ -159,13 +139,11 @@ Class Processor {
     public function processResult(Result $result) {
         $method = "process".$result->type;
         
-        /** @var Response $resp */
-        $resp = $this->_getDI()->getShared('response');
-        $resp->setContentType($result->contentType);
+        $this->response->setContentType($result->contentType);
         
         if (method_exists($this, $method)) {
             $this->$method($result);
-            $resp->send();
+            $this->response->send();
 
             Listener::fire(self::EVT_RESULT_SENT, $this);
         } else {

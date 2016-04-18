@@ -11,15 +11,18 @@ namespace Akari\system\tpl;
 use Akari\Context;
 use Akari\NotFoundClass;
 use Akari\system\ioc\DI;
+use Akari\system\ioc\DIHelper;
 use Akari\system\result\Widget;
 use Akari\system\tpl\engine\BaseTemplateEngine;
 use Akari\system\tpl\mod\BaseTemplateMod;
 
-class TemplateCommand {
+class TemplateCommand{
 
+    use DIHelper;
+    
     public static function widgetAction(BaseTemplateEngine $engine, $widgetName, $args = "", $direct = False) {
-        $tplPath = TemplateHelper::find(str_replace('.', DIRECTORY_SEPARATOR, $widgetName), TemplateHelper::TYPE_WIDGET);
-        $cachePath = $engine->parse($tplPath, [], TemplateHelper::TYPE_WIDGET, True);
+        $tplPath = View::find(str_replace('.', DIRECTORY_SEPARATOR, $widgetName), View::TYPE_WIDGET);
+        $cachePath = $engine->parse($tplPath, [], View::TYPE_WIDGET, True);
 
         if ($direct) {
             return self::loadWidget($cachePath, $widgetName, $args);

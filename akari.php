@@ -88,13 +88,6 @@ Class Context {
     public static $appExecute;
 
     /**
-     * 应用唯一行为标示符
-     * 
-     * @var string
-     */
-    public static $appSpecAction;
-
-    /**
      * 框架执行的入口文件名
      * 
      * @var string

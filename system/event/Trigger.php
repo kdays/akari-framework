@@ -70,6 +70,7 @@ class Trigger {
         $triggerBaseNS = Context::$appBaseNS. NAMESPACE_SEPARATOR. "trigger". NAMESPACE_SEPARATOR;
         
         foreach ($list as $value) {
+            if (count($value) < 2)  continue;
             list($re, $cls) = $value;
 
             if (!preg_match($re, Context::$uri)) {
@@ -79,7 +80,7 @@ class Trigger {
             // clsName里如果已经有baseNS 那么就不用拼接了
             $clsName = in_string($cls, NAMESPACE_SEPARATOR) ? $cls : $triggerBaseNS . $cls;
 
-            /** @var Rule $handler */
+            /** @var BaseTrigger $handler */
             try {
                 $handler = new $clsName();
                 $result = $handler->process($requestResult);

@@ -8,11 +8,10 @@
 
 namespace Akari\system\tpl\mod;
 
-
 use Akari\Context;
 use Akari\system\security\Security;
 
-class CsrfMod implements BaseTemplateMod {
+class CsrfMod extends BaseTemplateModule {
 
     public function run($args = '') {
         $tokenName = Context::$appConfig->csrfTokenName;
