@@ -48,6 +48,9 @@ class View extends Injectable{
     }
     
     public function getVar($key) {
+        if ($key !== NULL) {
+            return $this->hasVar($key) ? $this->_vars[$key] : NULL;
+        }
         return $this->_vars;
     }
     
