@@ -10,11 +10,10 @@ namespace Akari\system\tpl;
 
 use Akari\Context;
 use Akari\NotFoundClass;
-use Akari\system\ioc\DI;
 use Akari\system\ioc\DIHelper;
 use Akari\system\result\Widget;
 use Akari\system\tpl\engine\BaseTemplateEngine;
-use Akari\system\tpl\mod\BaseTemplateMod;
+use Akari\system\tpl\mod\BaseTemplateModule;
 
 class TemplateCommand{
 
@@ -47,7 +46,7 @@ class TemplateCommand{
             /** @var Widget $cls */
             $cls = new $widgetCls();
         } catch (NotFoundClass $e) {
-            throw new TemplateNotFound("widget: $widgetName");
+            throw new TemplateNotFound("widget class: $widgetName");
         }
 
         $result = $cls->execute($args);
@@ -68,7 +67,7 @@ class TemplateCommand{
         $clsObj = NULL;
         foreach ($clsNames as $clsName) {
             try {
-                /** @var BaseTemplateMod $clsObj */
+                /** @var BaseTemplateModule $clsObj */
                 $clsObj = new $clsName();
                 break;
             } catch (NotFoundClass $e) {

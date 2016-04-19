@@ -90,16 +90,12 @@ EOT
     }
     
     public static function load_block($block_name, $params = []) {
-        /** @var BaseTemplateEngine $viewEngine */
-        $viewEngine = self::_getDI()->getShared('viewEngine');
-        
         /** @var View $view */
         $view = self::_getDI()->getShared('view');
-        
         $tplPath = View::find($block_name, View::TYPE_BLOCK);
         
         $bindVars = array_merge($view->getVar(NULL), $params);
-        $c = $viewEngine->parse($tplPath, $bindVars, View::TYPE_BLOCK, False);
+        $c = $view->getEngine()->parse($tplPath, $bindVars, View::TYPE_BLOCK, False);
         return $c;
     }
     

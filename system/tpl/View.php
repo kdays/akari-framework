@@ -151,9 +151,7 @@ class View extends Injectable{
             throw new TemplateCommandInvalid('getResult', 'TemplateHelper Core (NO LAYOUT AND NO SCREEN)');
         }
 
-        /** @var BaseTemplateEngine $viewEngine */
-        $viewEngine = $this->getDI()->getShared("viewEngine");
-        
+        $viewEngine = $this->getEngine();
         if ($layoutPath) {
             $layoutResult = $viewEngine->parse($layoutPath, $data, self::TYPE_LAYOUT);
         }
@@ -203,6 +201,14 @@ class View extends Injectable{
         }
 
         throw new TemplateNotFound($type. " -> ". $tplName);
+    }
+
+    /**
+     * @return BaseTemplateEngine
+     * @throws \Akari\system\ioc\DINotRegistered
+     */
+    public function getEngine() {
+        return $this->getDI()->getShared('viewEngine');
     }
 }
 

@@ -87,7 +87,7 @@ Class BaseConfig {
     public $csrfTokenName = '_akari';
 
     public $trigger = [
-        // URL路由分发前，可以对URL进行简单处理
+        // URL路由分发前，可以对URL进行简单处理和标记
         'beforeDispatch' => [
             //['/\.json/', 'JSONSupport']
         ],
@@ -95,8 +95,11 @@ Class BaseConfig {
         // URL路由分发后，执行操作前，可以对权限之类进行检查
         'applicationStart' => [],
 
-        // 执行操作后返回结果的处理，可以记录性能或者繁体化等
-        'applicationEnd' => []
+        // 执行操作后返回结果的处理，可以记录性能和对Result进行额外处理
+        'applicationEnd' => [],
+        
+        // 结果已经输出到OutputBuffer,可以进行繁体化之类的操作
+        'applicationOutput' => []
     ];
 
     public $uriRewrite = [];

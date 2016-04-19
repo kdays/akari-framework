@@ -170,16 +170,16 @@ Class DBAgentStatement {
         $sql = $this->SQL;
 
         if (!empty($this->_args['WHERES'])) {
-            $sql = str_replace('(where)', $parser->parseWhere($this->_args['WHERES']), $sql);
+            $sql = str_ireplace('(where)', $parser->parseWhere($this->_args['WHERES']), $sql);
         }
-
+        
         if (!empty($this->_args['WHERE'])) {
             $where = $parser->parseData($this->_args['WHERE']);
 
             if(!empty($where)){
                 // 注意找的是where空格 不是(where)
                 $replace = (stripos($sql, " where ")===FALSE ? " WHERE" : " AND")." ".$where;
-                $sql = str_replace('(where)', $replace, $sql);
+                $sql = str_ireplace('(where)', $replace, $sql);
             }
         }
         $sql = str_ireplace('(where)', '', $sql);
@@ -201,7 +201,7 @@ Class DBAgentStatement {
         if (!empty($this->_args['LIMIT'])) {
             $sql .= $this->_args['LIMIT'];
         }
-
+        
         foreach ($parser->_bind as $key => $value) {
             $this->bindValue($key, $value);
         }

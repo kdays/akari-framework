@@ -28,14 +28,9 @@ Class Security {
 	public static function getCSRFToken(){
 		/** @var Request $request */
 		$request = self::_getDI()->getShared("request");
-		$key = self::_getValue(self::KEY_TOKEN, false, $request->getUserIP());
+		$key = self::_getValue(self::KEY_TOKEN, NULL, $request->getUserIP());
 
-		$str = implode("_", [
-            Context::$appConfig->appName,
-			$key,
-			$request->getUserAgent()
-		]);
-
+		$str = "CSRF-". Context::$appConfig->appName. $key;
 		return substr(md5($str) ,7, 9);
 	}
 
@@ -60,10 +55,14 @@ Class Security {
 	}
 	
 	public static function autoVerifyCSRFToken() {
-		if (!empty(Context::$appConfig->csrfTokenName) && !CLI_MODE && Context::$appConfig->autoPostTokenCheck) {
+		$config = Context::$appConfig;
+		$needVerify = (!CLI_MODE && $config->autoPostTokenCheck);
+		
+		if (!empty($config->csrfTokenName) && $needVerify) {
 			$tokenValue = self::getCSRFToken();
+			
 			if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-				setCookie(Context::$appConfig->csrfTokenName, $tokenValue, NULL, Context::$appConfig->cookiePath);
+				setcookie($config->csrfTokenName, $tokenValue, $config->cookiePath, $config->cookieDomain);
 			} else {
 				self::verifyCSRFToken();
 			}
@@ -74,22 +73,29 @@ Class Security {
 
 	/**
 	 * 获得加密实例
-	 * 
+	 *
 	 * @param string $mode Config中encrypt的设置名
 	 * @param bool $newInstance 强制创建新实例
 	 * @return Cipher
+	 * @throws NotFoundCipherMode
 	 */
 	public static function getCipher($mode = 'default', $newInstance = false) {
 		if (isset(self::$cipherInstances[$mode]) && !$newInstance) {
 			return self::$cipherInstances[$mode];
 		}
 
-		$options = Context::$appConfig->encrypt[$mode];
+		$config = Context::$appConfig->encrypt;
+		if (!array_key_exists($mode, $config)) {
+			throw new NotFoundCipherMode("not found cipher config: ". $mode);
+		}
+		
+		$options = $config[$mode];
 
 		$cipher = $options['cipher'];
+		$cipherOpts = isset($options['options']) ? $options['options'] : [];
 		
 		/** @var Cipher $instance */
-		$instance = new $cipher($options['options']);
+		$instance = new $cipher($cipherOpts);
 		self::$cipherInstances[$mode] = $instance;
 		
 		return $instance;
@@ -122,5 +128,9 @@ Class CSRFVerifyFailed extends \Exception {
             如果多次失败可以尝试更换游览器再行提交。
             (POST Security Token Verify Failed)";
     }
+
+}
+
+Class NotFoundCipherMode extends \Exception {
 
 }
