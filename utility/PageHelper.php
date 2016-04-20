@@ -3,9 +3,7 @@ namespace Akari\utility;
 
 use Akari\config\ConfigItem;
 use Akari\Context;
-use Akari\system\ioc\DI;
-use Akari\system\tpl\engine\BaseTemplateEngine;
-use Akari\system\tpl\TemplateCommand;
+use Akari\system\tpl\TemplateUtil;
 
 Class PageHelper {
 
@@ -205,9 +203,7 @@ Class PageHelper {
         $this->lastPage = str_replace('(page)', $this->totalPage, $url);
         $this->pagination = $pagination;
 
-        /** @var BaseTemplateEngine $templateHelper */
-        $engine = DI::getDefault()->getShared('viewEngine');
-        return TemplateCommand::widgetAction($engine, $this->widgetName, $this, True);
+        return TemplateUtil::load_widget($this->widgetName, $this);
     }
 
     public function needPage() {

@@ -227,7 +227,7 @@ Class TemplateCommandInvalid extends \Exception {
 
     public function __construct($commandName, $args, $file = NULL) {
         $file = str_replace(Context::$appEntryPath, '', $file);
-        $this->message = sprintf("Template Command Invalid: [ %s ] with [ %s ] on [ %s ]", $commandName, $args, $file);
+        $this->message = sprintf("Template Command Invalid: [ %s ] with [ %s ] on [ %s ]", $commandName, var_export($args, TRUE), $file);
     }
 
 }

@@ -151,7 +151,7 @@ Class UploadHelper{
     }
     
     public static function getFilePath($path) {
-        return Context::$appBasePath. Context::$appConfig->uploadDir. DIRECTORY_SEPARATOR. $path;
+        return Context::$appBasePath. DIRECTORY_SEPARATOR. Context::$appConfig->uploadDir. DIRECTORY_SEPARATOR. $path;
     }
 
     public static function formatFileSize($size, $dec = 2){

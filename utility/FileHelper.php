@@ -43,6 +43,13 @@ class FileHelper {
         unlink($fileName);
     }
     
+    public static function copyFile($source, $target) {
+        $baseDir = dirname($target);
+        self::createDir($baseDir);
+        
+        copy($source, $target);
+    }
+    
     public static function moveFile($target, $source){
         if (!$target) {
             return false;

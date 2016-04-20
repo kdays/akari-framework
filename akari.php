@@ -226,7 +226,7 @@ Class akari {
 
         header("X-Akari-Version: ". self::getVersion(false));
         include("defaultBoot.php");
-        if (file_exists(Context::$appBasePath . "/boot.php")) {
+        if (file_exists(Context::$appBasePath . "/boot.php") && !Context::$testing) {
             include(Context::$appBasePath . "/boot.php");
         }
 

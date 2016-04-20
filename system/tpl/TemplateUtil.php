@@ -10,11 +10,14 @@ namespace Akari\system\tpl;
 
 
 use Akari\Context;
+use Akari\NotFoundClass;
 use Akari\system\ioc\DI;
 use Akari\system\ioc\DIHelper;
+use Akari\system\result\Widget;
 use Akari\system\security\Security;
 use Akari\system\tpl\engine\BaseTemplateEngine;
 use Akari\system\tpl\mod\CsrfMod;
+use Akari\utility\PageHelper;
 use Akari\utility\ResourceMgr;
 
 class TemplateUtil {
@@ -69,8 +72,7 @@ class TemplateUtil {
                 $method = 'POST';
 
                 if (Context::$appConfig->csrfTokenName) {
-                    $csrf =  new CsrfMod();
-                    $afterForm = $csrf->run();
+                    $afterForm .= self::csrf_form();
                 }
                 break;
             
@@ -89,17 +91,64 @@ EOT
         return '</form>';
     }
     
-    public static function load_block($block_name, $params = []) {
+    public static function load_block($blockName, $params = []) {
         /** @var View $view */
         $view = self::_getDI()->getShared('view');
-        $tplPath = View::find($block_name, View::TYPE_BLOCK);
+        $tplPath = View::find($blockName, View::TYPE_BLOCK);
         
         $bindVars = array_merge($view->getVar(NULL), $params);
         $c = $view->getEngine()->parse($tplPath, $bindVars, View::TYPE_BLOCK, False);
         return $c;
     }
     
+    public static function load_widget($widgetName, $args = []) {
+        /** @var View $view */
+        $view = self::_getDI()->getShared('view');
+        
+        $widgetName = str_replace(".", NAMESPACE_SEPARATOR, $widgetName);
+        $widgetCls = implode(NAMESPACE_SEPARATOR, [Context::$appBaseNS, "widget", $widgetName]);
+
+        try {
+            /** @var Widget $cls */
+            $cls = new $widgetCls();
+        } catch (NotFoundClass $e) {
+            throw new TemplateNotFound("widget class: $widgetName");
+        }
+
+        // 模板只需要编译后在讲result处理
+        $tplPath = View::find(str_replace('.', DIRECTORY_SEPARATOR, $widgetName), View::TYPE_WIDGET);
+        $cachePath = $view->getEngine()->parse($tplPath, [], View::TYPE_WIDGET, True);
+        
+        $result = $cls->execute($args);
+        if ($result === NULL) {
+            return '';
+        }
+        return BaseTemplateEngine::_getView($cachePath, $result);
+    }
+    
     public static function res($path) {
         ResourceMgr::push($path);
+    }
+    
+    public static function pager($instanceName = 'default') {
+        return PageHelper::getInstance($instanceName)->getHTML();
+    }
+    
+    public static function __callStatic($name, $arguments) {
+        $name[0] = strtoupper($name[0]);
+        
+        $utilCls = implode(NAMESPACE_SEPARATOR, [
+            Context::$appBaseNS, 'lib', $name. 'Plugin'
+        ]);
+        
+        try {
+            if (class_exists($utilCls) && method_exists($utilCls, 'execute')) {
+                return $utilCls::execute($arguments);
+            }
+        } catch (NotFoundClass $e) {
+            
+        }
+        
+        throw new TemplateCommandInvalid($name, $arguments);
     }
 }

@@ -43,7 +43,7 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
             
             $template = preg_replace_callback('/'. $beginUtilMark.  '(.*?)'. $endUtilMark .'/iu', function($matches) use($that) {
                 $matches[1] = str_replace("$", "_#_", $matches[1]);
-                return '<?= \Akari\system\tpl\TemplateUtil::'. trim($matches[1]). "?>";
+                return '<?= ViewUtil::'. trim($matches[1]). "?>";
             }, $template);
             
             $template = preg_replace_callback('/'. $beginLangMark .'(.*?)'. $endLangMark .'/iu', function($matches) {
@@ -55,7 +55,6 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
                 return $that->addQuote('<?='.$matches[1].'?>');
             }, $template);
 
-
             $template = preg_replace_callback('/\<\?\=\<\?\='.$var_regexp.'\?\>\?\>/s', function($matches) use($that) {
                 return $that->addQuote('<?='.$matches[1].'?>');
             }, $template);
@@ -66,6 +65,7 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
             $tempHeader = <<<'TAG'
 <?php
 use Akari\Context;
+use Akari\system\tpl\TemplateUtil AS ViewUtil;
 ?>
 TAG;
 
@@ -134,19 +134,8 @@ TAG;
             case "endfor":
                 return "<?php endfor; ?>";
         }
-
         
-        $tplCmdCls = TemplateCommand::class;
-        $cmdMethod = strtolower($cmd). 'Action';
-        
-        if (!method_exists($tplCmdCls, $cmdMethod)) {
-            $cmdMethod = 'moduleAction';
-            
-            // 处理$afterCommend之前的cmd会丢失掉 就无法得知了
-            $afterCommand = $cmd. ' '. $afterCommand;
-        }
-
-        return call_user_func_array([$tplCmdCls, $cmdMethod], [$this, $afterCommand]);
+        throw new TemplateCommandInvalid($cmd, $afterCommand);
     }
 
 }
