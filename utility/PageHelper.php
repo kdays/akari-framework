@@ -86,8 +86,6 @@ Class PageHelper {
 
     public function execute(){
         $totalPage = intval(ceil($this->totalRecord / $this->pageSize));
-        $this->totalPage = $totalPage;
-
         if (!$totalPage) {
             $totalPage = 1;
         }
@@ -95,7 +93,54 @@ Class PageHelper {
         if ($totalPage < $this->currentPage) {
             $this->currentPage = $totalPage;
         }
+        
+        $this->totalPage = $totalPage;
 
+        $url = $this->url;
+        foreach ($this->params as $k => $v) {
+            $url = str_replace('('. $k. ')', $v, $url);
+        }
+        $this->mixedUrl = $url;
+
+        $currentPage = $this->currentPage;
+        $pagination = [];
+        if ($this->totalPage > 0) {
+            $left = ceil($this->display / 2);
+            $right = ceil($this->display / 2) + 1;
+
+            for ($i = 0; $i < $left; $i++) {
+                $k = $currentPage - $i;
+                if ($k > 0) {
+                    $pagination[$k] = str_replace('(page)', $k, $url);
+                } else {
+                    break;
+                }
+            }
+
+            for ($i = 1; $i < $right; $i++) {
+                $k = $currentPage + $i;
+                if ($k <= $this->totalPage) {
+                    $pagination[$k] = str_replace('(page)', $k, $url);
+                } else {
+                    break;
+                }
+            }
+
+            ksort($pagination);
+        }
+
+        if (array_key_exists($currentPage + 1, $pagination)) {
+            $this->nextPage = $pagination[$currentPage + 1];
+        }
+
+        if (array_key_exists($currentPage - 1, $pagination)) {
+            $this->prevPage = $pagination[$currentPage - 1];
+        }
+
+        $this->firstPage = str_replace('(page)', 1, $url);
+        $this->lastPage = str_replace('(page)', $this->totalPage, $url);
+        $this->pagination = $pagination;
+        
         return $this;
     }
 
@@ -158,51 +203,6 @@ Class PageHelper {
     }
 
     public function getHTML() {
-        $url = $this->url;
-        foreach ($this->params as $k => $v) {
-            $url = str_replace('('. $k. ')', $v, $url);
-        }
-        $this->mixedUrl = $url;
-
-        $currentPage = $this->currentPage;
-        $pagination = [];
-        if ($this->totalPage > 0) {
-            $left = ceil($this->display / 2);
-            $right = ceil($this->display / 2) + 1;
-
-            for ($i = 0; $i < $left; $i++) {
-                $k = $currentPage - $i;
-                if ($k > 0) {
-                    $pagination[$k] = str_replace('(page)', $k, $url);
-                } else {
-                    break;
-                }
-            }
-
-            for ($i = 1; $i < $right; $i++) {
-                $k = $currentPage + $i;
-                if ($k <= $this->totalPage) {
-                    $pagination[$k] = str_replace('(page)', $k, $url);
-                } else {
-                    break;
-                }
-            }
-
-            ksort($pagination);
-        }
-
-        if (array_key_exists($currentPage + 1, $pagination)) {
-            $this->nextPage = $pagination[$currentPage + 1];
-        }
-
-        if (array_key_exists($currentPage - 1, $pagination)) {
-            $this->prevPage = $pagination[$currentPage - 1];
-        }
-
-        $this->firstPage = str_replace('(page)', 1, $url);
-        $this->lastPage = str_replace('(page)', $this->totalPage, $url);
-        $this->pagination = $pagination;
-
         return TemplateUtil::load_widget($this->widgetName, $this);
     }
 

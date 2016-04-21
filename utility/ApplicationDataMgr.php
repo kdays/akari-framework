@@ -12,7 +12,7 @@ Class ApplicationDataMgr {
     public static function get($key, $subKey = NULL, $defaultValue = NULL) {
         if (self::has($key, $subKey)) {
             $r = self::$_values[$key];
-            
+
             if ($subKey !== NULL) {
                 return is_array($r) ? $r[$subKey] : $r->$subKey;
             }

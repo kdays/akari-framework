@@ -34,3 +34,4 @@ $di->setShared("dispatcher", Akari\system\router\Dispatcher::class);
 $di->setShared("router", Akari\system\router\Router::class);
 $di->setShared("processor", Akari\system\result\Processor::class);
 
+$di->setShared('assets', Akari\system\tpl\asset\AssetsMgr::class);

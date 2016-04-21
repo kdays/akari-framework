@@ -15,6 +15,7 @@ use Akari\system\ioc\DI;
 use Akari\system\ioc\DIHelper;
 use Akari\system\result\Widget;
 use Akari\system\security\Security;
+use Akari\system\tpl\asset\AssetsMgr;
 use Akari\system\tpl\engine\BaseTemplateEngine;
 use Akari\system\tpl\mod\CsrfMod;
 use Akari\utility\PageHelper;
@@ -126,8 +127,16 @@ EOT
         return BaseTemplateEngine::_getView($cachePath, $result);
     }
     
-    public static function res($path) {
-        ResourceMgr::push($path);
+    public static function output_js($name = 'default') {
+        /** @var AssetsMgr $assets */
+        $assets = self::_getDI()->getShared('assets');
+        return $assets->outputJs($name);
+    }
+    
+    public static function output_css($name = 'default') {
+        /** @var AssetsMgr $assets */
+        $assets = self::_getDI()->getShared('assets');
+        return $assets->outputCss($name);
     }
     
     public static function pager($instanceName = 'default') {
