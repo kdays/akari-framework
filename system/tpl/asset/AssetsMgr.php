@@ -28,8 +28,8 @@ class AssetsMgr {
     public function outputJs($name = 'default') {
         $collection = $this->collection($name);
         $result = '';
-        foreach ($collection->getCssPaths() as $path) {
-            $result .= sprintf("<script src=\"%s\" type=\"text/javascript\>", $path);
+        foreach ($collection->getJsPaths() as $path) {
+            $result .= sprintf("<script src=\"%s\" type=\"text/javascript\"></script>\n", $path);
         }
 
         return $result;
@@ -39,7 +39,7 @@ class AssetsMgr {
         $collection = $this->collection($name);
         $result = '';
         foreach ($collection->getCssPaths() as $path) {
-            $result .= sprintf("<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\" />", $path);
+            $result .= sprintf("<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\" />\n", $path);
         }
         
         return $result;

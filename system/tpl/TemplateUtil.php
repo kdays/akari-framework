@@ -59,7 +59,7 @@ class TemplateUtil {
         return $url. (!empty($arr) ? ("?". http_build_query($arr)) : '');
     }
     
-    public static function form($url, $urlParameters, $method = 'POST') {
+    public static function form($url, $urlParameters, $method = 'POST', $formParameters = []) {
         $url = self::url($url, $urlParameters);
         $extraForm = '';
         $afterForm = '';
@@ -79,6 +79,10 @@ class TemplateUtil {
             
             case 'GET':
                 break;
+        }
+        
+        foreach ($formParameters as $k => $v) {
+            $extraForm .= "$k=\"$v\"";
         }
         
         return sprintf(<<<'EOT'
