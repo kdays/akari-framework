@@ -10,6 +10,9 @@ namespace Akari\system\tpl\asset;
 
 class AssetsMgr {
     
+    const TYPE_CSS = 0;
+    const TYPE_JS = 1;
+    
     protected $collections = [];
 
     /**
@@ -29,7 +32,7 @@ class AssetsMgr {
         $collection = $this->collection($name);
         $result = '';
         foreach ($collection->getJsPaths() as $path) {
-            $result .= sprintf("<script src=\"%s\" type=\"text/javascript\"></script>\n", $path);
+            $result .= sprintf("<script src=\"%s\" type=\"text/javascript\"></script>\n", $collection->execBehaviour($path, AssetsMgr::TYPE_JS));
         }
 
         return $result;
@@ -39,10 +42,15 @@ class AssetsMgr {
         $collection = $this->collection($name);
         $result = '';
         foreach ($collection->getCssPaths() as $path) {
-            $result .= sprintf("<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\" />\n", $path);
+            $result .= sprintf("<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\" />\n", $collection->execBehaviour($path, AssetsMgr::TYPE_CSS));
         }
         
         return $result;
+    }
+    
+    
+    public function addBehaviour($item) {
+        return $this->collection('default')->addBehaviour($item);
     }
     
     public function addJs($path) {

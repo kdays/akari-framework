@@ -16,6 +16,8 @@ class AssetCollection {
     private $_js = [];
     private $_prefix = '';
     
+    private $_behaviour = [];
+    
     public function __construct($id) {
         $this->_id = $id;
     }
@@ -33,6 +35,23 @@ class AssetCollection {
     public function addCss($path) {
         $this->_css[] = $this->_prefix. $path;
         return $this;
+    }
+    
+    public function addBehaviour($cls) {
+        $this->_behaviour[] = $cls;
+        return $this;
+    }
+    
+    public function execBehaviour($path, $type) {
+        foreach ($this->_behaviour as $item) {
+            if (is_callable($item)) {
+                $path = $item($path, $type);
+            } else {
+                $path = $item::execute($path, $type);
+            }
+        }
+        
+        return $path;
     }
 
     /**

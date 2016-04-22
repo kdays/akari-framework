@@ -22,19 +22,20 @@ Class I18n {
         ]);
 
         $languageId = Context::env(ConfigItem::LANGUAGE_ID, NULL, FALSE);
-
+        $suffix = ".php";
+        
+        $paths = [];
         if ($languageId) {
-            if (file_exists($baseDir. $languageId. "/$name.php")) {
-                return $baseDir. $languageId. "/$name.php";
-            } elseif (file_exists( $baseDir. $languageId. ".$name.php" )) {
-                return $baseDir. $languageId. ".$name.php";
-            }
+            $paths[] = $baseDir. $languageId. DIRECTORY_SEPARATOR. $name. $suffix;
+            $paths[] = $baseDir. $languageId. ".". $name. $suffix;
         }
+        
+        $paths[] = $baseDir. $name. $suffix;
 
-        if (file_exists($baseDir. "$name.php")) {
-            return $baseDir. "$name.php";
+        foreach ($paths as $path) {
+            if (file_exists($path)) return $path;
         }
-
+        
         return FALSE;
     }
 

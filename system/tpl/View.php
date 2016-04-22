@@ -188,9 +188,11 @@ class View extends Injectable{
         $baseDirs = self::getBaseDirs($type);
 
         $suffix = Context::$appConfig->templateSuffix;
+        $tplName = str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $tplName);
+        
         foreach ($baseDirs as $baseDir) {
             $baseDir = Context::$appEntryPath. $baseDir;
-
+            
             if (file_exists($tplPath = $baseDir. $tplName. $suffix)) {
                 return realpath($tplPath);
             }
@@ -199,7 +201,7 @@ class View extends Injectable{
                 return realpath($tplPath);
             }
         }
-
+        
         throw new TemplateNotFound($type. " -> ". $tplName);
     }
 

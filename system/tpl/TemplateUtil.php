@@ -11,15 +11,13 @@ namespace Akari\system\tpl;
 
 use Akari\Context;
 use Akari\NotFoundClass;
-use Akari\system\ioc\DI;
 use Akari\system\ioc\DIHelper;
 use Akari\system\result\Widget;
 use Akari\system\security\Security;
 use Akari\system\tpl\asset\AssetsMgr;
 use Akari\system\tpl\engine\BaseTemplateEngine;
-use Akari\system\tpl\mod\CsrfMod;
 use Akari\utility\PageHelper;
-use Akari\utility\ResourceMgr;
+use Akari\utility\UrlHelper;
 
 class TemplateUtil {
     
@@ -44,19 +42,10 @@ class TemplateUtil {
         );
     }
     
-    public static function url($url, $arr = [], $withToken = false) {
-        if (substr($url, 0, 1) == '.') {
-            // 这个时候检查Rewrite语法代表重发到特定Rewrite方法中
-            if (Context::$appConfig->uriGenerator !== NULL) {
-                return call_user_func_array([Context::$appConfig->uriGenerator, 'make'], [$url, $arr]);
-            }
-        }
-        
-        if ($withToken && Context::$appConfig->csrfTokenName) {
-            $arr[ Context::$appConfig->csrfTokenName ] = Security::getCSRFToken();
-        }
-        
-        return $url. (!empty($arr) ? ("?". http_build_query($arr)) : '');
+    public static function url($path, $arr = [], $withToken = false) {
+        /** @var UrlHelper $url */
+        $url = self::_getDI()->getShared("url");
+        return $url->get($path, $arr, $withToken);
     }
     
     public static function form($url, $urlParameters, $method = 'POST', $formParameters = []) {
