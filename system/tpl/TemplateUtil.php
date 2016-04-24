@@ -99,8 +99,13 @@ EOT
         /** @var View $view */
         $view = self::_getDI()->getShared('view');
         
-        $widgetName = str_replace(".", NAMESPACE_SEPARATOR, $widgetName);
-        $widgetCls = implode(NAMESPACE_SEPARATOR, [Context::$appBaseNS, "widget", $widgetName]);
+        $lists = explode(".", $widgetName);
+        $len = count($lists) - 1;
+        $lists[$len][0] =  strtoupper($lists[$len][0]);
+        $widgetCls = implode(NAMESPACE_SEPARATOR, array_merge([Context::$appBaseNS, 'widget'], $lists));
+
+        $lists[$len][0] =  strtolower($lists[$len][0]);
+        $widgetTpl = implode(DIRECTORY_SEPARATOR, $lists);
 
         try {
             /** @var Widget $cls */
@@ -110,7 +115,7 @@ EOT
         }
 
         // 模板只需要编译后在讲result处理
-        $tplPath = View::find(str_replace('.', DIRECTORY_SEPARATOR, $widgetName), View::TYPE_WIDGET);
+        $tplPath = View::find($widgetTpl, View::TYPE_WIDGET);
         $cachePath = $view->getEngine()->parse($tplPath, [], View::TYPE_WIDGET, True);
         
         $result = $cls->execute($args);

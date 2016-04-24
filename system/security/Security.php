@@ -31,7 +31,8 @@ Class Security {
 		$key = self::_getValue(self::KEY_TOKEN, NULL, $request->getUserIP());
 
 		$str = "CSRF-". Context::$appConfig->appName. $key;
-		return substr(md5($str) ,7, 9);
+		$token = substr(md5($str) ,7, 9);
+		return $token;
 	}
 
     /**
@@ -42,13 +43,15 @@ Class Security {
 	public static function verifyCSRFToken(){
 		$tokenName = Context::$appConfig->csrfTokenName;
 		$token = NULL;
-		
+
 		if (!empty($_COOKIE[$tokenName])) {
 			$token = $_COOKIE[$tokenName];
-		} elseif (!empty($_REQUEST[$tokenName])) {
+		}
+		
+		if (!empty($_REQUEST[$tokenName])) {
 			$token = $_REQUEST[$tokenName];
 		}
-
+		
 		if($token != self::getCSRFToken()){
 			throw new CSRFVerifyFailed();
 		}
