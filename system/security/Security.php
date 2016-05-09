@@ -10,6 +10,7 @@ namespace Akari\system\security;
 
 use Akari\Context;
 use Akari\system\http\Request;
+use Akari\system\http\VerifyCsrfToken;
 use Akari\system\ioc\DIHelper;
 use Akari\system\security\cipher\Cipher;
 use Akari\utility\helper\ValueHelper;
@@ -26,13 +27,9 @@ Class Security {
      * @return string
      */
 	public static function getCSRFToken(){
-		/** @var Request $request */
-		$request = self::_getDI()->getShared("request");
-		$key = self::_getValue(self::KEY_TOKEN, NULL, $request->getUserIP());
-
-		$str = "CSRF-". Context::$appConfig->appName. $key;
-		$token = substr(md5($str) ,7, 9);
-		return $token;
+		/** @var VerifyCsrfToken $verifier */
+		$verifier = self::_getDI()->getShared('csrf');
+		return $verifier->getToken();
 	}
 
     /**
@@ -41,35 +38,15 @@ Class Security {
      * @throws CSRFVerifyFailed
      */
 	public static function verifyCSRFToken(){
-		$tokenName = Context::$appConfig->csrfTokenName;
-		$token = NULL;
-
-		if (!empty($_COOKIE[$tokenName])) {
-			$token = $_COOKIE[$tokenName];
-		}
-		
-		if (!empty($_REQUEST[$tokenName])) {
-			$token = $_REQUEST[$tokenName];
-		}
-		
-		if($token != self::getCSRFToken()){
-			throw new CSRFVerifyFailed();
-		}
+		/** @var VerifyCsrfToken $verifier */
+		$verifier = self::_getDI()->getShared('csrf');
+		$verifier->verifyToken();
 	}
 	
 	public static function autoVerifyCSRFToken() {
-		$config = Context::$appConfig;
-		$needVerify = (!CLI_MODE && $config->autoPostTokenCheck);
-		
-		if (!empty($config->csrfTokenName) && $needVerify) {
-			$tokenValue = self::getCSRFToken();
-			
-			if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-				setcookie($config->csrfTokenName, $tokenValue, $config->cookiePath, $config->cookieDomain);
-			} else {
-				self::verifyCSRFToken();
-			}
-		}
+		/** @var VerifyCsrfToken $verifier */
+		$verifier = self::_getDI()->getShared('csrf');
+		$verifier->autoVerify();
 	}
 	
 	protected static $cipherInstances = [];

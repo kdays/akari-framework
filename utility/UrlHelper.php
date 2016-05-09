@@ -14,6 +14,7 @@ use Akari\system\security\Security;
 
 class UrlHelper extends Injectable{
     
+    /** @var UrlHelper $instance */
     protected $instance = NULL;
 
     public function get($path, $args = [], $withToken = False) {

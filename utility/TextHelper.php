@@ -111,5 +111,9 @@ class TextHelper {
 
         return $ret;
     }
+    
+    public static function cutStr($str, $length, $splitAdd = '...') {
+        return mb_strlen($str) > $length ? mb_substr($str, 0, $length). $splitAdd : $length;
+    }
 
 }
