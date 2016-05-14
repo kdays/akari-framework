@@ -13,7 +13,7 @@ use Akari\Context;
 
 Class I18n {
 
-    protected static $data = [];
+    protected static $_data = [];
     protected static $loadedPackages = [];
 
     protected static function getPath($name) {
@@ -23,24 +23,26 @@ Class I18n {
 
         $languageId = Context::env(ConfigItem::LANGUAGE_ID, NULL, FALSE);
         $suffix = ".php";
-        
+
         $paths = [];
         if ($languageId) {
             $paths[] = $baseDir. $languageId. DIRECTORY_SEPARATOR. $name. $suffix;
             $paths[] = $baseDir. $languageId. ".". $name. $suffix;
         }
-        
+
         $paths[] = $baseDir. $name. $suffix;
 
         foreach ($paths as $path) {
             if (file_exists($path)) return $path;
         }
-        
+
         return FALSE;
     }
 
     public static function loadPackage($packageId, $prefix = "") {
-        if (isset(self::$loadedPackages[ $prefix. $packageId ])) return FALSE;
+        if (isset(self::$loadedPackages[ $prefix. $packageId ])) {
+            return FALSE;
+        }
 
         $path = self::getPath($packageId);
         if (!$path) {
@@ -51,14 +53,21 @@ Class I18n {
 
         $now = require($path);
         foreach ($now as $key => $value) {
-            self::$data[ $prefix. $key ] = $value;
+            self::$_data[ $prefix. $key ] = $value;
         }
     }
 
-    public static function get($id, $L = [], $prefix = "") {
-        $id = $prefix.$id;
-        $lang = isset(self::$data[$id]) ? self::$data[$id] : "[$id]";
+    public static function has($id, $prefix = "") {
+        $id = $prefix. $id;
+        return array_key_exists($id, self::$_data);
+    }
 
+    public static function get($id, $L = [], $prefix = "") {
+        if (!self::has($id, $prefix)) {
+            return $id;
+        }
+
+        $lang = self::$_data[ $prefix. $id ];
         foreach($L as $key => $value){
             $lang = str_replace("%$key%", $value, $lang);
         }
