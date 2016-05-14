@@ -36,3 +36,4 @@ $di->setShared("processor", Akari\system\result\Processor::class);
 
 $di->setShared('assets', Akari\system\tpl\asset\AssetsMgr::class);
 $di->setShared("url", \Akari\utility\UrlHelper::class);
+$di->setShared("csrf", \Akari\system\http\VerifyCsrfToken::class);

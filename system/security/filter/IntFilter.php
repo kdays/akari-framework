@@ -26,6 +26,9 @@ class IntFilter extends BaseFilter{
             return $data;
         }
         
+        if (!is_numeric($data)) {
+            return false;
+        }
         return (int) $data;
     }
     
