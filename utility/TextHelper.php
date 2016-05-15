@@ -112,8 +112,8 @@ class TextHelper {
         return $ret;
     }
     
-    public static function cutStr($str, $length, $splitAdd = '...') {
-        return mb_strlen($str) > $length ? mb_substr($str, 0, $length). $splitAdd : $length;
+    public static function cutStr($str, $length, $splitAdd = '...', $charset = 'utf-8') {
+        return mb_strlen($str, $charset) > $length ? mb_substr($str, 0, $length, $charset). $splitAdd : $str;
     }
 
 }

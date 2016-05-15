@@ -19,7 +19,7 @@ use Akari\utility\helper\ValueHelper;
 
 abstract class Widget extends Injectable{
 
-    use ResultHelper, ValueHelper, Logging;
+    use ValueHelper, Logging;
 
     /**
      * @param mixed $userData

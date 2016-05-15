@@ -23,19 +23,19 @@ Class I18n {
 
         $languageId = Context::env(ConfigItem::LANGUAGE_ID, NULL, FALSE);
         $suffix = ".php";
-
+        
         $paths = [];
         if ($languageId) {
             $paths[] = $baseDir. $languageId. DIRECTORY_SEPARATOR. $name. $suffix;
             $paths[] = $baseDir. $languageId. ".". $name. $suffix;
         }
-
+        
         $paths[] = $baseDir. $name. $suffix;
 
         foreach ($paths as $path) {
             if (file_exists($path)) return $path;
         }
-
+        
         return FALSE;
     }
 
@@ -56,7 +56,7 @@ Class I18n {
             self::$_data[ $prefix. $key ] = $value;
         }
     }
-
+    
     public static function has($id, $prefix = "") {
         $id = $prefix. $id;
         return array_key_exists($id, self::$_data);
@@ -66,7 +66,7 @@ Class I18n {
         if (!self::has($id, $prefix)) {
             return $id;
         }
-
+        
         $lang = self::$_data[ $prefix. $id ];
         foreach($L as $key => $value){
             $lang = str_replace("%$key%", $value, $lang);

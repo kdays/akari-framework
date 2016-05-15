@@ -25,7 +25,13 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
         $beginUtilMark = preg_quote($this->getOption('beginUtilMark', '{{'));
         $endUtilMark = preg_quote($this->getOption('endUtilMark', '}}'));
         
-        if (filemtime($tplPath) > filemtime($cachePath) || !file_exists($cachePath) || $isAlwaysCompile) {
+        if (file_exists($cachePath)) {
+            $isNeedCreate = filemtime($tplPath) > filemtime($cachePath);   
+        } else {
+            $isNeedCreate = true;
+        }
+        
+        if ($isNeedCreate || $isAlwaysCompile) {
             $template = file_get_contents($tplPath);
 
             $const_regexp = "([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)";

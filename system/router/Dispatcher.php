@@ -168,7 +168,12 @@ Class Dispatcher extends Injectable{
         }
 
         if (method_exists($clsObj, '_pre')) {
-            $clsObj->_pre();
+            $beforeResult = $clsObj->_pre();
+            
+            // 如果_pre()有返回Result 那么也和trigger一致,直接中断
+            if (!empty($beforeResult) && $beforeResult instanceof Result) {
+                return $beforeResult;
+            }
         }
 
         /*
