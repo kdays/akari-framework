@@ -16,11 +16,17 @@ Class Response {
     use DIHelper;
     
     private $responseCode = HttpCode::OK;
+    private $responseCodeMessage = NULL;
+    
     private $headers = [];
     
-
-    public function setStatusCode($code = HttpCode::OK) {
+    public function setStatusCode($code = HttpCode::OK, $msg = NULL) {
         $this->responseCode = $code;
+        
+        if ($code == HttpCode::UNAVAILABLE_FOR_LEGAL_REASON && $msg == NULL) {
+            $msg = HttpCode::$statusCode[HttpCode::UNAVAILABLE_FOR_LEGAL_REASON];
+        }
+        $this->responseCodeMessage = $msg;
         
         return $this;
     }
@@ -55,7 +61,12 @@ Class Response {
     }
 
     public function send() {
-        http_response_code($this->responseCode);
+        if ($this->responseCodeMessage !== NULL) {
+            header('HTTP/1.1 '. $this->responseCode. " ". $this->responseCodeMessage);
+        } else {
+            http_response_code($this->responseCode);
+        }
+        
         foreach ($this->headers as $key => $value) {
             header($key. ": ". $value);
         }

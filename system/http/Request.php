@@ -4,7 +4,7 @@ namespace Akari\system\http;
 use Akari\system\ioc\DIHelper;
 use Akari\system\security\FilterFactory;
 
-Class Request{
+Class Request {
     
     use DIHelper;
     
@@ -415,7 +415,14 @@ Class Request{
     }
 
     /**
-     * 
+     * @return bool
+     */
+    public function hasFiles() {
+        return count($_FILES) > 0;
+    }
+    
+    /**
+     * 是否有Cookie
      * 
      * @param string $name
      * @return bool
@@ -427,7 +434,8 @@ Class Request{
     }
 
     /**
-     * 
+     * 获得Cookies
+     * 也可以在Controller中直接$this->cookies方法操作
      * 
      * @param string $name
      * @param bool $autoPrefix
@@ -437,5 +445,17 @@ Class Request{
         /** @var Cookie $cookie */
         $cookie = $this->_getDI()->getShared('cookies');
         return $cookie->get($name, $autoPrefix);
+    }
+    
+    public function hasHeader($key) {
+        return array_key_exists($key, $_SERVER);
+    }
+    
+    public function getHeader($key, $defaultValue = NULL, $filter = "default") {
+        if ($this->hasHeader($key)) {
+            return FilterFactory::doFilter($_SERVER[$key], $filter);
+        }
+        
+        return $defaultValue;
     }
 }

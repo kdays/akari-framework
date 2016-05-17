@@ -66,7 +66,7 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
         }
         return $result;
     }
-
+    
     public static function toModel(array $in) {
         $model = new static();
         $columnMap = $model->columnMap();
@@ -129,7 +129,6 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
             DbAgentConfig::JSON_AUTO_USE_GETTER, 
             DbAgentConfig::JSON_AUTO_ARRAY_EXCEPT);
     }
-    
 }
 
 
