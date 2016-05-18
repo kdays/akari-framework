@@ -27,6 +27,7 @@ class View extends Injectable{
     protected static $_screenDir;
     
     private $_vars = [];
+    private $baseActionNs = NULL;
 
     /**
      * 将参数绑定到模板 别的不会执行  
@@ -68,6 +69,10 @@ class View extends Injectable{
     
     public function getScreen() {
         return $this->screen;
+    }
+
+    public function setBaseActionNs($name) {
+        $this->baseActionNs = $name;
     }
     
     public function setLayoutDir($_layoutDir) {
@@ -126,6 +131,17 @@ class View extends Injectable{
         }
 
         $screenName = implode(DIRECTORY_SEPARATOR, $screenName);
+        if ($this->baseActionNs !== NULL) { 
+            // 如果设置baseActionNs时 如果前面有baseActionNs就移去
+            // 在设置baseViewDir时,为了降低目录层级时,十分有用
+            
+            $len = strlen($this->baseActionNs);
+            
+            if (substr($screenName, 0, $len) == $this->baseActionNs) {
+                $screenName = substr($screenName, $len);
+            }
+        }
+        
         $actionName = $this->dispatcher->getActionName();
 
         if ($actionName !== NULL) {
@@ -134,7 +150,7 @@ class View extends Injectable{
             }
             $screenName .= DIRECTORY_SEPARATOR . $actionName;
         }
-
+        
         return $screenName;
     }
     
@@ -150,7 +166,7 @@ class View extends Injectable{
         if (empty($layoutPath) && empty($screenPath)) {
             throw new TemplateCommandInvalid('getResult', 'TemplateHelper Core (NO LAYOUT AND NO SCREEN)');
         }
-
+        
         $viewEngine = $this->getEngine();
         if ($layoutPath) {
             $layoutResult = $viewEngine->parse($layoutPath, $data, self::TYPE_LAYOUT);
@@ -204,6 +220,8 @@ class View extends Injectable{
         
         throw new TemplateNotFound($type. " -> ". $tplName);
     }
+    
+    
 
     /**
      * @return BaseTemplateEngine
