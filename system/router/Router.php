@@ -203,7 +203,7 @@ Class Router{
         $allowMethodHeader = ['GET', 'POST', 'PUT', 'DELETE', 'GP'];
         $methodRegexp = "/^(GET|POST|PUT|DELETE|GP):(.*)/";
 
-        /**@var mixed|callable|URL $value**/
+        /**@var mixed|callable $value**/
         foreach($URLRewrite as $re => $value){
             $matchMode = self::REWRITE_MODE_STR;
             if (substr($re, 0, 1) == '!') {

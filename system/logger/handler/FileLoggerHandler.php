@@ -10,6 +10,7 @@ namespace Akari\system\logger\handler;
 
 
 use Akari\system\logger\Logger;
+use Akari\utility\FileHelper;
 
 class FileLoggerHandler implements ILoggerHandler{
     
@@ -20,6 +21,10 @@ class FileLoggerHandler implements ILoggerHandler{
     public function getHandler() {
         $logPath = $this->opts['path'];
         if (!$this->handler) {
+            if (!file_exists($logPath)) {
+                FileHelper::createDir(dirname($logPath));
+            }
+            
             @$this->handler = fopen($logPath, 'a');
             @chmod($logPath, 0777);
         }

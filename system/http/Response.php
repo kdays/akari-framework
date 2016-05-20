@@ -9,16 +9,17 @@
 namespace Akari\system\http;
 
 use Akari\system\ioc\DIHelper;
+use Akari\system\ioc\Injectable;
 use Akari\system\result\Result;
 
-Class Response {
+Class Response extends Injectable{
     
-    use DIHelper;
-    
+    private $isSent = false;
     private $responseCode = HttpCode::OK;
     private $responseCodeMessage = NULL;
     
     private $headers = [];
+    private $content;
     
     public function setStatusCode($code = HttpCode::OK, $msg = NULL) {
         $this->responseCode = $code;
@@ -29,6 +30,18 @@ Class Response {
         $this->responseCodeMessage = $msg;
         
         return $this;
+    }
+    
+    public function setContent($content) {
+        $this->content = $content;
+    }
+    
+    public function getContent() {
+        return $this->content;
+    }
+    
+    public function appendContent($content) {
+        $this->content .= $content;
     }
 
     public function useNoCache() {
@@ -50,7 +63,15 @@ Class Response {
 
     public function setHeader($key, $value) {
         $this->headers[$key] = $value;
-        
+        return $this;
+    }
+    
+    public function resetHeaders() {
+        $this->headers = [];
+    }
+    
+    public function setHeaders($headers) {
+        $this->headers += $headers;
         return $this;
     }
 
@@ -59,28 +80,40 @@ Class Response {
         
         return $this;
     }
-
-    public function send() {
+    
+    public function redirect($location, $statusCode = HttpCode::FOUND) {
+        $this->setStatusCode($statusCode);
+        $this->setHeader("location", $location);
+    }
+    
+    public function sendHeaders() {
         if ($this->responseCodeMessage !== NULL) {
             header('HTTP/1.1 '. $this->responseCode. " ". $this->responseCodeMessage);
         } else {
             http_response_code($this->responseCode);
         }
-        
+
         foreach ($this->headers as $key => $value) {
             header($key. ": ". $value);
         }
     }
+
+    public function send() {
+        $this->isSent = true;
+        $this->sendHeaders();
+        
+        echo $this->content;
+    }
+    
+    public function isSent() {
+        return $this->isSent;
+    }
     
     public function setCookie($name, $value, $expire = NULL, $useEncrypt = FALSE, $opts = []) {
-        /** @var Cookie $cookie */
-        $cookie = $this->_getDI()->getShared('cookies');
-        $cookie->set($name, $value, $expire, $useEncrypt, $opts);
+        $this->cookies->set($name, $value, $expire, $useEncrypt, $opts);
     }
     
     public function removeCookie($name) {
-        /** @var Cookie $cookie */
-        $cookie = $this->_getDI()->getShared('cookies');
-        $cookie->remove($name);
+        $this->cookies->remove($name);
     }
 }

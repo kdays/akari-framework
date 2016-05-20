@@ -17,33 +17,41 @@ Class Processor extends Injectable{
     
     public function processJPEG(Result $result) {
         if (is_resource($result->data)) {
+            ob_start();
+            
             if (isset($result->meta['quality'])) {
                 imagejpeg($result->data, NULL, $result->meta['quality']);
             } else {
                 imagejpeg($result->data);
             }
             imagedestroy($result->data);
-        } else {
-            echo $result->data;
-        }
+            
+            return ob_get_clean();
+        } 
+        
+        return $result->data;
     }
 
     public function processGIF(Result $result) {
+        ob_start();
         imagegif($result->data);
         imagedestroy($result->data);
+        return ob_get_clean();
     }
 
     public function processPNG(Result $result) {
+        ob_start();
         if (isset($result->meta['quality'])) {
             imagepng($result->data, NULL, $result->meta['quality']);
         } else {
             imagepng($result->data);
         }
         imagedestroy($result->data);
+        return ob_get_clean();
     }
 
     public function processJSON(Result $result) {
-        echo json_encode($result->data);
+        return json_encode($result->data);
     }
 
     public function processTPL(Result $result) {
@@ -57,15 +65,15 @@ Class Processor extends Injectable{
             $this->view->bindVar($result->data);
         }
         
-        echo $this->view->getResult(NULL);
+        return $this->view->getResult(NULL);
     }
 
     public function processHTML(Result $result) {
-        echo $result->data;
+        return $result->data;
     }
 
     public function processTEXT(Result $result) {
-        echo $result->data;
+        return $result->data;
     }
 
     public function processINI(Result $result) {
@@ -91,7 +99,7 @@ Class Processor extends Injectable{
             return $str;
         }
 
-        echo _array2ini($array, 0);
+        return _array2ini($array, 0);
     }
 
 
@@ -124,7 +132,7 @@ Class Processor extends Injectable{
         $xml = '<?xml version="1.0" encoding="utf-8"?>'."\n";
         $xml .= _array2xml(["body" => $result->data]);
 
-        echo $xml;
+        return $xml;
     }
 
 
@@ -133,7 +141,7 @@ Class Processor extends Injectable{
     }
 
     public function processCUSTOM(Result $result) {
-        echo $result->data;
+        return $result->data;
     }
 
     public function processResult(Result $result) {
@@ -142,9 +150,7 @@ Class Processor extends Injectable{
         $this->response->setContentType($result->contentType);
         
         if (method_exists($this, $method)) {
-            $this->$method($result);
-            $this->response->send();
-
+            $this->response->setContent($this->$method($result));
             Listener::fire(self::EVT_RESULT_SENT, $this);
         } else {
             throw new ResultTypeUnknown($result);

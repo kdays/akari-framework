@@ -48,7 +48,7 @@ class TemplateUtil {
         return $url->get($path, $arr, $withToken);
     }
     
-    public static function form($url, $urlParameters, $method = 'POST', $formParameters = []) {
+    public static function form($url, $urlParameters = [], $method = 'POST', $formParameters = []) {
         $url = self::url($url, $urlParameters);
         $extraForm = '';
         $afterForm = '';

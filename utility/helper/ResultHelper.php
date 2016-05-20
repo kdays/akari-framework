@@ -85,7 +85,7 @@ trait ResultHelper {
         $response = DI::getDefault()->getShared("response");
         $response->setStatusCode($code);
 
-        Header("Location: ". $uri);
+        $response->setHeader('Location', $uri);
         return self::_genNoneResult();
     }
 

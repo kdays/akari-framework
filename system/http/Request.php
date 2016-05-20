@@ -2,11 +2,10 @@
 namespace Akari\system\http;
 
 use Akari\system\ioc\DIHelper;
+use Akari\system\ioc\Injectable;
 use Akari\system\security\FilterFactory;
 
-Class Request {
-    
-    use DIHelper;
+Class Request extends Injectable{
     
     protected $requestMethod;
     protected $requestURI;
@@ -428,9 +427,7 @@ Class Request {
      * @return bool
      */
     public function hasCookie($name) {
-        /** @var Cookie $cookie */
-        $cookie = $this->_getDI()->getShared('cookies');
-        return $cookie->exists($name);
+        return $this->cookies->exists($name);
     }
 
     /**
@@ -442,9 +439,7 @@ Class Request {
      * @return array|mixed|null
      */
     public function getCookie($name, $autoPrefix = TRUE) {
-        /** @var Cookie $cookie */
-        $cookie = $this->_getDI()->getShared('cookies');
-        return $cookie->get($name, $autoPrefix);
+        return $this->cookies->get($name, $autoPrefix);
     }
     
     public function hasHeader($key) {

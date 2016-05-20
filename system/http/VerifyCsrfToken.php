@@ -55,7 +55,7 @@ class VerifyCsrfToken extends Injectable{
             $tokenValue = $this->getToken();
 
             if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-                setcookie($config->csrfTokenName, $tokenValue, $config->cookiePath, $config->cookieDomain);
+                setcookie($config->csrfTokenName, $tokenValue, NULL, $config->cookiePath, $config->cookieDomain);
             } else {
                 $this->verifyToken();
             }

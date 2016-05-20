@@ -10,7 +10,9 @@ use Akari\system\event\Event;
 use Akari\system\event\Listener;
 use Akari\system\exception\ExceptionProcessor;
 use Akari\system\event\Trigger;
+use Akari\system\http\Response;
 use Akari\system\ioc\DIHelper;
+use Akari\system\ioc\Injectable;
 use Akari\system\logger\DefaultExceptionAutoLogger;
 use Akari\system\result\Processor;
 use Akari\system\result\Result;
@@ -156,10 +158,16 @@ Class Context {
 }
 spl_autoload_register(Array('Akari\Context', 'autoload'));
 
+/**
+ * Class akari
+ * @package Akari
+ * 
+ * @property \Akari\system\result\Processor $processor
+ * @property \Akari\system\router\Router $router
+ */
+Class akari extends Injectable{
 
-Class akari {
-
-    use Logging, DIHelper;
+    use Logging;
 
     private static $f;
     public static function getInstance(){
@@ -255,16 +263,10 @@ Class akari {
     public function run($uri = NULL, $outputBuffer = TRUE) {
         $config = Context::$appConfig;
         Benchmark::setTimer('app.start');
-
-        /** @var Router $router */
-        $router = $this->_getDI()->getShared("router");
-
-        /** @var Dispatcher $dispatcher */
-        $dispatcher = $this->_getDI()->getShared('dispatcher');
         
         if (!$uri) {
-            $uri = $router->resolveURI();
-            Context::$appConfig->appBaseURL = $router->rewriteBaseURL($config->appBaseURL);
+            $uri = $this->router->resolveURI();
+            Context::$appConfig->appBaseURL = $this->router->rewriteBaseURL($config->appBaseURL);
         }
 
         Context::$uri = $uri;
@@ -275,7 +277,7 @@ Class akari {
         $result = Trigger::handle('beforeDispatch');
         if ($result === NULL) {
             if (!CLI_MODE) {
-                $dispatcher->appInvoke( $router->getRewriteURL(Context::$uri) );
+                $this->dispatcher->appInvoke( $this->router->getRewriteURL(Context::$uri) );
             }
             
             $result = Trigger::handle('applicationStart', $result);
@@ -284,8 +286,8 @@ Class akari {
         if (!isset($result)) {
             Security::autoVerifyCSRFToken(); // Token检查
             $realResult = CLI_MODE ?
-                $dispatcher->dispatchTask($uri) :
-                $dispatcher->dispatch();
+                $this->dispatcher->dispatchTask($uri) :
+                $this->dispatcher->dispatch();
 
             if (!is_a($realResult, Result::class)) {
                 $defaultCallback = $config->nonResultCallback;
@@ -300,19 +302,18 @@ Class akari {
             $result = Trigger::handle('applicationEnd', $realResult);
         }
         
-        /** @var Processor $processor */
-        $processor = $this->_getDI()->getShared("processor");
+        
         Benchmark::logParams('app.time', ['time' => Benchmark::getTimerDiff('app.start')]);
         
         if (isset($result)) {
-            $processor->processResult($result);
+            $this->processor->processResult($result);
         } elseif (isset($realResult)) {
             // 如果不是result 则会调用设置nonResultCallback来处理result 如果没有设置则按照HTML返回
-            $processor->processResult($realResult);
+            $this->processor->processResult($realResult);
         }
         
-        // 这里是已经输出HTML时调用
         Trigger::handle('applicationOutput', NULL);
+        $this->response->send();
     }
 
     public function getMode() {

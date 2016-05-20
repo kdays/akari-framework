@@ -200,6 +200,7 @@ function array_reindex($list, array $index) {
 }
 
 function make_url($url, array $params) {
+    if (empty($params)) return $url;
     return $url. (in_string($url, '?') ? "&" : "?"). http_build_query($params);
 }
 

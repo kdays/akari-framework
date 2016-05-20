@@ -11,12 +11,11 @@ namespace Akari\system\exception;
 use Akari\system\event\Event;
 use Akari\system\event\Listener;
 use Akari\system\ioc\DIHelper;
+use Akari\system\ioc\Injectable;
 use Akari\system\result\Processor;
 use Akari\utility\helper\ExceptionSetter;
 
-Class ExceptionProcessor {
-    
-    use DIHelper;
+Class ExceptionProcessor extends Injectable{
     
     /**
      * 异常被执行时
@@ -75,10 +74,11 @@ Class ExceptionProcessor {
                 throw $ex;
             }
         }
-
+        
         /** @var Processor $processor */
-        $processor = $this->_getDI()->getShared("processor");
+        $processor = $this->getDI()->getShared("processor");
         $processor->processResult($result);
+        $this->response->send();
     }
 
     public function processFatal() {

@@ -196,6 +196,10 @@ class View extends Injectable{
         }
 
         $baseDirs[] =  $baseTplDir. $type. DIRECTORY_SEPARATOR;
+        
+        if ($type == self::TYPE_BLOCK || $type == self::TYPE_WIDGET) {
+            $baseDirs[] = 'template'. DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
+        }
 
         return $baseDirs;
     }
