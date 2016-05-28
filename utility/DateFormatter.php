@@ -25,8 +25,8 @@ class DateFormatter {
             return $lastDate;    
         }
         
-        if ($diff->h > 0)   return $diff->h . "小时前";
         if ($diff->d > 0)   return $diff->d . "天前";
+        if ($diff->h > 0)   return $diff->h . "小时前";
         if ($diff->i > 0)   return $diff->i . "分钟前";
         if ($diff->s > 0)   return $diff->s . "秒前";
         

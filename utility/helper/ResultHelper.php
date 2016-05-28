@@ -8,18 +8,27 @@
 
 namespace Akari\utility\helper;
 
-use Akari\Context;
-use Akari\system\console\Request;
 use Akari\system\http\HttpCode;
 use Akari\system\http\Response;
 use Akari\system\ioc\DI;
 use Akari\system\result\Result;
-use Akari\system\router\Dispatcher;
 
 trait ResultHelper {
 
-    public static function _sendFileResult($fileContent, $fileName) {
-        return new Result(Result::TYPE_CUSTOM, $fileContent, ['name' => $fileName], 
+    public static function _sendFileResult($file, $attachName) {
+        $fileContent = $file;
+        if ($file instanceof \SplFileObject) {
+            if (!$file->isReadable() || !$file->isFile()) {
+                throw new \Exception("file cannot readable");
+            }
+            
+            if ($attachName == NULL) {
+                $attachName = $file->getBasename();
+            }
+            $fileContent = $file->fread($file->getSize());
+        } 
+        
+        return new Result(Result::TYPE_CUSTOM, $fileContent, ['name' => $attachName], 
             Result::CONTENT_BINARY, function(Result $result) {
                 /** @var Response $resp */
                 $resp = DI::getDefault()->getShared("response");

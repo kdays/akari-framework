@@ -11,11 +11,18 @@ namespace Akari\utility\helper;
 use Akari\system\exception\ExceptionProcessor;
 
 trait ExceptionSetter {
-    
-    public static function _setExceptionHandler($cls) {
+
+    /**
+     * 异常设置
+     * 
+     * @param $cls
+     * @param bool $setFkHandler 是否将框架【所有】异常全部指向这个handler
+     * 设置后dispatcher的404和fatalException这些也会交给handler处理
+     */
+    public static function _setExceptionHandler($cls, $setFkHandler = False) {
         /** @var ExceptionProcessor $processor */
         $processor = ExceptionProcessor::getInstance();
-        $processor->setHandler($cls);
+        $processor->setHandler($cls, $setFkHandler);
     }
 
 }

@@ -32,6 +32,10 @@ Class Response extends Injectable{
         return $this;
     }
     
+    public function getStatusCode() {
+        return $this->responseCode;    
+    }
+    
     public function setContent($content) {
         $this->content = $content;
     }

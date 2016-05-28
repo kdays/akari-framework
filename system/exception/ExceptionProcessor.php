@@ -43,7 +43,13 @@ Class ExceptionProcessor extends Injectable{
     /** @var  BaseExceptionHandler */
     protected $handler;
 
-    public function setHandler($clsPath){
+    /**
+     * 设置Handler
+     * 
+     * @param $clsPath
+     * @param bool $setFkHandler 是否将其作为框架异常的处理 开启时notFoundTemplate这些框架异常处理也会无效
+     */
+    public function setHandler($clsPath, $setFkHandler = False){
         if(!isset($this->handler)){
             set_error_handler(Array(self::$p, 'processError'), error_reporting());
             set_exception_handler(Array(self::$p, 'processException'));
@@ -51,6 +57,9 @@ Class ExceptionProcessor extends Injectable{
         }
 
         $this->handler = new $clsPath();
+        if ($setFkHandler) {
+            $this->fkExceptionHandler = $this->handler;
+        }
     }
 
     public function processError($errorNo, $errorMessage, $errorFile, $errorLine, $context) {
@@ -79,6 +88,10 @@ Class ExceptionProcessor extends Injectable{
         $processor = $this->getDI()->getShared("processor");
         $processor->processResult($result);
         $this->response->send();
+    }
+    
+    public function setFrameworkExceptionHandler($handler) {
+        $this->fkExceptionHandler = $handler;
     }
 
     public function processFatal() {
