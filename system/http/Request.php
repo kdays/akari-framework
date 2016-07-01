@@ -143,7 +143,7 @@ Class Request extends Injectable{
      * 获得PathInfo
      * @return string
      */
-    public function getPathInfo(){
+    public function getUrlPathInfo(){
         return $this->pathInfo;
     }
 
@@ -382,35 +382,80 @@ Class Request extends Injectable{
 
     /**
      * 获得所有文件上传
+     * 
+     * @param bool $skipNoFiles
      * @return FileUpload[]
      */
-    public function getUploadedFiles() {
+    public function getUploadedFiles($skipNoFiles = TRUE) {
         $files = [];
 
         foreach ($_FILES as $key => $now) {
-            if ($now['error'] == UPLOAD_ERR_NO_FILE) {
-                continue;
+            // 处理检查是否是multi多维数组 如果是的话 那么需要单独处理
+            if (is_array($now['error'])) {
+                $keys = array_keys($now);
+                $counter = array_keys($now['error']);
+                
+                foreach ($counter as $c) {
+                    $values = [];
+                    foreach ($keys as $k) {
+                        $values[] = $now[$k][$c];
+                    }
+                    
+                    $form = array_combine($keys, $values);
+                    if ($form['error'] == UPLOAD_ERR_NO_FILE && $skipNoFiles) {
+                        continue;
+                    }
+                    
+                    $form['multiKey'] = $c;
+                    $form['multiBase'] = $key;
+                    $files[] = new FileUpload($form, $key. ".". $c);
+                }
+            } else {
+                if ($now['error'] == UPLOAD_ERR_NO_FILE && $skipNoFiles) {
+                    continue;
+                }
+                
+                $files[] = new FileUpload($now, $key);
             }
-            $files[] = new FileUpload($now, $key);
         }
 
         return $files;
     }
 
     /**
-     * @param string $name
-     * @return FileUpload|bool|null
+     * @param string $name 如果用数组传递时 比如Upload[2]时 可以使用upload[]作为name查询 这个时候会返回数组
+     * @param bool $skipNoFiles
+     * @return FileUpload|null|FileUpload[]
      */
-    public function getUploadedFile($name) {
-        if (isset($_FILES[$name])) {
-            // 没有文件的话返回false 其余让用户判定
-            if ($_FILES[$name]['error'] == UPLOAD_ERR_NO_FILE) {
-                return false;
+    public function getUploadedFile($name, $skipNoFiles = TRUE) {
+        $files = self::getUploadedFiles($skipNoFiles);
+        
+        // 检索的时候注意 如果使用的是upload[]的时候 代表返回查询的是.开头有upload的字段 故可能可以返回多个数组
+        if (in_string($name, '[]')) {
+            $result = [];
+            
+            $checkKey = substr($name, 0, -2);
+            foreach ($files as $file) {
+                $name = $file->getName();
+                
+                $pos = strpos($name, ".");
+                if ($pos > 0 && substr($name, 0, $pos) == $checkKey) {
+                    $result[] = $file;
+                }
             }
-            return new FileUpload($_FILES[$name], $name);
+            
+            return $result;
+        } else {
+            foreach ($files as $file) {
+                if ($file->getName() == $name) {
+                    return $file;
+                }
+            }
+            
+            return NULL;
         }
-
-        return NULL;
+        
+        
     }
 
     /**

@@ -153,7 +153,7 @@ Class SQLParser {
         return implode($outer." ", $haystack);
     }
 
-    public function  parseData($data, $flag = ' AND'){
+    public function  parseData($data, $flag = ' AND', $onWhere = False){
         $wheres = array();
 
         if(gettype($data) == "object"){
@@ -161,6 +161,17 @@ Class SQLParser {
         }
 
         foreach($data as $key => $value){
+            if ($onWhere) {
+                $key = $value[0];
+                $onField = $value[2];
+                $value = $value[1];
+                
+                if ($onField) {
+                    $wheres[] = "$key = $value";
+                    continue;
+                }
+            }
+            
             $type = gettype($value);
 
             if($type == 'array' && preg_match("/^(AND|OR)\s*#?/i", $key, $relation_match)){

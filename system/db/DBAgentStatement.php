@@ -90,16 +90,16 @@ Class DBAgentStatement {
      * @param mixed $value
      * @return $this
      */
-    public function addWhere($field, $value) {
+    public function addWhere($field, $value, $onlyFields = False) {
         if ($value === NULL && is_array($field)) {
             foreach ($field as $k => $v) {
-                $this->_args['WHERE'][$k] = $v;
+                $this->_args['WHERE'][] = [$k, $v, $onlyFields];
             }
         
             return $this;
         }
         
-        $this->_args['WHERE'][$field] = $value;
+        $this->_args['WHERE'][] = [$field, $value, $onlyFields];
         return $this;
     }
 
@@ -174,8 +174,9 @@ Class DBAgentStatement {
         }
         
         if (!empty($this->_args['WHERE'])) {
-            $where = $parser->parseData($this->_args['WHERE']);
+            $where = $parser->parseData($this->_args['WHERE'], " AND ", TRUE);
 
+            //var_dump($this->_args);die;
             if(!empty($where)){
                 // 注意找的是where空格 不是(where)
                 $replace = (stripos($sql, " where ")===FALSE ? " WHERE" : " AND")." ".$where;

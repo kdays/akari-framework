@@ -229,6 +229,15 @@ function get_date($format, $timestamp = TIMESTAMP) {
     return date($format, $timestamp);
 }
 
+function get_timestamp($timestamp) {
+    if (!is_numeric($timestamp))    $timestamp = strtotime($timestamp);
+    if (Context::$appConfig->timeZone) {
+        $timestamp -= Context::$appConfig->timeZone * 3600;
+    }
+    
+    return $timestamp;
+}
+
 if (!function_exists("hex2bin")) {
     function hex2bin($hex) {
         return $hex !== false && preg_match('/^[0-9a-fA-F]+$/i', $hex) ? pack("H*", $hex) : false;

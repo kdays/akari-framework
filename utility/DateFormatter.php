@@ -10,7 +10,7 @@ namespace Akari\utility;
 
 class DateFormatter {
 
-    public static function friendlyTime($timestamp) {
+    public static function friendlyTime($timestamp, $overFormat = 'Y-m-d H:i') {
         if ($timestamp == TIMESTAMP)    return '刚刚';
         if (empty($timestamp) || $timestamp == '0000-00-00 00:00:00')  return '未知';
         if (!is_numeric($timestamp))    $timestamp  = strtotime($timestamp);
@@ -22,7 +22,7 @@ class DateFormatter {
         $diff = $now->diff($last);
         
         if ($diff->y > 0 || $diff->m > 0) {
-            return $lastDate;    
+            return $last->format($overFormat);    
         }
         
         if ($diff->d > 0)   return $diff->d . "天前";

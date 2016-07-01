@@ -45,7 +45,7 @@ Class Router{
         $config = $this->config;
         switch($config->uriMode){
             case AKARI_URI_AUTO:
-                $uri = $this->request->getPathInfo();
+                $uri = $this->request->getUrlPathInfo();
                 if(empty($uri)){
                     if(isset($_GET['uri']))	$uri = $_GET['uri'];
                     if(empty($uri)){
@@ -55,7 +55,7 @@ Class Router{
                 break;
 
             case AKARI_URI_PATHINFO:
-                $uri = $this->request->getPathInfo(); break;
+                $uri = $this->request->getUrlPathInfo(); break;
 
             case AKARI_URI_QUERYSTRING:
                 if(isset($_GET['uri']))	$uri = $_GET['uri']; break;

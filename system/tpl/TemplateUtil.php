@@ -16,6 +16,7 @@ use Akari\system\result\Widget;
 use Akari\system\security\Security;
 use Akari\system\tpl\asset\AssetsMgr;
 use Akari\system\tpl\engine\BaseTemplateEngine;
+use Akari\utility\ApplicationDataMgr;
 use Akari\utility\PageHelper;
 use Akari\utility\UrlHelper;
 
@@ -25,6 +26,10 @@ class TemplateUtil {
     
     public static function get($var, $defaultValue = NULL, $tplValue = '%s') {
         return empty($var) ? $defaultValue : sprintf($tplValue, $var);
+    }
+    
+    public static function data($key) {
+        return ApplicationDataMgr::get($key);
     }
     
     public static function csrf_token() {

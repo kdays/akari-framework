@@ -8,9 +8,10 @@
 
 namespace Akari\model;
 
+use Akari\system\ioc\Injectable;
 use Akari\utility\helper\Logging;
 
-abstract Class Model {
+abstract Class Model extends Injectable{
 
     use Logging;
 

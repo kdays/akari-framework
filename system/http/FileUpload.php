@@ -91,6 +91,10 @@ class FileUpload {
         return True;
     }
     
+    public function getIdx() {
+        return isset($this->upload['multiKey']) ? $this->upload['multiKey'] : 0;
+    }
+    
     public function getSavePath($target) {
         return UploadHelper::getFilePath($target);
     }

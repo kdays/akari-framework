@@ -11,7 +11,7 @@ Class PageHelper {
     public $totalRecord = 0;
     public $params = [];
     public $url;
-    public $display = 10;
+    public $display = 5;
     
     public $mixedUrl;
     public $name;
