@@ -92,7 +92,7 @@ class View extends Injectable{
         $screenPath = NULL;
 
         foreach ($baseDirs as $screenDir) {
-            $screenPath = $this->dispatcher->findWay($screenName, $screenDir. DIRECTORY_SEPARATOR, $suffix);
+            $screenPath = $this->dispatcher->findWay($screenName, $screenDir. DIRECTORY_SEPARATOR, $suffix, false);
             if ($screenPath) break;
         }
 
@@ -107,14 +107,17 @@ class View extends Injectable{
 
         $layoutPath = NULL;
         foreach ($baseDirs as $layoutDir) {
-            $layoutPath = $this->dispatcher->findWay($screenName, $layoutDir. DIRECTORY_SEPARATOR, $suffix);
+            $layoutPath = $this->dispatcher->findWay($screenName, $layoutDir. DIRECTORY_SEPARATOR, $suffix, false);
             if ($layoutPath) break;
         }
 
         return $layoutPath;
     }
     
-    public function setBaseViewDir($viewDir) {
+    public function setBaseViewDir($viewDir, $onAppDir = TRUE) {
+        if ($onAppDir) {
+            $viewDir = Context::$appEntryPath. $viewDir;
+        }
         Context::env(ConfigItem::BASE_TPL_DIR, $viewDir);
     }
 
@@ -182,9 +185,10 @@ class View extends Injectable{
     public static function getBaseDirs($type) {
         $baseDirs = [];
 
-        $baseTplDir = Context::env(ConfigItem::BASE_TPL_DIR, NULL, 'template'. DIRECTORY_SEPARATOR);
+        $defaultWebPath = Context::$appEntryPath. 'template'. DIRECTORY_SEPARATOR;
+        $baseTplDir = Context::env(ConfigItem::BASE_TPL_DIR, NULL, $defaultWebPath);
         $dirPrefix = Context::env(ConfigItem::TEMPLATE_PREFIX);
-
+        
         if ($type == self::TYPE_SCREEN && !empty(View::$_screenDir)) {
             $baseDirs[] = $baseTplDir. View::$_screenDir;
         } elseif ($type == self::TYPE_LAYOUT && !empty(View::$_layoutDir)) {
@@ -197,10 +201,10 @@ class View extends Injectable{
 
         $baseDirs[] =  $baseTplDir. $type. DIRECTORY_SEPARATOR;
         
-        if ($type == self::TYPE_BLOCK || $type == self::TYPE_WIDGET) {
-            $baseDirs[] = 'template'. DIRECTORY_SEPARATOR. $type. DIRECTORY_SEPARATOR;
+        if ($type == self::TYPE_BLOCK || $type == self::TYPE_WIDGET || $type == self::TYPE_LAYOUT) {
+            $baseDirs[] = $defaultWebPath. $type. DIRECTORY_SEPARATOR;
         }
-
+        
         return $baseDirs;
     }
 
@@ -211,7 +215,7 @@ class View extends Injectable{
         $tplName = str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $tplName);
         
         foreach ($baseDirs as $baseDir) {
-            $baseDir = Context::$appEntryPath. $baseDir;
+            //$baseDir = Context::$appEntryPath. $baseDir;
             
             if (file_exists($tplPath = $baseDir. $tplName. $suffix)) {
                 return realpath($tplPath);

@@ -41,7 +41,11 @@ Class Listener {
      * @throws ListenerException
      */
     public static function add($eventName, callable $callback, $priority = 0) {
-        list($gloSpace, $subSpace) = explode(".", $eventName);
+        $r = explode(".", $eventName);
+        if (count($r) < 2)  $r = ['UKN', $eventName];
+        
+        list($gloSpace, $subSpace) = $r;
+        
         if ($gloSpace == '*') {
             throw new ListenerException("Event global space can not be *");
         }
@@ -61,7 +65,10 @@ Class Listener {
      * @return EventHandler[]
      */
     protected static function _getFireQueue($eventName) {
-        list($gloSpace, $subSpace) = explode(".", $eventName);
+        $r = explode(".", $eventName);
+        if (count($r) < 2)  $r = ['UKN', $eventName];
+
+        list($gloSpace, $subSpace) = $r;
 
         $fireQueue = [];
         $nowQueue = self::$_listeners;

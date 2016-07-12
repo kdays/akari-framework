@@ -45,7 +45,8 @@ class FileUpload {
     }
 
     public function getExtension() {
-        $ext = end($this->getNameSection());
+        $exts = $this->getNameSection();
+        $ext = end($exts);
         return strtolower($ext);
     }
 

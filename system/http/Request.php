@@ -423,7 +423,7 @@ Class Request extends Injectable{
     }
 
     /**
-     * @param string $name 如果用数组传递时 比如Upload[2]时 可以使用upload[]作为name查询 这个时候会返回数组
+     * @param string $name 如果用数组传递时 比如Upload[2]时 可以使用Upload[]作为name查询 这个时候会返回数组 或者 使用key 比如Upload.2查询,直接使用Upload是查不到的
      * @param bool $skipNoFiles
      * @return FileUpload|null|FileUpload[]
      */

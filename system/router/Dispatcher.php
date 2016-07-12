@@ -45,16 +45,23 @@ Class Dispatcher extends Injectable{
     }
 
     /**
+     * 根据URI分配文件
+     * 
      * @param string $uri
      * @param $baseDir
      * @param string $ext
+     * @param bool $isRelativePath 是否相对路径 TRUE时会自动在BaseDir前增加APP的入口文件夹路径
      * @return bool|string
      * @throws DispatcherException
      */
-    public function findWay($uri, $baseDir, $ext = '.php') {
+    public function findWay($uri, $baseDir, $ext = '.php', $isRelativePath = TRUE) {
         if (!is_array($uri))    $uri = explode('/', $uri);
 
-        $baseDirPath = implode(DIRECTORY_SEPARATOR, [Context::$appEntryPath, $baseDir, '']);
+        $baseDirPath = $baseDir;
+        if ($isRelativePath) {
+            $baseDirPath = implode(DIRECTORY_SEPARATOR, [Context::$appEntryPath, $baseDir, '']);
+        }
+
         $uriLevels = count($uri);
         if ($uriLevels > 10) {
             throw new DispatcherException('invalid URI');
