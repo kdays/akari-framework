@@ -28,6 +28,11 @@ class View extends Injectable{
     
     private $_vars = [];
     private $baseActionNs = NULL;
+    private $defaultLayoutName = NULL;
+    
+    public function setDefaultLayoutName($layoutName) {
+        $this->defaultLayoutName = $layoutName;
+    }
 
     /**
      * 将参数绑定到模板 别的不会执行  
@@ -100,7 +105,11 @@ class View extends Injectable{
     }
     
     public function getLayoutPath() {
-        $screenName = empty($this->layout) ? $this->getScreenName() : $this->layout;
+        $screenName = $this->layout;
+        if (empty($this->layout)) {
+            $screenName = !empty($this->defaultLayoutName) ? $this->defaultLayoutName : $this->getScreenName();
+        }
+       
         $suffix = Context::$appConfig->templateSuffix;
 
         $baseDirs = $this->getBaseDirs(self::TYPE_LAYOUT);

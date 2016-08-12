@@ -15,6 +15,7 @@ use Akari\utility\helper\Logging;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
 
+
 abstract class BaseAction extends Injectable{
 
     use Logging, ValueHelper, ResultHelper, ExceptionSetter, CacheHelper;

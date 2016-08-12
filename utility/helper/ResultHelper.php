@@ -13,6 +13,10 @@ use Akari\system\http\Response;
 use Akari\system\ioc\DI;
 use Akari\system\result\Result;
 
+/**
+ * Class ResultHelper
+ * @package Akari\utility\helper
+ */
 trait ResultHelper {
 
     public static function _sendFileResult($file, $attachName) {

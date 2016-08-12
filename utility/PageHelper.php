@@ -3,19 +3,19 @@ namespace Akari\utility;
 
 use Akari\config\ConfigItem;
 use Akari\Context;
+use Akari\system\Plugin;
 use Akari\system\tpl\TemplateUtil;
 
-Class PageHelper {
+Class PageHelper extends Plugin{
 
     public $pageSize = 10;
     public $totalRecord = 0;
     public $params = [];
-    public $url;
+    public $skipParams = [];
     public $display = 5;
+    public $baseUrl;
     
-    public $mixedUrl;
     public $name;
-
     public $totalPage = NULL;
     public $currentPage = NULL;
     public $nextPage = NULL;
@@ -60,28 +60,20 @@ Class PageHelper {
     }
 
     public function setUrl($url) {
-        $this->url = $url;
+        $this->baseUrl = $url;
         return $this;
     }
 
     public function makeUrl(array $skip, $page = 1) {
-        $url = $this->url;
-        $params = $this->params + ["page" => $page];
-
-        foreach ($params as $k => $v) {
-            $url = str_replace('('. $k. ')', $v, $url);
-        }
-
-        $url = parse_url($url);
+        $url = parse_url($this->baseUrl);
         $query = array_key_exists('query', $url) ? $url['query'] : '';
-
+        
         $result = [];
         parse_str($query, $result);
-
         foreach ($skip as $k) unset($result[$k]);
-
-        $resultUrl = make_url($url['path'], $result);
-        return in_string($result, "?") ? $resultUrl : $resultUrl. "?";
+        
+        $params = ['page' => $page] + $this->params + $result;
+        return $this->url->get($url['path'], $params);
     }
 
     public function execute(){
@@ -96,14 +88,10 @@ Class PageHelper {
         
         $this->totalPage = $totalPage;
 
-        $url = $this->url;
-        foreach ($this->params as $k => $v) {
-            $url = str_replace('('. $k. ')', $v, $url);
-        }
-        $this->mixedUrl = $url;
-
         $currentPage = $this->currentPage;
         $pagination = [];
+        $skip = $this->skipParams;
+        
         if ($this->totalPage > 0) {
             $left = ceil($this->display / 2);
             $right = ceil($this->display / 2) + 1;
@@ -111,7 +99,7 @@ Class PageHelper {
             for ($i = 0; $i < $left; $i++) {
                 $k = $currentPage - $i;
                 if ($k > 0) {
-                    $pagination[$k] = str_replace('(page)', $k, $url);
+                    $pagination[$k] = $this->makeUrl($skip, $k);
                 } else {
                     break;
                 }
@@ -120,7 +108,7 @@ Class PageHelper {
             for ($i = 1; $i < $right; $i++) {
                 $k = $currentPage + $i;
                 if ($k <= $this->totalPage) {
-                    $pagination[$k] = str_replace('(page)', $k, $url);
+                    $pagination[$k] = $this->makeUrl($skip, $k);
                 } else {
                     break;
                 }
@@ -137,38 +125,34 @@ Class PageHelper {
             $this->prevPage = $pagination[$currentPage - 1];
         }
 
-        $this->firstPage = str_replace('(page)', 1, $url);
-        $this->lastPage = str_replace('(page)', $this->totalPage, $url);
+        $this->firstPage = $this->makeUrl($skip, 1);
+        $this->lastPage = $this->makeUrl($skip, $this->totalPage);
         $this->pagination = $pagination;
         
         return $this;
     }
 
-    /**
-     * 绑定替换队列，但不会设置URL
-     *
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function bindValue($key, $value) {
-        $this->params[$key] = $value;
+    public function setSkipParams(array $skip) {
+        $this->skipParams = $skip;
         return $this;
     }
-
+    
     /**
-     * 单项设置URL
+     * 绑定替换队列
      *
      * @param $key
      * @param $value
+     * @param bool $addToUrl
      * @return $this
      */
-    public function addUrlParam($key, $value) {
-        if(!array_key_exists($key, $this->params)){
-            $this->url .=  in_string($this->url, "?") ? "&" : "?";
-            $this->url .= "$key=($key)";
+    public function bindValue($key, $value, $addToUrl = False) {
+        if ($addToUrl) {
+            if(!array_key_exists($key, $this->params)){
+                $this->baseUrl .=  in_string($this->baseUrl, "?") ? "&" : "?";
+                $this->baseUrl .= "$key=($key)";
+            }
         }
-
+        
         $this->params[$key] = $value;
         return $this;
     }
@@ -179,9 +163,10 @@ Class PageHelper {
      * @param array $params
      * @param array $skip
      * @param array $allow
+     * @param bool $addToUrl
      * @return $this
      */
-    public function addUrlParams(array $params, $skip = [], $allow = NULL) {
+    public function bindValues(array $params, $skip = [], $allow = NULL, $addToUrl = false) {
         foreach ($params as $key => $value) {
             if (in_array($key, $skip)) {
                 continue;
@@ -191,7 +176,7 @@ Class PageHelper {
                 continue;
             }
 
-            $this->addUrlParam($key, $value);
+            $this->bindValue($key, $value, $addToUrl);
         }
 
         return $this;
