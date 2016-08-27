@@ -10,15 +10,9 @@ use Akari\system\event\Event;
 use Akari\system\event\Listener;
 use Akari\system\exception\ExceptionProcessor;
 use Akari\system\event\Trigger;
-use Akari\system\http\Response;
-use Akari\system\ioc\DIHelper;
 use Akari\system\ioc\Injectable;
 use Akari\system\logger\DefaultExceptionAutoLogger;
-use Akari\system\result\Processor;
 use Akari\system\result\Result;
-use Akari\system\router\Dispatcher;
-use Akari\system\router\Router;
-use Akari\system\router\URL;
 use Akari\system\security\Security;
 use Akari\utility\Benchmark;
 use Akari\utility\helper\Logging;
@@ -234,8 +228,8 @@ Class akari extends Injectable{
 
         header("X-Akari-Version: ". self::getVersion(false));
         include("defaultBoot.php");
-        if (file_exists(Context::$appBasePath . "/boot.php") && !Context::$testing) {
-            include(Context::$appBasePath . "/boot.php");
+        if (file_exists($bootPath = Context::$appBasePath . "/boot.php") && !Context::$testing) {
+            include($bootPath);
         }
 
         $this->loadExternal();
@@ -334,7 +328,7 @@ Class akari extends Injectable{
         return $mode;
     }
 
-    public function stop($msg = '', $code = 0) {
+    public static function stop($msg = '', $code = 0) {
         if (!empty($msg)) {
             self::_logInfo('End the response. msg: ' . $msg);
         } else {
@@ -378,10 +372,6 @@ Class akari extends Injectable{
             }
         }
 
-    }
-
-    public function register(URL $event) {
-        Context::$appConfig->uriRewrite[ $event->makeRegExp() ] = $event->getCallback();
     }
 }
 

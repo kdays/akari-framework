@@ -9,6 +9,7 @@
 namespace Akari\system\result;
 
 use Akari\system\event\Listener;
+use Akari\system\exception\AkariException;
 use Akari\system\ioc\Injectable;
 
 Class Processor extends Injectable{
@@ -159,7 +160,7 @@ Class Processor extends Injectable{
 
 }
 
-Class ResultTypeUnknown extends \Exception {
+Class ResultTypeUnknown extends AkariException  {
     
     protected $errResult;
     

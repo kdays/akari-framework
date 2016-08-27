@@ -6,7 +6,7 @@
  * Time: 下午2:13
  */
 
-namespace core\system\exception;
+namespace Akari\system\exception;
 
 
 class FatalException extends \Exception {

@@ -11,7 +11,6 @@ namespace Akari\system\exception;
 use Akari\system\event\Listener;
 use Akari\system\ioc\Injectable;
 use Akari\system\result\Processor;
-use core\system\exception\FatalException;
 
 Class ExceptionProcessor extends Injectable{
     

@@ -24,7 +24,7 @@ trait CacheHelper {
     public static function _fetchCache($key, callable $failBack, $timeout = NULL) {
         $cache = self::_getCache();
 
-        if ($cache->exists($key) && Context::$mode != 'Dev') {
+        if ($cache->exists($key)) {
             return $cache->get($key);
         }
         

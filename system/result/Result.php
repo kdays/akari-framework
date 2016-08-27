@@ -50,7 +50,7 @@ Class Result {
         if (is_callable($callback)) {
             $result = call_user_func($callback, $this);
             if ($result === FALSE) {
-                akari::getInstance()->stop();
+                akari::stop();
             }
         }
     }
