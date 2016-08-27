@@ -8,8 +8,6 @@
 
 namespace Akari\system\http;
 
-
-use Akari\Context;
 use Akari\utility\FileHelper;
 use Akari\utility\UploadHelper;
 
@@ -108,13 +106,4 @@ class FileUpload {
         
         return FileHelper::moveFile($savePath, $this->getTempPath());
     }
-}
-
-Class UploadFailed extends \Exception {
-    
-    public function __construct($message, $code) {
-        $this->message = "文件上传失败, 原因:" . $message;
-        $this->code = $code;
-    }
-
 }

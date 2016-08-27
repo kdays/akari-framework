@@ -10,6 +10,7 @@ namespace Akari\system\db;
 
 use Akari\system\event\Listener;
 use Akari\system\event\StopEventBubbling;
+use Akari\system\exception\AkariException;
 use Akari\utility\Benchmark;
 use Akari\utility\helper\Logging;
 use \PDO;
@@ -335,9 +336,5 @@ Class DBAgent {
 
         return $query;
     }
-
-}
-
-Class DBAgentException extends \Exception {
 
 }

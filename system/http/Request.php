@@ -1,7 +1,6 @@
 <?php
 namespace Akari\system\http;
 
-use Akari\system\ioc\DIHelper;
 use Akari\system\ioc\Injectable;
 use Akari\system\security\FilterFactory;
 

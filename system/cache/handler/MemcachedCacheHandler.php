@@ -9,6 +9,7 @@
 namespace Akari\system\cache\handler;
 
 use Akari\system\cache\CacheBenchmark;
+use Akari\system\exception\AkariException;
 
 class MemcachedCacheHandler implements ICacheHandler {
 
@@ -53,7 +54,8 @@ class MemcachedCacheHandler implements ICacheHandler {
      * @param string $key 键名
      * @param mixed $value 值
      * @param null|int $timeout 超时时间
-     * @return boolean
+     * @return bool
+     * @throws AkariException
      */
     public function set($key, $value, $timeout = NULL) {
         $value = serialize($value);
@@ -62,7 +64,10 @@ class MemcachedCacheHandler implements ICacheHandler {
         if ($this->handler->getResultCode() == \Memcached::RES_SUCCESS) {
             return True;
         } else {
-            throw new \MemcachedException($this->handler->getResultMessage(), $this->handler->getResultCode());
+            throw new AkariException(
+                "Memcached Cache Exception: " . $this->handler->getResultMessage(), 
+                $this->handler->getResultCode()
+            );
         }
     }
 
@@ -122,19 +127,19 @@ class MemcachedCacheHandler implements ICacheHandler {
     }
 
     public function startTransaction() {
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     public function inTransaction() {
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     public function commit() {
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     public function rollback() {
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     /**

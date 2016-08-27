@@ -10,6 +10,7 @@ namespace Akari\utility;
 
 use Akari\config\ConfigItem;
 use Akari\Context;
+use Akari\system\exception\AkariException;
 
 Class I18n {
 
@@ -86,7 +87,7 @@ Class I18n {
 
 }
 
-Class LanguageNotFound extends \Exception {
+Class LanguageNotFound extends AkariException  {
 
     public function __construct($packageId) {
         $this->message = "Language Package [ ". $packageId. " ] not found";

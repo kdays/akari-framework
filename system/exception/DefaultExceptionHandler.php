@@ -11,9 +11,6 @@ namespace Akari\system\exception;
 use Akari\akari;
 use Akari\Context;
 use Akari\system\http\HttpCode;
-use Akari\system\http\Response;
-use Akari\utility\helper\Logging;
-use Akari\utility\helper\ResultHelper;
 
 Class DefaultExceptionHandler extends BaseExceptionHandler {
 

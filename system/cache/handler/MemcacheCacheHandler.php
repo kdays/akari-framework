@@ -98,19 +98,19 @@ class MemcacheCacheHandler implements ICacheHandler{
     }
 
     public function startTransaction() {
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     public function inTransaction() {
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     public function commit() {
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     public function rollback() {
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     /**

@@ -176,7 +176,7 @@ class View extends Injectable{
         $layoutPath = $this->getLayoutPath();
         
         if (empty($layoutPath) && empty($screenPath)) {
-            throw new TemplateCommandInvalid('getResult', 'TemplateHelper Core (NO LAYOUT AND NO SCREEN)');
+            throw new TemplateNotFound('NOT_FOUND_LAYOUT_OR_SCREEN');
         }
         
         $viewEngine = $this->getEngine();
@@ -237,8 +237,6 @@ class View extends Injectable{
         
         throw new TemplateNotFound($type. " -> ". $tplName);
     }
-    
-    
 
     /**
      * @return BaseTemplateEngine
@@ -247,24 +245,4 @@ class View extends Injectable{
     public function getEngine() {
         return $this->getDI()->getShared('viewEngine');
     }
-}
-
-
-
-Class TemplateNotFound extends \Exception {
-
-    public function __construct($template) {
-        $this->message = sprintf("Not Found Template [ %s ]", $template);
-    }
-
-}
-
-
-Class TemplateCommandInvalid extends \Exception {
-
-    public function __construct($commandName, $args, $file = NULL) {
-        $file = str_replace(Context::$appEntryPath, '', $file);
-        $this->message = sprintf("Template Command Invalid: [ %s ] with [ %s ] on [ %s ]", $commandName, var_export($args, TRUE), $file);
-    }
-
 }

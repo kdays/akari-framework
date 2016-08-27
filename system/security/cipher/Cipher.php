@@ -28,7 +28,3 @@ abstract class Cipher {
     abstract public function decrypt($text);
     
 }
-
-Class EncryptFailed extends \Exception {
-    
-}

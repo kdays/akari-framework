@@ -64,7 +64,7 @@ class RSACipher extends Cipher{
      *
      * @param string $str 内容
      * @return string
-     * @throws RSAException
+     * @throws EncryptFailed
      */
     public function encrypt($str) {
         $res = $this->getPublicKeyRes();
@@ -73,7 +73,7 @@ class RSACipher extends Cipher{
         $encodes = [];
         foreach ($blocks as $n => $block) {
             if (!openssl_public_encrypt($block, $chr, $res)) {
-                throw new RSAException("OpenSSL encrypt failed. ".openssl_error_string());
+                throw new EncryptFailed("OpenSSL encrypt failed. ".openssl_error_string());
             }
             $encodes[] = base64_encode($chr);
         }
@@ -96,7 +96,7 @@ class RSACipher extends Cipher{
         foreach ($decodes as $n => $decode) {
             $decode = base64_decode($decode);
             if (!openssl_private_decrypt($decode, $chr, $res)) {
-                throw new RSAException("OpenSSL decrypt failed. ".openssl_error_string());
+                throw new EncryptFailed("OpenSSL decrypt failed. ".openssl_error_string());
             }
             $result .= $chr;
         }
@@ -109,11 +109,11 @@ class RSACipher extends Cipher{
      * 获得Public RSA密匙资源
      *
      * @return null|resource
-     * @throws RSAException
+     * @throws EncryptFailed
      */
     private function getPublicKeyRes() {
         if ($this->_pubKeyRes == NULL) {
-            if ($this->_pubKey == NULL) throw new RSAException("Please set RSA public key");
+            if ($this->_pubKey == NULL) throw new EncryptFailed("Please set RSA public key");
             $this->_pubKeyRes = openssl_get_publickey($this->_pubKey);
         }
         return $this->_pubKeyRes;
@@ -123,11 +123,11 @@ class RSACipher extends Cipher{
      * 获得Private RSA密匙资源
      *
      * @return bool|null|resource
-     * @throws RSAException
+     * @throws EncryptFailed
      */
     private function getPrivateKeyRes() {
         if ($this->_pteKeyRes == NULL) {
-            if ($this->_pteKey == NULL) throw new RSAException("Please set RSA private key");
+            if ($this->_pteKey == NULL) throw new EncryptFailed("Please set RSA private key");
             $this->_pteKeyRes = openssl_get_privatekey($this->_pteKey);
         }
         return $this->_pteKeyRes;
@@ -138,12 +138,12 @@ class RSACipher extends Cipher{
      *
      * @param string $key 公钥内容 或 公钥文件路径
      * @return null|resource
-     * @throws RSAException
+     * @throws EncryptFailed
      */
     public function loadPublicKey($key) {
         $this->_pubKey = $key;
         if (!in_string($key, '---')) {
-            if (!file_exists($key)) throw new RSAException("public key load failed");
+            if (!file_exists($key)) throw new EncryptFailed("public key load failed");
             $this->_pubKey = file_get_contents($key);
         }
         if ($this->_pubKeyRes != NULL)  openssl_free_key($this->_pubKeyRes);
@@ -156,12 +156,12 @@ class RSACipher extends Cipher{
      *
      * @param string $key 私钥内容 或 私钥文件路径
      * @return bool|null|resource
-     * @throws RSAException
+     * @throws EncryptFailed
      */
     public function loadPrivateKey($key) {
         $this->_pteKey = $key;
         if (!in_string($key, '---')) {
-            if (!file_exists($key)) throw new RSAException("private key load failed");
+            if (!file_exists($key)) throw new EncryptFailed("private key load failed");
             $this->_pteKey = file_get_contents($key);
         }
         if ($this->_pteKeyRes != NULL)  openssl_free_key($this->_pteKeyRes);
@@ -169,10 +169,4 @@ class RSACipher extends Cipher{
         return $this->getPrivateKeyRes();
     }
     
-}
-
-Class RSAException extends EncryptFailed {
-    public function __construct($message) {
-        $this->message = "[Akari.RSACipher] ".$message;
-    }
 }

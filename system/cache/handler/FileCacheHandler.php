@@ -10,7 +10,6 @@ namespace Akari\system\cache\handler;
 
 
 use Akari\Context;
-use Akari\system\cache\Cache;
 use Akari\system\cache\CacheBenchmark;
 use Akari\system\event\Listener;
 use Akari\utility\FileHelper;
@@ -249,7 +248,7 @@ class FileCacheHandler implements ICacheHandler{
      * @throws CacheHandlerMethodNotSupport
      */
     public function getHandler() {
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
 

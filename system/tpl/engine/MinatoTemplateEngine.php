@@ -6,7 +6,7 @@
  * Time: 上午12:49
  */
 namespace Akari\system\tpl\engine;
-use Akari\system\tpl\TemplateCommand;
+
 use Akari\system\tpl\TemplateCommandInvalid;
 use Akari\utility\FileHelper;
 

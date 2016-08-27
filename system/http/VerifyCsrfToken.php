@@ -10,9 +10,9 @@ namespace Akari\system\http;
 
 use Akari\Context;
 use Akari\system\ioc\Injectable;
-use Akari\system\security\CSRFVerifyFailed;
 use Akari\system\security\Security;
 use Akari\utility\helper\ValueHelper;
+use Akari\system\security\CSRFVerifyFailed;
 
 class VerifyCsrfToken extends Injectable{
     
@@ -28,22 +28,23 @@ class VerifyCsrfToken extends Injectable{
     
     public function verifyToken() {
         $tokenName = Context::$appConfig->csrfTokenName;
-        $token = NULL;
+        $uToken = NULL;
 
         if (!empty($_COOKIE[$tokenName])) {
-            $token = $_COOKIE[$tokenName];
+            $uToken = $_COOKIE[$tokenName];
         }
         
         if (!empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
-            $token = $_SERVER['HTTP_X_CSRF_TOKEN'];
+            $uToken = $_SERVER['HTTP_X_CSRF_TOKEN'];
         }
 
         if (!empty($_REQUEST[$tokenName])) {
-            $token = $_REQUEST[$tokenName];
+            $uToken = $_REQUEST[$tokenName];
         }
 
-        if($token != $this->getToken()){
-            throw new CSRFVerifyFailed();
+        $rToken = $this->getToken();
+        if ($uToken != $rToken) {
+            throw new CSRFVerifyFailed($rToken, $uToken);
         }
     }
     

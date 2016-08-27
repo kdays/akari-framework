@@ -2,11 +2,10 @@
 namespace Akari\system\router;
 
 use Akari\Context;
+use Akari\system\exception\AkariException;
 use Akari\system\http\Request;
 use Akari\system\ioc\DIHelper;
 use Akari\utility\helper\ValueHelper;
-
-!defined("AKARI_PATH") && exit;
 
 Class Router{
 
@@ -94,7 +93,7 @@ Class Router{
                 if ($suffix === $config->uriSuffix) {
                     $uri = substr($uri, 0, -strlen($config->uriSuffix));
                 } else {
-                    throw new \Exception('Invalid URI');
+                    throw new AkariException('Invalid URI');
                 }
             }
         }

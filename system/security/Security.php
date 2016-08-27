@@ -9,7 +9,7 @@
 namespace Akari\system\security;
 
 use Akari\Context;
-use Akari\system\http\Request;
+use Akari\system\exception\AkariException;
 use Akari\system\http\VerifyCsrfToken;
 use Akari\system\ioc\DIHelper;
 use Akari\system\security\cipher\Cipher;
@@ -35,7 +35,6 @@ Class Security {
     /**
      * 检查CSRF的token是否正常
      *
-     * @throws CSRFVerifyFailed
      */
 	public static function verifyCSRFToken(){
 		/** @var VerifyCsrfToken $verifier */
@@ -51,14 +50,14 @@ Class Security {
 	
 	protected static $cipherInstances = [];
 
-	/**
-	 * 获得加密实例
-	 *
-	 * @param string $mode Config中encrypt的设置名
-	 * @param bool $newInstance 强制创建新实例
-	 * @return Cipher
-	 * @throws NotFoundCipherMode
-	 */
+    /**
+     * 获得加密实例
+     *
+     * @param string $mode Config中encrypt的设置名
+     * @param bool $newInstance 强制创建新实例
+     * @return Cipher
+     * @throws AkariException
+     */
 	public static function getCipher($mode = 'default', $newInstance = false) {
 		if (isset(self::$cipherInstances[$mode]) && !$newInstance) {
 			return self::$cipherInstances[$mode];
@@ -66,7 +65,7 @@ Class Security {
 
 		$config = Context::$appConfig->encrypt;
 		if (!array_key_exists($mode, $config)) {
-			throw new NotFoundCipherMode("not found cipher config: ". $mode);
+			throw new AkariException("not found cipher config: ". $mode);
 		}
 		
 		$options = $config[$mode];
@@ -98,19 +97,4 @@ Class Security {
 	public static function decrypt($text, $mode = 'default') {
 		return self::getCipher($mode)->decrypt($text);
 	}
-}
-
-Class CSRFVerifyFailed extends \Exception {
-
-    public function __construct() {
-        $this->message = "[Akari.Security]
-            表单验证失败，请返回上一页刷新重新提交试试。
-            如果多次失败可以尝试更换游览器再行提交。
-            (POST Security Token Verify Failed)";
-    }
-
-}
-
-Class NotFoundCipherMode extends \Exception {
-
 }

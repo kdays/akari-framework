@@ -136,11 +136,3 @@ interface ICacheHandler {
     public function getHandler();
 
 }
-
-Class CacheHandlerMethodNotSupport extends \Exception {
-
-    public function __construct() {
-        $this->message = "CacheHandler cannot support method";
-    }
-
-}

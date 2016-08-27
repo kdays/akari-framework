@@ -8,6 +8,8 @@
 
 namespace Akari\utility;
 
+use Akari\system\exception\AkariException;
+
 Class CURL {
     protected $handler;
     protected $options = array(
@@ -214,7 +216,7 @@ Class CURL {
     }
 }
 
-Class CURLException extends \Exception{
+Class CURLException extends AkariException {
     /**
      * @param string $message
      * @param int $code

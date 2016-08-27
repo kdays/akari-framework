@@ -2,10 +2,8 @@
 namespace Akari\utility;
 
 use Akari\Context;
+use Akari\system\exception\AkariException;
 use Akari\system\http\FileUpload;
-use Exception;
-
-!defined("AKARI_PATH") && exit;
 
 Class UploadHelper{
     protected static $h;
@@ -166,7 +164,7 @@ Class UploadHelper{
     }
 }
 
-Class UploadFileCannotAccess extends Exception{
+Class UploadFileCannotAccess extends AkariException{
 
     public function __construct() {
         $this->message = "Upload file cannot access";
@@ -174,7 +172,7 @@ Class UploadFileCannotAccess extends Exception{
     
 }
 
-Class UploadExtensionError extends Exception {
+Class UploadExtensionError extends AkariException  {
 
     protected $nowFileExtension;
     protected $allowFileExtensions;

@@ -10,8 +10,6 @@ namespace Akari\system\http;
 
 use Akari\utility\helper\Logging;
 
-!defined("AKARI_PATH") && exit;
-
 Class Session{
 
     use Logging;

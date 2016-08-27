@@ -10,6 +10,8 @@ namespace Akari\system\event;
 
 use Akari\Context;
 use Akari\NotFoundClass;
+use Akari\system\exception\AkariException;
+use Akari\system\result\Result;
 
 class Trigger {
 
@@ -85,9 +87,10 @@ class Trigger {
                 $handler = new $clsName();
                 $result = $handler->process($requestResult);
                 if ($result !== NULL) {
-                    if (!is_a($result, '\Akari\system\result\Result')) {
+                    if (!is_a($result, Result::class)) {
                         throw new WrongTriggerResultType(gettype($result),  $clsName);
                     }
+                    
                     $requestResult = $result;
                 }
             } catch (StopEventBubbling $e) {
@@ -108,7 +111,7 @@ class Trigger {
 
 
 
-Class WrongTriggerResultType extends \Exception {
+Class WrongTriggerResultType extends AkariException  {
 
     public function __construct($returnType, $clsName) {
         $this->message = "Wrong Trigger Result: ". $returnType. " on ". $clsName;
@@ -117,9 +120,7 @@ Class WrongTriggerResultType extends \Exception {
 }
 
 
-
-
-Class MissingTrigger extends \Exception {
+Class MissingTrigger extends AkariException {
 
     public function __construct($clsName) {
         $this->message = "Trigger Not Found: ". $clsName;

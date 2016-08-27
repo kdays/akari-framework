@@ -8,12 +8,10 @@
 
 namespace Akari\system\exception;
 
-use Akari\system\event\Event;
 use Akari\system\event\Listener;
-use Akari\system\ioc\DIHelper;
 use Akari\system\ioc\Injectable;
 use Akari\system\result\Processor;
-use Akari\utility\helper\ExceptionSetter;
+use core\system\exception\FatalException;
 
 Class ExceptionProcessor extends Injectable{
     
@@ -112,19 +110,4 @@ Class ExceptionProcessor extends Injectable{
             $this->processException($ex);
         }
     }
-}
-
-Class FatalException extends \Exception {
-
-    public $logLevel = AKARI_LOG_LEVEL_FATAL;
-
-    protected $type;
-
-    public function __construct($message, $file, $line, $type) {
-        $this->message = $message;
-        $this->file = $file;
-        $this->line = $line;
-        $this->type = $type;
-    }
-
 }

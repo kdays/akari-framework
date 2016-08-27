@@ -3,15 +3,11 @@ namespace Akari\system\router;
 
 use Akari\Context;
 use Akari\NotFoundClass;
-use Akari\system\http\Request;
-use Akari\system\ioc\DIHelper;
-use Akari\system\ioc\DINotRegistered;
+use Akari\system\exception\AkariException;
 use Akari\system\ioc\Injectable;
 use Akari\system\result\Result;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ValueHelper;
-
-!defined("AKARI_PATH") && exit;
 
 Class Dispatcher extends Injectable{
 
@@ -26,7 +22,6 @@ Class Dispatcher extends Injectable{
      *
      * @param string $URI uri路径
      * @return bool|string
-     * @throws MethodNameNotAllowed
      * @throws NotFoundClass
      * @throws NotFoundURI
      */
@@ -46,13 +41,13 @@ Class Dispatcher extends Injectable{
 
     /**
      * 根据URI分配文件
-     * 
+     *
      * @param string $uri
      * @param $baseDir
      * @param string $ext
      * @param bool $isRelativePath 是否相对路径 TRUE时会自动在BaseDir前增加APP的入口文件夹路径
      * @return bool|string
-     * @throws DispatcherException
+     * @throws AkariException
      */
     public function findWay($uri, $baseDir, $ext = '.php', $isRelativePath = TRUE) {
         if (!is_array($uri))    $uri = explode('/', $uri);
@@ -64,7 +59,7 @@ Class Dispatcher extends Injectable{
 
         $uriLevels = count($uri);
         if ($uriLevels > 10) {
-            throw new DispatcherException('invalid URI');
+            throw new AkariException('invalid URI');
         }
         
         for ($i = 0; $i < $uriLevels - 1; $i++) {
@@ -96,7 +91,6 @@ Class Dispatcher extends Injectable{
     /**
      * @param $uri
      * @return array|mixed|null
-     * @throws DispatcherException -> 层级过多时抛出
      *
      * @return bool
      */
@@ -145,7 +139,6 @@ Class Dispatcher extends Injectable{
      * 根据URI分配路径
      *
      * @return Result|NULL
-     * @throws DispatcherException
      * @throws NotFoundURI
      */
     public function dispatch() {
@@ -162,7 +155,7 @@ Class Dispatcher extends Injectable{
         }
 
         if ($method[0] == '_') {
-            throw new MethodNameNotAllowed($method, $cls);
+            throw new NotFoundURI("Not Allow Method: ". $method, $cls);
         }
         $clsObj = new $cls();
 
@@ -203,22 +196,4 @@ Class Dispatcher extends Injectable{
     public function getActionName() {
         return $this->_actionName;
     }
-}
-
-Class NotFoundURI extends \Exception {
-
-    public function __construct($methodName, $className = NULL, $previous = NULL) {
-        $methodName = is_array($methodName) ? implode("/", $methodName) : $methodName;
-        $this->message = "not found $methodName on ". ($className == NULL ? " direct " : $className);
-        $this->previous = $previous;
-    }
-
-}
-
-Class MethodNameNotAllowed extends \Exception {
-
-}
-
-Class DispatcherException extends \Exception{
-
 }

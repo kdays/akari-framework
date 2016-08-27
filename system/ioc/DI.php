@@ -7,7 +7,7 @@
  */
 namespace Akari\system\ioc;
 
-use Akari\NotFoundClass;
+use Akari\system\exception\AkariException;
 
 class DI {
 
@@ -70,6 +70,6 @@ class DI {
 
 }
 
-Class DINotRegistered extends \Exception {
+Class DINotRegistered extends AkariException  {
     
 }

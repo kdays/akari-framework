@@ -7,6 +7,7 @@
  */
 
 namespace Akari\system\event;
+use Akari\system\exception\AkariException;
 
 /**
  * Class Listener
@@ -35,10 +36,10 @@ Class Listener {
      *
      * 举例事件调用是Processor.sent 那么会尝试调用类中的2个方法: sentAction 和 handle
      * </pre>
-     * 
+     *
      * @param int $priority 排序权重 数字越小的越先执行
-     * @return int 事件id
-     * @throws ListenerException
+     * @return EventHandler
+     * @throws AkariException
      */
     public static function add($eventName, callable $callback, $priority = 0) {
         $r = explode(".", $eventName);
@@ -47,7 +48,7 @@ Class Listener {
         list($gloSpace, $subSpace) = $r;
         
         if ($gloSpace == '*') {
-            throw new ListenerException("Event global space can not be *");
+            throw new AkariException("Event global space can not be *");
         }
 
         if (!isset(self::$_listeners[$gloSpace])) {
@@ -177,10 +178,5 @@ Class Listener {
     public static function getListeners() {
         return self::$_listeners;
     }
-    
-}
-
-
-Class ListenerException extends \Exception {
     
 }

@@ -8,8 +8,8 @@
 
 namespace Akari\model;
 
-
 use Akari\config\DbAgentConfig;
+use Akari\system\exception\AkariException;
 use Akari\utility\TextHelper;
 
 abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSerializable {
@@ -84,7 +84,7 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
 
     public function offsetSet($offset, $value) {
         if (is_null($offset)) {
-            throw new ModelOffsetUnknown("Model offset is NULL");
+            throw new AkariException(__CLASS__. " Model offset is NULL");
         }
 
         $magicName = $offset;
@@ -129,9 +129,4 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
             DbAgentConfig::JSON_AUTO_USE_GETTER, 
             DbAgentConfig::JSON_AUTO_ARRAY_EXCEPT);
     }
-}
-
-
-Class ModelOffsetUnknown extends \Exception {
-
 }
