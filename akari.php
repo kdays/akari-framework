@@ -377,7 +377,6 @@ Class akari extends Injectable{
 
 Class FrameworkInitFailed extends \Exception {
 
-
 }
 
 Class NotFoundClass extends \Exception {

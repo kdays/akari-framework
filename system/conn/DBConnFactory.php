@@ -2,37 +2,34 @@
 /**
  * Created by PhpStorm.
  * User: kdays
- * Date: 14/12/28
- * Time: 23:05
+ * Date: 16/8/31
+ * Time: 上午7:54
  */
 
-namespace Akari\system\db;
+namespace Akari\system\conn;
+
 
 use Akari\Context;
 
-/**
- * Class DBAgentFactory
- * @package Akari\system\db
- * @deprecated 
- */
-Class DBAgentFactory {
-
+class DBConnFactory {
+    
     private static $instance = array();
 
     /**
      * 获得DBAgent对象
      *
      * @param string $cfgName 配置名
-     * @return DBAgent
+     * @return DBConnection
      */
-    public static function getDBAgent($cfgName = "default"){
+    public static function get($cfgName = "default"){
         $config = Context::$appConfig->getDBConfig($cfgName);
 
         if(!array_key_exists($cfgName, self::$instance)){
-            self::$instance[$cfgName] = new DBAgent($config);
+            self::$instance[$cfgName] = new DBConnection($config);
         }
 
         return self::$instance[$cfgName];
     }
+
 
 }
