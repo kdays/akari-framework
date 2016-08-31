@@ -9,6 +9,7 @@
 namespace Akari\system\conn;
 
 
+use Akari\utility\Benchmark;
 use PDO;
 
 class SQLMapBuilder {
@@ -24,6 +25,8 @@ class SQLMapBuilder {
     const TYPE_ROW = 'ROW';
     const TYPE_RAW = 'RAW'; // 特殊
     
+    const BENCHMARK_KEY = "db.Query";
+    
     public function __construct(BaseSQLMap $SQLMap, DBConnection $connection) {
         $this->map = $SQLMap;
         $this->connection = $connection;
@@ -37,6 +40,8 @@ class SQLMapBuilder {
         
         $item = $lists[$id];
         $type = strtoupper(explode(".", $id)[0]);
+
+        Benchmark::setTimer(self::BENCHMARK_KEY);
         
         list($item, $data) = $this->prepareDataForSql($item, $data);
         if ($type == self::TYPE_COUNT || $type == self::TYPE_SELECT || $type == self::TYPE_ROW) {
@@ -78,6 +83,12 @@ class SQLMapBuilder {
 
         $this->close($stmt);
         
+        Benchmark::logCount(self::BENCHMARK_KEY);
+        Benchmark::logParams(self::BENCHMARK_KEY, [
+            'sql' => sprintf("%s -> %s (%s)", get_class($this->map), $id, $item['sql']), 
+            'time' => Benchmark::getTimerDiff(self::BENCHMARK_KEY)
+        ]);
+        
         return $result;
     }
     
@@ -113,7 +124,7 @@ class SQLMapBuilder {
         }
         
         if (isset($data['@sort'])) {
-            $sql = str_ireplace("#sort", " ORDER". $data['@sort'], $sql);
+            $sql = str_ireplace("#sort", " ORDER BY ". $data['@sort'], $sql);
         }
 
         if (isset($data['@vars'])) {

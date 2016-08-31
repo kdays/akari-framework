@@ -60,4 +60,40 @@ class DBConnection {
         return $this->writeConn;
     }
 
+    /**
+     * 开始一个事务
+     *
+     * @return bool
+     */
+    public function beginTransaction() {
+        return $this->getWriteConnection()->beginTransaction();
+    }
+
+    /**
+     * 提交当前事务
+     *
+     * @return bool
+     */
+    public function commit() {
+        return $this->getWriteConnection()->commit();
+    }
+
+    /**
+     * 事务回滚
+     *
+     * @return bool
+     */
+    public function rollback() {
+        return $this->getWriteConnection()->rollBack();
+    }
+
+    /**
+     * 是否在事务状态
+     *
+     * @return bool
+     */
+    public function inTransaction() {
+        return !!$this->getWriteConnection()->inTransaction();
+    }
+
 }

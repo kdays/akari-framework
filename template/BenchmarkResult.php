@@ -131,10 +131,12 @@
         <li><b>[C]<?=$k?></b> <?=$v?></li>
     <?php endforeach; ?>
 
+    <?php if(isset($_SESSION)): ?>    
     <?php foreach($_SESSION as $k => $v): ?>
         <li><b>[S]<?=$k?></b> <?=$v?></li>
     <?php endforeach; ?>
     </ul>
+    <?php endif ?>
 
     <h3>Class <small>(<?=count(\Akari\Context::$classes)?>)</small></h3>
     <ul>
