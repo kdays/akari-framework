@@ -15,6 +15,11 @@ use Akari\utility\Benchmark;
 use Akari\utility\helper\Logging;
 use \PDO;
 
+/**
+ * Class DBAgent
+ * @package Akari\system\db
+ * @deprecated 
+ */
 Class DBAgent {
 
     use Logging;
