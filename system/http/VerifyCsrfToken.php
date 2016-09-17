@@ -30,16 +30,12 @@ class VerifyCsrfToken extends Injectable{
         $tokenName = Context::$appConfig->csrfTokenName;
         $uToken = NULL;
 
-        if (!empty($_COOKIE[$tokenName])) {
-            $uToken = $_COOKIE[$tokenName];
+        if ($this->request->hasHeader('HTTP_X_CSRF_TOKEN')) {
+            $uToken = $this->request->getHeader('HTTP_X_CSRF_TOKEN');
         }
         
-        if (!empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
-            $uToken = $_SERVER['HTTP_X_CSRF_TOKEN'];
-        }
-
-        if (!empty($_REQUEST[$tokenName])) {
-            $uToken = $_REQUEST[$tokenName];
+        if (!empty($this->request->has($tokenName))) {
+            $uToken = $this->request->get($tokenName);
         }
 
         $rToken = $this->getToken();
@@ -55,7 +51,7 @@ class VerifyCsrfToken extends Injectable{
         if (!empty($config->csrfTokenName) && $needVerify) {
             $tokenValue = $this->getToken();
 
-            if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+            if (!$this->request->isPost()) {
                 setcookie($config->csrfTokenName, $tokenValue, NULL, $config->cookiePath, $config->cookieDomain);
             } else {
                 $this->verifyToken();
