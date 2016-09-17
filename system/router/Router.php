@@ -3,23 +3,18 @@ namespace Akari\system\router;
 
 use Akari\Context;
 use Akari\system\exception\AkariException;
-use Akari\system\http\Request;
 use Akari\system\ioc\DIHelper;
+use Akari\system\ioc\Injectable;
 use Akari\utility\helper\ValueHelper;
 
-Class Router{
+Class Router extends Injectable {
 
-    use ValueHelper, DIHelper;
+    use ValueHelper;
 
     private $config;
-    
-    /**
-     * @var Request
-     */
-    private $request;
+    private $params = [];
 
     public function __construct(){
-        $this->request = $this->_getDI()->getShared("request");
         $this->config = Context::$appConfig;
     }
 
@@ -132,7 +127,7 @@ Class Router{
 
         $uri = array_filter($uri);
         $now = array_filter($now);
-
+        
         if (count($uri) != count($now)) {
             return false;
         }
@@ -187,112 +182,148 @@ Class Router{
     const REWRITE_MODE_STR = 1;
     const REWRITE_MODE_NONE = 2;
 
-    /**
-     * @param string $URI
-     * @param null|array $rule
-     *
-     * @return array|mixed
-     */
-    public function getRewriteURL($URI, $rule = NULL) {
-        $matchResult = False;
-        $URLRewrite = $rule === NULL ? Context::$appConfig->uriRewrite : $rule;
-
-        // 让路由重写时支持METHOD设定 而非CALLBACK时处理
+    public function getUrlFromRule($URI, $rules = NULL) {
+        $rules = $rules === NULL ? Context::env('uriRewrite') : $rules;
+        
+        $allowMethods = ['GET', 'POST', 'PUT', 'GP'];
         $nowRequestMethod = $this->request->getRequestMethod();
-        $allowMethodHeader = ['GET', 'POST', 'PUT', 'DELETE', 'GP'];
-        $methodRegexp = "/^(GET|POST|PUT|DELETE|GP):(.*)/";
-
-        /**@var mixed|callable $value**/
-        foreach($URLRewrite as $re => $value){
+        $methodRe = "/^(". implode("|", $allowMethods). "):(.*)/";
+        $matchResult = NULL;
+        
+        $this->resetParameters();
+        foreach ($rules as $rule => $toName) {
             $matchMode = self::REWRITE_MODE_STR;
-            if (substr($re, 0, 1) == '!') {
+            if (substr($rule, 0, 1) == '!') {
                 $matchMode = self::REWRITE_MODE_REGEXP;
-                $re = substr($re, 1);
+                $rule = substr($rule, 1);
             }
-
-            preg_match($methodRegexp, $re, $methodMatch);
-            if (isset($methodMatch[1]) && in_array($methodMatch[1], $allowMethodHeader)) {
-                $needMethod = $methodMatch[1];
+            
+            // 检查重写类型是否正确 不正确的话直接错误
+            preg_match($methodRe, $rule, $methodResult);
+            if (isset($methodResult[1]) && in_array($methodResult[1], $allowMethods)) {
+                $needMethod = $methodResult[1];
                 if ($nowRequestMethod == $needMethod ||
                     ($needMethod == 'GP' && in_array($nowRequestMethod, ['GET', 'POST']))) {
-                    $re = $methodMatch[2];
+                    $rule = $methodResult[2];
                 } else {
                     continue;
                 }
             }
 
-            if (substr($re, 0, 1) == '/' && $matchMode != self::REWRITE_MODE_REGEXP) {
+            if (substr($rule, 0, 1) == '/' && $matchMode != self::REWRITE_MODE_REGEXP) {
                 $matchMode = self::REWRITE_MODE_REGEXP;
             }
+            
 
-            // 判定方式
+            $matches = False;
+            
+            // 根据matchMode处理
             if ($matchMode == self::REWRITE_MODE_REGEXP) {
-                $isMatched = preg_match($re, $URI);
+                if (preg_match($rule, $URI)) {
+                    $matches = preg_split($rule, $URI, -1, PREG_SPLIT_DELIM_CAPTURE);
+                }
             } else {
-                $isMatched = $this->matchURLByString($URI, $re);
+                $matches = $this->matchURLByString($URI, $rule);
+            }
+            
+            if ($matches === False) {
+                continue;
+            }
+            
+            if (is_callable($toName)) {
+                $matchResult = $toName($URI);
+                if ($matchResult) break;
+                
+                continue;
+            }
+            
+            $matchResult = $this->setParams4Rewrite($matches, $toName);
+            break;
+        }
+        
+        return empty($matchResult) ? $URI : $matchResult;
+    }
+
+    /**
+     * @param $urlMatches
+     * @param $toActionName
+     * @return mixed|string
+     * @internal param $URI
+     */
+    protected function setParams4Rewrite($urlMatches, $toActionName) {
+        $toActionName = str_replace(".", "/", $toActionName);
+
+        // toActionName后面如果有参数的话
+        if(strpos($toActionName, "?") !== FALSE) {
+            $result = [];
+            parse_str(substr($toActionName, strpos($toActionName, "?") + 1), $result);
+
+            foreach ($result as $k => $v) {
+                if (substr($v, 0, 1) == ':') {
+                    $v = isset($urlMatches[substr($v, 1)]) ? $urlMatches[substr($v, 1)] : '';
+                }
+
+                $this->pushParameter($k, $v, True);
             }
 
-            if ($isMatched === FALSE) continue;
+            $toActionName = substr($toActionName, 0, strpos($toActionName, "?"));
+        }
 
-            if (is_callable($value)) {
-                $matchResult = $value($URI);
-                if ($matchResult) break;
-            } else {
-                $value = str_replace(".", "/", $value);
-                if ($matchMode == self::REWRITE_MODE_REGEXP) {
-                    $result = preg_split($re, $URI, -1, PREG_SPLIT_DELIM_CAPTURE);
-                    foreach ($result as $k => $v) {
-                        $value = str_replace("@".$k, $v, $value);
-                    }
+        // 如果有:处理替换的时候
+        if (strpos($toActionName, ":") !== FALSE) {
+            $matches = explode("/", $toActionName);
+            foreach ($matches as $k => $match) {
+                if (substr($match, 0, 1) == ':') {
+                    $matchKey = substr($match, 1);
 
-                    $matchResult = $value;
-                } else {
-                    $matchResult = $value;
-                    foreach ($isMatched as $k => $v) {
-                        $this->_setValue("U:". $k, $v);
+                    if (isset($urlMatches[$matchKey])) {
+                        $this->pushParameter($matchKey, $urlMatches[$matchKey], False);
+
+                        $matches[$k] = $urlMatches[$matchKey];
                     }
                 }
-                
-                // ?后的参数视为URL本来就有的参数处理 而不是存入U:变量
-                if(strpos($matchResult, "?") !== FALSE) {
-                    $result = [];
-                    parse_str(substr($matchResult, strpos($matchResult, "?") + 1), $result);
+            }
 
-                    foreach ($result as $k => $v) {
-                        if (substr($v, 0, 1) == ':') {
-                            $v = isset($isMatched[substr($v, 1)]) ? $isMatched[substr($v, 1)] : ''; 
-                        }
-                        
-                        $_GET[$k] = $v;
-                        if (!array_key_exists($k, $_REQUEST)) {
-                            $_REQUEST[$k] = $v;
-                        }
-                    }
-                    
-                    $matchResult = substr($matchResult, 0, strpos($matchResult, "?"));
-                }
-
-                if (strpos($matchResult, ":") !== FALSE) {
-                    $matches = explode("/", $matchResult);
-                    
-                    foreach ($matches as $k => $match) {
-                        if (substr($match, 0, 1) == ':') {
-                            $matchKey = substr($match, 1);
-                            
-                            if (isset($isMatched[$matchKey])) {
-                                $matches[$k] = $isMatched[$matchKey];
-                            }
-                        }
-                    }
-                    
-                    $matchResult = implode("/", $matches);
-                }
-                
-                break;
+            $toActionName = implode("/", $matches);
+        }
+        
+        return $toActionName;
+    }
+    
+    protected function pushParameter($key, $value, $fromUrl) {
+        if ($fromUrl) {
+            $_GET[$key] = $value;
+            if (!array_key_exists($key, $_REQUEST)) {
+                $_REQUEST[$key] = $value;
             }
         }
         
-        
-        return empty($matchResult) ? $URI : $matchResult;
+        $this->params[$key] = $value;
+    }
+    
+    public function resetParameters() {
+        $this->params = [];
+    }
+    
+    public function getParameters() {
+        return $this->params;
+    }
+    
+    public function parseArgvParams($args) {
+        function resolve(array $params) {
+            $now = [];
+            foreach ($params as $param) {
+                if (preg_match('/^--(\w+)(=(.*))?$/', $param, $matches)) {
+                    $name = $matches[1];
+                    $now[$name] = isset($matches[3]) ? $matches[3] : true;
+                } else {
+                    $now[] = $param;
+                }
+            }
+
+            return $now;
+        }
+
+        return resolve($args);
     }
 }
