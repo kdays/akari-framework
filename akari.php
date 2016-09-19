@@ -105,7 +105,7 @@ Class Context {
             $cls = self::$aliases[$cls];
         }
 
-        $nsPath = explode("\\", $cls);
+        $nsPath = explode(NAMESPACE_SEPARATOR, $cls);
         if ( isset(Context::$nsPaths[$nsPath[0]]) ) {
             $basePath = Context::$nsPaths[ array_shift($nsPath)];
             $clsPath = $basePath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $nsPath).".php";

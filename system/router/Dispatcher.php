@@ -56,7 +56,6 @@ Class Dispatcher extends Injectable{
         }
         
         $config = Context::env('bindDomain', NULL, []);
-        
         if (isset($config[$this->request->getHost()])) {
             return Context::$appBaseNS. $config[$this->request->getHost()];
         }
@@ -79,16 +78,15 @@ Class Dispatcher extends Injectable{
             throw new NotFoundURI(Context::$uri);
         }
         
-        return $this->doAction($this->_fullControllerName, $this->getActionName());
+        $actionName = $this->getActionName();
+        $actionName = empty($actionName) ? 'index' : $actionName;
+        
+        return $this->doAction($this->_fullControllerName, $actionName);
     }
 
     protected function doAction($cls, $method) {
-        if (empty($method)) {
-            $method = "indexAction";
-        }
-
-        if ($method[0] == '_') {
-            throw new NotFoundURI("Not Allow Method: ". $method, $cls);
+        if (empty($method) || $method[0] == '_') {
+            throw new NotFoundClass($method, $cls);
         }
         $clsObj = new $cls();
 
@@ -109,20 +107,18 @@ Class Dispatcher extends Injectable{
             }
         }
 
-        /*
-            如果说 这个path是一个class文件 Result需要调用对应方法执行
-            为何不允许在Class上用反射绑定类关系? 复杂用RequestModel  获得用GP或者$this->request
-            避免程序偷懒导致变量值无法正确的过滤
-        */
         $result = $clsObj->$method();
-
         if (method_exists($clsObj, '_after')) {
             $result = $clsObj->_after($result);
         }
         return $result;
     }
     
-    public function getControllerName() {
+    public function getControllerName($isFull = False) {
+        if ($isFull) {
+            return $this->_fullControllerName;
+        }
+        
         return $this->_controllerName;
     }
     
@@ -130,8 +126,16 @@ Class Dispatcher extends Injectable{
         return $this->_actionName;
     }
     
-    public function setControllerName($ctlName) {
-        $this->_controllerName = $ctlName;
+    public function setControllerName($ctlName, $isFull = False) {
+        $appNs = $this->getAppActionNS(). NAMESPACE_SEPARATOR;
+        
+        if (!$isFull) {
+            $this->_controllerName = $ctlName;
+            $this->_fullControllerName = $appNs. $ctlName;
+        } else {
+            $this->_fullControllerName = $ctlName;
+            $this->_controllerName = mb_substr($ctlName, strlen($appNs) + 1);
+        }
     }
     
     public function setActionName($actName) {
