@@ -9,6 +9,8 @@
 namespace Akari\utility;
 
 
+use Akari\Context;
+
 class FileHelper {
 
     public static function read($filename, $method = 'rb'){
@@ -125,4 +127,18 @@ class FileHelper {
         }
     }
     
+    public static function getUploadPath($fn) {
+        return Context::$appBasePath. DIRECTORY_SEPARATOR. Context::$appConfig->uploadDir. DIRECTORY_SEPARATOR. $fn;
+    }
+
+    public static function formatFileSize($size, $dec = 2){
+        $a = array("B", "KB", "MB", "GB", "TB", "PB");
+        $pos = 0;
+        while ($size >= 1024) {
+            $size /= 1024;
+            $pos++;
+        }
+
+        return round($size, $dec)." ".$a[$pos];
+    }
 }
