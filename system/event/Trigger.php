@@ -26,7 +26,7 @@ class Trigger {
     const TYPE_APPLICATION_OUTPUT = "applicationOutput";
     
     public static function getPrefix() {
-        return CLI_MODE ? 'CLI_' : '';
+        return CLI_MODE ? 'Cli' : '';
     }
 
     public static function initEvent() {

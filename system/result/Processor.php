@@ -154,23 +154,8 @@ Class Processor extends Injectable{
             $this->response->setContent($this->$method($result));
             Listener::fire(self::EVT_RESULT_SENT, $this);
         } else {
-            throw new ResultTypeUnknown($result);
+            throw new AkariException("Unknown Result Type:". gettype($result));
         }
-    }
-
-}
-
-Class ResultTypeUnknown extends AkariException  {
-    
-    protected $errResult;
-    
-    public function __construct($errResult) {
-        $this->message = "Result Type Unknown";
-        $this->errResult = $errResult;
-    }
-    
-    public function getResult() {
-        return $this->errResult;
     }
 
 }

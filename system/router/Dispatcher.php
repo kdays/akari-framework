@@ -16,91 +16,23 @@ Class Dispatcher extends Injectable{
     private $_controllerName;
     private $_fullControllerName;
     private $_actionName;
+    private $_exeParams = [];
     
     /**
-     * CLI模式下 任务路径的分发
-     *
-     * @param string $URI uri路径
-     * @return bool|string
-     * @throws NotFoundClass
-     * @throws NotFoundURI
-     */
-    public function dispatchTask($URI = '') {
-        list($taskName, $methodName) = explode("/", $URI);
-        $taskName = $taskName. "Task";
-
-        $cls = implode(NAMESPACE_SEPARATOR, [Context::$appBaseNS, 'task', $taskName]);
-        try {
-            $isExistCls = !!class_exists($cls);
-        } catch (NotFoundClass $e) {
-            throw new NotFoundURI($methodName, $cls);
-        }
-       
-        return $this->doAction($cls, $methodName);
-    }
-
-    /**
-     * 根据URI分配文件
-     *
-     * @param string $uri
-     * @param $baseDir
-     * @param string $ext
-     * @param bool $isRelativePath 是否相对路径 TRUE时会自动在BaseDir前增加APP的入口文件夹路径
-     * @return bool|string
-     * @throws AkariException
-     */
-    public function findWay($uri, $baseDir, $ext = '.php', $isRelativePath = TRUE) {
-        if (!is_array($uri))    $uri = explode('/', $uri);
-
-        $baseDirPath = $baseDir;
-        if ($isRelativePath) {
-            $baseDirPath = implode(DIRECTORY_SEPARATOR, [Context::$appEntryPath, $baseDir, '']);
-        }
-
-        $uriLevels = count($uri);
-        if ($uriLevels > 10) {
-            throw new AkariException('invalid URI');
-        }
-        
-        for ($i = 0; $i < $uriLevels - 1; $i++) {
-            $fileName = array_pop($uri);
-            $filePath = implode(DIRECTORY_SEPARATOR, $uri);
-
-            $path = $baseDirPath. $filePath. DIRECTORY_SEPARATOR. $fileName. $ext;
-            if(file_exists($path)){
-                return realpath($path);
-            }
-
-            $path = $baseDirPath. $filePath. DIRECTORY_SEPARATOR. "default". $ext;
-            if(file_exists($path)){
-                return realpath($path);
-            }
-        }
-
-        if(file_exists($path = $baseDirPath. array_shift($uri). $ext)){
-            return realpath($path);
-        }
-
-        if(file_exists($path = $baseDirPath. "default". $ext)){
-            return realpath($path);
-        }
-
-        return FALSE;
-    }
-
-    /**
      * @param $uri
+     * @param array $parameters
+     * 
      * @return array|mixed|null
-     *
-     * @return bool
      */
-    public function appInvoke($uri) {
+    public function invoke($uri, $parameters = []) {
         $parts = explode("/", $uri);
         $method = array_pop($parts);
-        $class = ucfirst(array_pop($parts)).'Action';
+        
+        $suffix = CLI_MODE ? 'Task' : 'Action';
+        $class = ucfirst(array_pop($parts)). $suffix;
         
         //避免爆炸
-        if ($class == 'Action') $class = 'IndexAction';
+        if ($class == $suffix) $class = 'Index'. $suffix;
 
         $cls = $this->getAppActionNS(). NAMESPACE_SEPARATOR. implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
         $isExistCls = False;
@@ -114,14 +46,15 @@ Class Dispatcher extends Injectable{
             $this->_actionName = $method;
             $this->_fullControllerName = $cls;
             $this->_controllerName = implode(NAMESPACE_SEPARATOR,array_merge($parts, [$class]));
-            
-            Context::$appExecute = [$cls, $method];
-            Context::$appEntryMethod = $method;
-            Context::$appEntryName = implode(DIRECTORY_SEPARATOR, $parts). DIRECTORY_SEPARATOR . $class. '.php';
+            $this->_exeParams = $parameters;
         }
     }
     
     protected function getAppActionNS() {
+        if (CLI_MODE) {
+            return Context::$appBaseNS. NAMESPACE_SEPARATOR. 'task';
+        }
+        
         $config = Context::env('bindDomain', NULL, []);
         
         if (isset($config[$this->request->getHost()])) {
@@ -195,5 +128,78 @@ Class Dispatcher extends Injectable{
     
     public function getActionName() {
         return $this->_actionName;
+    }
+    
+    public function setControllerName($ctlName) {
+        $this->_controllerName = $ctlName;
+    }
+    
+    public function setActionName($actName) {
+        $this->_actionName = $actName;
+    }
+    
+    public function getParameters() {
+        return $this->_exeParams;
+    }
+    
+    public function setParameters($params) {
+        $this->_exeParams = $params;
+    }
+    
+    public function getExecPath($parts, $class) {
+        if (!is_array($parts)) {
+            $parts = explode(NAMESPACE_SEPARATOR, $parts);
+        }
+        
+        return implode(DIRECTORY_SEPARATOR, $parts). DIRECTORY_SEPARATOR . $class. '.php';
+    }
+
+    /**
+     * 根据URI分配文件
+     *
+     * @param string $uri
+     * @param $baseDir
+     * @param string $ext
+     * @param bool $isRelativePath 是否相对路径 TRUE时会自动在BaseDir前增加APP的入口文件夹路径
+     * @return bool|string
+     * @throws AkariException
+     */
+    public function findWay($uri, $baseDir, $ext = '.php', $isRelativePath = TRUE) {
+        if (!is_array($uri))    $uri = explode('/', $uri);
+
+        $baseDirPath = $baseDir;
+        if ($isRelativePath) {
+            $baseDirPath = implode(DIRECTORY_SEPARATOR, [Context::$appEntryPath, $baseDir, '']);
+        }
+
+        $uriLevels = count($uri);
+        if ($uriLevels > 10) {
+            throw new AkariException('invalid URI');
+        }
+
+        for ($i = 0; $i < $uriLevels - 1; $i++) {
+            $fileName = array_pop($uri);
+            $filePath = implode(DIRECTORY_SEPARATOR, $uri);
+
+            $path = $baseDirPath. $filePath. DIRECTORY_SEPARATOR. $fileName. $ext;
+            if(file_exists($path)){
+                return realpath($path);
+            }
+
+            $path = $baseDirPath. $filePath. DIRECTORY_SEPARATOR. "default". $ext;
+            if(file_exists($path)){
+                return realpath($path);
+            }
+        }
+
+        if(file_exists($path = $baseDirPath. array_shift($uri). $ext)){
+            return realpath($path);
+        }
+
+        if(file_exists($path = $baseDirPath. "default". $ext)){
+            return realpath($path);
+        }
+
+        return FALSE;
     }
 }
