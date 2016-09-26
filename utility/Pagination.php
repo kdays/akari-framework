@@ -23,7 +23,8 @@ class Pagination extends Plugin {
     private $widget;
     
     public $baseUrl;
-    public $commArgs = [];
+    public $urlArgs = [];
+    public $viewArgs = [];
     
     // 相关URL
     public $firstPage;
@@ -32,9 +33,9 @@ class Pagination extends Plugin {
     public $prevPage;
     public $pagination = [];
     
-    public function __construct($currentPage, $baseUrl, $commArgs) {
+    public function __construct($currentPage, $baseUrl, $urlArgs) {
         $this->baseUrl = $baseUrl;
-        $this->commArgs = $commArgs;
+        $this->urlArgs = $urlArgs;
         
         $this->currentPage = $currentPage;
     }
@@ -44,8 +45,12 @@ class Pagination extends Plugin {
         return $this;
     }
     
-    public function setBaseUrlArgs($commArgs) {
-        $this->commArgs = $commArgs;
+    public function bindVar($key, $value) {
+        $this->viewArgs[$key] = $value;
+    }
+    
+    public function setUrlArgs($commArgs) {
+        $this->urlArgs = $commArgs;
         return $this;
     }
 
@@ -72,12 +77,12 @@ class Pagination extends Plugin {
 
     public function makeUrl($page) {
         $url = $this->baseUrl;
-        $args = $this->commArgs;
+        $args = $this->urlArgs;
         
         if (in_string($url, "(page)")) {
             $url = str_replace($url, "(page)", $page);
         } else {
-            $args = [$this->parameterName => $page] + $this->commArgs;
+            $args = [$this->parameterName => $page] + $this->urlArgs;
         }
         
         return $this->url->get($url, $args);
@@ -93,6 +98,14 @@ class Pagination extends Plugin {
     
     public function getPageSize() {
         return $this->pageSize;
+    }
+    
+    public function getSkip() {
+        return ($this->currentPage - 1) * $this->pageSize;
+    }
+    
+    public function getLimit() {
+        return $this->getPageSize();
     }
     
     public function getTotalPage() {
