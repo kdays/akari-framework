@@ -7,6 +7,7 @@
  */
 namespace Akari\system\ioc;
 
+use Akari\NotFoundClass;
 use Akari\system\exception\AkariException;
 
 class DI {
@@ -39,7 +40,7 @@ class DI {
             return $clsObj;
         }
         
-        throw new DINotRegistered("service [". $serviceName. "] not registered!");
+        throw new DINotRegistered("DI:". $serviceName);
     }
     
     public function has($serviceName) {
@@ -58,7 +59,7 @@ class DI {
 
     public function getShared($serviceName) {
         if (!$this->hasShared($serviceName)) {
-            throw new DINotRegistered("shared service [" . $serviceName. "] not registered!");
+            throw new DINotRegistered("Shared:DI:". $serviceName);
         }
         
         return $this->instance[$serviceName];
@@ -70,6 +71,6 @@ class DI {
 
 }
 
-Class DINotRegistered extends AkariException  {
+Class DINotRegistered extends NotFoundClass {
     
 }

@@ -77,25 +77,10 @@ Class Context {
     public static $appEntryPath;
 
     /**
-     * 应用执行的文件位置
-     *
-     * @var string
-     */
-    public static $appExecute;
-
-    /**
-     * 框架执行的入口文件名
-     * 
+     * 应用执行文件名 
      * @var string
      */
     public static $appEntryName;
-
-    /**
-     * 应用调用方法
-     * 
-     * @var NULL|string
-     */
-    public static $appEntryMethod = NULL;
 
     /**
      * 应用配置
@@ -120,7 +105,7 @@ Class Context {
             $cls = self::$aliases[$cls];
         }
 
-        $nsPath = explode("\\", $cls);
+        $nsPath = explode(NAMESPACE_SEPARATOR, $cls);
         if ( isset(Context::$nsPaths[$nsPath[0]]) ) {
             $basePath = Context::$nsPaths[ array_shift($nsPath)];
             $clsPath = $basePath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $nsPath).".php";
@@ -225,7 +210,7 @@ Class akari extends Injectable{
 
         Context::$appConfig = $confCls::getInstance();
         // 应该是实际执行的Action被赋值
-        //Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
+        Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
         header("X-Akari-Version: ". self::getVersion(false));
         include("defaultBoot.php");
@@ -265,24 +250,35 @@ Class akari extends Injectable{
         }
 
         Context::$uri = $uri;
-
+        
         if ($outputBuffer)  ob_start();
         Trigger::initEvent();
         
-        $result = Trigger::handle('beforeDispatch');
+        $result = Trigger::handle(Trigger::TYPE_BEFORE_DISPATCH);
         if ($result === NULL) {
             if (!CLI_MODE) {
-                $this->dispatcher->appInvoke( $this->router->getRewriteURL(Context::$uri) );
+                $toUrl = $this->router->getUrlFromRule( Context::$uri );
+                $toParameters = $this->router->getParameters();
+                
+                $this->dispatcher->invoke( $toUrl, $toParameters );
+            } else {
+                $toParameters = [];
+                if (array_key_exists("argv", $_SERVER)) {
+                    $toParameters = $_SERVER['argv'];
+                    array_shift($toParameters);
+                    
+                    $toParameters = $this->router->parseArgvParams($toParameters);
+                }
+                
+                $this->dispatcher->invoke( Context::$uri, $toParameters );
             }
             
-            $result = Trigger::handle('applicationStart', $result);
+            $result = Trigger::handle(Trigger::TYPE_APPLICATION_START);
         }
-        // 如果没有result 说明触发都表示没啥可吐槽的
+        
         if (!isset($result)) {
             Security::autoVerifyCSRFToken(); // Token检查
-            $realResult = CLI_MODE ?
-                $this->dispatcher->dispatchTask($uri) :
-                $this->dispatcher->dispatch();
+            $realResult = $this->dispatcher->dispatch();
 
             if (!is_a($realResult, Result::class)) {
                 $defaultCallback = $config->nonResultCallback;
@@ -294,9 +290,8 @@ Class akari extends Injectable{
                 }
             }
             
-            $result = Trigger::handle('applicationEnd', $realResult);
+            $result = Trigger::handle(Trigger::TYPE_APPLICATION_END, $realResult);
         }
-        
         
         Benchmark::logParams('app.time', ['time' => Benchmark::getTimerDiff('app.start')]);
         
@@ -307,7 +302,7 @@ Class akari extends Injectable{
             $this->processor->processResult($realResult);
         }
         
-        Trigger::handle('applicationOutput', NULL);
+        Trigger::handle(Trigger::TYPE_APPLICATION_OUTPUT, NULL);
         $this->response->send();
     }
 
@@ -343,7 +338,7 @@ Class akari extends Injectable{
             include("template/BenchmarkResult.php");
         }
 
-        self::_logInfo('Request ' . Context::$appConfig->appName .
+        self::_logDebug('Request ' . Context::$appConfig->appName .
             ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) .
             ' secs' );
     }

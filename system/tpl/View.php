@@ -43,10 +43,14 @@ class View extends Injectable{
      */
     public function bindVar($key, $value = NULL) {
         if (is_array($key)) {
-            $this->_vars = array_merge($this->_vars, $key);
+            $this->_vars =  array_merge($this->_vars, $key);
         } else {
             $this->_vars[$key] = $value;
         }
+    }
+    
+    public function bindVars($values, $isMerge = True) {
+        $this->_vars = $isMerge ? array_merge($this->_vars, $values) : $values;
     }
     
     public function hasVar($key) {

@@ -46,6 +46,8 @@ class MemcachedCacheHandler implements ICacheHandler {
         if ($password) {
             $memcached->setSaslAuthData($username, $password);
         }
+        
+        $this->handler = $memcached;
     }
 
     /**

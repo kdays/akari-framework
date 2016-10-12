@@ -90,6 +90,16 @@ Class ExceptionProcessor extends Injectable{
     public function setFrameworkExceptionHandler($handler) {
         $this->fkExceptionHandler = $handler;
     }
+    
+    public function isFatal($exceptionType) {
+        return in_array($exceptionType, [
+            E_ERROR,
+            E_PARSE,
+            E_CORE_ERROR,
+            E_USER_ERROR,
+            E_COMPILE_ERROR
+        ]);
+    }
 
     public function processFatal() {
         $fatal = error_get_last();
@@ -97,14 +107,8 @@ Class ExceptionProcessor extends Injectable{
             return FALSE;
         }
         
-        $needCatchExceptionLevel = [
-            E_ERROR,
-            E_PARSE,
-            E_CORE_ERROR,
-            E_USER_ERROR
-        ];
         
-        if (in_array($fatal['type'], $needCatchExceptionLevel)) {
+        if ($this->isFatal($fatal['type'])) {
             $ex = new FatalException($fatal['message'], $fatal['file'], $fatal['line'], $fatal['type']);
             $this->processException($ex);
         }

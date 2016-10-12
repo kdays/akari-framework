@@ -9,7 +9,6 @@
 namespace Akari\system\http;
 
 use Akari\utility\FileHelper;
-use Akari\utility\UploadHelper;
 
 class FileUpload {
 
@@ -95,7 +94,7 @@ class FileUpload {
     }
     
     public function getSavePath($target) {
-        return UploadHelper::getFilePath($target);
+        return FileHelper::getUploadPath($target);
     }
 
     public function save($target, $isRelativePath = TRUE) {

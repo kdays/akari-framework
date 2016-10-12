@@ -18,6 +18,7 @@ use Akari\system\tpl\asset\AssetsMgr;
 use Akari\system\tpl\engine\BaseTemplateEngine;
 use Akari\utility\ApplicationDataMgr;
 use Akari\utility\PageHelper;
+use Akari\utility\Pagination;
 use Akari\utility\UrlHelper;
 
 class TemplateUtil {
@@ -144,6 +145,10 @@ EOT
     
     public static function pager($instanceName = 'default') {
         return PageHelper::getInstance($instanceName)->getHTML();
+    }
+    
+    public static function page(Pagination $pagination) {
+        return $pagination->render();
     }
     
     public static function __callStatic($name, $arguments) {

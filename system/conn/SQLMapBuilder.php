@@ -31,7 +31,13 @@ class SQLMapBuilder {
         $this->map = $SQLMap;
         $this->connection = $connection;
     }
-    
+
+    /**
+     * @param $id
+     * @param array $data
+     * @return mixed
+     * @throws DBException
+     */
     public function execute($id, array $data) {
         $lists = $this->map->lists;
         if (!isset($lists[$id])) {
