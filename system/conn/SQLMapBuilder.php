@@ -68,7 +68,8 @@ class SQLMapBuilder {
         
         if (!$stmt->execute()) {
             $errInfo = $stmt->errorInfo();
-            throw new DBException("SQL Exec [". $id. "] Failed, Return ". $errInfo[0]. " ". $errInfo[2]);
+            $clsId = get_class($this->map) . "@". $id;
+            throw new DBException("SQL Exec [". $clsId. "] Failed, Return ". $errInfo[0]. " ". $errInfo[2]);
         }
         
         $result = NULL;
@@ -80,7 +81,9 @@ class SQLMapBuilder {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
         } elseif ($type == self::TYPE_INSERT) {
             if ($stmt->rowCount() > 0) {
-                $result = $connection->lastInsertId();
+                // 可能insert存在没有实际id的情况
+                $lastInsertId = $connection->lastInsertId();
+                $result = $lastInsertId ? $lastInsertId : TRUE;
             }
         } else {
             $result = $stmt->rowCount();
@@ -115,7 +118,9 @@ class SQLMapBuilder {
         }
         
         if (isset($item['var'])) {
-            $data = array_merge($data, $item['var']);
+            foreach ($item['var'] as $key => $value) {
+                if (!array_key_exists($key, $data)) $data[$key] = $value;
+            }
         }
         
         if (isset($data['@limit'])) {

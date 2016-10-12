@@ -8,6 +8,7 @@
 
 namespace Akari\system\conn;
 
+use Akari\system\db\DBAgentException;
 use \PDO;
 
 class DBConnection {
@@ -94,6 +95,81 @@ class DBConnection {
      */
     public function inTransaction() {
         return !!$this->getWriteConnection()->inTransaction();
+    }
+
+
+    /**
+     * <b>这是一个底层方法</b>
+     * 执行SQL
+     * 
+     * @param string $sql
+     * @param array $values
+     * @param bool $returnLastInsertId 是否返回最近插入的ID
+     * @return bool|int
+     */
+    public function query($sql, $values = [], $returnLastInsertId = False) {
+        $writeConn = $this->getWriteConnection();
+        $st = $this->_packPrepareSQL($this->getWriteConnection(), $sql, $values);
+
+        if ($st->execute()) {
+            return $returnLastInsertId ? $writeConn->lastInsertId() : $st->rowCount();
+        }
+
+        $this->_throwErr($st);
+    }
+
+    /**
+     * <b>这是一个底层方法</b>
+     * 会调用PDO的fetchAll
+     * 
+     * @param string $sql
+     * @param array $values
+     * @param int $fetchMode see \PDO::FETCH_*
+     * @return array|bool
+     */
+    public function fetch($sql, $values = [], $fetchMode = \PDO::FETCH_ASSOC) {
+        $st = $this->_packPrepareSQL($this->getReadConnection(), $sql, $values);
+        
+        if ($st->execute()) {
+            return $st->fetchAll($fetchMode);
+        }
+
+        $this->_throwErr($st);
+    }
+
+    /**
+     * <b>这是一个底层方法</b>
+     * 快速查询一列中的一个值
+     *
+     * @param string $sql
+     * @param array $values
+     * @param int $columnIdx 返回查询返回的第几个值
+     * @return bool|string
+     * @throws DBAgentException
+     */
+    public function fetchValue($sql, $values = [], $columnIdx = 0) {
+        $st = $this->_packPrepareSQL($this->getReadConnection(), $sql, $values);
+        if ($st->execute()) {
+            return $st->fetchColumn($columnIdx);
+        }
+
+        $this->_throwErr($st);
+    }
+    
+    private function _throwErr(\PDOStatement $st) {
+        $errorInfo = $st->errorInfo();
+        throw new DBAgentException("Query Failed. 
+        [Err] ". $errorInfo[0]. " ". $errorInfo[2]. " 
+        [SQL] ". $st->queryString);
+    }
+    
+    private function _packPrepareSQL(\PDO $conn, $sql, $values) {
+        $st = $conn->prepare($sql);
+        foreach ($values as $key => $value) {
+            $st->bindValue($key, $value);
+        }
+        
+        return $st;
     }
 
 }

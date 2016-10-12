@@ -96,6 +96,10 @@ class Pagination extends Plugin {
         return $this->currentPage;
     }
     
+    public function setPageSize($pageSize) {
+        $this->pageSize = $pageSize;
+    }
+    
     public function getPageSize() {
         return $this->pageSize;
     }
@@ -161,4 +165,7 @@ class Pagination extends Plugin {
         return TemplateUtil::load_widget($this->widget, $this);
     }
     
+    public function needPage() {
+        return $this->getTotalPage() > 1;
+    }
 }
