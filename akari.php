@@ -186,6 +186,7 @@ Class akari extends Injectable{
      * @throws FrameworkInitFailed
      */
     public function initApp($appBasePath, $appNS, $defaultConfig = NULL, $webPath = NULL) {
+        $appBasePath = realpath($appBasePath);
         $appDir = implode(DIRECTORY_SEPARATOR, [$appBasePath, BASE_APP_DIR, ""]);
         if (!is_dir($appDir) && !Context::$testing) {
             printf("not found application directory [ %s ]", $appDir);

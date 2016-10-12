@@ -60,7 +60,6 @@ class SQLMapBuilder {
             $stmt->bindValue("AB_". $k, $v);
         }
         
-        
         if (!$stmt->execute()) {
             $errInfo = $stmt->errorInfo();
             throw new DBException("SQL Exec [". $id. "] Failed, Return ". $errInfo[0]. " ". $errInfo[2]);
@@ -109,6 +108,10 @@ class SQLMapBuilder {
             }
         }
         
+        if (isset($item['var'])) {
+            $data = array_merge($data, $item['var']);
+        }
+        
         if (isset($data['@limit'])) {
             $ll = $data['@limit'];
             $sql = str_ireplace("#limit", (is_array($ll) ? ' LIMIT '. $ll[0]. ",". $ll[1] : ' LIMIT '.$ll), $sql);
@@ -117,7 +120,7 @@ class SQLMapBuilder {
         if (isset($data['@keys'])) {
             $rr = [];
             foreach ($data['@keys'] as $key) {
-                $rr[] = " $key = :$key";
+                $rr[] = " `$key` = :$key";
             }
             
             $sql = str_ireplace("#keys", implode(",", $rr), $sql);
