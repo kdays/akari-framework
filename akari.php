@@ -196,7 +196,7 @@ Class akari extends Injectable{
         $confClsName = (empty(Context::$mode) ? "" : Context::$mode). "Config";
 
         if ($defaultConfig == NULL) {
-            if (!file_exists( $appDir. "config/$confClsName.php" )) {
+            if (!file_exists( $appDir. "config". DIRECTORY_SEPARATOR. $confClsName . ".php" )) {
                 throw new FrameworkInitFailed( sprintf("config %s not found", $confClsName) );
             }
 
@@ -214,7 +214,7 @@ Class akari extends Injectable{
 
         header("X-Akari-Version: ". self::getVersion(false));
         include("defaultBoot.php");
-        if (file_exists($bootPath = Context::$appBasePath . "/boot.php") && !Context::$testing) {
+        if (file_exists($bootPath = Context::$appBasePath . DIRECTORY_SEPARATOR . "boot.php") && !Context::$testing) {
             include($bootPath);
         }
 
@@ -310,7 +310,7 @@ Class akari extends Injectable{
         static $mode = FALSE;
 
         if ($mode === FALSE) {
-            $lock = glob(Context::$appBasePath . "*.lock");
+            $lock = glob(Context::$appBasePath . DIRECTORY_SEPARATOR . "*.lock");
             $mode = NULL;
 
             if (isset($lock[0])) {
