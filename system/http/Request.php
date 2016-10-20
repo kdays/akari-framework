@@ -330,7 +330,19 @@ Class Request extends Injectable{
      * @return bool
      */
     public function isAjax() {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) || isset($_SERVER['HTTP_SEND_BY']);
+        if ($this->hasHeader('HTTP_SEND_BY')) {
+            return TRUE;
+        }
+        
+        // Andorid游览器也会发送这个头 内容是X-Requested-With	com.android.browser 所以必须特殊判断
+        if ($this->hasHeader('HTTP_X_REQUESTED_WITH')) {
+            $requestedWith = $this->getHeader('HTTP_X_REQUESTED_WITH');
+            if (strtolower($requestedWith) == strtolower('XMLHttpRequest')) {
+                return TRUE;
+            }
+        }
+        
+        return FALSE;
     }
 
     /**

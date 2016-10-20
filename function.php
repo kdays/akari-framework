@@ -222,19 +222,15 @@ function json_decode_nice($json, $assoc = TRUE){
 function get_date($format, $timestamp = TIMESTAMP) {
     if ($timestamp == '0000-00-00 00:00:00')    return "";
     if (!is_numeric($timestamp))    $timestamp = strtotime($timestamp);
-    if (Context::$appConfig->timeZone) {
-        $timestamp += Context::$appConfig->timeZone * 3600;
+    if (Context::$appConfig->offsetTime) {
+        $timestamp += Context::$appConfig->offsetTime;
     }
     
     return date($format, $timestamp);
 }
 
-function get_timestamp($timestamp) {
-    if (!is_numeric($timestamp))    $timestamp = strtotime($timestamp);
-    if (Context::$appConfig->timeZone) {
-        $timestamp -= Context::$appConfig->timeZone * 3600;
-    }
-    
+function get_timestamp($str) {
+    $timestamp = is_numeric($str) ? $str : strtotime($str);
     return $timestamp;
 }
 

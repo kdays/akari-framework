@@ -64,7 +64,7 @@ class FileUpload {
     }
 
     public function formatFileSize() {
-        return UploadHelper::formatFileSize($this->getFileSize());
+        return FileHelper::formatFileSize($this->getFileSize());
     }
 
     public function getError() {

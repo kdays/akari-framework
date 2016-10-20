@@ -94,7 +94,7 @@ class View extends Injectable{
     
     public function getScreenPath() {
         $screenName = empty($this->screen) ? $this->getScreenName() : $this->screen;
-
+        
         $suffix = Context::$appConfig->templateSuffix;
         $baseDirs = $this->getBaseDirs(self::TYPE_SCREEN);
             
@@ -228,8 +228,6 @@ class View extends Injectable{
         $tplName = str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $tplName);
         
         foreach ($baseDirs as $baseDir) {
-            //$baseDir = Context::$appEntryPath. $baseDir;
-            
             if (file_exists($tplPath = $baseDir. $tplName. $suffix)) {
                 return realpath($tplPath);
             }
@@ -239,7 +237,7 @@ class View extends Injectable{
             }
         }
         
-        throw new TemplateNotFound($type. " -> ". $tplName);
+        throw new TemplateNotFound($type . "/" . $tplName);
     }
 
     /**
