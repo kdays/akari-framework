@@ -25,8 +25,6 @@ class SQLMapBuilder {
     const TYPE_ROW = 'ROW';
     const TYPE_RAW = 'RAW'; // 特殊
     
-    const BENCHMARK_KEY = "db.Query";
-    
     public function __construct(BaseSQLMap $SQLMap, DBConnection $connection) {
         $this->map = $SQLMap;
         $this->connection = $connection;
@@ -40,63 +38,45 @@ class SQLMapBuilder {
      */
     public function execute($id, array $data) {
         $lists = $this->map->lists;
+        
+        $mapId = get_class($this->map). "@" . $id;
         if (!isset($lists[$id])) {
-            throw new DBException("SQLMap mismatch event: $id");
+            throw new DBException("Not Found SQLMap:" . $mapId);
         }
         
         $item = $lists[$id];
         $type = strtoupper(explode(".", $id)[0]);
-
-        Benchmark::setTimer(self::BENCHMARK_KEY);
+        
+        $connection = $this->connection;
+        $connection->appendMsg(" [FROM: ". $mapId. "]");
         
         list($item, $data) = $this->prepareDataForSql($item, $data);
-        if ($type == self::TYPE_COUNT || $type == self::TYPE_SELECT || $type == self::TYPE_ROW) {
-            $connection = $this->connection->getReadConnection();
-        } else {
-            $connection = $this->connection->getWriteConnection();
-        }
+        $sql = $item['sql'];
+        $vars = [];
         
-        $stmt = $connection->prepare($item['sql']);
         foreach ($data as $k => $v) {
             if ($k[0] == '@')   continue;
-            $stmt->bindValue($k, $v);
+            $vars[$k] = $v;
         }
         
         foreach ($this->_values as $k => $v) {
-            $stmt->bindValue("AB_". $k, $v);
-        }
-        
-        if (!$stmt->execute()) {
-            $errInfo = $stmt->errorInfo();
-            $clsId = get_class($this->map) . "@". $id;
-            throw new DBException("SQL Exec [". $clsId. "] Failed, Return ". $errInfo[0]. " ". $errInfo[2]);
+            $vars['AB_'. $k] = $v;
         }
         
         $result = NULL;
         if ($type == self::TYPE_COUNT) {
-            $result = $stmt->fetch(PDO::FETCH_NUM)[0];
+            $result = $connection->fetchValue($sql, $vars);
         } elseif ($type == self::TYPE_SELECT) {
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = $connection->fetch($sql, $vars, \PDO::FETCH_ASSOC);
         } elseif ($type == self::TYPE_ROW) {
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $connection->fetchOne($sql, $vars, \PDO::FETCH_ASSOC);
         } elseif ($type == self::TYPE_INSERT) {
-            if ($stmt->rowCount() > 0) {
-                // 可能insert存在没有实际id的情况
-                $lastInsertId = $connection->lastInsertId();
-                $result = $lastInsertId ? $lastInsertId : TRUE;
-            }
+            $result = $connection->query($sql, $vars, TRUE);
         } else {
-            $result = $stmt->rowCount();
+            $result = $connection->query($sql, $vars);
         }
-
-        $this->close($stmt);
         
-        Benchmark::logCount(self::BENCHMARK_KEY);
-        Benchmark::logParams(self::BENCHMARK_KEY, [
-            'sql' => sprintf("%s -> %s (%s)", get_class($this->map), $id, $item['sql']), 
-            'time' => Benchmark::getTimerDiff(self::BENCHMARK_KEY)
-        ]);
-        
+        $connection->resetAppendMsg();
         return $result;
     }
     
@@ -131,7 +111,7 @@ class SQLMapBuilder {
         if (isset($data['@keys'])) {
             $rr = [];
             foreach ($data['@keys'] as $key) {
-                $rr[] = " `$key` = :$key";
+                $rr[] = $this->connection->getMetaKey($key) . "  = :$key";
             }
             
             $sql = str_ireplace("#keys", implode(",", $rr), $sql);

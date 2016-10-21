@@ -9,6 +9,7 @@
 namespace Akari\system\conn;
 
 use Akari\system\db\DBAgentException;
+use Akari\utility\Benchmark;
 use \PDO;
 
 class DBConnection {
@@ -17,6 +18,10 @@ class DBConnection {
     
     private $readConn;
     private $writeConn;
+    
+    private $_appendMsg = '';
+    
+    const BENCHMARK_KEY = "db.Query";
 
     public function __construct(array $options) {
         $this->options = $options;
@@ -96,8 +101,7 @@ class DBConnection {
     public function inTransaction() {
         return !!$this->getWriteConnection()->inTransaction();
     }
-
-
+    
     /**
      * <b>这是一个底层方法</b>
      * 执行SQL
@@ -110,11 +114,14 @@ class DBConnection {
     public function query($sql, $values = [], $returnLastInsertId = False) {
         $writeConn = $this->getWriteConnection();
         $st = $this->_packPrepareSQL($this->getWriteConnection(), $sql, $values);
-
+        
         if ($st->execute()) {
-            return $returnLastInsertId ? $writeConn->lastInsertId() : $st->rowCount();
+            $result = $returnLastInsertId ? $writeConn->lastInsertId() : $st->rowCount();
+            $this->_closeConn($st);
+            
+            return $result;
         }
-
+        
         $this->_throwErr($st);
     }
 
@@ -131,7 +138,22 @@ class DBConnection {
         $st = $this->_packPrepareSQL($this->getReadConnection(), $sql, $values);
         
         if ($st->execute()) {
-            return $st->fetchAll($fetchMode);
+            $result = $st->fetchAll($fetchMode);
+            $this->_closeConn($st);
+            
+            return $result;
+        }
+
+        $this->_throwErr($st);
+    }
+    
+    public function fetchOne($sql, $values = [], $fetchMode = \PDO::FETCH_ASSOC) {
+        $st = $this->_packPrepareSQL($this->getReadConnection(), $sql, $values);
+        if ($st->execute()) {
+            $result = $st->fetch($fetchMode);
+            $this->_closeConn($st);
+
+            return $result;
         }
 
         $this->_throwErr($st);
@@ -150,17 +172,25 @@ class DBConnection {
     public function fetchValue($sql, $values = [], $columnIdx = 0) {
         $st = $this->_packPrepareSQL($this->getReadConnection(), $sql, $values);
         if ($st->execute()) {
-            return $st->fetchColumn($columnIdx);
+            $result = $st->fetchColumn($columnIdx);
+            $this->_closeConn($st);
+
+            return $result;
         }
 
         $this->_throwErr($st);
+    }
+    
+    private function _closeConn(\PDOStatement $st) {
+        $st->closeCursor();
+        $this->_benchmarkEnd($st->queryString);
     }
     
     private function _throwErr(\PDOStatement $st) {
         $errorInfo = $st->errorInfo();
         throw new DBAgentException("Query Failed. 
         [Err] ". $errorInfo[0]. " ". $errorInfo[2]. " 
-        [SQL] ". $st->queryString);
+        [SQL] ". $st->queryString. $this->_appendMsg);
     }
     
     private function _packPrepareSQL(\PDO $conn, $sql, $values) {
@@ -168,8 +198,31 @@ class DBConnection {
         foreach ($values as $key => $value) {
             $st->bindValue($key, $value);
         }
-        
+
+        $this->_benchmarkBegin();
         return $st;
     }
+    
+    public function getMetaKey($key) {
+        return '`'. $key . '`';
+    }
 
+    public function resetAppendMsg() {
+        $this->_appendMsg = '';
+    }
+
+    public function appendMsg($msg) {
+        $this->_appendMsg = $msg;
+    }
+    
+    private function _benchmarkBegin() {
+        Benchmark::setTimer(self::BENCHMARK_KEY);
+    }
+    
+    private function _benchmarkEnd($sql) {
+        Benchmark::logParams(self::BENCHMARK_KEY, [
+            'time' => Benchmark::getTimerDiff(self::BENCHMARK_KEY),
+            'sql' => $sql. " ". $this->_appendMsg
+        ]);
+    }
 }

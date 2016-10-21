@@ -70,22 +70,23 @@
     <h3>Application</h3>
     <ul>
         <li>
-            <b>CoreVer</b>
+            <b>Framework Version</b>
             <?=\Akari\akari::getVersion()?>
         </li>
+
         <li>
-            <b>EntryPath</b>
+            <b>App Mode</b>
+            <?=\Akari\Context::$mode ? \Akari\Context::$mode : '(Non-mode)'?>
+        </li>
+
+        <li>
+            <b>Entry Path</b>
             <?=\Akari\Context::$appEntryPath?>
         </li>
 
         <li>
-            <b>EntryName</b>
+            <b>Entry Name</b>
             <?=\Akari\Context::$appEntryName?>
-        </li>
-
-        <li>
-            <b>AppMode</b>
-            <?=\Akari\Context::$mode ? \Akari\Context::$mode : '(Non-mode)'?>
         </li>
 
         <li>
@@ -128,12 +129,12 @@
     <h3>Session</h3>
     <ul>
     <?php foreach($_COOKIE as $k => $v): ?>
-        <li><b>[C]<?=$k?></b> <?=$v?></li>
+        <li><b>[Cookie] <?=$k?></b> <?=$v?></li>
     <?php endforeach; ?>
 
     <?php if(isset($_SESSION)): ?>    
     <?php foreach($_SESSION as $k => $v): ?>
-        <li><b>[S]<?=$k?></b> <?=$v?></li>
+        <li><b>[Session] <?=$k?></b> <?=$v?></li>
     <?php endforeach; ?>
     </ul>
     <?php endif ?>

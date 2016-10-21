@@ -29,7 +29,15 @@ class FileUpload {
         $this->formName = $formId;
     }
 
-    public function getName() {
+    /**
+     * @param bool $withoutIdx 只对多维上传文件数组有影响 设置为TRUE时返回不带类似.1的序号
+     * @return mixed
+     */
+    public function getName($withoutIdx = False) {
+        if ($withoutIdx && isset($this->upload['multiBase'])) {
+            return $this->upload['multiBase'];
+        }
+        
         return $this->formName;
     }
 
@@ -65,6 +73,10 @@ class FileUpload {
 
     public function formatFileSize() {
         return FileHelper::formatFileSize($this->getFileSize());
+    }
+    
+    public function hasError() {
+        return $this->getError() != UPLOAD_ERR_OK;
     }
 
     public function getError() {

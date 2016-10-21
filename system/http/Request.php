@@ -118,18 +118,18 @@ Class Request extends Injectable{
      * @return bool
      */
     public function isSSL() {
-        $protocol = strtoupper($_SERVER['SERVER_PROTOCOL']);
-        if (isset($_SERVER['HTTPS'])) {
-            return !!(strtoupper($_SERVER['HTTPS']) == 'ON');
+        if ($this->hasHeader('HTTPS')) {
+            return !!(strtoupper($this->getHeader('HTTPS')) == 'ON');
         }
         
-        if (isset($_SERVER['KEL_SSL'])) { // HOSTKER判断字段
+        if ($this->hasHeader('KEL_SSL')) { // HOSTKER判断字段
             return TRUE;
         }
 
+        $protocol = strtoupper($this->getHeader('SERVER_PROTOCOL'));
         return !!(strpos($protocol, 'HTTPS') !== FALSE);
     }
-
+    
     /**
      * 获得请求的字符串
      * @return string
@@ -399,35 +399,36 @@ Class Request extends Injectable{
      */
     public function getUploadedFiles($skipNoFiles = TRUE) {
         $files = [];
-
-        foreach ($_FILES as $key => $now) {
-            // 处理检查是否是multi多维数组 如果是的话 那么需要单独处理
-            if (is_array($now['error'])) {
-                $keys = array_keys($now);
-                $counter = array_keys($now['error']);
+        
+        foreach ($_FILES as $fileKey => $file) {
+            if (is_array($file['error'])) {
+                $valueKeys = array_keys($file);
+                $keys = array_keys($file['error']);
                 
-                foreach ($counter as $c) {
+                foreach ($keys as $idx) {
                     $values = [];
-                    foreach ($keys as $k) {
-                        $values[] = $now[$k][$c];
+                    foreach ($valueKeys as $vk) {
+                        $values[] = $file[$vk][$idx];
                     }
                     
-                    $form = array_combine($keys, $values);
+                    $form = array_combine($valueKeys, $values);
                     if ($form['error'] == UPLOAD_ERR_NO_FILE && $skipNoFiles) {
                         continue;
                     }
-                    
-                    $form['multiKey'] = $c;
-                    $form['multiBase'] = $key;
-                    $files[] = new FileUpload($form, $key. ".". $c);
-                }
-            } else {
-                if ($now['error'] == UPLOAD_ERR_NO_FILE && $skipNoFiles) {
-                    continue;
+
+                    $form['multiKey'] = $idx;
+                    $form['multiBase'] = $fileKey;
+                    $files[] = new FileUpload($form, $fileKey. ".". $idx);
                 }
                 
-                $files[] = new FileUpload($now, $key);
+                continue;
             }
+
+            if ($file['error'] == UPLOAD_ERR_NO_FILE && $skipNoFiles) {
+                continue;
+            }
+
+            $files[] = new FileUpload($file, $fileKey);
         }
 
         return $files;
@@ -441,32 +442,26 @@ Class Request extends Injectable{
     public function getUploadedFile($name, $skipNoFiles = TRUE) {
         $files = self::getUploadedFiles($skipNoFiles);
         
-        // 检索的时候注意 如果使用的是upload[]的时候 代表返回查询的是.开头有upload的字段 故可能可以返回多个数组
         if (in_string($name, '[]')) {
             $result = [];
+            $keyword = substr($name, 0, -2);
             
-            $checkKey = substr($name, 0, -2);
             foreach ($files as $file) {
-                $name = $file->getName();
-                
-                $pos = strpos($name, ".");
-                if ($pos > 0 && substr($name, 0, $pos) == $checkKey) {
+                if ($file->getName(TRUE) == $keyword) {
                     $result[] = $file;
                 }
             }
             
             return $result;
-        } else {
-            foreach ($files as $file) {
-                if ($file->getName() == $name) {
-                    return $file;
-                }
+        } 
+        
+        foreach ($files as $file) {
+            if ($file->getName() == $name) {
+                return $file;
             }
-            
-            return NULL;
         }
-        
-        
+            
+        return NULL;
     }
 
     /**
@@ -475,15 +470,16 @@ Class Request extends Injectable{
     public function hasFiles() {
         return count($_FILES) > 0;
     }
-    
+
     /**
      * 是否有Cookie
-     * 
+     *
      * @param string $name
+     * @param bool $autoPrefix
      * @return bool
      */
-    public function hasCookie($name) {
-        return $this->cookies->exists($name);
+    public function hasCookie($name, $autoPrefix = TRUE) {
+        return $this->cookies->exists($name, $autoPrefix);
     }
 
     /**
