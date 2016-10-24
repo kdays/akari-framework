@@ -50,7 +50,7 @@ class SQLMapBuilder {
         $connection = $this->connection;
         $connection->appendMsg(" [FROM: ". $mapId. "]");
         
-        list($item, $data) = $this->prepareDataForSql($item, $data);
+        list($item, $data) = $this->prepareDataForSql($item, $data, $mapId);
         $sql = $item['sql'];
         $vars = [];
         
@@ -86,13 +86,13 @@ class SQLMapBuilder {
         $this->_bindCount = 0;
     }
     
-    private function prepareDataForSql($item, $data) {
+    private function prepareDataForSql($item, $data, $mapId) {
         $sql = $item['sql'];
         
         if (isset($item['required'])) {
             foreach ($item['required'] as $key) {
                 if (!isset($data[$key]) and !isset($data['@vars'][$key])) {
-                    throw new DBException("Sql: $sql required $key");
+                    throw new DBException("DB Query $mapId Required $key");
                 }
             }
         }
