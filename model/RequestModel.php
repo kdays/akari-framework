@@ -40,8 +40,23 @@ abstract Class RequestModel extends Model {
 
         foreach($this as $key => $value){
             $reqKey = isset($map[$key]) ? $map[$key] : $key;
-
-            $value = GP($reqKey, $this->getKeyMethod($key));
+            $method = $this->getKeyMethod($key);
+            
+            // 处理Map的特殊字段 比如[]
+            if (in_string($reqKey, '[')) { // eg. voteOpt => specialCfg[voteOpt] 
+                $startPos = strpos($reqKey, '[');
+                
+                $baseKey = substr($reqKey, 0, $startPos);
+                $subKey =  substr($reqKey, $startPos + 1, -1);
+                
+                $values = GP($baseKey, $method);
+                if (array_key_exists($subKey, $values)) {
+                    $value = $values[$subKey];
+                }
+            } else {
+                $value = GP($reqKey, $method);
+            }
+            
             if($value !== NULL){
                 $this->$key = $value;
             }
