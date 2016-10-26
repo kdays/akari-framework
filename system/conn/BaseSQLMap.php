@@ -13,6 +13,8 @@ abstract class BaseSQLMap {
 
     public $table;
     
+    public $args = [];
+    
     public $lists;
 
     protected static $m;

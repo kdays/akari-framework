@@ -54,6 +54,16 @@ class SQLMapBuilder {
         $sql = $item['sql'];
         $vars = [];
         
+        // 增加全局参数的替换
+        $commArgs = array_merge(
+            ['TABLE_NAME' => $this->map->table], 
+            $this->map->args,
+            empty($data['args']) ? [] : $data['args']);
+        
+        foreach ($commArgs as $k => $v) {
+            $sql = str_replace('@'. $k, $v, $sql);
+        }
+        
         foreach ($data as $k => $v) {
             if ($k[0] == '@')   continue;
             
