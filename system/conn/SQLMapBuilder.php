@@ -57,7 +57,7 @@ class SQLMapBuilder {
         foreach ($data as $k => $v) {
             if ($k[0] == '@')   continue;
             
-            if (is_array($v)) {
+            if (is_array($v) && isset($data['@in']) && in_array($k, $data['@in'])) {
                 $sql = str_ireplace(":". $k, $this->parseValue($v), $sql);
             } else {
                 $vars[$k] = $v;   
@@ -163,5 +163,4 @@ class SQLMapBuilder {
         $this->_values[$this->_bindCount] = $value;
         return ':AB_'. $this->_bindCount;
     }
-
 }
