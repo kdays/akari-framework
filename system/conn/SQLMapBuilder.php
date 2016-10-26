@@ -56,7 +56,12 @@ class SQLMapBuilder {
         
         foreach ($data as $k => $v) {
             if ($k[0] == '@')   continue;
-            $vars[$k] = $v;
+            
+            if (is_array($v)) {
+                $sql = str_ireplace(":". $k, $this->parseValue($v), $sql);
+            } else {
+                $vars[$k] = $v;   
+            }
         }
         
         foreach ($this->_values as $k => $v) {
@@ -76,12 +81,12 @@ class SQLMapBuilder {
             $result = $connection->query($sql, $vars);
         }
         
+        $this->close();
         $connection->resetAppendMsg();
         return $result;
     }
     
-    public function close(\PDOStatement $stmt) {
-        $stmt->closeCursor();
+    public function close() {
         $this->_values = [];
         $this->_bindCount = 0;
     }
@@ -91,7 +96,7 @@ class SQLMapBuilder {
         
         if (isset($item['required'])) {
             foreach ($item['required'] as $key) {
-                if (!isset($data[$key]) and !isset($data['@vars'][$key])) {
+                if (!isset($data[$key]) and !isset($data['@vars'][$key]) and !isset($data['@bind'][$key])) {
                     throw new DBException("DB Query $mapId Required $key");
                 }
             }
@@ -105,7 +110,9 @@ class SQLMapBuilder {
         
         if (isset($data['@limit'])) {
             $ll = $data['@limit'];
-            $sql = str_ireplace("#limit", (is_array($ll) ? ' LIMIT '. $ll[0]. ",". $ll[1] : ' LIMIT '.$ll), $sql);
+            $sql = str_ireplace("#limit", (
+                is_array($ll) ? ' LIMIT '. $ll[0]. ",". $ll[1] : ' LIMIT '.$ll
+            ), $sql);
         } 
         
         if (isset($data['@keys'])) {
@@ -127,6 +134,12 @@ class SQLMapBuilder {
             }
         }
         
+        if (isset($data['@bind'])) {
+            foreach ($data['@bind'] as $k => $v) {
+                $sql = str_ireplace(":". $k, $this->parseValue($v), $sql);
+            }
+        }
+        
         if (isset($data['@callback'])) {
             $sql = $data['@callback']($item, $data);
         }
@@ -143,7 +156,7 @@ class SQLMapBuilder {
     private $_bindCount = 0;
     public function parseValue($value) {
         if (is_array($value)) {
-            return "(" . implode(",", array_map([$this, 'parseValue'], $value)) . ")";
+            return implode(",", array_map([$this, 'parseValue'], $value));
         }
         
         ++$this->_bindCount;
