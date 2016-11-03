@@ -15,7 +15,6 @@ use Akari\system\tpl\TemplateUtil;
 class Pagination extends Plugin {
     
     private $totalRecord = 0;
-    private $currentPage = 1;
     private $pageSize = 10;
     private $display = 5;
     
@@ -25,12 +24,15 @@ class Pagination extends Plugin {
     public $baseUrl;
     public $urlArgs = [];
     public $viewArgs = [];
-    
+
+    public $currentPage = 1;
+
     // 相关URL
     public $firstPage;
     public $lastPage;
     public $nextPage;
     public $prevPage;
+    public $totalPage;
     public $pagination = [];
     
     public function __construct($currentPage, $baseUrl, $urlArgs) {
@@ -158,6 +160,7 @@ class Pagination extends Plugin {
             $this->prevPage = $pagination[$currentPage - 1];
         }
 
+        $this->totalPage = $totalPage;
         $this->firstPage = $this->makeUrl(1);
         $this->lastPage = $this->makeUrl($totalPage);
         $this->pagination = $pagination;

@@ -231,6 +231,9 @@ function get_date($format, $timestamp = TIMESTAMP) {
 
 function get_timestamp($str) {
     $timestamp = is_numeric($str) ? $str : strtotime($str);
+    // timestamp的时候如果有timeZone 也必须指定
+    $timestamp -= Context::$appConfig->offsetTime;
+    
     return $timestamp;
 }
 

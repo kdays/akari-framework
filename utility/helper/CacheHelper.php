@@ -10,6 +10,7 @@ namespace Akari\utility\helper;
 
 use Akari\Context;
 use Akari\system\cache\Cache;
+use Akari\system\cache\CacheBenchmark;
 
 trait CacheHelper {
 
@@ -28,9 +29,16 @@ trait CacheHelper {
             return $cache->get($key);
         }
         
+        CacheBenchmark::log(CacheBenchmark::MISS);
+        
         $result = $failBack();
         $cache->set($key, $result, $timeout);
         return $result;
+    }
+    
+    public static function _deleteCache($key) {
+        $cache = self::_getCache();
+        return $cache->remove($key);
     }
     
 }

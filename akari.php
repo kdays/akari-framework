@@ -17,11 +17,10 @@ use Akari\system\security\Security;
 use Akari\utility\Benchmark;
 use Akari\utility\helper\Logging;
 
-function_exists('date_default_timezone_set') && date_default_timezone_set('Etc/GMT+0');
+include("const.php");
+
 define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
 define("TIMESTAMP", time());
-
-include("const.php");
 include("function.php");
 
 Class Context {

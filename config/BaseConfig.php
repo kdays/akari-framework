@@ -24,7 +24,7 @@ Class BaseConfig {
 
     // 如果没有result时的callback
     public $nonResultCallback = NULL;
-    public $offsetTime = 28800;
+    public $offsetTime = 0;
     
     /** @var bool|callable  */
     public $exceptionAutoLogging = true;

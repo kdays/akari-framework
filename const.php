@@ -6,8 +6,10 @@
  * Time: 13:53
  */
 
-define("AKARI_VERSION", "4.5.1 (Kotori)");
-define("AKARI_BUILD", "2016.10.26");
+function_exists('date_default_timezone_set') && date_default_timezone_set('Asia/Shanghai');
+
+define("AKARI_VERSION", "4.6.0 (Kotori)");
+define("AKARI_BUILD", "2016.11.3");
 define("NAMESPACE_SEPARATOR", "\\");
 
 define("CLI_MODE", php_sapi_name()=="cli" ? TRUE : FALSE);

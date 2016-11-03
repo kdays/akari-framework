@@ -91,6 +91,7 @@ class SQLMapBuilder {
             $result = $connection->query($sql, $vars);
         }
         
+        
         $this->close();
         $connection->resetAppendMsg();
         return $result;

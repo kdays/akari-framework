@@ -28,7 +28,7 @@ Class Input extends Injectable {
     }
 
     public function getInput() {
-        return fgets($this->input);
+        return trim(fgets($this->input));
     }
     
     public function hasParameter($key) {

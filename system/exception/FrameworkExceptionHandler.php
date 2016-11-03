@@ -76,6 +76,8 @@ Class FrameworkExceptionHandler extends BaseExceptionHandler {
                     "message" => $ex->getMessage(),
                     "file" => basename($ex->getFile()).":".$ex->getLine()
                 ];
+                
+                ob_clean();
                  
                 if (!empty($config->serverErrorTemplate)) {
                     return self::_genTplResult($message, NULL, $config->serverErrorTemplate);

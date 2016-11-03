@@ -27,6 +27,10 @@ Class Benchmark {
     }
 
     public static function logParams($event, $params = []) {
+        if (CLI_MODE) {
+            return ;
+        }
+        
         $event = strtoupper($event);
 
         if (!isset(self::$params[$event])) {
