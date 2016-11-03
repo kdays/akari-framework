@@ -87,6 +87,9 @@ class SQLMapBuilder {
             $result = $connection->fetchOne($sql, $vars, \PDO::FETCH_ASSOC);
         } elseif ($type == self::TYPE_INSERT) {
             $result = $connection->query($sql, $vars, TRUE);
+            if (empty($result)) { // 如果没有InsertId
+                $result = TRUE;
+            }
         } else {
             $result = $connection->query($sql, $vars);
         }
