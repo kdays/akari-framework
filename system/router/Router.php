@@ -301,6 +301,10 @@ Class Router extends Injectable {
         $this->params[$key] = $value;
     }
     
+    public function hasParameter($parameter) {
+        return array_key_exists($parameter, $this->params);
+    }
+    
     public function resetParameters() {
         $this->params = [];
     }
