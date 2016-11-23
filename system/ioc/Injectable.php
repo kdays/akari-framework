@@ -18,6 +18,7 @@ namespace Akari\system\ioc;
  * @property \Akari\system\http\Response $response
  * @property \Akari\system\http\Session $session
  * @property \Akari\system\http\Cookie $cookies
+ * @property \Akari\system\router\Router $router
  * @property \Akari\system\router\Dispatcher $dispatcher
  * @property \Akari\system\tpl\asset\AssetsMgr $assets
  * @property \Akari\utility\UrlHelper $url
