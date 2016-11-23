@@ -19,6 +19,7 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
     }
 
     /**
+     * [DatabaseKey -> ModelKey]
      * @return array
      */
     abstract public function columnMap();

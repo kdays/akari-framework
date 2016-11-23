@@ -141,4 +141,13 @@ class Cache {
         return $this->cacheHandler->getHandler();
     }
 
+    public function increment($key, $value = 1) {
+        return $this->cacheHandler->increment($key, $value);
+    }
+
+    public function decrement($key, $value = 1) {
+        return $this->cacheHandler->decrement($key, $value);
+    }
+
+
 }
