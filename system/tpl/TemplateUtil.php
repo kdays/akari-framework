@@ -11,6 +11,7 @@ namespace Akari\system\tpl;
 
 use Akari\Context;
 use Akari\NotFoundClass;
+use Akari\system\exception\AkariException;
 use Akari\system\ioc\DIHelper;
 use Akari\system\result\Widget;
 use Akari\system\security\Security;
@@ -147,7 +148,10 @@ EOT
         return PageHelper::getInstance($instanceName)->getHTML();
     }
     
-    public static function page(Pagination $pagination) {
+    public static function page($pagination) {
+        if (!($pagination instanceof Pagination)) {
+            throw new AkariException("Template Command 'Page' need Pagination instance");
+        }
         return $pagination->render();
     }
     

@@ -8,6 +8,7 @@
 
 use Akari\Context;
 use Akari\system\security\FilterFactory;
+use Akari\utility\ApplicationDataMgr;
 use Akari\utility\helper\ResultHelper;
 use Akari\utility\I18n;
 
@@ -45,12 +46,11 @@ function GP($key, $method = 'GP', $defaultValue = NULL, $filter = "default"){
     if (substr($key, 0, 2) == 'U.') {
         $t = substr($key, 2);
         if ($method != 'GP' || $method === TRUE) {
-            \Akari\utility\ApplicationDataMgr::set($t, $method);
-            
+            ApplicationDataMgr::set($t, $method);
             return NULL;
         } 
         
-        return \Akari\utility\ApplicationDataMgr::get($t, FALSE, $defaultValue);
+        return ApplicationDataMgr::get($t, FALSE, $defaultValue);
     }
     
     if ($method != 'P' && isset($_GET[$key])) {
@@ -73,50 +73,43 @@ function view($bindArr, $tplName = NULL, $layoutName = NULL) {
 /**
  * 载入APP目录的数据
  *
- * @param string $path 路径
+ * @param string $library 路径
  * @param boolean $once 是否仅载入1次
  * @param array $params
  * @throws Exception
  * @return mixed
  * @todo: .会替换成目录中的/
  */
-function import($path, $once = TRUE, $params = []){
+function import($library, $once = TRUE, $params = []) {
     static $loadedPath = array();
-
-    $name = explode(".", $path);
-    $head = array_shift($name);
-
-    if ($head == "core") {
-        $path = AKARI_PATH. implode(DIRECTORY_SEPARATOR, $name). ".php";
-    } else {
-        $path = Context::$appBasePath. DIRECTORY_SEPARATOR. $head. DIRECTORY_SEPARATOR. implode(DIRECTORY_SEPARATOR, $name). ".php";
-    }
-    $path = str_replace("#", ".", $path);
-
+    
+    $filePath = import_exists($library, TRUE);
     extract($params);
-
-    if(!file_exists($path)){
-        throw new Exception("$path not load");
-    }else{
-        if(!in_array($path, $loadedPath) || !$once){
-            $loadedPath[] = $path;
-            return require($path);
-        }
+    if(!file_exists($filePath)){
+        throw new \Akari\system\exception\AkariException("Import Failed: $library");
+    }
+    
+    if(!in_array($filePath, $loadedPath) || !$once){
+        $loadedPath[] = $filePath;
+        return require($filePath);
     }
 }
 
-function import_exists($path) {
-    $name = explode(".", $path);
+function import_exists($library, $returnPath = FALSE) {
+    $name = explode(".", $library);
     $head = array_shift($name);
 
-    if ($head == "core") {
-        $path = AKARI_PATH. implode(DIRECTORY_SEPARATOR, $name). ".php";
+    $filePath = NULL;
+    $basePaths = Context::$nsPaths;
+    $basePaths['core'] = AKARI_PATH;
+    if (isset($basePaths[$head])) {
+        $filePath = $basePaths[$head]. implode(DIRECTORY_SEPARATOR, $name). ".php";
     } else {
-        $path = Context::$appBasePath. DIRECTORY_SEPARATOR. $head. DIRECTORY_SEPARATOR. implode(DIRECTORY_SEPARATOR, $name). ".php";
+        $filePath = implode(DIRECTORY_SEPARATOR, array_merge([Context::$appBasePath, $head], $name)). ".php";
     }
-    $path = str_replace("#", ".", $path);
-
-    return !!file_exists($path);
+    $filePath = str_replace("#", ".", $filePath);
+    
+    return $returnPath ? $filePath : !!file_exists($filePath);
 }
 
 function cookie($key, $value = NULL, $expire = NULL, $useEncrypt = FALSE) {
@@ -241,4 +234,32 @@ if (!function_exists("hex2bin")) {
     function hex2bin($hex) {
         return $hex !== false && preg_match('/^[0-9a-fA-F]+$/i', $hex) ? pack("H*", $hex) : false;
     } 
+}
+
+if (!function_exists("mb_parse_url")) {
+    /**
+     * UTF-8 aware parse_url() replacement.
+     *
+     * @param string $url
+     * @param int $component see parse_url $component
+     * @return array
+     */
+    function mb_parse_url($url, $component = -1) {
+        $enc_url = preg_replace_callback(
+            '%[^:/@?&=#]+%usD',
+            function ($matches) {
+                return urlencode($matches[0]);
+            },
+            $url
+        );
+
+        $parts = parse_url($enc_url, $component);
+
+        if ($component != -1)   return urldecode($parts);
+        foreach($parts as $name => $value) {
+            $parts[$name] = urldecode($value);
+        }
+
+        return $parts;
+    }
 }

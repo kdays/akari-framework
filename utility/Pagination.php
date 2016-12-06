@@ -77,16 +77,26 @@ class Pagination extends Plugin {
         return $this;
     }
 
-    public function makeUrl($page) {
+    public function makeUrl($page, $except = []) {
         $url = $this->baseUrl;
         $args = $this->urlArgs;
         
         if (in_string($url, "(page)")) {
-            $url = str_replace($url, "(page)", $page);
-        } else {
-            $args = [$this->parameterName => $page] + $this->urlArgs;
+            $url = str_replace("(page)", $page, $url);
+            
+            $args = [];
+            mb_parse_str(mb_parse_url($url, PHP_URL_QUERY), $args);
+            if (!empty($except)) {
+                foreach ($except as $k) unset($args[$k]);
+            }
+            
+            return make_url(mb_parse_url($url, PHP_URL_PATH), $args);
         }
-        
+
+        if (!empty($except)) {
+            foreach ($except as $k) unset($args[$k]);
+        }
+        $args = [$this->parameterName => $page] + $args;
         return $this->url->get($url, $args);
     }
     
