@@ -35,7 +35,7 @@ class UrlHelper extends Injectable{
             $args[ Context::$appConfig->csrfTokenName ] = Security::getCSRFToken();
         }
         
-        return $path. (!empty($args) ? ("?". http_build_query($args)) : '');
+        return make_url($path, $args);
     }
     
 }

@@ -187,7 +187,7 @@ class View extends Injectable{
         if ($layoutPath) {
             $layoutResult = $viewEngine->parse($layoutPath, $data, self::TYPE_LAYOUT);
         }
-
+        
         if ($screenPath) {
             $screenResult = $viewEngine->parse($screenPath, $data, self::TYPE_SCREEN);
         }
@@ -199,7 +199,9 @@ class View extends Injectable{
         $baseDirs = [];
 
         $defaultWebPath = Context::$appEntryPath. 'template'. DIRECTORY_SEPARATOR;
-        $baseTplDir = Context::env(ConfigItem::BASE_TPL_DIR, NULL, $defaultWebPath);
+        $baseTplDir = realpath(Context::env(ConfigItem::BASE_TPL_DIR, NULL, $defaultWebPath)). DIRECTORY_SEPARATOR;
+        if (empty($baseTplDir)) $baseTplDir = $defaultWebPath;
+        
         $dirPrefix = Context::env(ConfigItem::TEMPLATE_PREFIX);
         
         if ($type == self::TYPE_SCREEN && !empty(View::$_screenDir)) {

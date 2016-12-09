@@ -9,6 +9,7 @@ namespace Akari\system\ioc;
 
 use Akari\NotFoundClass;
 use Akari\system\exception\AkariException;
+use core\system\ioc\DINotRegistered;
 
 class DI {
 
@@ -69,8 +70,4 @@ class DI {
         return !!isset($this->instance[$serviceName]);
     }
 
-}
-
-Class DINotRegistered extends NotFoundClass {
-    
 }

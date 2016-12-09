@@ -63,9 +63,8 @@ Class Processor extends Injectable{
         if ($layoutPath !== NULL)   $this->view->setLayout($layoutPath);
         
         if (is_array($result->data)) {
-            $this->view->bindVar($result->data);
+            $this->view->bindVars($result->data);
         }
-        
         return $this->view->getResult(NULL);
     }
 
@@ -82,18 +81,22 @@ Class Processor extends Injectable{
 
         function _array2ini($data, $i) {
             $str = "";
+            $map = [
+                FALSE => 'false',
+                TRUE => 'true',
+                NULL => 'null'
+            ];
+            
             foreach ($data as $k => $v){
-                if ($v === FALSE) {
-                    $v = "false";
-                } elseif ($v === TRUE) {
-                    $v = "true";
+                if (isset($map[$k])) {
+                    $v = $map[$k];
                 }
-
-                if (is_array($v)){
-                    $str .= /*str_repeat(" ",$i*2).*/"[$k]".PHP_EOL;
-                    $str .= _array2ini($v, $i+1);
+                
+                if (is_array($v)) {
+                    $str .= "[k]". PHP_EOL;
+                    $str .= _array2ini($v, $i + 1);
                 } else {
-                    $str .= /*str_repeat(" ",$i*2).*/"$k=$v".PHP_EOL;
+                    $str .= $k. "=". $v. PHP_EOL;
                 }
             }
 
