@@ -9,8 +9,8 @@
 namespace Akari\system\cache\handler;
 
 use Akari\system\cache\CacheBenchmark;
+use Akari\system\cache\Exception;
 use Akari\system\event\Listener;
-use Eli\exception\EliException;
 
 class MemcacheCacheHandler implements ICacheHandler{
 
@@ -31,7 +31,7 @@ class MemcacheCacheHandler implements ICacheHandler{
         $this->port = $port;
 
         if (!$memcache->connect($host, $port, $timeout)) {
-            throw new EliException("Connect Failed: ". $host. ":". $port);
+            throw new Exception("[MemcacheCacheHandler] Connect Failed: ". $host. ":". $port);
         }
 
         $this->handler = $memcache;

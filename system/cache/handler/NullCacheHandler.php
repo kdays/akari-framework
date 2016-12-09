@@ -106,12 +106,12 @@ class NullCacheHandler implements ICacheHandler{
      * 如果你一时要对大量缓存进行变更时，可以减少对于缓存索引的压力
      *
      * 请注意 和数据库不同，文件缓存的模拟事务并不会在commit前执行
-     *
-     * @return boolean
+     * @return bool
+     * @throws CacheHandlerMethodNotSupport
      */
     public function startTransaction() {
         // TODO: Implement startTransaction() method.
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     /**
@@ -126,23 +126,24 @@ class NullCacheHandler implements ICacheHandler{
 
     public function commit() {
         // TODO: Implement commit() method.
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     public function rollback() {
         // TODO: Implement rollback() method.
-        throw new CacheHandlerMethodNotSupport();
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     /**
      * 获得原生缓存对象，如Redis返回Redis对象
      *
      * 如文件没有的则会抛出错误
-     *
      * @return mixed
+     * @throws CacheHandlerMethodNotSupport
      */
     public function getHandler() {
         // TODO: Implement getHandler() method.
+        throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
     /**

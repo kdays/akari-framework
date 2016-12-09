@@ -9,7 +9,7 @@
 namespace Akari\system\cache\handler;
 
 use Akari\system\cache\CacheBenchmark;
-use Akari\system\exception\AkariException;
+use Akari\system\cache\Exception;
 
 class MemcachedCacheHandler implements ICacheHandler {
 
@@ -66,7 +66,7 @@ class MemcachedCacheHandler implements ICacheHandler {
         if ($this->handler->getResultCode() == \Memcached::RES_SUCCESS) {
             return True;
         } else {
-            throw new AkariException(
+            throw new Exception(
                 "Memcached Cache Exception: " . $this->handler->getResultMessage(), 
                 $this->handler->getResultCode()
             );
