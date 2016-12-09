@@ -19,8 +19,13 @@ class VerifyCsrfToken extends Injectable{
     use ValueHelper;
     
     public function getToken() {
-        $key = $this->_getValue(Security::KEY_TOKEN, NULL, $this->request->getUserIP());
-
+        $config = Context::$appConfig;
+        if (!empty($_COOKIE[ $config->csrfTokenName ])) {
+            return $_COOKIE[$config->csrfTokenName];
+        }
+        
+        $key = $this->_getValue(Security::KEY_TOKEN, NULL, $this->request->getUserAgent());
+        
         $str = "CSRF-". Context::$appConfig->appName. $key;
         $token = substr(md5($str) ,7, 9);
         return $token;
