@@ -18,17 +18,25 @@ class VerifyCsrfToken extends Injectable{
     
     use ValueHelper;
     
-    public function getToken() {
-        $config = Context::$appConfig;
-        if (!empty($_COOKIE[ $config->csrfTokenName ])) {
-            return $_COOKIE[$config->csrfTokenName];
+    public function makeToken() {
+        static $madeToken = NULL;
+        if ($madeToken === NULL) {
+            $key = $this->_getValue(Security::KEY_TOKEN, NULL, uniqid());
+
+            $str = "CSRF-". Context::$appConfig->appName. $key;
+            $madeToken = substr(md5($str) ,7, 9);
         }
         
-        $key = $this->_getValue(Security::KEY_TOKEN, NULL, $this->request->getUserAgent());
+        return $madeToken;
+    }
+    
+    public function getToken() {
+        $config = Context::$appConfig;
+        if ($this->request->hasCookie( $config->csrfTokenName )) {
+            return $this->request->getCookie( $config->csrfTokenName );
+        }
         
-        $str = "CSRF-". Context::$appConfig->appName. $key;
-        $token = substr(md5($str) ,7, 9);
-        return $token;
+        return $this->makeToken();
     }
     
     public function verifyToken() {
@@ -54,11 +62,11 @@ class VerifyCsrfToken extends Injectable{
         $needVerify = (!CLI_MODE && $config->autoPostTokenCheck);
 
         if (!empty($config->csrfTokenName) && $needVerify) {
-            $tokenValue = $this->getToken();
+            if (!$this->request->hasCookie($config->csrfTokenName)) {
+                $this->response->setCookie($config->csrfTokenName, $this->makeToken());
+            }
 
-            if (!$this->request->isPost()) {
-                setcookie($config->csrfTokenName, $tokenValue, NULL, $config->cookiePath, $config->cookieDomain);
-            } else {
+            if ($this->request->isPost()) {
                 $this->verifyToken();
             }
         }
