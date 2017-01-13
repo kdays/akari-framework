@@ -41,7 +41,7 @@ Class Listener {
      * @return EventHandler
      * @throws AkariException
      */
-    public static function add($eventName, callable $callback, $priority = 0) {
+    public static function add($eventName, $callback, $priority = 0) {
         $r = explode(".", $eventName);
         if (count($r) < 2)  $r = ['UKN', $eventName];
         

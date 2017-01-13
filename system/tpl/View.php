@@ -244,7 +244,6 @@ class View extends Injectable{
 
     /**
      * @return BaseTemplateEngine
-     * @throws \Akari\system\ioc\DINotRegistered
      */
     public function getEngine() {
         return $this->getDI()->getShared('viewEngine');

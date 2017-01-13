@@ -17,22 +17,26 @@ Class I18n {
     protected static $_data = [];
     protected static $loadedPackages = [];
 
-    protected static function getPath($name) {
-        $baseDir = implode(DIRECTORY_SEPARATOR, [
-            Context::$appEntryPath, 'language', ''
-        ]);
-
+    protected static function getPath($name, $useRelative) {
         $languageId = Context::env(ConfigItem::LANGUAGE_ID, NULL, FALSE);
         $suffix = ".php";
-        
+
         $paths = [];
+        
+        if (!$useRelative) {
+            $baseDir = dirname($name). DIRECTORY_SEPARATOR;
+            $name = basename($name);
+        } else {
+            $baseDir = implode(DIRECTORY_SEPARATOR, [Context::$appEntryPath, 'language', '']);
+        }
+
         if ($languageId) {
             $paths[] = $baseDir. $languageId. DIRECTORY_SEPARATOR. $name. $suffix;
             $paths[] = $baseDir. $languageId. ".". $name. $suffix;
         }
-        
-        $paths[] = $baseDir. $name. $suffix;
 
+        $paths[] = $baseDir. $name. $suffix;
+        
         foreach ($paths as $path) {
             if (file_exists($path)) return $path;
         }
@@ -40,12 +44,12 @@ Class I18n {
         return FALSE;
     }
 
-    public static function loadPackage($packageId, $prefix = "") {
+    public static function loadPackage($packageId, $prefix = "", $useRelative = TRUE) {
         if (isset(self::$loadedPackages[ $prefix. $packageId ])) {
             return FALSE;
         }
-
-        $path = self::getPath($packageId);
+        
+        $path = self::getPath($packageId, $useRelative);
         if (!$path) {
             throw new LanguageNotFound($packageId);
         }
