@@ -92,10 +92,15 @@ EOT
         return '</form>';
     }
     
-    public static function load_block($blockName, $params = []) {
+    public static function load_block($blockName, $params = [], $useRelative = TRUE) {
         /** @var View $view */
         $view = self::_getDI()->getShared('view');
-        $tplPath = View::find($blockName, View::TYPE_BLOCK);
+        
+        if ($useRelative) {
+            $tplPath = View::find($blockName, View::TYPE_BLOCK);
+        } else {
+            $tplPath = $blockName;
+        }
         
         $bindVars = array_merge($view->getVar(NULL), $params);
         $c = $view->getEngine()->parse($tplPath, $bindVars, View::TYPE_BLOCK, False);
