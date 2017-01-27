@@ -39,7 +39,7 @@ abstract class BaseTemplateEngine {
         $tpl = str_replace(Context::$appEntryPath, '', $tplPath);
         $tpl = str_replace([ '.', '/', DIRECTORY_SEPARATOR],  '_', $tpl);
 
-        $cachePath = realpath(Context::$appBasePath. DIRECTORY_SEPARATOR. Context::$appConfig->templateCacheDir). '/'. $tpl . ".php";
+        $cachePath = Context::$appBasePath. DIRECTORY_SEPARATOR. Context::$appConfig->templateCacheDir. '/'. $tpl . ".php";
         return $cachePath;
     }
 

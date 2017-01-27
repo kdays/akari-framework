@@ -84,6 +84,7 @@ class FileHelper {
         if (is_dir($path)) {
             return ;
         }
+        
         self::createDir(dirname($path), $makeIndex);
 
         mkdir($path, 0777);
@@ -140,5 +141,12 @@ class FileHelper {
         }
 
         return round($size, $dec)." ".$a[$pos];
+    }
+    
+    public static function getFileExtension($fn) {
+        $exts = explode(".", $fn);
+        $ext = end($exts);
+        
+        return strtolower($ext);
     }
 }

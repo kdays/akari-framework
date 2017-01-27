@@ -43,6 +43,7 @@ class FileCacheHandler implements ICacheHandler{
     }
 
     private function removeExpired() {
+        
         foreach ($this->fileIndex as $key => $value) {
             if ($value['expire'] > 0 && $value['expire'] < TIMESTAMP) {
                 $this->_remove($key, False);

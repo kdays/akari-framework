@@ -9,6 +9,8 @@
 namespace Akari\utility;
 
 
+use Akari\config\ConfigItem;
+use Akari\Context;
 use Akari\system\Plugin;
 use Akari\system\tpl\TemplateUtil;
 
@@ -35,10 +37,18 @@ class Pagination extends Plugin {
     public $totalPage;
     public $pagination = [];
     
-    public function __construct($currentPage, $baseUrl, $urlArgs) {
+    public function __construct($currentPage, $baseUrl = NULL, $urlArgs = NULL) {
+        if ($urlArgs === NULL) {
+            $urlArgs = $_GET;
+        }
+        
+        if ($baseUrl === NULL) {
+            $baseUrl = $this->request->getUrlPath();
+        }
+        
         $this->baseUrl = $baseUrl;
         $this->urlArgs = $urlArgs;
-        
+        $this->widget = Context::env(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'Pager');
         $this->currentPage = $currentPage;
     }
     

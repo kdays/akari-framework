@@ -8,6 +8,8 @@
 
 use Akari\Context;
 
+
+
 $di = \Akari\system\ioc\DI::getDefault();
 
 $di->setShared('viewEngine', \Akari\system\tpl\engine\MinatoTemplateEngine::class);
@@ -35,5 +37,7 @@ $di->setShared("router", Akari\system\router\Router::class);
 $di->setShared("processor", Akari\system\result\Processor::class);
 
 $di->setShared('assets', Akari\system\tpl\asset\AssetsMgr::class);
-$di->setShared("url", \Akari\utility\UrlHelper::class);
+
+$di->setShared("url", \Akari\system\router\BaseUrlGenerator::class);
 $di->setShared("csrf", \Akari\system\http\VerifyCsrfToken::class);
+$di->setShared("lang", \Akari\system\i18n\I18n::class);

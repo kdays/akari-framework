@@ -103,7 +103,6 @@ Class BaseConfig {
     ];
 
     public $uriRewrite = [];
-    public $uriGenerator = NULL;
 
     public $uploadDir = 'web/attachment/';
     public $allowUploadExt = [];

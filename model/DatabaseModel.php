@@ -65,6 +65,8 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
             
             $result[$useModelKey ? $modelField : $dbField] = $useGetter ? $this[$modelField] : $this->$modelField;
         }
+        
+        unset($result['_dependencyInjector']);
         return $result;
     }
 

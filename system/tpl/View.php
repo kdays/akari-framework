@@ -97,7 +97,6 @@ class View extends Injectable{
         
         $suffix = Context::$appConfig->templateSuffix;
         $baseDirs = $this->getBaseDirs(self::TYPE_SCREEN);
-            
         $screenPath = NULL;
 
         foreach ($baseDirs as $screenDir) {

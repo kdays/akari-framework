@@ -116,4 +116,21 @@ class TextHelper {
         return mb_strlen($str, $charset) > $length ? mb_substr($str, 0, $length, $charset). $splitAdd : $str;
     }
 
+    public static function removeStartWhiteSpace($str) {
+        $re = implode("", ["\n", "\r", "\x0b", "\t", "\x20", "\0"]);
+        $str = trim($str, $re);
+        
+        while (TRUE) { //跨区域字符单独处理
+            if (mb_substr($str, -1) == "\xe3\x80\x80") {
+                $str = mb_substr($str, 0, -1);
+            } elseif (mb_substr($str, 1) == "\xe3\x80\x80") {
+                $str = mb_substr($str, 1);
+            } else {
+                break;   
+            }
+        }
+        
+        return $str;
+    }
+
 }

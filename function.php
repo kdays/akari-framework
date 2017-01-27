@@ -235,31 +235,3 @@ if (!function_exists("hex2bin")) {
         return $hex !== false && preg_match('/^[0-9a-fA-F]+$/i', $hex) ? pack("H*", $hex) : false;
     } 
 }
-
-if (!function_exists("mb_parse_url")) {
-    /**
-     * UTF-8 aware parse_url() replacement.
-     *
-     * @param string $url
-     * @param int $component see parse_url $component
-     * @return array
-     */
-    function mb_parse_url($url, $component = -1) {
-        $enc_url = preg_replace_callback(
-            '%[^:/@?&=#]+%usD',
-            function ($matches) {
-                return urlencode($matches[0]);
-            },
-            $url
-        );
-
-        $parts = parse_url($enc_url, $component);
-
-        if ($component != -1)   return urldecode($parts);
-        foreach($parts as $name => $value) {
-            $parts[$name] = urldecode($value);
-        }
-
-        return $parts;
-    }
-}

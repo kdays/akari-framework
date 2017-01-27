@@ -8,8 +8,8 @@
 
 function_exists('date_default_timezone_set') && date_default_timezone_set('Asia/Shanghai');
 
-define("AKARI_VERSION", "4.6.3 (Kotori)");
-define("AKARI_BUILD", "2017.1.13");
+define("AKARI_VERSION", "4.6.5 (Kotori)");
+define("AKARI_BUILD", "2017.1.27");
 define("NAMESPACE_SEPARATOR", "\\");
 
 define("CLI_MODE", php_sapi_name()=="cli" ? TRUE : FALSE);

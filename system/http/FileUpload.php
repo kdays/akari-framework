@@ -71,8 +71,8 @@ class FileUpload {
         return $this->upload['tmp_name'];
     }
 
-    public function formatFileSize() {
-        return FileHelper::formatFileSize($this->getFileSize());
+    public function formatFileSize($dec = 2) {
+        return FileHelper::formatFileSize($this->getFileSize(), $dec);
     }
     
     public function hasError() {

@@ -21,7 +21,8 @@ namespace Akari\system\ioc;
  * @property \Akari\system\router\Router $router
  * @property \Akari\system\router\Dispatcher $dispatcher
  * @property \Akari\system\tpl\asset\AssetsMgr $assets
- * @property \Akari\utility\UrlHelper $url
+ * @property \Akari\system\router\BaseUrlGenerator $url
+ * @property \Akari\system\i18n\I18n $lang
  */
 abstract class Injectable {
     
