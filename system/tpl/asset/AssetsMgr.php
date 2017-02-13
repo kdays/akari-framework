@@ -12,6 +12,8 @@ class AssetsMgr {
     
     const TYPE_CSS = 0;
     const TYPE_JS = 1;
+    const TYPE_JS_INLINE = 2;
+    const TYPE_CSS_INLINE = 3;
     
     protected $collections = [];
 
@@ -32,7 +34,20 @@ class AssetsMgr {
         $collection = $this->collection($name);
         $result = '';
         foreach ($collection->getJsPaths() as $path) {
-            $result .= sprintf("<script src=\"%s\" type=\"text/javascript\"></script>\n", $collection->execBehaviour($path, AssetsMgr::TYPE_JS));
+            $prefix = substr($path, 0, 1);
+            $data = substr($path, 1);
+            
+            if ($prefix == AssetCollection::PREFIX_FILE) {
+                $result .= sprintf(
+                    "<script src=\"%s\" type=\"text/javascript\"></script>\n", 
+                    $collection->execBehaviour($data, AssetsMgr::TYPE_JS)
+                );
+            } elseif ($prefix == AssetCollection::PREFIX_INLINE) {
+                $result .= 
+                    "<script type=\"text/javascript\">".
+                        $collection->execBehaviour($data, AssetsMgr::TYPE_JS_INLINE)
+                    ."</script>\n";
+            }
         }
 
         return $result;
@@ -42,7 +57,20 @@ class AssetsMgr {
         $collection = $this->collection($name);
         $result = '';
         foreach ($collection->getCssPaths() as $path) {
-            $result .= sprintf("<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\" />\n", $collection->execBehaviour($path, AssetsMgr::TYPE_CSS));
+            $prefix = substr($path, 0, 1);
+            $data = substr($path, 1);
+
+            if ($prefix == AssetCollection::PREFIX_FILE) {
+                $result .= sprintf(
+                    "<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\" />\n", 
+                    $collection->execBehaviour($data, AssetsMgr::TYPE_CSS)
+                );
+            } elseif ($prefix == AssetCollection::PREFIX_INLINE) {
+                $result .= 
+                    "<style>".
+                        $collection->execBehaviour($data, AssetsMgr::TYPE_CSS_INLINE)
+                    ."</style>\n";
+            }
         }
         
         return $result;

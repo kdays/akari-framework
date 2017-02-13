@@ -16,6 +16,9 @@ class AssetCollection {
     private $_js = [];
     private $_prefix = '';
     
+    const PREFIX_FILE = 'F';
+    const PREFIX_INLINE = 'I';
+    
     private $_behaviour = [];
     
     public function __construct($id) {
@@ -28,12 +31,12 @@ class AssetCollection {
     }
 
     public function addJs($path) {
-        $this->_js[] = $this->_prefix. $path;
+        $this->_js[] = self::PREFIX_FILE. $this->_prefix. $path;
         return $this;
     }
     
     public function addCss($path) {
-        $this->_css[] = $this->_prefix. $path;
+        $this->_css[] = self::PREFIX_FILE. $this->_prefix. $path;
         return $this;
     }
     
@@ -63,5 +66,21 @@ class AssetCollection {
     
     public function getJsPaths() {
         return $this->_js;
+    }
+    
+    public function setCssPaths($paths) {
+        $this->_css = $paths;
+    }
+    
+    public function setJsPaths($paths) {
+        $this->_js = $paths;
+    }
+    
+    public function addInlineCss($inlineCss) {
+        $this->_css[] = self::PREFIX_INLINE. $inlineCss;
+    }
+    
+    public function addInlineJs($inlineJs) {
+        $this->_js[] = self::PREFIX_INLINE. $inlineJs;
     }
 }
