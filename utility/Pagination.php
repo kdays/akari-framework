@@ -139,7 +139,7 @@ class Pagination extends Plugin {
         return empty($r) ? 1 : $r;
     }
     
-    public function render() {
+    public function _execute() {
         $totalPage = $this->getTotalPage();
         if ($totalPage < $this->currentPage) {
             $this->currentPage = $totalPage;
@@ -184,6 +184,10 @@ class Pagination extends Plugin {
         $this->firstPage = $this->makeUrl(1);
         $this->lastPage = $this->makeUrl($totalPage);
         $this->pagination = $pagination;
+    }
+    
+    public function render() {
+        $this->_execute();
         
         return TemplateUtil::load_widget($this->widget, $this);
     }
