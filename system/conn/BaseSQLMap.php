@@ -17,7 +17,7 @@ abstract class BaseSQLMap {
     
     public $lists;
 
-    protected static $m;
+    protected static $m = [];
 
     /**
      * 单例公共调用，不应在action中调用本方法

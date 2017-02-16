@@ -8,10 +8,6 @@
 
 namespace Akari\system\conn;
 
-
-use Akari\utility\Benchmark;
-use PDO;
-
 class SQLMapBuilder {
     
     private $map;
@@ -77,7 +73,7 @@ class SQLMapBuilder {
         foreach ($this->_values as $k => $v) {
             $vars['AB_'. $k] = $v;
         }
-        
+
         $result = NULL;
         if ($type == self::TYPE_COUNT) {
             $result = $connection->fetchValue($sql, $vars);
@@ -93,9 +89,10 @@ class SQLMapBuilder {
         } else {
             $result = $connection->query($sql, $vars);
         }
-        
+
         $this->close();
         $connection->resetAppendMsg();
+        
         return $result;
     }
     
@@ -109,8 +106,10 @@ class SQLMapBuilder {
         
         if (isset($item['required'])) {
             foreach ($item['required'] as $key) {
-                if (!isset($data[$key]) and !isset($data['@vars'][$key]) and !isset($data['@bind'][$key])) {
-                    throw new DBException("DB Query $mapId Required $key");
+                if (!isset($data[$key]) 
+                    and !isset($data['@vars'][$key]) 
+                    and !isset($data['@bind'][$key])) {
+                    throw new MissingDbValue($mapId, $key);
                 }
             }
         }
@@ -122,19 +121,15 @@ class SQLMapBuilder {
         }
         
         if (isset($data['@limit'])) {
-            $ll = $data['@limit'];
-            $sql = str_ireplace("#limit", (
-                is_array($ll) ? ' LIMIT '. $ll[0]. ",". $ll[1] : ' LIMIT '.$ll
-            ), $sql);
+            $sql = str_ireplace("#limit", DBUtil::makeLimit($data['@limit']), $sql);
         } 
         
         if (isset($data['@keys'])) {
-            $rr = [];
-            foreach ($data['@keys'] as $key) {
-                $rr[] = $this->connection->getMetaKey($key) . "  = :$key";
-            }
-            
-            $sql = str_ireplace("#keys", implode(",", $rr), $sql);
+            $sql = str_ireplace(
+                "#keys", 
+                DBUtil::mergeMetaKeys($data['@keys'], $this->connection), 
+                $sql
+            );
         }
         
         if (isset($data['@sort'])) {
