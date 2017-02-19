@@ -3,20 +3,21 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 14/12/27
- * Time: 14:55
+ * Time: 14:55.
  */
 
 namespace Akari\utility;
 
-Class Benchmark {
-
-    const F_MISS = "MISS";
-    const F_HIT = "HIT";
+class Benchmark
+{
+    const F_MISS = 'MISS';
+    const F_HIT = 'HIT';
 
     public static $counter = [];
     public static $params = [];
 
-    public static function logCount($event, $count = 1) {
+    public static function logCount($event, $count = 1)
+    {
         $event = strtoupper($event);
 
         if (!isset(self::$counter[$event])) {
@@ -26,21 +27,23 @@ Class Benchmark {
         self::$counter[$event] += $count;
     }
 
-    public static function logParams($event, $params = []) {
+    public static function logParams($event, $params = [])
+    {
         if (CLI_MODE) {
-            return ;
+            return;
         }
-        
+
         $event = strtoupper($event);
 
         if (!isset(self::$params[$event])) {
-            self::$params[ $event ] = [];
+            self::$params[$event] = [];
         }
 
         self::$params[$event][] = $params;
     }
 
-    public static function setTimer($event, $getValue = FALSE) {
+    public static function setTimer($event, $getValue = false)
+    {
         static $timer = [];
 
         if ($getValue) {
@@ -50,16 +53,17 @@ Class Benchmark {
             return $value;
         }
 
-        $timer[$event] = microtime(TRUE);
+        $timer[$event] = microtime(true);
     }
 
     // 设置setTimer后再调用getTimerDiff设置相同的event 会获得时间差
-    public static function getTimerDiff($event) {
-        $lastTimer = self::setTimer($event, TRUE);
+    public static function getTimerDiff($event)
+    {
+        $lastTimer = self::setTimer($event, true);
         if (!$lastTimer) {
-            return FALSE;
+            return false;
         }
 
-        return microtime(TRUE) - $lastTimer;
+        return microtime(true) - $lastTimer;
     }
 }

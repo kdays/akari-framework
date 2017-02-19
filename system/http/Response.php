@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 14/12/27
- * Time: 14:01
+ * Time: 14:01.
  */
 
 namespace Akari\system\http;
@@ -11,112 +11,131 @@ namespace Akari\system\http;
 use Akari\system\ioc\Injectable;
 use Akari\system\result\Result;
 
-Class Response extends Injectable{
-    
+class Response extends Injectable
+{
     private $isSent = false;
     private $responseCode = HttpCode::OK;
-    private $responseCodeMessage = NULL;
-    
+    private $responseCodeMessage = null;
+
     private $headers = [];
     private $content;
-    
-    public function setStatusCode($code = HttpCode::OK, $msg = NULL) {
+
+    public function setStatusCode($code = HttpCode::OK, $msg = null)
+    {
         $this->responseCode = $code;
-        
-        if ($code == HttpCode::UNAVAILABLE_FOR_LEGAL_REASON && $msg == NULL) {
+
+        if ($code == HttpCode::UNAVAILABLE_FOR_LEGAL_REASON && $msg == null) {
             $msg = HttpCode::$statusCode[HttpCode::UNAVAILABLE_FOR_LEGAL_REASON];
         }
         $this->responseCodeMessage = $msg;
-        
+
         return $this;
     }
-    
-    public function getStatusCode() {
-        return $this->responseCode;    
+
+    public function getStatusCode()
+    {
+        return $this->responseCode;
     }
-    
-    public function setContent($content) {
+
+    public function setContent($content)
+    {
         $this->content = $content;
     }
-    
-    public function getContent() {
+
+    public function getContent()
+    {
         return $this->content;
     }
-    
-    public function appendContent($content) {
+
+    public function appendContent($content)
+    {
         $this->content .= $content;
     }
 
-    public function useNoCache() {
+    public function useNoCache()
+    {
         $this->setHeader('Pragma', 'no-cache');
         $this->setHeader('Cache-Control', 'no-cache');
-        
+
         return $this;
     }
 
-    public function setCacheTime($time) {
+    public function setCacheTime($time)
+    {
         if (!is_numeric($time)) {
             $time = strtotime($time);
         }
 
-        $this->setHeader("Cache-Control", "max-age=". $time);
-        
+        $this->setHeader('Cache-Control', 'max-age='.$time);
+
         return $this;
     }
 
-    public function setHeader($key, $value) {
+    public function setHeader($key, $value)
+    {
         $this->headers[$key] = $value;
+
         return $this;
     }
-    
-    public function resetHeaders() {
+
+    public function resetHeaders()
+    {
         $this->headers = [];
     }
-    
-    public function setHeaders($headers) {
+
+    public function setHeaders($headers)
+    {
         $this->headers += $headers;
+
         return $this;
     }
 
-    public function setContentType($contentType = Result::CONTENT_HTML) {
+    public function setContentType($contentType = Result::CONTENT_HTML)
+    {
         $this->setHeader('Content-Type', $contentType);
-        
+
         return $this;
     }
-    
-    public function redirect($location, $statusCode = HttpCode::FOUND) {
+
+    public function redirect($location, $statusCode = HttpCode::FOUND)
+    {
         $this->setStatusCode($statusCode);
-        $this->setHeader("location", $location);
+        $this->setHeader('location', $location);
     }
-    
-    public function sendHeaders() {
-        if ($this->responseCodeMessage !== NULL) {
-            header('HTTP/1.1 '. $this->responseCode. " ". $this->responseCodeMessage);
+
+    public function sendHeaders()
+    {
+        if ($this->responseCodeMessage !== null) {
+            header('HTTP/1.1 '.$this->responseCode.' '.$this->responseCodeMessage);
         } else {
             http_response_code($this->responseCode);
         }
 
         foreach ($this->headers as $key => $value) {
-            header($key. ": ". $value);
+            header($key.': '.$value);
         }
     }
 
-    public function send() {
+    public function send()
+    {
         $this->isSent = true;
         $this->sendHeaders();
-        
+
         echo $this->content;
     }
-    
-    public function isSent() {
+
+    public function isSent()
+    {
         return $this->isSent;
     }
-    
-    public function setCookie($name, $value, $expire = NULL, $useEncrypt = FALSE, $opts = []) {
+
+    public function setCookie($name, $value, $expire = null, $useEncrypt = false, $opts = [])
+    {
         $this->cookies->set($name, $value, $expire, $useEncrypt, $opts);
     }
-    
-    public function removeCookie($name) {
+
+    public function removeCookie($name)
+    {
         $this->cookies->remove($name);
     }
 }

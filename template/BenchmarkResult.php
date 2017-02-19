@@ -91,13 +91,13 @@
 
         <li>
             <b>Memory</b>
-            <?=round(memory_get_usage()/1024, 2)?> KB
+            <?=round(memory_get_usage() / 1024, 2)?> KB
         </li>
     </ul>
 
     <h3>Count</h3>
     <ul>
-    <?php foreach(\Akari\utility\Benchmark::$counter as $key => $value): ?>
+    <?php foreach (\Akari\utility\Benchmark::$counter as $key => $value): ?>
         <li><b><?=$key?></b> <?=$value?></li>
     <?php endforeach; ?>
     </ul>
@@ -105,7 +105,7 @@
     <?php if (isset(\Akari\utility\Benchmark::$params['DB.QUERY'])): ?>
     <h3>Database</h3>
     <ul>
-        <?php foreach(\Akari\utility\Benchmark::$params['DB.QUERY'] as $value): ?>
+        <?php foreach (\Akari\utility\Benchmark::$params['DB.QUERY'] as $value): ?>
             <li>
                 <b><?=round(($value['time']) * 1000, 2)?> ms</b> <?=$value['sql']?>
             </li>
@@ -114,8 +114,10 @@
     <?php endif; ?>
 
     <h3>Parameter</h3>
-    <?php foreach(\Akari\utility\Benchmark::$params as $key => $value): ?>
-        <?php if($key == 'DB.QUERY') continue; ?>
+    <?php foreach (\Akari\utility\Benchmark::$params as $key => $value): ?>
+        <?php if ($key == 'DB.QUERY') {
+    continue;
+} ?>
         <h4><?=$key?></h4>
         <ul>
             <?php foreach ($value as $val): ?>
@@ -128,12 +130,12 @@
 
     <h3>Session</h3>
     <ul>
-    <?php foreach($_COOKIE as $k => $v): ?>
+    <?php foreach ($_COOKIE as $k => $v): ?>
         <li><b>[Cookie] <?=$k?></b> <?=$v?></li>
     <?php endforeach; ?>
 
-    <?php if(isset($_SESSION)): ?>    
-    <?php foreach($_SESSION as $k => $v): ?>
+    <?php if (isset($_SESSION)): ?>    
+    <?php foreach ($_SESSION as $k => $v): ?>
         <li><b>[Session] <?=$k?></b> <?=$v?></li>
     <?php endforeach; ?>
     </ul>
@@ -141,7 +143,7 @@
 
     <h3>Class <small>(<?=count(\Akari\Context::$classes)?>)</small></h3>
     <ul>
-        <?php foreach(\Akari\Context::$classes as $className => $_): ?>
+        <?php foreach (\Akari\Context::$classes as $className => $_): ?>
         <li><?=str_replace(dirname(AKARI_PATH), '', $className)?></li>
         <?php endforeach; ?>
     </ul>

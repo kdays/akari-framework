@@ -1,11 +1,12 @@
 <?php
+
 namespace Akari\system\http;
 
 use Akari\system\ioc\Injectable;
 use Akari\system\security\FilterFactory;
 
-Class Request extends Injectable{
-    
+class Request extends Injectable
+{
     protected $requestMethod;
     protected $requestURI;
     protected $host;
@@ -20,53 +21,55 @@ Class Request extends Injectable{
     protected $pathInfo;
 
     /**
-     * 构造函数
+     * 构造函数.
      */
-    public function __construct(){
-        $arr = Array(
+    public function __construct()
+    {
+        $arr = [
             'requestMethod' => 'REQUEST_METHOD',
-            'requestURI' => 'REQUEST_URI',
-            'host' => 'HTTP_HOST',
-            'remoteIP' => 'REMOTE_ADDR',
-            'serverIP' => 'SERVER_ADDR',
-            'serverPort' => 'SERVER_PORT',
-            'queryString' => 'QUERY_STRING',
-            'accept' => 'HTTP_ACCEPT',
-            'referrer' => 'HTTP_REFERER',
-            'scriptName' => 'SCRIPT_NAME',
-            'userAgent' => 'HTTP_USER_AGENT',
-            'pathInfo' => 'PATH_INFO'
-        );
+            'requestURI'    => 'REQUEST_URI',
+            'host'          => 'HTTP_HOST',
+            'remoteIP'      => 'REMOTE_ADDR',
+            'serverIP'      => 'SERVER_ADDR',
+            'serverPort'    => 'SERVER_PORT',
+            'queryString'   => 'QUERY_STRING',
+            'accept'        => 'HTTP_ACCEPT',
+            'referrer'      => 'HTTP_REFERER',
+            'scriptName'    => 'SCRIPT_NAME',
+            'userAgent'     => 'HTTP_USER_AGENT',
+            'pathInfo'      => 'PATH_INFO',
+        ];
 
-        foreach($arr as $key => $value){
-            if(isset($_SERVER[$value])){
+        foreach ($arr as $key => $value) {
+            if (isset($_SERVER[$value])) {
                 $this->$key = $_SERVER[$value];
-            } 
+            }
         }
 
         $this->requestTime = isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : TIMESTAMP;
     }
 
     // http://cn2.php.net/manual/en/function.ip2long.php#104163
-    private function bin2ip($bin) {
-        if(strlen($bin) <= 32) {
-            return long2ip(base_convert($bin,2,10));
+    private function bin2ip($bin)
+    {
+        if (strlen($bin) <= 32) {
+            return long2ip(base_convert($bin, 2, 10));
         } // 32bits (ipv4)
 
-        if(strlen($bin) != 128) {
+        if (strlen($bin) != 128) {
             return false;
         }
 
         $pad = 128 - strlen($bin);
         for ($i = 1; $i <= $pad; $i++) {
-            $bin = "0". $bin;
+            $bin = '0'.$bin;
         }
 
-        $ipv6 = "";
+        $ipv6 = '';
         $bits = 0;
         while ($bits <= 7) {
             $bin_part = substr($bin, ($bits * 16), 16);
-            $ipv6 .= dechex(bindec($bin_part)).":";
+            $ipv6 .= dechex(bindec($bin_part)).':';
             $bits++;
         }
 
@@ -74,20 +77,24 @@ Class Request extends Injectable{
     }
 
     /**
-     * 获得用户IP
+     * 获得用户IP.
+     *
      * @return string
      */
-    public function getUserIP() {
+    public function getUserIP()
+    {
         $onlineIp = $this->getRemoteIP();
 
         // try ipv6 => ipv4
         if (filter_var($onlineIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
             $ipv4Address = $this->bin2ip(base_convert(ip2long($onlineIp), 10, 2));
-            if ($ipv4Address) $onlineIp = $ipv4Address;
+            if ($ipv4Address) {
+                $onlineIp = $ipv4Address;
+            }
         }
 
         $isInternal = false;
-        $ipAddress = explode(".", $onlineIp);
+        $ipAddress = explode('.', $onlineIp);
         if ($ipAddress[0] == 10) {
             $isInternal = true;
         } elseif ($ipAddress[0] == 172 && $ipAddress[1] > 15 && $ipAddress[1] < 32) {
@@ -114,113 +121,136 @@ Class Request extends Injectable{
     }
 
     /**
-     * 链接是否是SSL安全
+     * 链接是否是SSL安全.
+     *
      * @return bool
      */
-    public function isSSL() {
+    public function isSSL()
+    {
         if ($this->hasHeader('HTTPS')) {
-            return !!(strtoupper($this->getHeader('HTTPS')) == 'ON');
+            return (bool) (strtoupper($this->getHeader('HTTPS')) == 'ON');
         }
-        
+
         if ($this->hasHeader('KEL_SSL')) { // HOSTKER判断字段
-            return TRUE;
+            return true;
         }
 
         $protocol = strtoupper($this->getHeader('SERVER_PROTOCOL'));
-        return !!(strpos($protocol, 'HTTPS') !== FALSE);
+
+        return (bool) (strpos($protocol, 'HTTPS') !== false);
     }
-    
+
     /**
-     * 获得请求的字符串
+     * 获得请求的字符串.
+     *
      * @return string
      */
-    public function getQueryString() {
+    public function getQueryString()
+    {
         return $this->queryString;
     }
 
     /**
-     * 获得PathInfo
+     * 获得PathInfo.
+     *
      * @return string
      */
-    public function getUrlPathInfo(){
+    public function getUrlPathInfo()
+    {
         return $this->pathInfo;
     }
 
     /**
      * @return int
      */
-    public function getRequestTime() {
+    public function getRequestTime()
+    {
         return $this->requestTime;
     }
 
     /**
-     * 获得引用页路径
+     * 获得引用页路径.
+     *
      * @return string
      */
-    public function getReferrer(){
+    public function getReferrer()
+    {
         return $this->referrer;
     }
 
     /**
-     * 获得远程IP
+     * 获得远程IP.
+     *
      * @return string
      */
-    public function getRemoteIP() {
+    public function getRemoteIP()
+    {
         return $this->remoteIP;
     }
 
     /**
-     * 获得服务器IP
+     * 获得服务器IP.
+     *
      * @return string
      */
-    public function getServerIP() {
+    public function getServerIP()
+    {
         return $this->serverIP;
     }
 
     /**
-     * 获得请求的URI
+     * 获得请求的URI.
+     *
      * @return string
      */
-    public function getRequestURI() {
+    public function getRequestURI()
+    {
         return $this->requestURI;
     }
 
     /**
      * @return string
      */
-    public function getFullURI() {
-        return $this->host. $this->requestURI;
+    public function getFullURI()
+    {
+        return $this->host.$this->requestURI;
     }
 
     /**
      * @return string
      */
-    public function getHost() {
+    public function getHost()
+    {
         return $this->host;
     }
 
     /**
-     * 获得请求的脚本名称
+     * 获得请求的脚本名称.
+     *
      * @return string
      */
-    public function getScriptName(){
+    public function getScriptName()
+    {
         return $this->scriptName;
     }
 
     /**
-     * 获得userAgent
+     * 获得userAgent.
+     *
      * @return string
      */
-    public function getUserAgent(){
+    public function getUserAgent()
+    {
         return $this->userAgent;
     }
 
     /**
      * 获得不带参数的URL地址
-     * 
+     *
      * @return string
      */
-    public function getUrlPath() {
+    public function getUrlPath()
+    {
         $url = $this->requestURI;
         $urlInfo = parse_url($url);
 
@@ -228,10 +258,12 @@ Class Request extends Injectable{
     }
 
     /**
-     * 获得请求模式 (PUT/GET/POST)
+     * 获得请求模式 (PUT/GET/POST).
+     *
      * @return mixed
      */
-    public function getRequestMethod() {
+    public function getRequestMethod()
+    {
         return strtoupper($this->requestMethod);
     }
 
@@ -240,122 +272,146 @@ Class Request extends Injectable{
      *
      * @return bool
      */
-    public function isPost() {
+    public function isPost()
+    {
         return $this->getRequestMethod() == 'POST';
     }
 
     /**
      * @return bool
      */
-    public function isGet() {
+    public function isGet()
+    {
         return $this->getRequestMethod() == 'GET';
     }
 
     /**
-     * GET或者POST是否有参数
-     * 
+     * GET或者POST是否有参数.
+     *
      * @param string $key
+     *
      * @return bool
      */
-    public function has($key) {
+    public function has($key)
+    {
         return array_key_exists($key, $_REQUEST);
     }
 
     /**
-     * 获得REQUEST(GET或者POST)下的参数
+     * 获得REQUEST(GET或者POST)下的参数.
      *
-     * @param string|NULL $key
-     * @param mixed $defaultValue
-     * @param string $filter
+     * @param string|null $key
+     * @param mixed       $defaultValue
+     * @param string      $filter
+     *
      * @return mixed
      */
-    public function get($key, $defaultValue = NULL, $filter = "default") {
-        if ($key == NULL) return $_REQUEST;
+    public function get($key, $defaultValue = null, $filter = 'default')
+    {
+        if ($key == null) {
+            return $_REQUEST;
+        }
         if (array_key_exists($key, $_REQUEST)) {
             return FilterFactory::doFilter($_REQUEST[$key], $filter);
         }
-        
+
         return $defaultValue;
-    } 
+    }
 
     /**
-     * POST中是否有参数
-     * 
+     * POST中是否有参数.
+     *
      * @param string $key
+     *
      * @return bool
      */
-    public function hasPost($key) {
+    public function hasPost($key)
+    {
         return array_key_exists($key, $_POST);
     }
 
     /**
-     * 获得POST参数
+     * 获得POST参数.
      *
-     * @param string|NULL $key
-     * @param mixed $defaultValue
-     * @param string $filter
+     * @param string|null $key
+     * @param mixed       $defaultValue
+     * @param string      $filter
+     *
      * @return mixed
      */
-    public function getPost($key, $defaultValue = NULL, $filter = "default") {
-        if ($key == NULL) return $_POST;
+    public function getPost($key, $defaultValue = null, $filter = 'default')
+    {
+        if ($key == null) {
+            return $_POST;
+        }
         if (array_key_exists($key, $_POST)) {
             return FilterFactory::doFilter($_POST[$key], $filter);
         }
-        
+
         return $defaultValue;
     }
 
-    public function hasQuery($key) {
+    public function hasQuery($key)
+    {
         return array_key_exists($key, $_GET);
     }
 
     /**
-     * 获得GET的参数
+     * 获得GET的参数.
      *
-     * @param string|NULL $key
-     * @param mixed $defaultValue
-     * @param string $filter
+     * @param string|null $key
+     * @param mixed       $defaultValue
+     * @param string      $filter
+     *
      * @return mixed
      */
-    public function getQuery($key, $defaultValue = NULL, $filter = "default") {
-        if ($key == NULL) return $_GET;
+    public function getQuery($key, $defaultValue = null, $filter = 'default')
+    {
+        if ($key == null) {
+            return $_GET;
+        }
         if (array_key_exists($key, $_GET)) {
             return FilterFactory::doFilter($_GET[$key], $filter);
         }
+
         return $defaultValue;
     }
 
     /**
      * 是否是Ajax请求
+     *
      * @return bool
      */
-    public function isAjax() {
+    public function isAjax()
+    {
         if ($this->hasHeader('HTTP_SEND_BY')) {
-            return TRUE;
+            return true;
         }
-        
+
         // Andorid游览器也会发送这个头 内容是X-Requested-With	com.android.browser 所以必须特殊判断
         if ($this->hasHeader('HTTP_X_REQUESTED_WITH')) {
             $requestedWith = $this->getHeader('HTTP_X_REQUESTED_WITH');
             if (strtolower($requestedWith) == strtolower('XMLHttpRequest')) {
-                return TRUE;
+                return true;
             }
         }
-        
-        return FALSE;
+
+        return false;
     }
 
     /**
-     * 是否是移动设备
+     * 是否是移动设备.
+     *
      * @return bool
      */
-    public function isMobileDevice() {
+    public function isMobileDevice()
+    {
         if ($this->isIOSDevice()) {
-            return True;
+            return true;
         }
 
         $ua = $this->getUserAgent();
-        $keyword = ["ucweb", "Windows Phone", "android", "opera mini", "blackberry"];
+        $keyword = ['ucweb', 'Windows Phone', 'android', 'opera mini', 'blackberry'];
         foreach ($keyword as $value) {
             if (preg_match("/$value/i", $ua)) {
                 return true;
@@ -368,49 +424,57 @@ Class Request extends Injectable{
     /**
      * @return string
      */
-    public function getRawBody() {
+    public function getRawBody()
+    {
         return file_get_contents('php://input');
     }
 
     /**
-     * 是否是iphone
+     * 是否是iphone.
+     *
      * @return bool
      */
-    public function isIOSDevice(){
+    public function isIOSDevice()
+    {
         $ua = $this->getUserAgent();
 
-        return (preg_match('/ipod/i', $ua) || preg_match('/iphone/i', $ua));
+        return preg_match('/ipod/i', $ua) || preg_match('/iphone/i', $ua);
     }
 
     /**
-     * 判断是否是微信的
+     * 判断是否是微信的.
+     *
      * @return bool
      */
-    public function isInWeChat() {
+    public function isInWeChat()
+    {
         $ua = $this->getUserAgent();
-        return (preg_match('/MicroMessenger/i', $ua) || preg_match('/Window Phone/i', $ua));
+
+        return preg_match('/MicroMessenger/i', $ua) || preg_match('/Window Phone/i', $ua);
     }
 
     /**
-     * 获得所有文件上传
-     * 
+     * 获得所有文件上传.
+     *
      * @param bool $skipNoFiles
+     *
      * @return FileUpload[]
      */
-    public function getUploadedFiles($skipNoFiles = TRUE) {
+    public function getUploadedFiles($skipNoFiles = true)
+    {
         $files = [];
-        
+
         foreach ($_FILES as $fileKey => $file) {
             if (is_array($file['error'])) {
                 $valueKeys = array_keys($file);
                 $keys = array_keys($file['error']);
-                
+
                 foreach ($keys as $idx) {
                     $values = [];
                     foreach ($valueKeys as $vk) {
                         $values[] = $file[$vk][$idx];
                     }
-                    
+
                     $form = array_combine($valueKeys, $values);
                     if ($form['error'] == UPLOAD_ERR_NO_FILE && $skipNoFiles) {
                         continue;
@@ -418,9 +482,9 @@ Class Request extends Injectable{
 
                     $form['multiKey'] = $idx;
                     $form['multiBase'] = $fileKey;
-                    $files[] = new FileUpload($form, $fileKey. ".". $idx);
+                    $files[] = new FileUpload($form, $fileKey.'.'.$idx);
                 }
-                
+
                 continue;
             }
 
@@ -435,74 +499,81 @@ Class Request extends Injectable{
     }
 
     /**
-     * @param string $name 如果用数组传递时 比如Upload[2]时 可以使用Upload[]作为name查询 这个时候会返回数组 或者 使用key 比如Upload.2查询,直接使用Upload是查不到的
-     * @param bool $skipNoFiles
+     * @param string $name        如果用数组传递时 比如Upload[2]时 可以使用Upload[]作为name查询 这个时候会返回数组 或者 使用key 比如Upload.2查询,直接使用Upload是查不到的
+     * @param bool   $skipNoFiles
+     *
      * @return FileUpload|null|FileUpload[]
      */
-    public function getUploadedFile($name, $skipNoFiles = TRUE) {
+    public function getUploadedFile($name, $skipNoFiles = true)
+    {
         $files = self::getUploadedFiles($skipNoFiles);
-        
+
         if (in_string($name, '[]')) {
             $result = [];
             $keyword = substr($name, 0, -2);
-            
+
             foreach ($files as $file) {
-                if ($file->getName(TRUE) == $keyword) {
+                if ($file->getName(true) == $keyword) {
                     $result[] = $file;
                 }
             }
-            
+
             return $result;
-        } 
-        
+        }
+
         foreach ($files as $file) {
             if ($file->getName() == $name) {
                 return $file;
             }
         }
-            
-        return NULL;
     }
 
     /**
      * @return bool
      */
-    public function hasFiles() {
+    public function hasFiles()
+    {
         return count($_FILES) > 0;
     }
 
     /**
-     * 是否有Cookie
+     * 是否有Cookie.
      *
      * @param string $name
-     * @param bool $autoPrefix
+     * @param bool   $autoPrefix
+     *
      * @return bool
      */
-    public function hasCookie($name, $autoPrefix = TRUE) {
+    public function hasCookie($name, $autoPrefix = true)
+    {
         return $this->cookies->exists($name, $autoPrefix);
     }
 
     /**
      * 获得Cookies
-     * 也可以在Controller中直接$this->cookies方法操作
-     * 
+     * 也可以在Controller中直接$this->cookies方法操作.
+     *
      * @param string $name
-     * @param bool $autoPrefix
+     * @param bool   $autoPrefix
+     *
      * @return array|mixed|null
      */
-    public function getCookie($name, $autoPrefix = TRUE) {
+    public function getCookie($name, $autoPrefix = true)
+    {
         return $this->cookies->get($name, $autoPrefix);
     }
-    
-    public function hasHeader($key) {
+
+    public function hasHeader($key)
+    {
         return array_key_exists($key, $_SERVER);
     }
-    
-    public function getHeader($key, $defaultValue = NULL, $filter = "default") {
+
+    public function getHeader($key, $defaultValue = null, $filter = 'default')
+    {
         if ($this->hasHeader($key)) {
             return FilterFactory::doFilter($_SERVER[$key], $filter);
         }
-        
+
         return $defaultValue;
     }
 }

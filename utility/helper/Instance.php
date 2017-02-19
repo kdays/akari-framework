@@ -1,19 +1,22 @@
 <?php
+
 namespace Akari\utility\helper;
 
-trait Instance {
-    
+trait Instance
+{
     protected static $instance = null;
 
     /**
      * @param array $options
+     *
      * @return static
      */
-    public static function instance($options = []) {
+    public static function instance($options = [])
+    {
         if (is_null(self::$instance)) {
             self::$instance = new self($options);
         }
+
         return self::$instance;
     }
-    
 }

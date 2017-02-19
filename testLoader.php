@@ -3,14 +3,15 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 14/12/29
- * Time: 15:57
+ * Time: 15:57.
  */
 
 namespace Akari;
 
-Class testLoader {
-
-    private static function getNSRootByFilename($ns, $file) {
+class testLoader
+{
+    private static function getNSRootByFilename($ns, $file)
+    {
         $fileDir = dirname($file);
 
         $nsStack = explode('\\', $ns);
@@ -25,16 +26,16 @@ Class testLoader {
         return $appDir;
     }
 
-    public static function initForTest($namespace, $configCls) {
-        require_once __DIR__ . DIRECTORY_SEPARATOR . 'akari.php';
+    public static function initForTest($namespace, $configCls)
+    {
+        require_once __DIR__.DIRECTORY_SEPARATOR.'akari.php';
         $arrayNS = explode('\\', $namespace);
         $appNS = array_shift($arrayNS);
         $trace = debug_backtrace();
         $appDir = array_shift($trace)['file'];
 
-        Context::$testing = TRUE;
+        Context::$testing = true;
         $appBasePath = self::getNSRootByFilename($namespace, $appDir);
         akari::getInstance()->initApp($appBasePath, $appNS, $configCls);
     }
-
 }

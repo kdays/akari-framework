@@ -3,26 +3,25 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 16/9/19
- * Time: 下午2:55
+ * Time: 下午2:55.
  */
 
 namespace Akari\utility;
-
 
 use Akari\config\ConfigItem;
 use Akari\Context;
 use Akari\system\Plugin;
 use Akari\system\tpl\TemplateUtil;
 
-class Pagination extends Plugin {
-    
+class Pagination extends Plugin
+{
     private $totalRecord = 0;
     private $pageSize = 10;
     private $display = 5;
-    
-    private $parameterName = "page";
+
+    private $parameterName = 'page';
     private $widget;
-    
+
     public $baseUrl;
     public $urlArgs = [];
     public $viewArgs = [];
@@ -36,110 +35,138 @@ class Pagination extends Plugin {
     public $prevPage;
     public $totalPage;
     public $pagination = [];
-    
-    public function __construct($currentPage, $baseUrl = NULL, $urlArgs = NULL) {
-        if ($urlArgs === NULL) {
+
+    public function __construct($currentPage, $baseUrl = null, $urlArgs = null)
+    {
+        if ($urlArgs === null) {
             $urlArgs = $_GET;
         }
-        
-        if ($baseUrl === NULL) {
+
+        if ($baseUrl === null) {
             $baseUrl = $this->request->getUrlPath();
         }
-        
+
         $this->baseUrl = $baseUrl;
         $this->urlArgs = $urlArgs;
-        $this->widget = Context::env(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'Pager');
+        $this->widget = Context::env(ConfigItem::DEFAULT_PAGE_TEMPLATE, null, 'Pager');
         $this->currentPage = $currentPage;
     }
-    
-    public function setWidget($widget) {
+
+    public function setWidget($widget)
+    {
         $this->widget = $widget;
+
         return $this;
     }
-    
-    public function bindVar($key, $value) {
+
+    public function bindVar($key, $value)
+    {
         $this->viewArgs[$key] = $value;
     }
-    
-    public function setUrlArgs($commArgs) {
+
+    public function setUrlArgs($commArgs)
+    {
         $this->urlArgs = $commArgs;
+
         return $this;
     }
 
     /**
-     * 获得分页标示的URL名称
-     * 
+     * 获得分页标示的URL名称.
+     *
      * @param string $name
+     *
      * @return $this
      */
-    public function setPagerParameterName($name) {
+    public function setPagerParameterName($name)
+    {
         $this->parameterName = $name;
-        return $this;
-    }
-    
-    public function setTotal($totalRecord) {
-        $this->totalRecord = $totalRecord;
-        return $this;
-    }
-    
-    public function setDisplayRange($display) {
-        $this->display = $display;
+
         return $this;
     }
 
-    public function makeUrl($page, $except = []) {
+    public function setTotal($totalRecord)
+    {
+        $this->totalRecord = $totalRecord;
+
+        return $this;
+    }
+
+    public function setDisplayRange($display)
+    {
+        $this->display = $display;
+
+        return $this;
+    }
+
+    public function makeUrl($page, $except = [])
+    {
         $url = $this->baseUrl;
         $args = $this->urlArgs;
-        
-        if (in_string($url, "(page)")) {
-            $url = str_replace("(page)", $page, $url);
-            
+
+        if (in_string($url, '(page)')) {
+            $url = str_replace('(page)', $page, $url);
+
             $args = [];
             mb_parse_str(mb_parse_url($url, PHP_URL_QUERY), $args);
             if (!empty($except)) {
-                foreach ($except as $k) unset($args[$k]);
+                foreach ($except as $k) {
+                    unset($args[$k]);
+                }
             }
-            
+
             return make_url(mb_parse_url($url, PHP_URL_PATH), $args);
         }
 
         if (!empty($except)) {
-            foreach ($except as $k) unset($args[$k]);
+            foreach ($except as $k) {
+                unset($args[$k]);
+            }
         }
         $args = [$this->parameterName => $page] + $args;
+
         return $this->url->get($url, $args);
     }
-    
-    public function getTotal() {
+
+    public function getTotal()
+    {
         return $this->totalRecord;
     }
-    
-    public function getCurrentPage() {
+
+    public function getCurrentPage()
+    {
         return $this->currentPage;
     }
-    
-    public function setPageSize($pageSize) {
+
+    public function setPageSize($pageSize)
+    {
         $this->pageSize = $pageSize;
     }
-    
-    public function getPageSize() {
+
+    public function getPageSize()
+    {
         return $this->pageSize;
     }
-    
-    public function getSkip() {
+
+    public function getSkip()
+    {
         return ($this->currentPage - 1) * $this->pageSize;
     }
-    
-    public function getLimit() {
+
+    public function getLimit()
+    {
         return $this->getPageSize();
     }
-    
-    public function getTotalPage() {
+
+    public function getTotalPage()
+    {
         $r = intval(ceil($this->totalRecord / $this->pageSize));
+
         return empty($r) ? 1 : $r;
     }
-    
-    public function _execute() {
+
+    public function _execute()
+    {
         $totalPage = $this->getTotalPage();
         if ($totalPage < $this->currentPage) {
             $this->currentPage = $totalPage;
@@ -185,14 +212,16 @@ class Pagination extends Plugin {
         $this->lastPage = $this->makeUrl($totalPage);
         $this->pagination = $pagination;
     }
-    
-    public function render() {
+
+    public function render()
+    {
         $this->_execute();
-        
+
         return TemplateUtil::load_widget($this->widget, $this);
     }
-    
-    public function needPage() {
+
+    public function needPage()
+    {
         return $this->getTotalPage() > 1;
     }
 }

@@ -3,75 +3,88 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 15/10/9
- * Time: 上午8:47
+ * Time: 上午8:47.
  */
 
 namespace Akari\system\cache\handler;
 
 /**
- * WARNING: 这并不是一个缓存类
- * 
+ * WARNING: 这并不是一个缓存类.
+ *
  * Class MemoryCacheHandler
- * @package Akari\system\cache\handler
  */
-class MemoryCacheHandler implements ICacheHandler{
-    
+class MemoryCacheHandler implements ICacheHandler
+{
     protected $data = [];
 
-    public function set($key, $value, $timeout = NULL) {
+    public function set($key, $value, $timeout = null)
+    {
         $this->data[$key] = $value;
     }
 
-    public function get($key, $defaultValue = NULL) {
+    public function get($key, $defaultValue = null)
+    {
         if ($this->exists($key)) {
             return $this->data[$key];
         }
-        
+
         return $defaultValue;
     }
 
-    public function exists($key) {
+    public function exists($key)
+    {
         return array_key_exists($key, $this->data);
     }
 
-    public function all() {
+    public function all()
+    {
         return $this->data;
     }
 
-    public function startTransaction() {
+    public function startTransaction()
+    {
         throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
-    public function inTransaction() {
+    public function inTransaction()
+    {
         throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
-    public function commit() {
+    public function commit()
+    {
         throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
-    public function rollback() {
+    public function rollback()
+    {
         throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
-    public function getHandler() {
+    public function getHandler()
+    {
         throw new CacheHandlerMethodNotSupport(__CLASS__, __METHOD__);
     }
 
-    public function remove($key) {
+    public function remove($key)
+    {
         unset($this->data[$key]);
     }
 
-    public function flush() {
+    public function flush()
+    {
         $this->data = [];
     }
 
-    public function increment($key, $value = 1) {
+    public function increment($key, $value = 1)
+    {
         $this->data[$key] += $value;
+
         return $this->data[$key];
     }
 
-    public function decrement($key, $value = 1) {
+    public function decrement($key, $value = 1)
+    {
         return $this->increment($key, $value * -1);
     }
 
@@ -80,7 +93,8 @@ class MemoryCacheHandler implements ICacheHandler{
      *
      * @return bool
      */
-    public function isSupportTransaction() {
-        return FALSE;
+    public function isSupportTransaction()
+    {
+        return false;
     }
 }
