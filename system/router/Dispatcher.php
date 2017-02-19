@@ -1,4 +1,5 @@
 <?php
+
 namespace Akari\system\router;
 
 use Akari\Context;
@@ -9,89 +10,96 @@ use Akari\system\result\Result;
 use Akari\utility\helper\Logging;
 use Akari\utility\helper\ValueHelper;
 
-Class Dispatcher extends Injectable{
-
+class Dispatcher extends Injectable
+{
     use Logging, ValueHelper;
 
     private $_controllerName;
     private $_fullControllerName;
     private $_actionName;
     private $_exeParams = [];
-    
+
     /**
      * @param $uri
      * @param array $parameters
-     * 
+     *
      * @return array|mixed|null
      */
-    public function invoke($uri, $parameters = []) {
-        $parts = explode("/", $uri);
+    public function invoke($uri, $parameters = [])
+    {
+        $parts = explode('/', $uri);
         $method = array_pop($parts);
-        
-        $suffix = CLI_MODE ? 'Task' : 'Action';
-        $class = ucfirst(array_pop($parts)). $suffix;
-        
-        //避免爆炸
-        if ($class == $suffix) $class = 'Index'. $suffix;
 
-        $cls = $this->getAppActionNS(). NAMESPACE_SEPARATOR. implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
-        $isExistCls = False;
-        
+        $suffix = CLI_MODE ? 'Task' : 'Action';
+        $class = ucfirst(array_pop($parts)).$suffix;
+
+        //避免爆炸
+        if ($class == $suffix) {
+            $class = 'Index'.$suffix;
+        }
+
+        $cls = $this->getAppActionNS().NAMESPACE_SEPARATOR.implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
+        $isExistCls = false;
+
         try {
-            $isExistCls = !!class_exists($cls);
+            $isExistCls = (bool) class_exists($cls);
         } catch (NotFoundClass $e) {
         }
 
         if ($isExistCls) {
             $this->_actionName = $method;
             $this->_fullControllerName = $cls;
-            $this->_controllerName = implode(NAMESPACE_SEPARATOR,array_merge($parts, [$class]));
+            $this->_controllerName = implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
             $this->_exeParams = $parameters;
         }
     }
-    
-    protected function getAppActionNS() {
+
+    protected function getAppActionNS()
+    {
         if (CLI_MODE) {
-            return Context::$appBaseNS. NAMESPACE_SEPARATOR. 'task';
+            return Context::$appBaseNS.NAMESPACE_SEPARATOR.'task';
         }
-        
-        $config = Context::env('bindDomain', NULL, []);
+
+        $config = Context::env('bindDomain', null, []);
         if (isset($config[$this->request->getHost()])) {
-            return Context::$appBaseNS. $config[$this->request->getHost()];
+            return Context::$appBaseNS.$config[$this->request->getHost()];
         }
-        
+
         if (isset($config['default'])) {
-            return Context::$appBaseNS. $config['default'];
+            return Context::$appBaseNS.$config['default'];
         }
-        
-        return Context::$appBaseNS. NAMESPACE_SEPARATOR. 'action';
+
+        return Context::$appBaseNS.NAMESPACE_SEPARATOR.'action';
     }
 
     /**
-     * 根据URI分配路径
+     * 根据URI分配路径.
      *
-     * @return Result|NULL
      * @throws NotFoundURI
+     *
+     * @return Result|null
      */
-    public function dispatch() {
+    public function dispatch()
+    {
         if (empty($this->getControllerName())) {
             throw new NotFoundURI(Context::$uri);
         }
-        
+
         $actionName = $this->getActionName();
         $actionName = empty($actionName) ? 'index' : $actionName;
-        
+
         return $this->doAction($this->_fullControllerName, $actionName);
     }
 
-    protected function doAction($cls, $method) {
+    protected function doAction($cls, $method)
+    {
         if (empty($method) || $method[0] == '_') {
             throw new NotFoundClass($method, $cls);
         }
         $clsObj = new $cls();
 
-        if (method_exists($clsObj, $method. "Action")) {
-            $method = $method. "Action";
+        if (method_exists($clsObj, $method.'Action')) {
+            $method = $method.'Action';
         } elseif (method_exists($clsObj, '_handle')) {
             $method = '_handle';
         } else {
@@ -100,7 +108,7 @@ Class Dispatcher extends Injectable{
 
         if (method_exists($clsObj, '_pre')) {
             $beforeResult = $clsObj->_pre();
-            
+
             // 如果_pre()有返回Result 那么也和trigger一致,直接中断
             if (!empty($beforeResult) && $beforeResult instanceof Result) {
                 return $beforeResult;
@@ -111,65 +119,78 @@ Class Dispatcher extends Injectable{
         if (method_exists($clsObj, '_after')) {
             $result = $clsObj->_after($result);
         }
+
         return $result;
     }
-    
-    public function getControllerName($isFull = False) {
+
+    public function getControllerName($isFull = false)
+    {
         if ($isFull) {
             return $this->_fullControllerName;
         }
-        
+
         return $this->_controllerName;
     }
-    
-    public function getActionName() {
+
+    public function getActionName()
+    {
         return $this->_actionName;
     }
-    
-    public function setControllerName($ctlName, $isFull = False) {
-        $appNs = $this->getAppActionNS(). NAMESPACE_SEPARATOR;
-        
+
+    public function setControllerName($ctlName, $isFull = false)
+    {
+        $appNs = $this->getAppActionNS().NAMESPACE_SEPARATOR;
+
         if (!$isFull) {
             $this->_controllerName = $ctlName;
-            $this->_fullControllerName = $appNs. $ctlName;
+            $this->_fullControllerName = $appNs.$ctlName;
         } else {
             $this->_fullControllerName = $ctlName;
             $this->_controllerName = mb_substr($ctlName, strlen($appNs) + 1);
         }
     }
-    
-    public function setActionName($actName) {
+
+    public function setActionName($actName)
+    {
         $this->_actionName = $actName;
     }
-    
-    public function getParameters() {
+
+    public function getParameters()
+    {
         return $this->_exeParams;
     }
-    
-    public function setParameters($params) {
+
+    public function setParameters($params)
+    {
         $this->_exeParams = $params;
     }
-    
-    public function getExecPath($parts, $class) {
+
+    public function getExecPath($parts, $class)
+    {
         if (!is_array($parts)) {
             $parts = explode(NAMESPACE_SEPARATOR, $parts);
         }
-        
-        return implode(DIRECTORY_SEPARATOR, $parts). DIRECTORY_SEPARATOR . $class. '.php';
+
+        return implode(DIRECTORY_SEPARATOR, $parts).DIRECTORY_SEPARATOR.$class.'.php';
     }
 
     /**
-     * 根据URI分配文件
+     * 根据URI分配文件.
      *
      * @param string $uri
      * @param $baseDir
      * @param string $ext
-     * @param bool $isRelativePath 是否相对路径 TRUE时会自动在BaseDir前增加APP的入口文件夹路径
-     * @return bool|string
+     * @param bool   $isRelativePath 是否相对路径 TRUE时会自动在BaseDir前增加APP的入口文件夹路径
+     *
      * @throws AkariException
+     *
+     * @return bool|string
      */
-    public function findWay($uri, $baseDir, $ext = '.php', $isRelativePath = TRUE) {
-        if (!is_array($uri))    $uri = explode('/', $uri);
+    public function findWay($uri, $baseDir, $ext = '.php', $isRelativePath = true)
+    {
+        if (!is_array($uri)) {
+            $uri = explode('/', $uri);
+        }
 
         $baseDirPath = $baseDir;
         if ($isRelativePath) {
@@ -185,25 +206,25 @@ Class Dispatcher extends Injectable{
             $fileName = array_pop($uri);
             $filePath = implode(DIRECTORY_SEPARATOR, $uri);
 
-            $path = $baseDirPath. $filePath. DIRECTORY_SEPARATOR. $fileName. $ext;
-            if(file_exists($path)){
+            $path = $baseDirPath.$filePath.DIRECTORY_SEPARATOR.$fileName.$ext;
+            if (file_exists($path)) {
                 return realpath($path);
             }
 
-            $path = $baseDirPath. $filePath. DIRECTORY_SEPARATOR. "default". $ext;
-            if(file_exists($path)){
+            $path = $baseDirPath.$filePath.DIRECTORY_SEPARATOR.'default'.$ext;
+            if (file_exists($path)) {
                 return realpath($path);
             }
         }
 
-        if(file_exists($path = $baseDirPath. array_shift($uri). $ext)){
+        if (file_exists($path = $baseDirPath.array_shift($uri).$ext)) {
             return realpath($path);
         }
 
-        if(file_exists($path = $baseDirPath. "default". $ext)){
+        if (file_exists($path = $baseDirPath.'default'.$ext)) {
             return realpath($path);
         }
 
-        return FALSE;
+        return false;
     }
 }

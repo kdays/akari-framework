@@ -3,53 +3,53 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 14/12/27
- * Time: 14:30
+ * Time: 14:30.
  */
 
 namespace Akari\config;
 
 use Akari\Context;
-use Akari\system AS Sys;
+use Akari\system as Sys;
 
-Class BaseConfig {
-
-    public $appName = "Application";
+class BaseConfig
+{
+    public $appName = 'Application';
     public $appBaseURL;
     public $defaultURI = 'index/index';
 
-    public $notFoundTemplate = "";
-    public $serverErrorTemplate = "";
-    
+    public $notFoundTemplate = '';
+    public $serverErrorTemplate = '';
+
     public $timeZone = 8;
 
     // 如果没有result时的callback
-    public $nonResultCallback = NULL;
+    public $nonResultCallback = null;
     public $offsetTime = 0;
-    
-    /** @var bool|callable  */
+
+    /** @var bool|callable */
     public $exceptionAutoLogging = true;
-    
+
     public $bindDomain = [
-        'default' => '\action'
+        'default' => '\action',
     ];
 
     public $cache = [
         'default' => [
-            'handler' => Sys\cache\handler\FileCacheHandler::class,
-            'baseDir' => '/runtime/cache/',
-            'indexPath' => 'index.json'
+            'handler'   => Sys\cache\handler\FileCacheHandler::class,
+            'baseDir'   => '/runtime/cache/',
+            'indexPath' => 'index.json',
         ],
 
         'redis' => [
             'handler' => Sys\cache\handler\RedisCacheHandler::class,
-            'host' => '127.0.0.1'
-        ]
+            'host'    => '127.0.0.1',
+        ],
     ];
 
     public $filters = [
-        'default' => Sys\security\filter\DefaultFilter::class
+        'default' => Sys\security\filter\DefaultFilter::class,
     ];
-    
+
     public $database = [];
 
     public $defaultExceptionHandler = Sys\exception\DefaultExceptionHandler::class;
@@ -57,24 +57,24 @@ Class BaseConfig {
     public $uriMode = AKARI_URI_AUTO;
     public $uriSuffix = '';
 
-    public $templateSuffix = ".htm";
+    public $templateSuffix = '.htm';
     public $templateNamePrefix = '';
     public $templateCacheDir = '/runtime/tpl';
 
     public $encrypt = [
         'default' => [
-            'cipher' => Sys\security\cipher\AESCipher::class,
+            'cipher'  => Sys\security\cipher\AESCipher::class,
             'options' => [
-                'secret' => 'Hello, Akari Framework'
-            ]
+                'secret' => 'Hello, Akari Framework',
+            ],
         ],
 
         'cookie' => [
-            'cipher' => Sys\security\cipher\AESCipher::class,
+            'cipher'  => Sys\security\cipher\AESCipher::class,
             'options' => [
-                'secret' => 'Answer is 42.'
-            ]
-        ]
+                'secret' => 'Answer is 42.',
+            ],
+        ],
     ];
 
     public $cookiePrefix = 'w_';
@@ -82,7 +82,7 @@ Class BaseConfig {
     public $cookiePath = '/';
     public $cookieSecure = false;
     public $cookieDomain = '';
-    
+
     public $autoPostTokenCheck = true; // 开启时,POST提交会自动检查令牌
     public $csrfTokenName = '_akari';
 
@@ -97,9 +97,9 @@ Class BaseConfig {
 
         // 执行操作后返回结果的处理，可以记录性能和对Result进行额外处理
         'applicationEnd' => [],
-        
+
         // 结果已经输出到OutputBuffer,可以进行繁体化之类的操作
-        'applicationOutput' => []
+        'applicationOutput' => [],
     ];
 
     public $uriRewrite = [];
@@ -107,51 +107,60 @@ Class BaseConfig {
     public $uploadDir = 'web/attachment/';
     public $allowUploadExt = [];
 
-    public function getDBConfig($name = "default"){
-        if(!is_array(current($this->database)))	return $this->database;
-        if($name == "default")	return current($this->database);
-        if (!isset($this->database[$name])) throw new \Exception("not found DB config: ". $name);
-        
+    public function getDBConfig($name = 'default')
+    {
+        if (!is_array(current($this->database))) {
+            return $this->database;
+        }
+        if ($name == 'default') {
+            return current($this->database);
+        }
+        if (!isset($this->database[$name])) {
+            throw new \Exception('not found DB config: '.$name);
+        }
         return $this->database[$name];
     }
 
     /**
-     * @var string $key
+     * @var string
+     *
      * @return null
      */
-    public final function loadExternalConfig($key) {
+    final public function loadExternalConfig($key)
+    {
         $namePolicies = [
-            Context::$mode. DIRECTORY_SEPARATOR. $key,
-            Context::$mode. ".". $key,
-            $key
+            Context::$mode.DIRECTORY_SEPARATOR.$key,
+            Context::$mode.'.'.$key,
+            $key,
         ];
-        $baseConfig = Context::$appEntryPath. DIRECTORY_SEPARATOR. "config". DIRECTORY_SEPARATOR;
+        $baseConfig = Context::$appEntryPath.DIRECTORY_SEPARATOR.'config'.DIRECTORY_SEPARATOR;
 
         foreach ($namePolicies as $name) {
-            if (file_exists($baseConfig. $name. ".php")) {
-                return include($baseConfig. $name. ".php");
+            if (file_exists($baseConfig.$name.'.php')) {
+                return include $baseConfig.$name.'.php';
             }
 
-            if (file_exists($baseConfig. $name. ".yml")) {
-                return \Spyc::YAMLLoad($baseConfig. $name. ".yml");
+            if (file_exists($baseConfig.$name.'.yml')) {
+                return \Spyc::YAMLLoad($baseConfig.$name.'.yml');
             }
-
         }
-        return NULL;
     }
 
-    public function __get($key) {
+    public function __get($key)
+    {
         if (!isset($this->$key)) {
             $this->$key = $this->loadExternalConfig($key);
         }
 
-        return isset($this->$key) ? $this->$key : NULL;
+        return isset($this->$key) ? $this->$key : null;
     }
 
     public static $c;
-    public static function getInstance(){
+
+    public static function getInstance()
+    {
         $h = get_called_class();
-        if (!self::$c){
+        if (!self::$c) {
             self::$c = new $h();
         }
 

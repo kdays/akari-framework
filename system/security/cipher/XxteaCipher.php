@@ -3,28 +3,31 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 16/2/4
- * Time: 上午12:52
+ * Time: 上午12:52.
  */
 
 namespace Akari\system\security\cipher;
 
-
-class XxteaCipher extends Cipher{
-    
+class XxteaCipher extends Cipher
+{
     private $_secret;
-    private $_useBase64 = TRUE;
+    private $_useBase64 = true;
 
-    public function __construct(array $opts) {
+    public function __construct(array $opts)
+    {
         parent::__construct($opts);
 
         $this->_secret = md5($this->getOption('secret', 'Akari'));
-        $this->_useBase64 = $this->getOption("base64", TRUE);
+        $this->_useBase64 = $this->getOption('base64', true);
     }
 
-    public function encrypt($text) {
-        if (empty($text)) return "";
-        $v = CipherUtil::str2long($text, TRUE);
-        $k = CipherUtil::str2long($this->_secret, FALSE);
+    public function encrypt($text)
+    {
+        if (empty($text)) {
+            return '';
+        }
+        $v = CipherUtil::str2long($text, true);
+        $k = CipherUtil::str2long($this->_secret, false);
 
         if (count($k) < 4) {
             for ($i = count($k); $i < 4; $i++) {
@@ -50,17 +53,23 @@ class XxteaCipher extends Cipher{
             $mx = CipherUtil::int32((($z >> 5 & 0x07ffffff) ^ $y << 2) + (($y >> 3 & 0x1fffffff) ^ $z << 4)) ^ CipherUtil::int32(($sum ^ $y) + ($k[$p & 3 ^ $e] ^ $z));
             $z = $v[$n] = CipherUtil::int32($v[$n] + $mx);
         }
-        
-        $r = CipherUtil::long2str($v, FALSE);
+
+        $r = CipherUtil::long2str($v, false);
+
         return $this->_useBase64 ? base64_encode($r) : $r;
     }
 
-    public function decrypt($text) {
-        if (empty($text)) return "";
-        if ($this->_useBase64)  $text = base64_decode($text);
-        
-        $v = CipherUtil::str2long($text, FALSE);
-        $k = CipherUtil::str2long($this->_secret, FALSE);
+    public function decrypt($text)
+    {
+        if (empty($text)) {
+            return '';
+        }
+        if ($this->_useBase64) {
+            $text = base64_decode($text);
+        }
+
+        $v = CipherUtil::str2long($text, false);
+        $k = CipherUtil::str2long($this->_secret, false);
         if (count($k) < 4) {
             for ($i = count($k); $i < 4; $i++) {
                 $k[$i] = 0;
@@ -85,7 +94,7 @@ class XxteaCipher extends Cipher{
             $y = $v[0] = CipherUtil::int32($v[0] - $mx);
             $sum = CipherUtil::int32($sum - $delta);
         }
-        
-        return CipherUtil::long2str($v, TRUE);
+
+        return CipherUtil::long2str($v, true);
     }
 }

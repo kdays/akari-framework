@@ -3,18 +3,18 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 15/1/4
- * Time: 10:52
+ * Time: 10:52.
  */
 
 namespace Akari\tests\security;
 
 use Akari\system\security\Cipher\RSACipher;
 
-require_once __DIR__ . "/../../testLoader.php";
+require_once __DIR__.'/../../testLoader.php';
 \Akari\TestLoader::initForTest(__NAMESPACE__, '\Akari\config\BaseConfig');
 
-class RSACipherTest extends \PHPUnit_Framework_TestCase {
-
+class RSACipherTest extends \PHPUnit_Framework_TestCase
+{
     public $publicKey = <<<'EOT'
 -----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDNdAILrsV4h23n0zbNSvbhqlJa
@@ -42,19 +42,19 @@ FtPedz0RYFgbXWgSZHIhAkEAqy5M+uQ1pmv5bYUBnyjw4xD+8gRL/suFeRzUAu0i
 -----END RSA PRIVATE KEY-----
 EOT;
 
-    public function testEncrypt() {
+    public function testEncrypt()
+    {
         /**
-         * @var $cipher RSACipher
+         * @var RSACipher
          */
         $cipher = new RSACipher([
-            'public_key' => $this->publicKey,
-            'private_key' => $this->privateKey
+            'public_key'  => $this->publicKey,
+            'private_key' => $this->privateKey,
         ]);
 
-        $text = "我是一段测试文字";
+        $text = '我是一段测试文字';
         $encrypt = $cipher->encrypt($text);
 
         $this->assertEquals($text, $cipher->decrypt($encrypt));
     }
-
 }

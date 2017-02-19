@@ -3,23 +3,23 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 14/12/27
- * Time: 14:02
+ * Time: 14:02.
  */
 
 namespace Akari\system\result;
 
 use Akari\akari;
 
-Class Result {
-
-    const TYPE_NONE = "NONE";
+class Result
+{
+    const TYPE_NONE = 'NONE';
     const TYPE_HTML = 'HTML';
     const TYPE_JSON = 'JSON';
     const TYPE_XML = 'XML';
     const TYPE_TPL = 'TPL';
-    const TYPE_TEXT = "TEXT";
+    const TYPE_TEXT = 'TEXT';
     const TYPE_INI = 'INI';
-    const TYPE_CUSTOM = "CUSTOM";
+    const TYPE_CUSTOM = 'CUSTOM';
 
     const TYPE_JPEG = 'JPEG';
     const TYPE_PNG = 'PNG';
@@ -40,7 +40,8 @@ Class Result {
     public $meta;
     public $contentType;
 
-    public function __construct($type, $data, $meta, $contentType = self::CONTENT_HTML, callable $callback = NULL) {
+    public function __construct($type, $data, $meta, $contentType = self::CONTENT_HTML, callable $callback = null)
+    {
         $this->type = $type;
         $this->data = $data;
         $this->meta = $meta;
@@ -49,10 +50,9 @@ Class Result {
 
         if (is_callable($callback)) {
             $result = call_user_func($callback, $this);
-            if ($result === FALSE) {
+            if ($result === false) {
                 akari::stop();
             }
         }
     }
-
 }

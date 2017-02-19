@@ -1,27 +1,29 @@
 <?php
+
 namespace Akari\system\router;
 
 use Akari\Context;
 use Akari\system\exception\AkariException;
-use Akari\system\ioc\DIHelper;
 use Akari\system\ioc\Injectable;
 use Akari\utility\helper\ValueHelper;
 
-Class Router extends Injectable {
-
+class Router extends Injectable
+{
     use ValueHelper;
 
     private $config;
     private $params = [];
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->config = Context::$appConfig;
     }
 
-    private function clearURI($uri){
+    private function clearURI($uri)
+    {
         $queryString = $this->request->getQueryString();
-        if(strlen($queryString) > 0){
-            $uri = substr($uri, 0, -strlen($queryString)  -1);
+        if (strlen($queryString) > 0) {
+            $uri = substr($uri, 0, -strlen($queryString) - 1);
         }
 
         $scriptName = Context::$appEntryName;
@@ -33,16 +35,19 @@ Class Router extends Injectable {
         return $uri;
     }
 
-    public function resolveURI(){
+    public function resolveURI()
+    {
         $uri = null;
 
         $config = $this->config;
-        switch($config->uriMode){
+        switch ($config->uriMode) {
             case AKARI_URI_AUTO:
                 $uri = $this->request->getUrlPathInfo();
-                if(empty($uri)){
-                    if(isset($_GET['uri']))	$uri = $_GET['uri'];
-                    if(empty($uri)){
+                if (empty($uri)) {
+                    if (isset($_GET['uri'])) {
+                        $uri = $_GET['uri'];
+                    }
+                    if (empty($uri)) {
                         $uri = $this->clearURI($this->request->getRequestURI());
                     }
                 }
@@ -52,10 +57,12 @@ Class Router extends Injectable {
                 $uri = $this->request->getUrlPathInfo(); break;
 
             case AKARI_URI_QUERYSTRING:
-                if(isset($_GET['uri']))	$uri = $_GET['uri']; break;
+                if (isset($_GET['uri'])) {
+                    $uri = $_GET['uri'];
+                } break;
 
             case AKARI_URI_REQUESTURI:
-                $uri = $this->clearURI($this->request->getRequestURI());break;
+                $uri = $this->clearURI($this->request->getRequestURI()); break;
         }
 
         $urlInfo = parse_url(Context::$appConfig->appBaseURL);
@@ -71,18 +78,18 @@ Class Router extends Injectable {
 
         $uri = preg_replace('/\/+/', '/', $uri); //把多余的//替换掉..
 
-        if(!$uri || $uri == '/' || $uri == '/'.Context::$appEntryName){
+        if (!$uri || $uri == '/' || $uri == '/'.Context::$appEntryName) {
             $uri = $config->defaultURI;
         }
 
         $uriParts = explode('/', $uri);
-        if(count($uriParts) < 3){
+        if (count($uriParts) < 3) {
             //$uri = dirname($config->defaultURI).'/'.array_pop($uriParts);
         }
 
         if (substr($uri, -1) === '/') {
             $uri .= 'index';
-        }else{
+        } else {
             if (!empty($config->uriSuffix)) {
                 $suffix = substr($uri, -strlen($config->uriSuffix));
                 if ($suffix === $config->uriSuffix) {
@@ -93,24 +100,25 @@ Class Router extends Injectable {
             }
         }
 
-        if($uri[0] == '/'){
+        if ($uri[0] == '/') {
             $uri = substr($uri, 1);
         }
 
         return $uri;
     }
 
-
     /**
      * 由于应用使用了Context::$appBaseURL作为基础连接
-     * 但某些时候，如ajax之类 必须保证http和https在一个页面才可以触发
+     * 但某些时候，如ajax之类 必须保证http和https在一个页面才可以触发.
      *
      * @param string $URI URI地址
+     *
      * @return string
      */
-    public function rewriteBaseURL($URI) {
+    public function rewriteBaseURL($URI)
+    {
         $isSSL = $this->request->isSSL();
-        $URI = preg_replace('/https|http/i', $isSSL ? 'https' : 'http' , $URI);
+        $URI = preg_replace('/https|http/i', $isSSL ? 'https' : 'http', $URI);
 
         return $URI;
     }
@@ -121,50 +129,51 @@ Class Router extends Injectable {
      *
      * @return array|bool
      */
-    public function matchURLByString($now, $re) {
-        $uri = explode("/", $re);
-        $now = explode("/", $now);
+    public function matchURLByString($now, $re)
+    {
+        $uri = explode('/', $re);
+        $now = explode('/', $now);
 
         $uri = array_filter($uri);
         $now = array_filter($now);
-        
+
         if (count($uri) != count($now)) {
             return false;
         }
-        
+
         $block = [];
         $nowMarkKey = 0;
-        
+
         foreach ($now as $key => $value) {
             if (!isset($uri[$key])) {
-                return False;
+                return false;
             }
-            
-            /**
+
+            /*
              * @todo 可处理某些特殊非标准的 /后面跟特殊字符的 比如 /subject/{id}!index这种处理
              * 不支持 index_{id}
             **/
             if (substr($uri[$key], 0, 1) == '{') {
                 $lastUriPos = strpos($uri[$key], '}');
                 $maxUriPos = strlen($uri[$key]);
-                
+
                 if ($lastUriPos + 1 == $maxUriPos) {
-                    $block[ substr($uri[$key], 1, -1) ] = $value;
+                    $block[substr($uri[$key], 1, -1)] = $value;
                 } else {
                     $nonKeyword = substr($uri[$key], $lastUriPos + 1);
                     $nonKeywordLen = strlen($nonKeyword);
                     if ($nonKeyword != substr($value, -$nonKeywordLen)) {
                         return false;
                     }
-                    
-                    $block[ substr($uri[$key], 1, $lastUriPos - 1) ] = substr($value, 0, -$nonKeywordLen);
+
+                    $block[substr($uri[$key], 1, $lastUriPos - 1)] = substr($value, 0, -$nonKeywordLen);
                 }
-                
+
                 continue;
             }
 
             // 不然匹配内容是否一致
-            if ($value == $uri[$key] || $uri[$key] == "*") {
+            if ($value == $uri[$key] || $uri[$key] == '*') {
                 if ($uri[$key] == '*') {
                     $block[$nowMarkKey] = $now[$key];
                     ++$nowMarkKey;
@@ -172,9 +181,9 @@ Class Router extends Injectable {
                 continue;
             }
 
-            return False;
+            return false;
         }
-        
+
         return $block;
     }
 
@@ -182,14 +191,15 @@ Class Router extends Injectable {
     const REWRITE_MODE_STR = 1;
     const REWRITE_MODE_NONE = 2;
 
-    public function getUrlFromRule($URI, $rules = NULL) {
-        $rules = $rules === NULL ? Context::env('uriRewrite') : $rules;
-        
+    public function getUrlFromRule($URI, $rules = null)
+    {
+        $rules = $rules === null ? Context::env('uriRewrite') : $rules;
+
         $allowMethods = ['GET', 'POST', 'PUT', 'GP'];
         $nowRequestMethod = $this->request->getRequestMethod();
-        $methodRe = "/^(". implode("|", $allowMethods). "):(.*)/";
-        $matchResult = NULL;
-        
+        $methodRe = '/^('.implode('|', $allowMethods).'):(.*)/';
+        $matchResult = null;
+
         $this->resetParameters();
         foreach ($rules as $rule => $toName) {
             $matchMode = self::REWRITE_MODE_STR;
@@ -197,7 +207,7 @@ Class Router extends Injectable {
                 $matchMode = self::REWRITE_MODE_REGEXP;
                 $rule = substr($rule, 1);
             }
-            
+
             // 检查重写类型是否正确 不正确的话直接错误
             preg_match($methodRe, $rule, $methodResult);
             if (isset($methodResult[1]) && in_array($methodResult[1], $allowMethods)) {
@@ -213,10 +223,9 @@ Class Router extends Injectable {
             if (substr($rule, 0, 1) == '/' && $matchMode != self::REWRITE_MODE_REGEXP) {
                 $matchMode = self::REWRITE_MODE_REGEXP;
             }
-            
 
-            $matches = False;
-            
+            $matches = false;
+
             // 根据matchMode处理
             if ($matchMode == self::REWRITE_MODE_REGEXP) {
                 if (preg_match($rule, $URI)) {
@@ -225,96 +234,107 @@ Class Router extends Injectable {
             } else {
                 $matches = $this->matchURLByString($URI, $rule);
             }
-            
-            if ($matches === False) {
+
+            if ($matches === false) {
                 continue;
             }
-            
+
             if (is_callable($toName)) {
                 $matchResult = $toName($URI);
-                if ($matchResult) break;
-                
+                if ($matchResult) {
+                    break;
+                }
+
                 continue;
             }
-            
+
             $matchResult = $this->setParams4Rewrite($matches, $toName);
             break;
         }
-        
+
         return empty($matchResult) ? $URI : $matchResult;
     }
 
     /**
      * @param $urlMatches
      * @param $toActionName
+     *
      * @return mixed|string
+     *
      * @internal param $URI
      */
-    protected function setParams4Rewrite($urlMatches, $toActionName) {
-        $toActionName = str_replace(".", "/", $toActionName);
+    protected function setParams4Rewrite($urlMatches, $toActionName)
+    {
+        $toActionName = str_replace('.', '/', $toActionName);
 
         // toActionName后面如果有参数的话
-        if(strpos($toActionName, "?") !== FALSE) {
+        if (strpos($toActionName, '?') !== false) {
             $result = [];
-            parse_str(substr($toActionName, strpos($toActionName, "?") + 1), $result);
+            parse_str(substr($toActionName, strpos($toActionName, '?') + 1), $result);
 
             foreach ($result as $k => $v) {
                 if (substr($v, 0, 1) == ':') {
                     $v = isset($urlMatches[substr($v, 1)]) ? $urlMatches[substr($v, 1)] : '';
                 }
 
-                $this->pushParameter($k, $v, True);
+                $this->pushParameter($k, $v, true);
             }
 
-            $toActionName = substr($toActionName, 0, strpos($toActionName, "?"));
+            $toActionName = substr($toActionName, 0, strpos($toActionName, '?'));
         }
 
         // 如果有:处理替换的时候
-        if (strpos($toActionName, ":") !== FALSE) {
-            $matches = explode("/", $toActionName);
+        if (strpos($toActionName, ':') !== false) {
+            $matches = explode('/', $toActionName);
             foreach ($matches as $k => $match) {
                 if (substr($match, 0, 1) == ':') {
                     $matchKey = substr($match, 1);
 
                     if (isset($urlMatches[$matchKey])) {
-                        $this->pushParameter($matchKey, $urlMatches[$matchKey], False);
+                        $this->pushParameter($matchKey, $urlMatches[$matchKey], false);
 
                         $matches[$k] = $urlMatches[$matchKey];
                     }
                 }
             }
 
-            $toActionName = implode("/", $matches);
+            $toActionName = implode('/', $matches);
         }
-        
+
         return $toActionName;
     }
-    
-    protected function pushParameter($key, $value, $fromUrl) {
+
+    protected function pushParameter($key, $value, $fromUrl)
+    {
         if ($fromUrl) {
             $_GET[$key] = $value;
             if (!array_key_exists($key, $_REQUEST)) {
                 $_REQUEST[$key] = $value;
             }
         }
-        
+
         $this->params[$key] = $value;
     }
-    
-    public function hasParameter($parameter) {
+
+    public function hasParameter($parameter)
+    {
         return array_key_exists($parameter, $this->params);
     }
-    
-    public function resetParameters() {
+
+    public function resetParameters()
+    {
         $this->params = [];
     }
-    
-    public function getParameters() {
+
+    public function getParameters()
+    {
         return $this->params;
     }
-    
-    public function parseArgvParams($args) {
-        function resolve(array $params) {
+
+    public function parseArgvParams($args)
+    {
+        function resolve(array $params)
+        {
             $now = [];
             foreach ($params as $param) {
                 if (preg_match('/^--(\w+)(=(.*))?$/', $param, $matches)) {

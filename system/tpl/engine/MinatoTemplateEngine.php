@@ -3,34 +3,36 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 15/6/6
- * Time: 上午12:49
+ * Time: 上午12:49.
  */
+
 namespace Akari\system\tpl\engine;
 
 use Akari\system\tpl\TemplateCommandInvalid;
 use Akari\utility\FileHelper;
 
-class MinatoTemplateEngine extends BaseTemplateEngine{
-
-    public function parse($tplPath, array $data, $type, $onlyCompile = false) {
+class MinatoTemplateEngine extends BaseTemplateEngine
+{
+    public function parse($tplPath, array $data, $type, $onlyCompile = false)
+    {
         $this->engineArgs = $data;
         $cachePath = $this->getCachePath($tplPath);
-        
+
         $isAlwaysCompile = $this->getOption('alwaysCompile', false);
-        
+
         $beginCmdMark = preg_quote($this->getOption('beginCmdMark', '<!--#'));
         $endCmdMark = preg_quote($this->getOption('endCmdMark', '-->'));
         $beginLangMark = preg_quote($this->getOption('beginI18nMark', '{%'));
-        $endLangMark = preg_quote($this->getOption('endI18nMark', "}"));
+        $endLangMark = preg_quote($this->getOption('endI18nMark', '}'));
         $beginUtilMark = preg_quote($this->getOption('beginUtilMark', '{{'));
         $endUtilMark = preg_quote($this->getOption('endUtilMark', '}}'));
-        
+
         if (file_exists($cachePath)) {
-            $isNeedCreate = filemtime($tplPath) > filemtime($cachePath);   
+            $isNeedCreate = filemtime($tplPath) > filemtime($cachePath);
         } else {
             $isNeedCreate = true;
         }
-        
+
         if ($isNeedCreate || $isAlwaysCompile) {
             $template = file_get_contents($tplPath);
 
@@ -39,33 +41,35 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
 
             $that = $this;
 
-            $template = preg_replace_callback('/'.$beginCmdMark.'(.*?)'. $endCmdMark .'/iu', function($matches) use($that) {
+            $template = preg_replace_callback('/'.$beginCmdMark.'(.*?)'.$endCmdMark.'/iu', function ($matches) use ($that) {
                 return $that->parseCommand($matches[1]);
             }, $template);
 
-            $template = preg_replace_callback('/\{'.$const_regexp.'\}/s', function($matches) {
+            $template = preg_replace_callback('/\{'.$const_regexp.'\}/s', function ($matches) {
                 return '<?='.$matches[1].'?>';
             }, $template);
-            
-            $template = preg_replace_callback('/'. $beginUtilMark.  '(.*?)'. $endUtilMark .'/iu', function($matches) use($that) {
-                $matches[1] = str_replace("$", "_#_", $matches[1]);
-                return '<?= ViewUtil::'. trim($matches[1]). "?>";
+
+            $template = preg_replace_callback('/'.$beginUtilMark.'(.*?)'.$endUtilMark.'/iu', function ($matches) use ($that) {
+                $matches[1] = str_replace('$', '_#_', $matches[1]);
+
+                return '<?= ViewUtil::'.trim($matches[1]).'?>';
             }, $template);
-            
-            $template = preg_replace_callback('/'. $beginLangMark .'(.*?)'. $endLangMark .'/iu', function($matches) {
-                $matches[1] = str_replace("$", "_#_", $matches[1]);
+
+            $template = preg_replace_callback('/'.$beginLangMark.'(.*?)'.$endLangMark.'/iu', function ($matches) {
+                $matches[1] = str_replace('$', '_#_', $matches[1]);
+
                 return "<?=L(\"$matches[1]\")?>";
             }, $template);
-            
-            $template = preg_replace_callback("/$var_regexp/s", function($matches) use($that) {
+
+            $template = preg_replace_callback("/$var_regexp/s", function ($matches) use ($that) {
                 return $that->addQuote('<?='.$matches[1].'?>');
             }, $template);
 
-            $template = preg_replace_callback('/\<\?\=\<\?\='.$var_regexp.'\?\>\?\>/s', function($matches) use($that) {
+            $template = preg_replace_callback('/\<\?\=\<\?\='.$var_regexp.'\?\>\?\>/s', function ($matches) use ($that) {
                 return $that->addQuote('<?='.$matches[1].'?>');
             }, $template);
 
-            $template = str_replace("_#_", "\$", $template);
+            $template = str_replace('_#_', '$', $template);
             $template .= $this->getSecurityHash($tplPath, $template);
 
             $tempHeader = <<<'TAG'
@@ -75,73 +79,78 @@ use Akari\system\tpl\TemplateUtil AS ViewUtil;
 ?>
 TAG;
 
-            $template = $tempHeader. $template;
+            $template = $tempHeader.$template;
             FileHelper::write($cachePath, $template);
         }
 
         return $onlyCompile ? $cachePath : self::_getView($cachePath, $data);
     }
 
-    public function addQuote($var) {
-        return str_replace("\\\"", "\"", preg_replace('/\[([a-zA-Z0-9_\-\.\x7f-\xff]+)\]/s', "['\\1']", $var));
+    public function addQuote($var)
+    {
+        return str_replace('\\"', '"', preg_replace('/\[([a-zA-Z0-9_\-\.\x7f-\xff]+)\]/s', "['\\1']", $var));
     }
 
-    public function getResult($layoutResult, $screenResult) {
+    public function getResult($layoutResult, $screenResult)
+    {
         if (empty($screenResult)) {
             return $layoutResult;
         }
 
         $screenCmd = $this->getOption('screenCmdMark', '<!--@screen-->');
+
         return str_replace($screenCmd, $screenResult, $layoutResult);
     }
 
     /**
      * @param $command
-     * @return mixed|string
+     *
      * @throws TemplateCommandInvalid
+     *
+     * @return mixed|string
      */
-    private function parseCommand($command) {
-        $command = explode(" ", trim(str_replace("$", "_#_", $command)));
+    private function parseCommand($command)
+    {
+        $command = explode(' ', trim(str_replace('$', '_#_', $command)));
 
         $cmd = array_shift($command);
         $afterCommand = implode(' ', $command);
 
         // 有几个要直接写入 不需要TemplateModel判断的条件语句
         switch ($cmd) {
-            case "set":
-                return "<?php ".$afterCommand. "?>";
+            case 'set':
+                return '<?php '.$afterCommand.'?>';
 
-            case "var":
-                return '<?='. $afterCommand. '?>';
+            case 'var':
+                return '<?='.$afterCommand.'?>';
 
-            case "if":
+            case 'if':
                 return "<?php if($afterCommand): ?>";
 
-            case "elif":
-            case "elseif":
+            case 'elif':
+            case 'elseif':
                 return "<?php elseif($afterCommand): ?>";
 
-            case "else":
-                return "<?php else: ?>";
+            case 'else':
+                return '<?php else: ?>';
 
-            case "endif":
-                return "<?php endif; ?>";
+            case 'endif':
+                return '<?php endif; ?>';
 
-            case "loop":
+            case 'loop':
                 return "<?php foreach($afterCommand): ?>";
 
-            case "endloop":
-            case "loopend":
-                return "<?php endforeach; ?>";
+            case 'endloop':
+            case 'loopend':
+                return '<?php endforeach; ?>';
 
-            case "for":
+            case 'for':
                 return "<?php for($afterCommand): ?>";
 
-            case "endfor":
-                return "<?php endfor; ?>";
+            case 'endfor':
+                return '<?php endfor; ?>';
         }
-        
+
         throw new TemplateCommandInvalid($cmd, $afterCommand);
     }
-
 }

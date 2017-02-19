@@ -3,59 +3,61 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 14/12/28
- * Time: 23:05
+ * Time: 23:05.
  */
 
 namespace Akari\system\db;
 
 use Akari\system\event\Listener;
 use Akari\system\event\StopEventBubbling;
-use Akari\system\exception\AkariException;
 use Akari\utility\Benchmark;
 use Akari\utility\helper\Logging;
-use \PDO;
+use PDO;
 
 /**
- * Class DBAgent
- * @package Akari\system\db
- * @deprecated 
+ * Class DBAgent.
+ *
+ * @deprecated
  */
-Class DBAgent {
-
+class DBAgent
+{
     use Logging;
 
-    const EVT_DB_QUERY = "DB.Query";
-    const EVT_DB_INIT = "DB.Init";
+    const EVT_DB_QUERY = 'DB.Query';
+    const EVT_DB_INIT = 'DB.Init';
 
-    /** @var  \PDO $writeConnection */
+    /** @var \PDO $writeConnection */
     protected $writeConnection;
-    
-    /** @var  \PDO $readConnection */
+
+    /** @var \PDO $readConnection */
     protected $readConnection;
-    
+
     protected $options;
     protected $lastQuery;
-    
+
     /**
      * @var null|int
      */
-    public $lastInsertId = NULL;
+    public $lastInsertId = null;
 
-    public function __construct(array $options) {
+    public function __construct(array $options)
+    {
         $this->options = $options;
     }
 
-    private function benchmarkEnd() {
+    private function benchmarkEnd()
+    {
         Benchmark::logCount('db.Query');
         Benchmark::logParams('db.Query', [
-            'sql' => $this->lastQuery,
-            'time' => Benchmark::getTimerDiff('db.Query')
+            'sql'  => $this->lastQuery,
+            'time' => Benchmark::getTimerDiff('db.Query'),
         ]);
     }
 
-    protected function getPDOInstance($dsn, $username, $password, $options = []) {
-        if (!class_exists("PDO")) {
-            throw new DBAgentException("PDO Extension not installed!");
+    protected function getPDOInstance($dsn, $username, $password, $options = [])
+    {
+        if (!class_exists('PDO')) {
+            throw new DBAgentException('PDO Extension not installed!');
         }
 
         Listener::fire(self::EVT_DB_INIT, $this);
@@ -65,28 +67,32 @@ Class DBAgent {
             $connection = new PDO($dsn, $username, $password, $options);
         } catch (\PDOException $e) {
             self::_logErr($e);
-            throw new DBAgentException("pdo connect failed: ". $e->getMessage());
+            throw new DBAgentException('pdo connect failed: '.$e->getMessage());
         }
-        
+
         return $connection;
     }
 
     /**
      * @param $sql
+     *
      * @return DBAgentStatement
      */
-    public function prepare($sql) {
+    public function prepare($sql)
+    {
         return new DBAgentStatement($sql, $this->getReadConnection());
     }
 
     /**
-     * 获得所有符合条件的
+     * 获得所有符合条件的.
      *
      * @param string|DBAgentStatement $sql
-     * @param null|array $params
+     * @param null|array              $params
+     *
      * @return array
      */
-    public function getAll($sql, $params = NULL) {
+    public function getAll($sql, $params = null)
+    {
         $pdo = $this->getReadConnection();
         $query = $this->getQuery($sql, $params);
 
@@ -106,12 +112,15 @@ Class DBAgent {
 
     /**
      * @param DBAgentStatement $st
-     * @param callable $callback
-     * @return array
+     * @param callable         $callback
+     *
      * @throws DBAgentException
+     *
+     * @return array
      */
-    public function getAllWithCallback(DBAgentStatement $st, callable $callback) {
-        $result = $this->getAll($st, NULL);
+    public function getAllWithCallback(DBAgentStatement $st, callable $callback)
+    {
+        $result = $this->getAll($st, null);
 
         foreach ($result as $key => &$value) {
             try {
@@ -125,15 +134,18 @@ Class DBAgent {
     }
 
     /**
-     * get one result
+     * get one result.
      *
      * @param string|DBAgentStatement $sql
-     * @param null|array $params
-     * @param int $resultType
-     * @return array|mixed
+     * @param null|array              $params
+     * @param int                     $resultType
+     *
      * @throws DBAgentException
+     *
+     * @return array|mixed
      */
-    public function getOne($sql, $params = NULL, $resultType = PDO::FETCH_ASSOC) {
+    public function getOne($sql, $params = null, $resultType = PDO::FETCH_ASSOC)
+    {
         $pdo = $this->getReadConnection();
         $query = $this->getQuery($sql, $params);
 
@@ -142,7 +154,7 @@ Class DBAgent {
 
         if (!$result) {
             $this->dispErrorInfo($doc->errorInfo());
-        } 
+        }
 
         $rs = $doc->fetch($resultType);
 
@@ -153,29 +165,32 @@ Class DBAgent {
     }
 
     /**
-     * get one result of value
-     * 
+     * get one result of value.
+     *
      * @param string|DBAgentStatement $sql
-     * @param null|array $params
-     * @param mixed $defaultValue
+     * @param null|array              $params
+     * @param mixed                   $defaultValue
+     *
      * @return bool
      */
-    public function getValue($sql, $params = NULL, $defaultValue = false) {
+    public function getValue($sql, $params = null, $defaultValue = false)
+    {
         $result = $this->getOne($sql, $params, PDO::FETCH_NUM);
         $field = 0;
-        
+
         return isset($result[$field]) ? $result[$field] : $defaultValue;
     }
-    
 
     /**
-     * execute sql
+     * execute sql.
      *
-     * @param string|DBAgentStatement $sql SQL语句
-     * @param null|array $params
+     * @param string|DBAgentStatement $sql    SQL语句
+     * @param null|array              $params
+     *
      * @return int
      */
-    public function execute($sql, $params = NULL) {
+    public function execute($sql, $params = null)
+    {
         $pdo = $this->getWriteConnection();
         $query = $this->getQuery($sql, $params);
 
@@ -187,7 +202,7 @@ Class DBAgent {
         }
 
         $this->lastInsertId = $pdo->lastInsertId();
-        
+
         $query->close();
         $this->benchmarkEnd();
 
@@ -195,13 +210,15 @@ Class DBAgent {
     }
 
     /**
-     * 将字符型的SQL处理成预处理SQL
+     * 将字符型的SQL处理成预处理SQL.
      *
      * @param string $sql
-     * @param array $params
+     * @param array  $params
+     *
      * @return DBAgentStatement
      */
-    private function _createStatementArr($sql, $params) {
+    private function _createStatementArr($sql, $params)
+    {
         $st = $this->prepare($sql);
         if (is_array($params)) {
             foreach ($params as $key => $value) {
@@ -212,22 +229,23 @@ Class DBAgent {
         return $st;
     }
 
-
     /**
      * 进行查询获得对象
      *
-     * @param string $sql
+     * @param string     $sql
      * @param null|array $params
+     *
      * @return DBAgentStatement
      */
-    private function getQuery($sql, $params = NULL) {
+    private function getQuery($sql, $params = null)
+    {
         if (is_string($sql)) {
             $sql = $this->_createStatementArr($sql, $params);
         }
 
         Benchmark::setTimer('db.Query');
         $this->lastQuery = $sql->getDebugSQL();
-        Listener::fire(self::EVT_DB_QUERY, ["SQL" => $this->lastQuery]);
+        Listener::fire(self::EVT_DB_QUERY, ['SQL' => $this->lastQuery]);
 
         return $sql;
     }
@@ -237,7 +255,8 @@ Class DBAgent {
      *
      * @return bool
      */
-    public function beginTransaction() {
+    public function beginTransaction()
+    {
         return $this->getWriteConnection()->beginTransaction();
     }
 
@@ -246,94 +265,104 @@ Class DBAgent {
      *
      * @return bool
      */
-    public function commit() {
+    public function commit()
+    {
         return $this->getWriteConnection()->commit();
     }
 
     /**
-     * 事务回滚
+     * 事务回滚.
      *
      * @return bool
      */
-    public function rollback() {
+    public function rollback()
+    {
         return $this->getWriteConnection()->rollBack();
     }
 
     /**
      * 是否在事务状态
      *
-     * @return bool
      * @throws DBAgentException
+     *
+     * @return bool
      */
-    public function inTransaction() {
-        return !!$this->getWriteConnection()->inTransaction();
+    public function inTransaction()
+    {
+        return (bool) $this->getWriteConnection()->inTransaction();
     }
 
     /**
-     * 获得当前数据库信息
+     * 获得当前数据库信息.
      *
      * @return array
      */
-    public function info() {
+    public function info()
+    {
         $pdo = $this->getReadConnection();
-        $output = array(
-            'server' => 'SERVER_INFO',
-            'driver' => 'DRIVER_NAME',
-            'client' => 'CLIENT_VERSION',
-            'version' => 'SERVER_VERSION',
-            'connection' => 'CONNECTION_STATUS'
-        );
+        $output = [
+            'server'     => 'SERVER_INFO',
+            'driver'     => 'DRIVER_NAME',
+            'client'     => 'CLIENT_VERSION',
+            'version'    => 'SERVER_VERSION',
+            'connection' => 'CONNECTION_STATUS',
+        ];
 
         foreach ($output as $key => $value) {
-            $output[ $key ] = $pdo->getAttribute(constant('PDO::ATTR_' . $value));
+            $output[$key] = $pdo->getAttribute(constant('PDO::ATTR_'.$value));
         }
 
         return $output;
     }
-    
-    public function getWriteConnection() {
+
+    public function getWriteConnection()
+    {
         if (!$this->writeConnection) {
             $opts = $this->options;
             $this->writeConnection = $this->getPDOInstance($opts['dsn'], $opts['username'], $opts['password'], $opts['options']);
         }
-        
+
         return $this->writeConnection;
     }
-    
-    public function getReadConnection() {
+
+    public function getReadConnection()
+    {
         if (!$this->readConnection) {
             $opts = $this->options;
-            
+
             // 主从分离存在从机时优先选择从机
-            if (array_key_exists("slaves", $opts)) {
-                $opts = $this->options['slaves'][ array_rand($opts['slaves']) ];
+            if (array_key_exists('slaves', $opts)) {
+                $opts = $this->options['slaves'][array_rand($opts['slaves'])];
             }
-            
+
             // 从机选择完毕 链接
             $this->readConnection = $this->getPDOInstance($opts['dsn'], $opts['username'], $opts['password'], $opts['options']);
         }
-        
+
         return $this->readConnection;
     }
 
     /**
-     * 处理错误信息
+     * 处理错误信息.
      *
      * @param array $errorArr 错误信息列 来自pdo->errorInfo()
+     *
      * @throws DBAgentException
      */
-    private function dispErrorInfo($errorArr) {
+    private function dispErrorInfo($errorArr)
+    {
         list($errorCode, , $errorMsg) = $errorArr;
 
-        $expMsg = sprintf("Database Query Failed, message: %s (code: %s) ", $errorMsg, $errorCode);
+        $expMsg = sprintf('Database Query Failed, message: %s (code: %s) ', $errorMsg, $errorCode);
         if (!empty($this->lastQuery)) {
-            $expMsg .= "with SQL: ". $this->colorSql($this->lastQuery);
+            $expMsg .= 'with SQL: '.$this->colorSql($this->lastQuery);
         }
 
         throw new DBAgentException($expMsg);
     }
 
-    private function colorSql( $query ) {
+    private function colorSql($query)
+    {
         if (CLI_MODE) {
             return $query;
         }
@@ -341,5 +370,4 @@ Class DBAgent {
 
         return $query;
     }
-
 }

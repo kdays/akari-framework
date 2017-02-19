@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: kdays
  * Date: 14/12/27
- * Time: 14:32
+ * Time: 14:32.
  */
 
 namespace Akari\system\exception;
@@ -12,20 +12,23 @@ use Akari\system\event\Listener;
 use Akari\system\ioc\Injectable;
 use Akari\system\result\Processor;
 
-Class ExceptionProcessor extends Injectable{
-    
+class ExceptionProcessor extends Injectable
+{
     /**
-     * 异常被执行时
+     * 异常被执行时.
      *
      * {class: string, message: string, file: string, line: int}
      */
-    const EVENT_EXCEPTION_EXECUTE = "coreException.exception";
+    const EVENT_EXCEPTION_EXECUTE = 'coreException.exception';
 
     public static $p;
-    public static function getInstance(){
+
+    public static function getInstance()
+    {
         if (!isset(self::$p)) {
             self::$p = new self();
         }
+
         return self::$p;
     }
 
@@ -33,24 +36,27 @@ Class ExceptionProcessor extends Injectable{
      * @var FrameworkExceptionHandler
      */
     protected $fkExceptionHandler;
-    protected function __construct() {
+
+    protected function __construct()
+    {
         $this->fkExceptionHandler = new FrameworkExceptionHandler();
     }
 
-    /** @var  BaseExceptionHandler */
+    /** @var BaseExceptionHandler */
     protected $handler;
 
     /**
-     * 设置Handler
-     * 
+     * 设置Handler.
+     *
      * @param $clsPath
      * @param bool $setFkHandler 是否将其作为框架异常的处理 开启时notFoundTemplate这些框架异常处理也会无效
      */
-    public function setHandler($clsPath, $setFkHandler = False){
-        if(!isset($this->handler)){
-            set_error_handler(Array(self::$p, 'processError'), error_reporting());
-            set_exception_handler(Array(self::$p, 'processException'));
-            register_shutdown_function(Array(self::$p, 'processFatal'));
+    public function setHandler($clsPath, $setFkHandler = false)
+    {
+        if (!isset($this->handler)) {
+            set_error_handler([self::$p, 'processError'], error_reporting());
+            set_exception_handler([self::$p, 'processException']);
+            register_shutdown_function([self::$p, 'processFatal']);
         }
 
         $this->handler = new $clsPath();
@@ -59,11 +65,13 @@ Class ExceptionProcessor extends Injectable{
         }
     }
 
-    public function processError($errorNo, $errorMessage, $errorFile, $errorLine, $context) {
+    public function processError($errorNo, $errorMessage, $errorFile, $errorLine, $context)
+    {
         throw new \ErrorException($errorMessage, 0, $errorNo, $errorFile, $errorLine);
     }
 
-    public function processException(\Exception $ex) {
+    public function processException(\Exception $ex)
+    {
         Listener::fire(self::EVENT_EXCEPTION_EXECUTE, $ex);
 
         if (ob_get_level() !== 0) {
@@ -80,34 +88,36 @@ Class ExceptionProcessor extends Injectable{
                 throw $ex;
             }
         }
-        
+
         /** @var Processor $processor */
-        $processor = $this->getDI()->getShared("processor");
+        $processor = $this->getDI()->getShared('processor');
         $processor->processResult($result);
         $this->response->send();
     }
-    
-    public function setFrameworkExceptionHandler($handler) {
+
+    public function setFrameworkExceptionHandler($handler)
+    {
         $this->fkExceptionHandler = $handler;
     }
-    
-    public function isFatal($exceptionType) {
+
+    public function isFatal($exceptionType)
+    {
         return in_array($exceptionType, [
             E_ERROR,
             E_PARSE,
             E_CORE_ERROR,
             E_USER_ERROR,
-            E_COMPILE_ERROR
+            E_COMPILE_ERROR,
         ]);
     }
 
-    public function processFatal() {
+    public function processFatal()
+    {
         $fatal = error_get_last();
         if (!$fatal) {
-            return FALSE;
+            return false;
         }
-        
-        
+
         if ($this->isFatal($fatal['type'])) {
             $ex = new FatalException($fatal['message'], $fatal['file'], $fatal['line'], $fatal['type']);
             $this->processException($ex);
