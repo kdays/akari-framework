@@ -1,6 +1,9 @@
 preset: recommended
 risky: false
 
+disabled:
+  - concat_without_spaces
+
 enabled:
   - concat_with_spaces
   
