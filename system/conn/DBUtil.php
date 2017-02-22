@@ -25,4 +25,22 @@ class DBUtil {
             ' LIMIT '. $limit;
     }
     
+    public static function getInKeysCond($values, $prefix = 'ALB_') {
+        $keys = [];
+        foreach ($values as $k => $val) {
+            $keys[] = ":". $prefix. $k;
+        }
+        
+        return implode(",", $keys);
+    }
+    
+    public static function getInKeysBindValues($values, $prefix = 'ALB_') {
+        $result = [];
+        foreach ($values as $k => $val) {
+            $result[ $prefix . $k ] = $val;
+        }
+        
+        return $result;
+    }
+    
 }

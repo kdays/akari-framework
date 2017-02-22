@@ -195,8 +195,9 @@ class DBConnection {
     
     private function _packPrepareSQL(\PDO $conn, $sql, $values) {
         $st = $conn->prepare($sql);
+        
         foreach ($values as $key => $value) {
-            $st->bindValue($key, $value);
+            $st->bindValue($key, $value);   
         }
 
         $this->_benchmarkBegin();

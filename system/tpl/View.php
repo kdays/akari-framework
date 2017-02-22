@@ -103,7 +103,7 @@ class View extends Injectable{
             $screenPath = $this->dispatcher->findWay($screenName, $screenDir. DIRECTORY_SEPARATOR, $suffix, false);
             if ($screenPath) break;
         }
-
+        
         return $screenPath;
     }
     
