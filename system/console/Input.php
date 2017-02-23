@@ -17,7 +17,10 @@ Class Input extends Injectable {
     
     public function __construct($handle = 'php://stdin') {
         $this->input = fopen($handle, 'r');
-        $this->parameters = $this->dispatcher->getParameters();
+        
+        if ($this->dispatcher) {
+            $this->parameters = $this->dispatcher->getParameters();
+        }
     }
     
     public function __destruct() {
