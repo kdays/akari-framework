@@ -19,9 +19,10 @@ Akari的意思在日文中有光的意义；
 
 我们希望的是这个框架可以默默无闻的为KDays各项应用提供支撑。
 
-
 ## 当前版本
 4.x  Kotori Minami
 
+
+[脚手架工具](https://github.com/kdays/akari-framework-scaffold)
 
 
