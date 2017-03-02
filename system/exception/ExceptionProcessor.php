@@ -58,12 +58,21 @@ Class ExceptionProcessor extends Injectable{
             $this->fkExceptionHandler = $this->handler;
         }
     }
-
+    
     public function processError($errorNo, $errorMessage, $errorFile, $errorLine, $context) {
         throw new \ErrorException($errorMessage, 0, $errorNo, $errorFile, $errorLine);
     }
 
-    public function processException(\Exception $ex) {
+    public function processException($ex) {
+        if (is_object($ex)) {
+            if (!$ex instanceof \Exception) {
+                // PHP7.0 ParseError
+                $ex = new FatalException($ex->getMessage(), $ex->getFile(), $ex->getLine(), get_class($ex));
+            }
+        } else {
+            throw new FatalException("Unknown Exception: ". $ex, __FILE__, __LINE__, E_USER_ERROR);
+        }
+        
         Listener::fire(self::EVENT_EXCEPTION_EXECUTE, $ex);
 
         if (ob_get_level() !== 0) {
