@@ -27,5 +27,5 @@ class StringFilter extends BaseFilter{
     public function filter($data) {
         return TextHelper::filter($data);
     }
-    
+
 }

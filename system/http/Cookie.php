@@ -12,21 +12,21 @@ use Akari\Context;
 use Akari\system\ioc\DIHelper;
 use Akari\system\security\cipher\Cipher;
 
-Class Cookie {
-    
+class Cookie {
+
     use DIHelper;
 
     const FLAG_ENCRYPT = "|ENC";
     const FLAG_ARRAY = "|A";
 
     private $_directFast = [];
-    
+
     public function exists($name, $autoPrefix = TRUE) {
         $config = Context::$appConfig;
         if(!in_string($name, $config->cookiePrefix) && $autoPrefix){
-            $name = $config->cookiePrefix.$name;
+            $name = $config->cookiePrefix . $name;
         }
-        
+
         return !!array_key_exists($name, $_COOKIE);
     }
 
@@ -37,23 +37,23 @@ Class Cookie {
         if(is_numeric($expire)){
             $expire += TIMESTAMP;
         }else{
-            $expire = $expire=='now' ? 0 : strtotime($expire);
+            $expire = $expire == 'now' ? 0 : strtotime($expire);
         }
 
         if(is_array($value)){
-            $value = http_build_query($value). self::FLAG_ARRAY;
+            $value = http_build_query($value) . self::FLAG_ARRAY;
         }
-        
+
         if ($useEncrypt) {
             /** @var Cipher $cipher */
             $cipher = $this->_getDI()->getShared("cookieEncrypt");
             $value = $cipher->encrypt($value);
         }
-        
+
         $path = array_key_exists("path", $opts) ? $opts['path'] : $config->cookiePath;
         $domain  = array_key_exists("domain", $opts) ? $opts['domain'] : $config->cookieDomain;
 
-        if($config->cookiePrefix)   $name = $config->cookiePrefix.$name;
+        if($config->cookiePrefix)   $name = $config->cookiePrefix . $name;
 
         if($value === FALSE){
             setcookie($name, '', time() - 3600, $path, $domain);
@@ -70,16 +70,16 @@ Class Cookie {
         $config = Context::$appConfig;
 
         if(!in_string($name, $config->cookiePrefix) && $autoPrefix){
-            $name = $config->cookiePrefix.$name;
+            $name = $config->cookiePrefix . $name;
         }
-        
+
         if (isset($this->_directFast[$name])) {
             return $this->_directFast[$name];
         }
 
         if(!array_key_exists($name, $_COOKIE)) return NULL;
         $cookie = $_COOKIE[$name];
-        
+
         /** @var Cipher $encrypt */
         $encrypt = $this->_getDI()->getShared("cookieEncrypt");
         $cookie = $encrypt->decrypt($cookie);
@@ -89,6 +89,7 @@ Class Cookie {
             $arrayFlagLen = strlen(self::FLAG_ARRAY) + 1;
 
             parse_str(substr($cookie, 0, sizeof($cookie) - $arrayFlagLen), $result);
+
             return $result;
         }
 

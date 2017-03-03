@@ -2,8 +2,8 @@
 namespace Akari\utility\helper;
 
 trait Instance {
-    
-    protected static $instance = null;
+
+    protected static $instance = NULL;
 
     /**
      * @param array $options
@@ -13,7 +13,8 @@ trait Instance {
         if (is_null(self::$instance)) {
             self::$instance = new self($options);
         }
+
         return self::$instance;
     }
-    
+
 }

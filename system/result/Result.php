@@ -10,7 +10,7 @@ namespace Akari\system\result;
 
 use Akari\akari;
 
-Class Result {
+class Result {
 
     const TYPE_NONE = "NONE";
     const TYPE_HTML = 'HTML';

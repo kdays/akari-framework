@@ -8,7 +8,6 @@
 
 namespace core\system\ioc;
 
-
 use Akari\NotFoundClass;
 
 class DINotRegistered extends NotFoundClass {

@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\filter;
 
-
 class IntFilter extends BaseFilter{
 
     /**
@@ -22,14 +21,15 @@ class IntFilter extends BaseFilter{
             foreach ($data as $k => $v) {
                 $data[$k] = $this->filter($v);
             }
-            
+
             return $data;
         }
-        
+
         if (!is_numeric($data)) {
-            return false;
+            return FALSE;
         }
+
         return (int) $data;
     }
-    
+
 }

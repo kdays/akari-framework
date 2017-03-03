@@ -11,7 +11,7 @@ namespace Akari\system\security\cipher;
 abstract class Cipher {
 
     protected $options = [];
-    
+
     public function __construct(array $opts = []) {
         $this->options = $opts;
     }
@@ -19,12 +19,12 @@ abstract class Cipher {
     protected function setOption($key, $value) {
         $this->options[$key] = $value;
     }
-    
-    protected function getOption($key, $defaultValue = false) {
+
+    protected function getOption($key, $defaultValue = FALSE) {
         return array_key_exists($key, $this->options) ? $this->options[$key] : $defaultValue;
     }
-    
+
     abstract public function encrypt($text);
     abstract public function decrypt($text);
-    
+
 }

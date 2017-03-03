@@ -8,7 +8,6 @@
 
 namespace Akari\system\exception;
 
-
 class FatalException extends \Exception {
 
     public $logLevel = AKARI_LOG_LEVEL_FATAL;

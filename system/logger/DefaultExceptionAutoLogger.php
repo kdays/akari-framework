@@ -10,11 +10,11 @@ namespace Akari\system\logger;
 
 use Akari\Context;
 use Akari\system\event\Event;
-use Akari\system\router\NotFoundURI;
 use Akari\utility\helper\Logging;
+use Akari\system\router\NotFoundURI;
 
 class DefaultExceptionAutoLogger {
-    
+
     use Logging;
 
     public static function log(Event $event) {
@@ -25,7 +25,7 @@ class DefaultExceptionAutoLogger {
         if (isset($ex->logLevel)) {
             $level = $ex->logLevel;
         }
-        
+
         if ($ex instanceof NotFoundURI) {
             return ;
         }
@@ -33,9 +33,9 @@ class DefaultExceptionAutoLogger {
         self::_log(
             sprintf("Message: %s File: %s",
                 $ex->getMessage(),
-                str_replace(Context::$appBasePath, '', $ex->getFile()). ":" .$ex->getLine()),
+                str_replace(Context::$appBasePath, '', $ex->getFile()) . ":" . $ex->getLine()),
             $level
         );
     }
-    
+
 }

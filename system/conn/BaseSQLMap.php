@@ -8,13 +8,12 @@
 
 namespace Akari\system\conn;
 
-
 abstract class BaseSQLMap {
 
     public $table;
-    
+
     public $args = [];
-    
+
     public $lists;
 
     protected static $m = [];
@@ -31,5 +30,5 @@ abstract class BaseSQLMap {
 
         return self::$m[ $class ];
     }
-    
+
 }

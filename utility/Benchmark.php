@@ -8,7 +8,7 @@
 
 namespace Akari\utility;
 
-Class Benchmark {
+class Benchmark {
 
     const F_MISS = "MISS";
     const F_HIT = "HIT";
@@ -30,7 +30,7 @@ Class Benchmark {
         if (CLI_MODE) {
             return ;
         }
-        
+
         $event = strtoupper($event);
 
         if (!isset(self::$params[$event])) {

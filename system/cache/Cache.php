@@ -8,7 +8,6 @@
 
 namespace Akari\system\cache;
 
-
 use Akari\Context;
 
 class Cache {

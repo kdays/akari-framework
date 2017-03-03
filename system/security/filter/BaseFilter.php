@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\filter;
 
-
 abstract class BaseFilter {
 
     /**
@@ -18,5 +17,5 @@ abstract class BaseFilter {
      * @return mixed
      */
     abstract public function filter($data);
-    
+
 }

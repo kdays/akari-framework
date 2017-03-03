@@ -8,8 +8,8 @@
 
 namespace Akari\system\tpl;
 
-use Akari\config\ConfigItem;
 use Akari\Context;
+use Akari\config\ConfigItem;
 use Akari\system\ioc\Injectable;
 use Akari\system\tpl\engine\BaseTemplateEngine;
 
@@ -19,17 +19,17 @@ class View extends Injectable{
     const TYPE_SCREEN = 'view';
     const TYPE_LAYOUT = 'layout';
     const TYPE_WIDGET = 'widget';
-    
+
     protected $layout;
     protected $screen;
-    
+
     protected static $_layoutDir;
     protected static $_screenDir;
-    
+
     private $_vars = [];
     private $baseActionNs = NULL;
     private $defaultLayoutName = NULL;
-    
+
     public function setDefaultLayoutName($layoutName) {
         $this->defaultLayoutName = $layoutName;
     }
@@ -48,22 +48,23 @@ class View extends Injectable{
             $this->_vars[$key] = $value;
         }
     }
-    
-    public function bindVars($values, $isMerge = True) {
+
+    public function bindVars($values, $isMerge = TRUE) {
         $this->_vars = $isMerge ? array_merge($this->_vars, $values) : $values;
     }
-    
+
     public function hasVar($key) {
         return array_key_exists($key, $this->_vars);
     }
-    
+
     public function getVar($key) {
         if ($key !== NULL) {
             return $this->hasVar($key) ? $this->_vars[$key] : NULL;
         }
+
         return $this->_vars;
     }
-    
+
     public function setLayout($layoutName) {
         $this->layout = $layoutName;
     }
@@ -71,11 +72,11 @@ class View extends Injectable{
     public function setScreen($screenName) {
         $this->screen = $screenName;
     }
-    
+
     public function getLayout() {
         return $this->layout;
     }
-    
+
     public function getScreen() {
         return $this->screen;
     }
@@ -83,7 +84,7 @@ class View extends Injectable{
     public function setBaseActionNs($name) {
         $this->baseActionNs = $name;
     }
-    
+
     public function setLayoutDir($_layoutDir) {
         self::$_layoutDir = $_layoutDir;
     }
@@ -91,44 +92,44 @@ class View extends Injectable{
     public function setScreenDir($_screenDir) {
         self::$_screenDir = $_screenDir;
     }
-    
+
     public function getScreenPath() {
         $screenName = empty($this->screen) ? $this->getScreenName() : $this->screen;
-        
+
         $suffix = Context::$appConfig->templateSuffix;
         $baseDirs = $this->getBaseDirs(self::TYPE_SCREEN);
         $screenPath = NULL;
 
         foreach ($baseDirs as $screenDir) {
-            $screenPath = $this->dispatcher->findWay($screenName, $screenDir. DIRECTORY_SEPARATOR, $suffix, false);
+            $screenPath = $this->dispatcher->findWay($screenName, $screenDir . DIRECTORY_SEPARATOR, $suffix, FALSE);
             if ($screenPath) break;
         }
-        
+
         return $screenPath;
     }
-    
+
     public function getLayoutPath() {
         $screenName = $this->layout;
         if (empty($this->layout)) {
             $screenName = !empty($this->defaultLayoutName) ? $this->defaultLayoutName : $this->getScreenName();
         }
-       
+
         $suffix = Context::$appConfig->templateSuffix;
 
         $baseDirs = $this->getBaseDirs(self::TYPE_LAYOUT);
 
         $layoutPath = NULL;
         foreach ($baseDirs as $layoutDir) {
-            $layoutPath = $this->dispatcher->findWay($screenName, $layoutDir. DIRECTORY_SEPARATOR, $suffix, false);
+            $layoutPath = $this->dispatcher->findWay($screenName, $layoutDir . DIRECTORY_SEPARATOR, $suffix, FALSE);
             if ($layoutPath) break;
         }
 
         return $layoutPath;
     }
-    
+
     public function setBaseViewDir($viewDir, $onAppDir = TRUE) {
         if ($onAppDir) {
-            $viewDir = Context::$appEntryPath. $viewDir;
+            $viewDir = Context::$appEntryPath . $viewDir;
         }
         Context::env(ConfigItem::BASE_TPL_DIR, $viewDir);
     }
@@ -149,14 +150,14 @@ class View extends Injectable{
         if ($this->baseActionNs !== NULL) { 
             // 如果设置baseActionNs时 如果前面有baseActionNs就移去
             // 在设置baseViewDir时,为了降低目录层级时,十分有用
-            
+
             $len = strlen($this->baseActionNs);
-            
+
             if (substr($screenName, 0, $len) == $this->baseActionNs) {
                 $screenName = substr($screenName, $len);
             }
         }
-        
+
         $actionName = $this->dispatcher->getActionName();
 
         if ($actionName !== NULL) {
@@ -165,60 +166,60 @@ class View extends Injectable{
             }
             $screenName .= DIRECTORY_SEPARATOR . $actionName;
         }
-        
+
         return $screenName;
     }
-    
+
     public function getResult($data) {
         if (empty($data) && !is_array($data)) {
             $data = $this->_vars;
         }
-        
+
         $layoutResult = $screenResult = NULL;
         $screenPath = $this->getScreenPath();
         $layoutPath = $this->getLayoutPath();
-        
+
         if (empty($layoutPath) && empty($screenPath)) {
             throw new TemplateNotFound('NOT_FOUND_LAYOUT_OR_SCREEN');
         }
-        
+
         $viewEngine = $this->getEngine();
         if ($layoutPath) {
             $layoutResult = $viewEngine->parse($layoutPath, $data, self::TYPE_LAYOUT);
         }
-        
+
         if ($screenPath) {
             $screenResult = $viewEngine->parse($screenPath, $data, self::TYPE_SCREEN);
         }
-        
+
         return $viewEngine->getResult($layoutResult, $screenResult);
     }
 
     public static function getBaseDirs($type) {
         $baseDirs = [];
 
-        $defaultWebPath = Context::$appEntryPath. 'template'. DIRECTORY_SEPARATOR;
-        $baseTplDir = realpath(Context::env(ConfigItem::BASE_TPL_DIR, NULL, $defaultWebPath)). DIRECTORY_SEPARATOR;
+        $defaultWebPath = Context::$appEntryPath . 'template' . DIRECTORY_SEPARATOR;
+        $baseTplDir = realpath(Context::env(ConfigItem::BASE_TPL_DIR, NULL, $defaultWebPath)) . DIRECTORY_SEPARATOR;
         if (empty($baseTplDir)) $baseTplDir = $defaultWebPath;
-        
+
         $dirPrefix = Context::env(ConfigItem::TEMPLATE_PREFIX);
-        
+
         if ($type == self::TYPE_SCREEN && !empty(View::$_screenDir)) {
-            $baseDirs[] = $baseTplDir. View::$_screenDir;
+            $baseDirs[] = $baseTplDir . View::$_screenDir;
         } elseif ($type == self::TYPE_LAYOUT && !empty(View::$_layoutDir)) {
-            $baseDirs[] = $baseTplDir. View::$_layoutDir;
+            $baseDirs[] = $baseTplDir . View::$_layoutDir;
         }
 
         if ($dirPrefix) {
-            $baseDirs[] =  $baseTplDir. $type. DIRECTORY_SEPARATOR. $dirPrefix. DIRECTORY_SEPARATOR;
+            $baseDirs[] =  $baseTplDir . $type . DIRECTORY_SEPARATOR . $dirPrefix . DIRECTORY_SEPARATOR;
         }
 
-        $baseDirs[] =  $baseTplDir. $type. DIRECTORY_SEPARATOR;
-        
+        $baseDirs[] =  $baseTplDir . $type . DIRECTORY_SEPARATOR;
+
         if ($type == self::TYPE_BLOCK || $type == self::TYPE_WIDGET || $type == self::TYPE_LAYOUT) {
-            $baseDirs[] = $defaultWebPath. $type. DIRECTORY_SEPARATOR;
+            $baseDirs[] = $defaultWebPath . $type . DIRECTORY_SEPARATOR;
         }
-        
+
         return $baseDirs;
     }
 
@@ -227,17 +228,17 @@ class View extends Injectable{
 
         $suffix = Context::$appConfig->templateSuffix;
         $tplName = str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $tplName);
-        
+
         foreach ($baseDirs as $baseDir) {
-            if (file_exists($tplPath = $baseDir. $tplName. $suffix)) {
+            if (file_exists($tplPath = $baseDir . $tplName . $suffix)) {
                 return realpath($tplPath);
             }
 
-            if (file_exists($tplPath = $baseDir. "default". $suffix)) {
+            if (file_exists($tplPath = $baseDir . "default" . $suffix)) {
                 return realpath($tplPath);
             }
         }
-        
+
         throw new TemplateNotFound($type . "/" . $tplName);
     }
 

@@ -11,5 +11,5 @@ namespace Akari\system\security\cipher;
 use Akari\system\exception\AkariException;
 
 class EncryptFailed extends AkariException  {
-    
+
 }

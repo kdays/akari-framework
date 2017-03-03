@@ -8,7 +8,6 @@
 
 namespace Akari\utility;
 
-
 class TextHelper {
 
     public static function snakeCase($in) {
@@ -92,8 +91,7 @@ class TextHelper {
                 $val = hexdec(substr($str, $i + 2, 4));
                 if ($val < 0x7f)
                     $ret .= chr($val);
-                else
-                    if ($val < 0x800)
+                elseif ($val < 0x800)
                         $ret .= chr(0xc0 | ($val >> 6)) .
                             chr(0x80 | ($val & 0x3f));
                     else
@@ -101,8 +99,7 @@ class TextHelper {
                             chr(0x80 | (($val >> 6) & 0x3f)) .
                             chr(0x80 | ($val & 0x3f));
                 $i += 5;
-            } else
-                if ($str[ $i ] == '%') {
+            } elseif ($str[ $i ] == '%') {
                     $ret .= urldecode(substr($str, $i, 3));
                     $i += 2;
                 } else
@@ -111,15 +108,15 @@ class TextHelper {
 
         return $ret;
     }
-    
+
     public static function cutStr($str, $length, $splitAdd = '...', $charset = 'utf-8') {
-        return mb_strlen($str, $charset) > $length ? mb_substr($str, 0, $length, $charset). $splitAdd : $str;
+        return mb_strlen($str, $charset) > $length ? mb_substr($str, 0, $length, $charset) . $splitAdd : $str;
     }
 
     public static function removeStartWhiteSpace($str) {
         $re = implode("", ["\n", "\r", "\x0b", "\t", "\x20", "\0"]);
         $str = trim($str, $re);
-        
+
         while (TRUE) { //跨区域字符单独处理
             if (mb_substr($str, -1) == "\xe3\x80\x80") {
                 $str = mb_substr($str, 0, -1);
@@ -129,7 +126,7 @@ class TextHelper {
                 break;   
             }
         }
-        
+
         return $str;
     }
 
@@ -138,5 +135,5 @@ class TextHelper {
 
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
     }
-    
+
 }

@@ -9,26 +9,27 @@
 namespace Akari\system\security;
 
 use Akari\Context;
-use Akari\system\exception\AkariException;
-use Akari\system\http\VerifyCsrfToken;
 use Akari\system\ioc\DIHelper;
-use Akari\system\security\cipher\Cipher;
 use Akari\utility\helper\ValueHelper;
+use Akari\system\http\VerifyCsrfToken;
+use Akari\system\security\cipher\Cipher;
+use Akari\system\exception\AkariException;
 
-Class Security {
-	
+class Security {
+
     const KEY_TOKEN = "Security:CSRF";
-    
+
 	use ValueHelper, DIHelper;
-	
+
     /**
      * 获得CSRF的token
      *
      * @return string
      */
-	public static function getCSRFToken(){
+	public static function getCSRFToken() {
 		/** @var VerifyCsrfToken $verifier */
 		$verifier = self::_getDI()->getShared('csrf');
+
 		return $verifier->getToken();
 	}
 
@@ -36,18 +37,18 @@ Class Security {
      * 检查CSRF的token是否正常
      *
      */
-	public static function verifyCSRFToken(){
+	public static function verifyCSRFToken() {
 		/** @var VerifyCsrfToken $verifier */
 		$verifier = self::_getDI()->getShared('csrf');
 		$verifier->verifyToken();
 	}
-	
+
 	public static function autoVerifyCSRFToken() {
 		/** @var VerifyCsrfToken $verifier */
 		$verifier = self::_getDI()->getShared('csrf');
 		$verifier->autoVerify();
 	}
-	
+
 	protected static $cipherInstances = [];
 
     /**
@@ -58,25 +59,25 @@ Class Security {
      * @return Cipher
      * @throws AkariException
      */
-	public static function getCipher($mode = 'default', $newInstance = false) {
+	public static function getCipher($mode = 'default', $newInstance = FALSE) {
 		if (isset(self::$cipherInstances[$mode]) && !$newInstance) {
 			return self::$cipherInstances[$mode];
 		}
 
 		$config = Context::$appConfig->encrypt;
 		if (!array_key_exists($mode, $config)) {
-			throw new AkariException("not found cipher config: ". $mode);
+			throw new AkariException("not found cipher config: " . $mode);
 		}
-		
+
 		$options = $config[$mode];
 
 		$cipher = $options['cipher'];
 		$cipherOpts = isset($options['options']) ? $options['options'] : [];
-		
+
 		/** @var Cipher $instance */
 		$instance = new $cipher($cipherOpts);
 		self::$cipherInstances[$mode] = $instance;
-		
+
 		return $instance;
 	}
 

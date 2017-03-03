@@ -91,7 +91,7 @@
 
         <li>
             <b>Memory</b>
-            <?=round(memory_get_usage()/1024, 2)?> KB
+            <?=round(memory_get_usage() / 1024, 2)?> KB
         </li>
     </ul>
 

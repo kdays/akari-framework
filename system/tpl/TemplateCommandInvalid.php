@@ -17,5 +17,5 @@ class TemplateCommandInvalid extends AkariException {
         $file = str_replace(Context::$appEntryPath, '', $file);
         $this->message = sprintf("Template Command Invalid: [ %s ] with [ %s ] on [ %s ]", $commandName, var_export($args, TRUE), $file);
     }
-    
+
 }

@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\cipher;
 
-
 /**
  * 警告 这不是一种加密!
  * 

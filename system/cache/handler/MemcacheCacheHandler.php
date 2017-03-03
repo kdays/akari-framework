@@ -8,9 +8,9 @@
 
 namespace Akari\system\cache\handler;
 
-use Akari\system\cache\CacheBenchmark;
-use Akari\system\cache\Exception;
 use Akari\system\event\Listener;
+use Akari\system\cache\Exception;
+use Akari\system\cache\CacheBenchmark;
 
 class MemcacheCacheHandler implements ICacheHandler{
 
@@ -31,7 +31,7 @@ class MemcacheCacheHandler implements ICacheHandler{
         $this->port = $port;
 
         if (!$memcache->connect($host, $port, $timeout)) {
-            throw new Exception("[MemcacheCacheHandler] Connect Failed: ". $host. ":". $port);
+            throw new Exception("[MemcacheCacheHandler] Connect Failed: " . $host . ":" . $port);
         }
 
         $this->handler = $memcache;
@@ -49,7 +49,7 @@ class MemcacheCacheHandler implements ICacheHandler{
     public function set($key, $value, $timeout = NULL) {
         Listener::fire(CacheBenchmark::ACTION_CREATE, ['key' => $key]);
         $value = serialize($value);
-        
+
         return $this->handler->set($key, $value, 0, $timeout);
     }
 
@@ -85,10 +85,10 @@ class MemcacheCacheHandler implements ICacheHandler{
         $allSlabs = $memcache->getExtendedStats('slabs');
         $items = $memcache->getExtendedStats('items');
         foreach($allSlabs as $server => $slabs) {
-            foreach($slabs AS $slabId => $slabMeta) {
-                $cdump = $memcache->getExtendedStats('cachedump',(int)$slabId);
-                foreach($cdump AS $keys => $arrVal) {
-                    foreach($arrVal AS $k => $v){
+            foreach($slabs as $slabId => $slabMeta) {
+                $cdump = $memcache->getExtendedStats('cachedump', (int) $slabId);
+                foreach($cdump as $keys => $arrVal) {
+                    foreach($arrVal as $k => $v){
                         $list[] = $k;
                     }
                 }

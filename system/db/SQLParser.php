@@ -8,7 +8,7 @@
 
 namespace Akari\system\db;
 
-Class SQLParser {
+class SQLParser {
 
     /**
      * @var $pdo \PDO
@@ -56,15 +56,16 @@ Class SQLParser {
      * @param string $value 值
      * @return string
      **/
-    public function parseValue($value){
+    public function parseValue($value) {
         if ($this->autoBind) {
             $SQLHeader = '_PDR';
 
             // 调试时为了不覆盖 变量2位
-            $bindCount = str_pad($this->_bindCount, 2,  '0', STR_PAD_LEFT);
+            $bindCount = str_pad($this->_bindCount, 2, '0', STR_PAD_LEFT);
             $this->_bindCount++;
 
             $this->_bind[$SQLHeader . $bindCount] = $value;
+
             return ':' . $SQLHeader . $bindCount;
         }
 
@@ -78,11 +79,13 @@ Class SQLParser {
      * @param string $value 名
      * @return string
      **/
-    public function parseColumn($value){
+    public function parseColumn($value) {
         if (stripos($value, ".") !== FALSE) {
             list($tblName, $itemName) = explode(".", $value);
-            return '`'.$tblName.'`.`'.$itemName."`";
+
+            return '`' . $tblName . '`.`' . $itemName . "`";
         }
+
         return '`' . $value . '`';
     }
 
@@ -92,7 +95,7 @@ Class SQLParser {
      * @param mixed $columns 条件
      * @return string
      **/
-    public function parseField($columns){
+    public function parseField($columns) {
         if($columns == '*')	return '*';
 
         if(is_string($columns))	$columns = array($columns);
@@ -105,7 +108,7 @@ Class SQLParser {
 
             // 如果有count 就不进行parseColumn
             foreach ($fieldComplex as $complex) {
-                if (stripos($value, $complex) !== false) {
+                if (stripos($value, $complex) !== FALSE) {
                     array_push($stack, $value);
                     continue 2;
                 }
@@ -127,7 +130,7 @@ Class SQLParser {
      * @param array $array 数组内容
      * @return string
      **/
-    public function parseArray($array){
+    public function parseArray($array) {
         $temp = array();
         foreach($array as $value){
             $temp[] = is_numeric($value) ? $value : $this->parseValue($value);
@@ -144,20 +147,20 @@ Class SQLParser {
      * @param string $outer 外接字符
      * @return string
      **/
-    public function innerIn($data, $flag, $outer){
+    public function innerIn($data, $flag, $outer) {
         $haystack = array();
         foreach($data as $value){
-            $haystack[] = "(".$this->parseData($value, $flag).")";
+            $haystack[] = "(" . $this->parseData($value, $flag) . ")";
         }
 
-        return implode($outer." ", $haystack);
+        return implode($outer . " ", $haystack);
     }
 
-    public function  parseData($data, $flag = ' AND', $onWhere = False){
+    public function parseData($data, $flag = ' AND', $onWhere = FALSE) {
         $wheres = array();
 
         if(gettype($data) == "object"){
-            $data = (array)$data;
+            $data = (array) $data;
         }
 
         foreach($data as $key => $value){
@@ -165,13 +168,13 @@ Class SQLParser {
                 $key = $value[0];
                 $onField = $value[2];
                 $value = $value[1];
-                
+
                 if ($onField) {
                     $wheres[] = "$key = $value";
                     continue;
                 }
             }
-            
+
             $type = gettype($value);
 
             if($type == 'array' && preg_match("/^(AND|OR)\s*#?/i", $key, $relation_match)){
@@ -197,7 +200,7 @@ Class SQLParser {
 
                             case 'integer':
                             case 'double':
-                                $wheres[] = "$column != ". $this->parseValue($value);
+                                $wheres[] = "$column != " . $this->parseValue($value);
                                 break;
 
                             case 'boolean':
@@ -219,7 +222,7 @@ Class SQLParser {
                             }
                         }
                     }elseif($match[3] == '?') {
-                        $wheres[] = $match[1]." LIKE ".$this->parseValue($value);
+                        $wheres[] = $match[1] . " LIKE " . $this->parseValue($value);
                     }else{
                         //都不是那就是日期
                         if(is_numeric($value)){
@@ -227,7 +230,7 @@ Class SQLParser {
                         }else{
                             $datetime = strtotime($value);
                             if($datetime){
-                                $wheres[] = "$column $match[3] ".$this->parseValue(date('Y-m-d H:i:s', $datetime));
+                                $wheres[] = "$column $match[3] " . $this->parseValue(date('Y-m-d H:i:s', $datetime));
                             }
                         }
                     }
@@ -239,30 +242,30 @@ Class SQLParser {
                             break;
 
                         case 'array':
-                            $wheres[] = "$column IN (".$this->parseArray($value).")";
+                            $wheres[] = "$column IN (" . $this->parseArray($value) . ")";
                             break;
 
                         case 'integer':
                         case 'double':
-                            $wheres[] = "$column = ". $this->parseValue($value);
+                            $wheres[] = "$column = " . $this->parseValue($value);
                             break;
 
                         case 'boolean':
-                            $wheres[] = "$column = ".($value ? '1' : '0');
+                            $wheres[] = "$column = " . ($value ? '1' : '0');
                             break;
 
                         case 'string':
-                            $wheres[] = "$column = ".$this->parseValue($value);
+                            $wheres[] = "$column = " . $this->parseValue($value);
                             break;
                     }
                 }
             }
         }
 
-        return implode($flag.' ', $wheres);
+        return implode($flag . ' ', $wheres);
     }
 
-    public function parseWhere($where){
+    public function parseWhere($where) {
         $str = '';
         if(is_array($where)){
             $whereKeys = array_keys($where);
@@ -306,15 +309,15 @@ Class SQLParser {
                     foreach($likes as $column => $keyword){
                         if(is_array($keyword)){
                             foreach($keyword as $key){
-                                $wrap[] = $this->parseColumn($column)." LIKE ".$this->parseValue('%'.$value.'%');
+                                $wrap[] = $this->parseColumn($column) . " LIKE " . $this->parseValue('%' . $value . '%');
                             }
                         }else{
-                            $wrap[] = $this->parseColumn($column)." LIKE ".$this->parseValue('%'.$keyword.'%');
+                            $wrap[] = $this->parseColumn($column) . " LIKE " . $this->parseValue('%' . $keyword . '%');
                         }
                     }
 
                     $likeTmpStr .= '(' . implode($wrap, ' ' . $connector . ' ') . ')';
-                    $str =  $str=="" ? $likeTmpStr : " AND $likeTmpStr";
+                    $str =  $str == "" ? $likeTmpStr : " AND $likeTmpStr";
 
                     unset($likeTmpStr);
                 }
@@ -325,22 +328,22 @@ Class SQLParser {
                 $matchQuery = $where['MATCH'];
 
                 if (is_array($matchQuery) && isset($matchQuery['columns'], $matchQuery['keyword'])){
-                    $str =  ($str=="" ? "" : ' AND'). ' MATCH ("' . str_replace('.', '"."', implode($matchQuery['columns'], '", "')) . '") AGAINST (' . $this->quote($matchQuery['keyword']) . ')';
+                    $str =  ($str == "" ? "" : ' AND') . ' MATCH ("' . str_replace('.', '"."', implode($matchQuery['columns'], '", "')) . '") AGAINST (' . $this->quote($matchQuery['keyword']) . ')';
                 }
             }
         }else{
-            if($where != NULL)	$str = ' '.$where;
+            if($where != NULL)	$str = ' ' . $where;
         }
 
         return $str != "" ? " WHERE $str " : "";
     }
 
-    public function parseJoin($join){
-        $joinKey = is_array($join) ? array_keys($join) : null;
+    public function parseJoin($join) {
+        $joinKey = is_array($join) ? array_keys($join) : NULL;
 
         if(isset($joinKey[0]) && $joinKey[0][0] == '['){
-            $tableJoin = Array();
-            $joinArray = Array(
+            $tableJoin = array();
+            $joinArray = array(
                 '>' => 'LEFT', '<' => 'RIGHT',
                 '<>' => 'FULL', '><' => 'INNER'
             );
@@ -354,7 +357,7 @@ Class SQLParser {
                     }elseif(is_array($relation)){
                         if(isset($relation[0])){
                             // ['table1', 'table2']
-                            $relation = 'USING ('.implode('", "', $relation). '")';
+                            $relation = 'USING (' . implode('", "', $relation) . '")';
                         }else{
                             // ['table1' => 'table2']
                             $relation = 'ON ' . $subTable . '."' . key($relation) . '" = "' . $match[3] . '"."' . current($relation) . '"';
@@ -371,7 +374,7 @@ Class SQLParser {
         return '';
     }
 
-    public function parseLimit($limit){
+    public function parseLimit($limit) {
         if(is_numeric($limit)){
             return " LIMIT $limit";
         }elseif(is_array($limit) && is_numeric($limit[0]) && is_numeric($limit[1])){
@@ -381,7 +384,7 @@ Class SQLParser {
         return "";
     }
 
-    public function parseOrder($order){
+    public function parseOrder($order) {
         if (empty($order)) {
             return '';
         }
@@ -391,18 +394,19 @@ Class SQLParser {
         }
 
         preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $order, $match);
+
         return ' ORDER BY `' . str_replace('.', '"."', $match[1]) . '` ' . (isset($match[3]) ? $match[3] : '');
     }
 
-    public function parseHaving($having){
+    public function parseHaving($having) {
         return empty($having) ? '' : ' HAVING ' . $this->parseData($having, '');
     }
 
-    public function parseGroup($group){
-        return empty($group) ? '' : ' GROUP BY '.$this->parseColumn($group);
+    public function parseGroup($group) {
+        return empty($group) ? '' : ' GROUP BY ' . $this->parseColumn($group);
     }
 
-    public function parseSet($data){
+    public function parseSet($data) {
         $values = array();
 
         foreach($data as $key => $value){
@@ -435,8 +439,8 @@ Class SQLParser {
         return $values;
     }
 
-    public function parseDistinct( $field ){
-        return ' DISTINCT('.$field.') ';
+    public function parseDistinct($field) {
+        return ' DISTINCT(' . $field . ') ';
     }
 
 }

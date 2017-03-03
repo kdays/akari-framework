@@ -6,24 +6,24 @@
 
 namespace Akari;
 
-use Akari\system\event\Event;
-use Akari\system\event\Listener;
-use Akari\system\exception\ExceptionProcessor;
-use Akari\system\event\Trigger;
-use Akari\system\ioc\Injectable;
-use Akari\system\logger\DefaultExceptionAutoLogger;
-use Akari\system\result\Result;
-use Akari\system\security\Security;
 use Akari\utility\Benchmark;
+use Akari\system\event\Event;
+use Akari\system\event\Trigger;
+use Akari\system\result\Result;
+use Akari\system\event\Listener;
+use Akari\system\ioc\Injectable;
 use Akari\utility\helper\Logging;
+use Akari\system\security\Security;
+use Akari\system\exception\ExceptionProcessor;
+use Akari\system\logger\DefaultExceptionAutoLogger;
 
-include("const.php");
+include "const.php";
 
-define("AKARI_PATH", dirname(__FILE__).'/'); //兼容老版用
+define("AKARI_PATH", dirname(__FILE__) . '/'); //兼容老版用
 define("TIMESTAMP", time());
-include("function.php");
+include "function.php";
 
-Class Context {
+class Context {
 
     public static $aliases = [];
 
@@ -93,13 +93,13 @@ Class Context {
      * @var bool
      */
     public static $testing = FALSE;
-    
+
     public static function registerNamespace($namespace, $dir) {
         Context::$nsPaths[$namespace] = $dir;
     }
-    
+
     public static function autoload($cls) {
-        $clsPath = false;
+        $clsPath = FALSE;
         if(isset(self::$aliases[$cls])){
             $cls = self::$aliases[$cls];
         }
@@ -107,7 +107,7 @@ Class Context {
         $nsPath = explode(NAMESPACE_SEPARATOR, $cls);
         if ( isset(Context::$nsPaths[$nsPath[0]]) ) {
             $basePath = Context::$nsPaths[ array_shift($nsPath)];
-            $clsPath = $basePath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $nsPath).".php";
+            $clsPath = $basePath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $nsPath) . ".php";
         }
 
         if ($clsPath) {
@@ -117,7 +117,7 @@ Class Context {
         if(isset(self::$classes[$clsPath]))	return ;
 
         if($clsPath && file_exists($clsPath)) {
-            self::$classes[$clsPath] = true;
+            self::$classes[$clsPath] = TRUE;
             require_once $clsPath;
         }
 
@@ -134,7 +134,7 @@ Class Context {
         Context::$appConfig->$key = $value;
     }
 }
-spl_autoload_register(Array('Akari\Context', 'autoload'));
+spl_autoload_register(array('Akari\Context', 'autoload'));
 
 /**
  * Class akari
@@ -143,20 +143,22 @@ spl_autoload_register(Array('Akari\Context', 'autoload'));
  * @property \Akari\system\result\Processor $processor
  * @property \Akari\system\router\Router $router
  */
-Class akari extends Injectable{
+class akari extends Injectable{
 
     use Logging;
 
     private static $f;
-    public static function getInstance(){
-        if (self::$f == null) {
+    public static function getInstance() {
+        if (self::$f == NULL) {
             self::$f = new self();
         }
+
         return self::$f;
     }
 
-    public static function getVersion($withCodeName = true) {
+    public static function getVersion($withCodeName = TRUE) {
         $version = AKARI_VERSION;
+
         return $withCodeName ? $version : preg_replace('/\(\w+\)/', "", $version);
     }
 
@@ -177,32 +179,32 @@ Class akari extends Injectable{
             die;
         }
 
-        $appDir = realpath($appDir). DIRECTORY_SEPARATOR;
+        $appDir = realpath($appDir) . DIRECTORY_SEPARATOR;
 
-        Context::$appWebPath = $webPath===NULL ? $appBasePath : $webPath;
+        Context::$appWebPath = $webPath === NULL ? $appBasePath : $webPath;
         Context::$appBasePath = $appBasePath;
         Context::$appBaseNS = $appNS;
         Context::$nsPaths[ $appNS ] = $appDir;
         Context::$appEntryPath = $appDir;
 
         if ($appNS == 'Akari' && Context::$testing) { // 测试时才会出现这个情况
-            Context::$appBasePath = realpath($appBasePath. "/../");
+            Context::$appBasePath = realpath($appBasePath . "/../");
             Context::$nsPaths[ $appNS ] = $appBasePath;
             Context::$appEntryPath = $appBasePath;
         }
 
         Context::$mode = $this->getMode();
-        $confClsName = (empty(Context::$mode) ? "" : Context::$mode). "Config";
+        $confClsName = (empty(Context::$mode) ? "" : Context::$mode) . "Config";
 
         if ($defaultConfig == NULL) {
-            if (!file_exists( $appDir. "config". DIRECTORY_SEPARATOR. $confClsName . ".php" )) {
+            if (!file_exists( $appDir . "config" . DIRECTORY_SEPARATOR . $confClsName . ".php" )) {
                 throw new FrameworkInitFailed( sprintf("config %s not found", $confClsName) );
             }
 
             /**
              * @var \Akari\config\BaseConfig $confCls
              */
-            $confCls = $appNS. NAMESPACE_SEPARATOR. "config". NAMESPACE_SEPARATOR. $confClsName;
+            $confCls = $appNS . NAMESPACE_SEPARATOR . "config" . NAMESPACE_SEPARATOR . $confClsName;
         } else {
             $confCls =  $defaultConfig;
         }
@@ -211,10 +213,10 @@ Class akari extends Injectable{
         // 应该是实际执行的Action被赋值
         Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
-        header("X-Akari-Version: ". self::getVersion(false));
-        include("defaultBoot.php");
+        header("X-Akari-Version: " . self::getVersion(FALSE));
+        include "defaultBoot.php";
         if (file_exists($bootPath = Context::$appBasePath . DIRECTORY_SEPARATOR . "boot.php") && !Context::$testing) {
-            include($bootPath);
+            include $bootPath;
         }
 
         $this->loadExternal();
@@ -231,8 +233,8 @@ Class akari extends Injectable{
         $autoLogger = Context::$appConfig->exceptionAutoLogging;
         if ($autoLogger) {
             $autoLoggerCls = is_bool($autoLogger) ? DefaultExceptionAutoLogger::class : $autoLogger;
-            
-            Listener::add(ExceptionProcessor::EVENT_EXCEPTION_EXECUTE, function(Event $event) use($autoLoggerCls) {
+
+            Listener::add(ExceptionProcessor::EVENT_EXCEPTION_EXECUTE, function (Event $event) use ($autoLoggerCls) {
                 /** @var DefaultExceptionAutoLogger $autoLoggerCls */
                 $autoLoggerCls::log($event);
             });
@@ -242,39 +244,39 @@ Class akari extends Injectable{
     public function run($uri = NULL, $outputBuffer = TRUE) {
         $config = Context::$appConfig;
         Benchmark::setTimer('app.start');
-        
+
         if (!$uri) {
             $uri = $this->router->resolveURI();
             Context::$appConfig->appBaseURL = $this->router->rewriteBaseURL($config->appBaseURL);
         }
 
         Context::$uri = $uri;
-        
+
         if ($outputBuffer)  ob_start();
         Trigger::initEvent();
-        
+
         $result = Trigger::handle(Trigger::TYPE_BEFORE_DISPATCH);
         if ($result === NULL) {
             if (!CLI_MODE) {
                 $toUrl = $this->router->getUrlFromRule( Context::$uri );
                 $toParameters = $this->router->getParameters();
-                
+
                 $this->dispatcher->invoke( $toUrl, $toParameters );
             } else {
                 $toParameters = [];
                 if (array_key_exists("argv", $_SERVER)) {
                     $toParameters = $_SERVER['argv'];
                     array_shift($toParameters);
-                    
+
                     $toParameters = $this->router->parseArgvParams($toParameters);
                 }
-                
+
                 $this->dispatcher->invoke( Context::$uri, $toParameters );
             }
-            
+
             $result = Trigger::handle(Trigger::TYPE_APPLICATION_START);
         }
-        
+
         if (!isset($result)) {
             Security::autoVerifyCSRFToken(); // Token检查
             $realResult = $this->dispatcher->dispatch();
@@ -288,19 +290,19 @@ Class akari extends Injectable{
                     $realResult = new Result(Result::TYPE_HTML, $realResult, NULL);
                 }
             }
-            
+
             $result = Trigger::handle(Trigger::TYPE_APPLICATION_END, $realResult);
         }
-        
+
         Benchmark::logParams('app.time', ['time' => Benchmark::getTimerDiff('app.start')]);
-        
+
         if (isset($result)) {
             $this->processor->processResult($result);
         } elseif (isset($realResult)) {
             // 如果不是result 则会调用设置nonResultCallback来处理result 如果没有设置则按照HTML返回
             $this->processor->processResult($realResult);
         }
-        
+
         Trigger::handle(Trigger::TYPE_APPLICATION_OUTPUT, NULL);
         $this->response->send();
     }
@@ -334,11 +336,11 @@ Class akari extends Injectable{
 
     public function __destruct() {
         if (!CLI_MODE && DISPLAY_BENCHMARK) {
-            include("template/BenchmarkResult.php");
+            include "template/BenchmarkResult.php";
         }
 
         self::_logDebug('Request ' . Context::$appConfig->appName .
-            ' processed, total time: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) .
+            ' processed, total time: ' . (microtime(TRUE) - $_SERVER['REQUEST_TIME_FLOAT']) .
             ' secs' );
     }
 
@@ -348,7 +350,7 @@ Class akari extends Injectable{
      *
      **/
     public function loadExternal() {
-        $libList = require("external/classes.php");
+        $libList = require "external/classes.php";
         foreach ($libList as $nowLibName) {
             import($nowLibName);
         }
@@ -370,25 +372,25 @@ Class akari extends Injectable{
     }
 }
 
-Class FrameworkInitFailed extends \Exception {
+class FrameworkInitFailed extends \Exception {
 
 }
 
-Class NotFoundClass extends \Exception {
+class NotFoundClass extends \Exception {
 
     public $className;
 
     public function __construct($clsName) {
         $this->className = $clsName;
-        $this->message = "not found class [ ". $clsName. " ] ";
+        $this->message = "not found class [ " . $clsName . " ] ";
     }
 
 }
 
-Class NotAllowConsole extends \Exception {
+class NotAllowConsole extends \Exception {
 
     public function __construct($message) {
-        $this->message = "This action not allow on console. ". $message;
+        $this->message = "This action not allow on console. " . $message;
     }
 
 }

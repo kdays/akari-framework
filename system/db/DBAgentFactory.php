@@ -15,7 +15,7 @@ use Akari\Context;
  * @package Akari\system\db
  * @deprecated 
  */
-Class DBAgentFactory {
+class DBAgentFactory {
 
     private static $instance = array();
 
@@ -25,7 +25,7 @@ Class DBAgentFactory {
      * @param string $cfgName 配置名
      * @return DBAgent
      */
-    public static function getDBAgent($cfgName = "default"){
+    public static function getDBAgent($cfgName = "default") {
         $config = Context::$appConfig->getDBConfig($cfgName);
 
         if(!array_key_exists($cfgName, self::$instance)){

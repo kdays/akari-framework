@@ -10,8 +10,8 @@ namespace Akari\utility;
 
 use Akari\system\ioc\DIHelper;
 
-Class I18n {
-    
+class I18n {
+
     use DIHelper;
 
     /**
@@ -24,7 +24,7 @@ Class I18n {
     public static function loadPackage($packageId, $prefix = "", $useRelative = TRUE) {
         return self::getHandler()->loadPackage($packageId, $prefix, $useRelative);
     }
-    
+
     public static function has($id, $prefix = "") {
         return self::getHandler()->has($id, $prefix);
     }

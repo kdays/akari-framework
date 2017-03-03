@@ -8,19 +8,19 @@
 
 namespace Akari\system\router;
 
-
 use Akari\Context;
 use Akari\system\security\Security;
 
 class BaseUrlGenerator {
-    
-    public function get($path, $args = [], $withToken = False) {
+
+    public function get($path, $args = [], $withToken = FALSE) {
         return $this->createBaseUrl($path, $args, $withToken);
     }
-    
-    public function getFullUrl($path, $args = [], $withToken = False) {
+
+    public function getFullUrl($path, $args = [], $withToken = FALSE) {
         $url = $this->get($path, $args, $withToken);
-        return Context::$appConfig->appBaseURL. $url;
+
+        return Context::$appConfig->appBaseURL . $url;
     }
 
     public function createBaseUrl($path, $args, $withToken) {
@@ -28,7 +28,7 @@ class BaseUrlGenerator {
             $args[ Context::$appConfig->csrfTokenName ] = Security::getCSRFToken();
         }
 
-        return $path. (!empty($args) ? ("?". http_build_query($args)) : '');
+        return $path . (!empty($args) ? ("?" . http_build_query($args)) : '');
     }
-    
+
 }

@@ -8,7 +8,7 @@
 
 namespace Akari\system\console;
 
-Class Output {
+class Output {
 
     const PLAIN = 1;
     const COLOR = 2;
@@ -44,10 +44,10 @@ Class Output {
     ];
 
     protected static $_styles = [
-        'fatal' => ['text' => 'red', 'underline' => true],
-        'alert' => ['text' => 'red', 'underline' => true],
-        'critical' => ['text' => 'red', 'underline' => true],
-        'error' => ['text' => 'red', 'underline' => true],
+        'fatal' => ['text' => 'red', 'underline' => TRUE],
+        'alert' => ['text' => 'red', 'underline' => TRUE],
+        'critical' => ['text' => 'red', 'underline' => TRUE],
+        'error' => ['text' => 'red', 'underline' => TRUE],
         'warning' => ['text' => 'yellow'],
         'info' => ['text' => 'cyan'],
         'debug' => ['text' => 'white'],
@@ -68,14 +68,17 @@ Class Output {
         if (is_array($message)) {
             $message = implode(static::LF, $message);
         }
+
         return $this->_write($this->styleText($message . str_repeat(static::LF, $newlines)));
     }
 
     public function styleText($text) {
         if ($this->outputAs == static::PLAIN) {
             $tags = implode('|', array_keys(static::$_styles));
+
             return preg_replace('#</?(?:' . $tags . ')>#', '', $text);
         }
+
         return preg_replace_callback(
             '/<(?P<tag>[a-z0-9-_]+)>(?P<text>.*?)<\/(\1)>/ims', [$this, '_replaceTags'], $text
         );
@@ -100,22 +103,25 @@ Class Output {
                 $styleInfo[] = static::$_options[$option];
             }
         }
+
         return "\033[" . implode($styleInfo, ';') . 'm' . $matches['text'] . "\033[0m";
     }
 
-    public function styles($style = null, $definition = null) {
-        if ($style === null && $definition === null) {
+    public function styles($style = NULL, $definition = NULL) {
+        if ($style === NULL && $definition === NULL) {
             return static::$_styles;
         }
-        if (is_string($style) && $definition === null) {
-            return isset(static::$_styles[$style]) ? static::$_styles[$style] : null;
+        if (is_string($style) && $definition === NULL) {
+            return isset(static::$_styles[$style]) ? static::$_styles[$style] : NULL;
         }
-        if ($definition === false) {
+        if ($definition === FALSE) {
             unset(static::$_styles[$style]);
-            return true;
+
+            return TRUE;
         }
         static::$_styles[$style] = $definition;
-        return true;
+
+        return TRUE;
     }
 
     protected function _write($message) {

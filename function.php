@@ -5,12 +5,11 @@
  * Date: 14/12/28
  * Time: 19:14
  */
-
 use Akari\Context;
-use Akari\system\security\FilterFactory;
+use Akari\utility\I18n;
 use Akari\utility\ApplicationDataMgr;
 use Akari\utility\helper\ResultHelper;
-use Akari\utility\I18n;
+use Akari\system\security\FilterFactory;
 
 /**
  * 检查字符串中是否有某个字符
@@ -19,15 +18,16 @@ use Akari\utility\I18n;
  * @param string|array $findme 要查找的字符，支持传入数组
  * @return boolean
  */
-function in_string($string, $findme){
+function in_string($string, $findme) {
     if (!is_array($findme)) $findme = [$findme];
     $findme = array_filter($findme);
-    
+
     foreach($findme as $find){
-        if(strpos($string, $find) !== false) {
+        if(strpos($string, $find) !== FALSE) {
             return TRUE;
         }
     }
+
     return FALSE;
 }
 
@@ -42,17 +42,18 @@ function in_string($string, $findme){
  * 
  * @todo key为U.开头时，调用DataHelper，主要是为了方便URL重写的参数处理
  */
-function GP($key, $method = 'GP', $defaultValue = NULL, $filter = "default"){
+function GP($key, $method = 'GP', $defaultValue = NULL, $filter = "default") {
     if (substr($key, 0, 2) == 'U.') {
         $t = substr($key, 2);
         if ($method != 'GP' || $method === TRUE) {
             ApplicationDataMgr::set($t, $method);
+
             return NULL;
         } 
-        
+
         return ApplicationDataMgr::get($t, FALSE, $defaultValue);
     }
-    
+
     if ($method != 'P' && isset($_GET[$key])) {
         return FilterFactory::doFilter($_GET[$key], $filter);
     } elseif ($method != 'G' && isset($_POST[$key])) {
@@ -82,16 +83,17 @@ function view($bindArr, $tplName = NULL, $layoutName = NULL) {
  */
 function import($library, $once = TRUE, $params = []) {
     static $loadedPath = array();
-    
+
     $filePath = import_exists($library, TRUE);
     extract($params);
     if(!file_exists($filePath)){
         throw new \Akari\system\exception\AkariException("Import Failed: $library");
     }
-    
+
     if(!in_array($filePath, $loadedPath) || !$once){
         $loadedPath[] = $filePath;
-        return require($filePath);
+
+        return require $filePath;
     }
 }
 
@@ -103,12 +105,12 @@ function import_exists($library, $returnPath = FALSE) {
     $basePaths = Context::$nsPaths;
     $basePaths['core'] = AKARI_PATH;
     if (isset($basePaths[$head])) {
-        $filePath = $basePaths[$head]. implode(DIRECTORY_SEPARATOR, $name). ".php";
+        $filePath = $basePaths[$head] . implode(DIRECTORY_SEPARATOR, $name) . ".php";
     } else {
-        $filePath = implode(DIRECTORY_SEPARATOR, array_merge([Context::$appBasePath, $head], $name)). ".php";
+        $filePath = implode(DIRECTORY_SEPARATOR, array_merge([Context::$appBasePath, $head], $name)) . ".php";
     }
     $filePath = str_replace("#", ".", $filePath);
-    
+
     return $returnPath ? $filePath : !!file_exists($filePath);
 }
 
@@ -163,7 +165,7 @@ function array_flat($list, $columnKey, $indexKey = NULL, $multi = FALSE, $allowO
  * 
  * @return array
  */
-function array_index($list, $indexKey, $allowObject = false) {
+function array_index($list, $indexKey, $allowObject = FALSE) {
     if (!is_array($list) && !is_object($list)) {
         return [];
     }
@@ -194,7 +196,8 @@ function array_reindex($list, array $index) {
 
 function make_url($url, array $params) {
     if (empty($params)) return $url;
-    return $url. (in_string($url, '?') ? "&" : "?"). http_build_query($params);
+
+    return $url . (in_string($url, '?') ? "&" : "?") . http_build_query($params);
 }
 
 /**
@@ -204,9 +207,9 @@ function make_url($url, array $params) {
  * @param bool $assoc false返回Object true为Array
  * @return mixed
  */
-function json_decode_nice($json, $assoc = TRUE){
+function json_decode_nice($json, $assoc = TRUE) {
     $json = str_replace(array("\n", "\r"), "\n", $json);
-    $json = preg_replace('/([{,]+)(\s*)([^"]+?)\s*:/','$1"$3":', $json);
+    $json = preg_replace('/([{,]+)(\s*)([^"]+?)\s*:/', '$1"$3":', $json);
     $json = preg_replace('/(,)\s*}$/', '}', $json);
 
     return json_decode($json, $assoc);
@@ -218,7 +221,7 @@ function get_date($format, $timestamp = TIMESTAMP) {
     if (Context::$appConfig->offsetTime) {
         $timestamp += Context::$appConfig->offsetTime;
     }
-    
+
     return date($format, $timestamp);
 }
 
@@ -226,12 +229,12 @@ function get_timestamp($str) {
     $timestamp = is_numeric($str) ? $str : strtotime($str);
     // timestamp的时候如果有timeZone 也必须指定
     $timestamp -= Context::$appConfig->offsetTime;
-    
+
     return $timestamp;
 }
 
 if (!function_exists("hex2bin")) {
     function hex2bin($hex) {
-        return $hex !== false && preg_match('/^[0-9a-fA-F]+$/i', $hex) ? pack("H*", $hex) : false;
+        return $hex !== FALSE && preg_match('/^[0-9a-fA-F]+$/i', $hex) ? pack("H*", $hex) : FALSE;
     } 
 }

@@ -1,12 +1,12 @@
 <?php
 namespace Akari\utility;
 
-use Akari\config\ConfigItem;
 use Akari\Context;
 use Akari\system\Plugin;
+use Akari\config\ConfigItem;
 use Akari\system\tpl\TemplateUtil;
 
-Class PageHelper extends Plugin{
+class PageHelper extends Plugin{
 
     public $pageSize = 10;
     public $totalRecord = 0;
@@ -14,7 +14,7 @@ Class PageHelper extends Plugin{
     public $skipParams = [];
     public $display = 5;
     public $baseUrl;
-    
+
     public $name;
     public $totalPage = NULL;
     public $currentPage = NULL;
@@ -32,7 +32,7 @@ Class PageHelper extends Plugin{
      * @param string $name
      * @return PageHelper
      */
-    public static function getInstance($name = 'default'){
+    public static function getInstance($name = 'default') {
         if(!isset(self::$m[$name])){
             $helper = new self();
             $helper->name = $name;
@@ -46,37 +46,42 @@ Class PageHelper extends Plugin{
 
     public function setCurrentPage($page) {
         $this->currentPage = $page;
+
         return $this;
     }
 
     public function setPageSize($pageSize) {
         $this->pageSize = $pageSize;
+
         return $this;
     }
 
     public function setTotalCount($total) {
         $this->totalRecord = $total;
+
         return $this;
     }
 
     public function setUrl($url) {
         $this->baseUrl = $url;
+
         return $this;
     }
 
     public function makeUrl(array $skip, $page = 1) {
         $url = parse_url($this->baseUrl);
         $query = array_key_exists('query', $url) ? $url['query'] : '';
-        
+
         $result = [];
         parse_str($query, $result);
         foreach ($skip as $k) unset($result[$k]);
-        
+
         $params = ['page' => $page] + $this->params + $result;
+
         return $this->url->get($url['path'], $params);
     }
 
-    public function execute(){
+    public function execute() {
         $totalPage = intval(ceil($this->totalRecord / $this->pageSize));
         if (!$totalPage) {
             $totalPage = 1;
@@ -85,13 +90,13 @@ Class PageHelper extends Plugin{
         if ($totalPage < $this->currentPage) {
             $this->currentPage = $totalPage;
         }
-        
+
         $this->totalPage = $totalPage;
 
         $currentPage = $this->currentPage;
         $pagination = [];
         $skip = $this->skipParams;
-        
+
         if ($this->totalPage > 0) {
             $left = ceil($this->display / 2);
             $right = ceil($this->display / 2) + 1;
@@ -128,15 +133,16 @@ Class PageHelper extends Plugin{
         $this->firstPage = $this->makeUrl($skip, 1);
         $this->lastPage = $this->makeUrl($skip, $this->totalPage);
         $this->pagination = $pagination;
-        
+
         return $this;
     }
 
     public function setSkipParams(array $skip) {
         $this->skipParams = $skip;
+
         return $this;
     }
-    
+
     /**
      * 绑定替换队列
      *
@@ -145,15 +151,16 @@ Class PageHelper extends Plugin{
      * @param bool $addToUrl
      * @return $this
      */
-    public function bindValue($key, $value, $addToUrl = False) {
+    public function bindValue($key, $value, $addToUrl = FALSE) {
         if ($addToUrl) {
             if(!array_key_exists($key, $this->params)){
-                $this->baseUrl .=  in_string($this->baseUrl, "?") ? "&" : "?";
+                $this->baseUrl .= in_string($this->baseUrl, "?") ? "&" : "?";
                 $this->baseUrl .= "$key=($key)";
             }
         }
-        
+
         $this->params[$key] = $value;
+
         return $this;
     }
 
@@ -166,7 +173,7 @@ Class PageHelper extends Plugin{
      * @param bool $addToUrl
      * @return $this
      */
-    public function bindValues(array $params, $skip = [], $allow = NULL, $addToUrl = false) {
+    public function bindValues(array $params, $skip = [], $allow = NULL, $addToUrl = FALSE) {
         foreach ($params as $key => $value) {
             if (in_array($key, $skip)) {
                 continue;
@@ -184,6 +191,7 @@ Class PageHelper extends Plugin{
 
     public function setWidget($tplId) {
         $this->widgetName = $tplId;
+
         return $this;
     }
 
@@ -198,6 +206,7 @@ Class PageHelper extends Plugin{
     public function getStart() {
         $start = ($this->currentPage - 1) * $this->pageSize;
         if ($start < 0) return 0;
+
         return $start;
     }
 

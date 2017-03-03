@@ -8,7 +8,6 @@
 
 namespace Akari\system\exception;
 
-
 /**
  * Class AkariException
  * 框架异常基础方法

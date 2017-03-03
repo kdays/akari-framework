@@ -14,8 +14,8 @@ class DefaultCookieEncrypt extends Cipher{
 
     const FLAG = "|ENC";
 
-    public function encrypt($str){
-        return Security::encrypt($str, 'cookie'). self::FLAG;
+    public function encrypt($str) {
+        return Security::encrypt($str, 'cookie') . self::FLAG;
     }
 
     public function decrypt($str) {
@@ -26,5 +26,5 @@ class DefaultCookieEncrypt extends Cipher{
 
         return $str;
     }
-    
+
 }

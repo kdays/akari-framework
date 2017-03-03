@@ -8,23 +8,22 @@
 
 namespace Akari\system\logger\handler;
 
-
 class NullLoggerHandler implements ILoggerHandler{
 
     public function getHandler() {
-        
+
     }
-    
+
     public function append($message, $level) {
-        
+
     }
-    
+
     public function setLevel($level) {
-        
+
     }
-    
+
     public function setOption($key, $value) {
-        
+
     }
-    
+
 }

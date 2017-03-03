@@ -8,9 +8,9 @@
 
 namespace Akari\model;
 
+use Akari\utility\TextHelper;
 use Akari\config\DbAgentConfig;
 use Akari\system\exception\AkariException;
-use Akari\utility\TextHelper;
 
 abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSerializable {
 
@@ -33,7 +33,7 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
         $cls = explode(NAMESPACE_SEPARATOR, get_called_class());
         $tName = array_pop($cls);
         $tName[0] = strtolower($tName[0]);
-        
+
         return TextHelper::snakeCase($tName);
     }
 
@@ -46,27 +46,28 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
      * @param bool $allowExceptObject 设置TRUE时,你在columnMap中未设置,但模型中用数组方法设置的项目也会返回
      * @return array
      */
-    public function toArray($except = [], $useModelKey = False, $useGetter = False, $allowExceptObject = False) {
+    public function toArray($except = [], $useModelKey = FALSE, $useGetter = FALSE, $allowExceptObject = FALSE) {
         $result = [];
-        
+
         $columnMap = $this->columnMap();
         $flipMap = array_flip($columnMap);
-        
+
         if  ($allowExceptObject) {
             foreach ($this as $k => $v) {
                 if (!isset($flipMap[$k])) $columnMap[$k] = $k;
             }
         }
-        
+
         foreach ($columnMap as $dbField => $modelField) {
             if (in_array($modelField, $except)) {
                 continue;
             }
-            
+
             $result[$useModelKey ? $modelField : $dbField] = $useGetter ? $this[$modelField] : $this->$modelField;
         }
-        
+
         unset($result['_dependencyInjector']);
+
         return $result;
     }
 
@@ -87,14 +88,14 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
 
     public function offsetSet($offset, $value) {
         if (is_null($offset)) {
-            throw new AkariException(__CLASS__. " Model offset is NULL");
+            throw new AkariException(__CLASS__ . " Model offset is NULL");
         }
 
         $magicName = $offset;
         $magicName[0] = strtoupper($magicName[0]);
 
-        if (method_exists($this, 'set'. $magicName)) {
-            $f = "set". $magicName;
+        if (method_exists($this, 'set' . $magicName)) {
+            $f = "set" . $magicName;
             $this->$f($value);
         } else {
             $this->$offset = $value;
@@ -113,12 +114,13 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
         $magicName = $offset;
         $magicName[0] = strtoupper($magicName[0]);
 
-        if (method_exists($this, 'get'. $magicName)) {
-            $f = 'get'. $magicName;
+        if (method_exists($this, 'get' . $magicName)) {
+            $f = 'get' . $magicName;
+
             return $this->$f();
         }
 
-        return isset($this->$offset) ? $this->$offset : null;
+        return isset($this->$offset) ? $this->$offset : NULL;
     }
 
     /**
@@ -127,9 +129,9 @@ abstract class DatabaseModel extends Model implements \ArrayAccess, \JsonSeriali
      * @return array
      */
     public function jsonSerialize() {
-        return $this->toArray([], 
-            DbAgentConfig::JSON_AUTO_MODEL_KEY, 
-            DbAgentConfig::JSON_AUTO_USE_GETTER, 
+        return $this->toArray([],
+            DbAgentConfig::JSON_AUTO_MODEL_KEY,
+            DbAgentConfig::JSON_AUTO_USE_GETTER,
             DbAgentConfig::JSON_AUTO_ARRAY_EXCEPT);
     }
 }

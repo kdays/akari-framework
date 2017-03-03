@@ -8,7 +8,6 @@
 
 namespace Akari\system\db;
 
-
 use Akari\system\exception\AkariException;
 
 class DBAgentException extends AkariException {
