@@ -10,31 +10,31 @@ namespace Akari\system\http;
 
 use Akari\utility\helper\Logging;
 
-Class Session{
+class Session{
 
     use Logging;
 
-    public static function init(){
+    public static function init() {
         session_start();
     }
 
     public static function set($key, $value) {
         $_SESSION[ $key ] = $value;
     }
-    
+
     public static function destroy() {
         session_destroy();
     }
-    
+
     public static function has($key) {
         return array_key_exists($key, $_SESSION);
     }
 
-    public static function remove($key){
+    public static function remove($key) {
         unset($_SESSION[$key]);
     }
 
-    public static function get($key, $defaultValue = NULL){
+    public static function get($key, $defaultValue = NULL) {
         if($key == NULL) {
             return $_SESSION;
         }

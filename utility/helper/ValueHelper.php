@@ -23,7 +23,7 @@ trait ValueHelper {
     protected static function _getValue($key, $subKey = NULL, $defaultValue = NULL) {
         return ApplicationDataMgr::get($key, $subKey, $defaultValue);
     }
-    
+
     protected static function _hasValue($key, $subKey = NULL) {
         return ApplicationDataMgr::has($key, $subKey);
     } 

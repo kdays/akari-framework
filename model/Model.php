@@ -11,7 +11,7 @@ namespace Akari\model;
 use Akari\system\ioc\Injectable;
 use Akari\utility\helper\Logging;
 
-abstract Class Model extends Injectable{
+abstract class Model extends Injectable{
 
     use Logging;
 

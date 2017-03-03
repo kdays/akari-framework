@@ -8,7 +8,6 @@
 
 namespace Akari\system\cache\handler;
 
-
 use Akari\system\cache\CacheBenchmark;
 
 class RedisCacheHandler implements ICacheHandler{
@@ -19,7 +18,7 @@ class RedisCacheHandler implements ICacheHandler{
     protected $port;
     protected $password;
 
-    protected $isInTransaction = False;
+    protected $isInTransaction = FALSE;
 
     public function __construct(array $opts) {
         $redis = new \Redis();
@@ -29,7 +28,7 @@ class RedisCacheHandler implements ICacheHandler{
 
         $redis->connect($host, $port);
 
-        $password = array_key_exists("password", $opts) ? $opts['password'] : false;
+        $password = array_key_exists("password", $opts) ? $opts['password'] : FALSE;
         if ($password) {
             $redis->auth($password);
         }
@@ -50,6 +49,7 @@ class RedisCacheHandler implements ICacheHandler{
      */
     public function set($key, $value, $timeout = NULL) {
         $value = serialize($value);
+
         return $this->redisHandler->set($key, $value, $timeout);
     }
 
@@ -63,12 +63,13 @@ class RedisCacheHandler implements ICacheHandler{
     public function get($key, $defaultValue = NULL) {
         if (!$this->exists($key)) {
             CacheBenchmark::log(CacheBenchmark::MISS);
+
             return $defaultValue;
         }
 
         CacheBenchmark::log(CacheBenchmark::HIT);
         $value = $this->redisHandler->get($key);
-        
+
         return unserialize($value);
     }
 
@@ -80,11 +81,12 @@ class RedisCacheHandler implements ICacheHandler{
      */
     public function remove($key) {
         if (!$this->exists($key)) {
-            return False;
+            return FALSE;
         }
 
         $this->redisHandler->delete($key);
-        return True;
+
+        return TRUE;
     }
 
     /**
@@ -117,10 +119,10 @@ class RedisCacheHandler implements ICacheHandler{
      */
     public function startTransaction() {
         if ($this->isInTransaction) {
-            return False;
+            return FALSE;
         }
 
-        $this->isInTransaction = True;
+        $this->isInTransaction = TRUE;
         $this->redisHandler->multi();
     }
 
@@ -142,12 +144,12 @@ class RedisCacheHandler implements ICacheHandler{
      */
     public function commit() {
         if (!$this->isInTransaction) {
-            return False;
+            return FALSE;
         }
-        $this->isInTransaction = False;
+        $this->isInTransaction = FALSE;
         $this->redisHandler->exec();
 
-        return True;
+        return TRUE;
     }
 
     /**
@@ -156,10 +158,10 @@ class RedisCacheHandler implements ICacheHandler{
      * @return boolean
      */
     public function rollback() {
-        $this->isInTransaction = False;
+        $this->isInTransaction = FALSE;
         $this->redisHandler->discard();
 
-        return True;
+        return TRUE;
     }
 
     /**

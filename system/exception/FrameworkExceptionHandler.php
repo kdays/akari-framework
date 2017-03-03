@@ -8,13 +8,11 @@
 
 namespace Akari\system\exception;
 
+use \Exception;
 use Akari\Context;
 use Akari\system\http\HttpCode;
 use Akari\system\http\Response;
-use Akari\system\ioc\DIHelper;
 use Akari\system\router\NotFoundURI;
-use Akari\utility\helper\ResultHelper;
-use \Exception;
 
 /**
  * Class FrameworkExceptionHandler
@@ -23,16 +21,16 @@ use \Exception;
  *
  * @package Akari\system\exception
  */
-Class FrameworkExceptionHandler extends BaseExceptionHandler {
-    
+class FrameworkExceptionHandler extends BaseExceptionHandler {
+
     public function handleException(Exception $ex) {
         $config = Context::$appConfig;
 
         // 调用框架的模板
-        $view = function($path, $data) {
+        $view = function ($path, $data) {
             ob_start();
             @extract($data, EXTR_PREFIX_SAME, 'a_');
-            include(AKARI_PATH. '/template/'. $path. '.php');
+            include AKARI_PATH . '/template/' . $path . '.php';
             $content = ob_get_contents();
             ob_end_clean();
 
@@ -41,10 +39,10 @@ Class FrameworkExceptionHandler extends BaseExceptionHandler {
 
         // CLI模式时为了方便调试 任何错误不捕获时全调用
         if (CLI_MODE) {
-            echo $ex->getMessage(). "\n\n". $ex->getTraceAsString();
+            echo $ex->getMessage() . "\n\n" . $ex->getTraceAsString();
             die;
         }
-        
+
         switch (get_class($ex)) {
 
             // 没有找到URI
@@ -55,13 +53,13 @@ Class FrameworkExceptionHandler extends BaseExceptionHandler {
                 if ($ex->getPrevious() !== NULL) {
                     $msg = $ex->getPrevious()->getMessage();
                 }
-                
+
                 $message = [
                     'msg' => $msg,
                     "url" => Context::$uri,
                     "index" => Context::$appConfig->appBaseURL
                 ];
-                
+
                 if (!empty($config->notFoundTemplate)) {
                     return self::_genTplResult($message, NULL, $config->notFoundTemplate);
                 } else {
@@ -74,11 +72,11 @@ Class FrameworkExceptionHandler extends BaseExceptionHandler {
                 $this->response->setStatusCode(HttpCode::INTERNAL_SERVER_ERROR);
                 $message = [
                     "message" => $ex->getMessage(),
-                    "file" => basename($ex->getFile()).":".$ex->getLine()
+                    "file" => basename($ex->getFile()) . ":" . $ex->getLine()
                 ];
-                
+
                 if (ob_get_length()) ob_clean();
-                 
+
                 if (!empty($config->serverErrorTemplate)) {
                     return self::_genTplResult($message, NULL, $config->serverErrorTemplate);
                 } else {

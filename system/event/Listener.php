@@ -7,6 +7,7 @@
  */
 
 namespace Akari\system\event;
+
 use Akari\system\exception\AkariException;
 
 /**
@@ -15,7 +16,7 @@ use Akari\system\exception\AkariException;
  *
  * @package Akari\system\router
  */
-Class Listener {
+class Listener {
 
     /** @var EventHandler[][] $_listeners  */
     protected static $_listeners = [];
@@ -44,9 +45,9 @@ Class Listener {
     public static function add($eventName, $callback, $priority = 0) {
         $r = explode(".", $eventName);
         if (count($r) < 2)  $r = ['UKN', $eventName];
-        
+
         list($gloSpace, $subSpace) = $r;
-        
+
         if ($gloSpace == '*') {
             throw new AkariException("Event global space can not be *");
         }
@@ -54,10 +55,10 @@ Class Listener {
         if (!isset(self::$_listeners[$gloSpace])) {
             self::$_listeners[$gloSpace] = [];
         }
-        
+
         $event = new EventHandler($callback, $subSpace, ++self::$_id, $priority);
         self::$_listeners[$gloSpace][] = $event;
-        
+
         return $event;
     }
 
@@ -73,7 +74,7 @@ Class Listener {
 
         $fireQueue = [];
         $nowQueue = self::$_listeners;
-        
+
         if (!isset($nowQueue[$gloSpace])) {
             return [];
         }
@@ -83,8 +84,8 @@ Class Listener {
                 $fireQueue[] = $event;
             }
         }
-        
-        usort($fireQueue, function(EventHandler $a, EventHandler $b) {
+
+        usort($fireQueue, function (EventHandler $a, EventHandler $b) {
             return $a->getPriority() > $b->getPriority() ? 1 : -1;
         });
 
@@ -102,20 +103,20 @@ Class Listener {
     public static function fire($eventName, $resultParameters) {
         $queue = self::_getFireQueue($eventName);
         $event = new Event($eventName, $resultParameters);
-        
+
         foreach ($queue as $listener) {
             $event->_setListener($listener);
-            
+
             try {
                 $event = $event->_tick();
             } catch (StopEventBubbling $e) {
                 break;
             }
         }
-        
+
         $result = $event->getData();
         unset($queue, $event);
-        
+
         return $result;
     }
 
@@ -131,10 +132,11 @@ Class Listener {
         foreach (self::$_listeners[$gEvent] as $key => $listener) {
             if ($listener->getType() == $sEvent && $listener->getHandler() == $handler) {
                 unset(self::$_listeners[$gEvent][$key]);
+
                 return TRUE;
             }
         }
-        
+
         return FALSE;
     }
 
@@ -146,18 +148,19 @@ Class Listener {
      */
     public static function detachById($id) {
         $queue = self::$_listeners;
-        
+
         foreach ($queue as $eventType => $events) {
             foreach ($events as $sk => $event) {
                 if ($event->getId() == $id) {
                     unset($queue[$eventType][$sk]);   
-                    
+
                     self::$_listeners = $queue;
+
                     return TRUE;
                 }
             }
         }
-        
+
         return FALSE;
     }
 
@@ -178,5 +181,5 @@ Class Listener {
     public static function getListeners() {
         return self::$_listeners;
     }
-    
+
 }

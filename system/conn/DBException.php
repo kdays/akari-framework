@@ -8,11 +8,10 @@
 
 namespace Akari\system\conn;
 
-
 use Akari\system\exception\AkariException;
 
 class DBException extends AkariException {
 
-    
-    
+
+
 }

@@ -8,18 +8,14 @@
 
 namespace Akari\system\event;
 
-use Akari\system\http\Request;
-use Akari\system\http\Response;
-use Akari\system\ioc\DIHelper;
-use Akari\system\ioc\Injectable;
 use Akari\system\result\Result;
-use Akari\system\tpl\TemplateHelper;
-use Akari\utility\helper\ExceptionSetter;
+use Akari\system\ioc\Injectable;
 use Akari\utility\helper\Logging;
-use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
+use Akari\utility\helper\ResultHelper;
+use Akari\utility\helper\ExceptionSetter;
 
-abstract Class BaseTrigger extends Injectable{
+abstract class BaseTrigger extends Injectable{
 
     use ResultHelper, Logging, ExceptionSetter, ValueHelper;
 
@@ -34,5 +30,5 @@ abstract Class BaseTrigger extends Injectable{
      * @return Result
      */
     abstract public function process(Result $result = NULL);
-    
+
 }

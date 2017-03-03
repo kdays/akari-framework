@@ -15,30 +15,30 @@ use Akari\utility\helper\ValueHelper;
 use Akari\system\security\CSRFVerifyFailed;
 
 class VerifyCsrfToken extends Injectable{
-    
+
     use ValueHelper;
-    
+
     public function makeToken() {
         static $madeToken = NULL;
         if ($madeToken === NULL) {
             $key = $this->_getValue(Security::KEY_TOKEN, NULL, uniqid());
 
-            $str = "CSRF-". Context::$appConfig->appName. $key;
-            $madeToken = substr(md5($str) ,7, 9);
+            $str = "CSRF-" . Context::$appConfig->appName . $key;
+            $madeToken = substr(md5($str), 7, 9);
         }
-        
+
         return $madeToken;
     }
-    
+
     public function getToken() {
         $config = Context::$appConfig;
         if ($this->request->hasCookie( $config->csrfTokenName )) {
             return $this->request->getCookie( $config->csrfTokenName );
         }
-        
+
         return $this->makeToken();
     }
-    
+
     public function verifyToken() {
         $tokenName = Context::$appConfig->csrfTokenName;
         $uToken = NULL;
@@ -46,7 +46,7 @@ class VerifyCsrfToken extends Injectable{
         if ($this->request->hasHeader('HTTP_X_CSRF_TOKEN')) {
             $uToken = $this->request->getHeader('HTTP_X_CSRF_TOKEN');
         }
-        
+
         if (!empty($this->request->has($tokenName))) {
             $uToken = $this->request->get($tokenName);
         }
@@ -56,7 +56,7 @@ class VerifyCsrfToken extends Injectable{
             throw new CSRFVerifyFailed($rToken, $uToken);
         }
     }
-    
+
     public function autoVerify() {
         $config = Context::$appConfig;
         $needVerify = (!CLI_MODE && $config->autoPostTokenCheck);
@@ -71,5 +71,5 @@ class VerifyCsrfToken extends Injectable{
             }
         }
     }
-    
+
 }

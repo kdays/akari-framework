@@ -2,26 +2,25 @@
 namespace Akari\system\router;
 
 use Akari\Context;
-use Akari\system\exception\AkariException;
-use Akari\system\ioc\DIHelper;
 use Akari\system\ioc\Injectable;
 use Akari\utility\helper\ValueHelper;
+use Akari\system\exception\AkariException;
 
-Class Router extends Injectable {
+class Router extends Injectable {
 
     use ValueHelper;
 
     private $config;
     private $params = [];
 
-    public function __construct(){
+    public function __construct() {
         $this->config = Context::$appConfig;
     }
 
-    private function clearURI($uri){
+    private function clearURI($uri) {
         $queryString = $this->request->getQueryString();
         if(strlen($queryString) > 0){
-            $uri = substr($uri, 0, -strlen($queryString)  -1);
+            $uri = substr($uri, 0, -strlen($queryString) - 1);
         }
 
         $scriptName = Context::$appEntryName;
@@ -33,8 +32,8 @@ Class Router extends Injectable {
         return $uri;
     }
 
-    public function resolveURI(){
-        $uri = null;
+    public function resolveURI() {
+        $uri = NULL;
 
         $config = $this->config;
         switch($config->uriMode){
@@ -71,7 +70,7 @@ Class Router extends Injectable {
 
         $uri = preg_replace('/\/+/', '/', $uri); //把多余的//替换掉..
 
-        if(!$uri || $uri == '/' || $uri == '/'.Context::$appEntryName){
+        if(!$uri || $uri == '/' || $uri == '/' . Context::$appEntryName){
             $uri = $config->defaultURI;
         }
 
@@ -110,7 +109,7 @@ Class Router extends Injectable {
      */
     public function rewriteBaseURL($URI) {
         $isSSL = $this->request->isSSL();
-        $URI = preg_replace('/https|http/i', $isSSL ? 'https' : 'http' , $URI);
+        $URI = preg_replace('/https|http/i', $isSSL ? 'https' : 'http', $URI);
 
         return $URI;
     }
@@ -127,19 +126,19 @@ Class Router extends Injectable {
 
         $uri = array_filter($uri);
         $now = array_filter($now);
-        
+
         if (count($uri) != count($now)) {
-            return false;
+            return FALSE;
         }
-        
+
         $block = [];
         $nowMarkKey = 0;
-        
+
         foreach ($now as $key => $value) {
             if (!isset($uri[$key])) {
-                return False;
+                return FALSE;
             }
-            
+
             /**
              * @todo 可处理某些特殊非标准的 /后面跟特殊字符的 比如 /subject/{id}!index这种处理
              * 不支持 index_{id}
@@ -147,19 +146,19 @@ Class Router extends Injectable {
             if (substr($uri[$key], 0, 1) == '{') {
                 $lastUriPos = strpos($uri[$key], '}');
                 $maxUriPos = strlen($uri[$key]);
-                
+
                 if ($lastUriPos + 1 == $maxUriPos) {
                     $block[ substr($uri[$key], 1, -1) ] = $value;
                 } else {
                     $nonKeyword = substr($uri[$key], $lastUriPos + 1);
                     $nonKeywordLen = strlen($nonKeyword);
                     if ($nonKeyword != substr($value, -$nonKeywordLen)) {
-                        return false;
+                        return FALSE;
                     }
-                    
+
                     $block[ substr($uri[$key], 1, $lastUriPos - 1) ] = substr($value, 0, -$nonKeywordLen);
                 }
-                
+
                 continue;
             }
 
@@ -172,9 +171,9 @@ Class Router extends Injectable {
                 continue;
             }
 
-            return False;
+            return FALSE;
         }
-        
+
         return $block;
     }
 
@@ -184,12 +183,12 @@ Class Router extends Injectable {
 
     public function getUrlFromRule($URI, $rules = NULL) {
         $rules = $rules === NULL ? Context::env('uriRewrite') : $rules;
-        
+
         $allowMethods = ['GET', 'POST', 'PUT', 'GP'];
         $nowRequestMethod = $this->request->getRequestMethod();
-        $methodRe = "/^(". implode("|", $allowMethods). "):(.*)/";
+        $methodRe = "/^(" . implode("|", $allowMethods) . "):(.*)/";
         $matchResult = NULL;
-        
+
         $this->resetParameters();
         foreach ($rules as $rule => $toName) {
             $matchMode = self::REWRITE_MODE_STR;
@@ -197,7 +196,7 @@ Class Router extends Injectable {
                 $matchMode = self::REWRITE_MODE_REGEXP;
                 $rule = substr($rule, 1);
             }
-            
+
             // 检查重写类型是否正确 不正确的话直接错误
             preg_match($methodRe, $rule, $methodResult);
             if (isset($methodResult[1]) && in_array($methodResult[1], $allowMethods)) {
@@ -213,10 +212,10 @@ Class Router extends Injectable {
             if (substr($rule, 0, 1) == '/' && $matchMode != self::REWRITE_MODE_REGEXP) {
                 $matchMode = self::REWRITE_MODE_REGEXP;
             }
-            
 
-            $matches = False;
-            
+
+            $matches = FALSE;
+
             // 根据matchMode处理
             if ($matchMode == self::REWRITE_MODE_REGEXP) {
                 if (preg_match($rule, $URI)) {
@@ -225,22 +224,22 @@ Class Router extends Injectable {
             } else {
                 $matches = $this->matchURLByString($URI, $rule);
             }
-            
-            if ($matches === False) {
+
+            if ($matches === FALSE) {
                 continue;
             }
-            
+
             if (is_callable($toName)) {
                 $matchResult = $toName($URI);
                 if ($matchResult) break;
-                
+
                 continue;
             }
-            
+
             $matchResult = $this->setParams4Rewrite($matches, $toName);
             break;
         }
-        
+
         return empty($matchResult) ? $URI : $matchResult;
     }
 
@@ -263,7 +262,7 @@ Class Router extends Injectable {
                     $v = isset($urlMatches[substr($v, 1)]) ? $urlMatches[substr($v, 1)] : '';
                 }
 
-                $this->pushParameter($k, $v, True);
+                $this->pushParameter($k, $v, TRUE);
             }
 
             $toActionName = substr($toActionName, 0, strpos($toActionName, "?"));
@@ -277,7 +276,7 @@ Class Router extends Injectable {
                     $matchKey = substr($match, 1);
 
                     if (isset($urlMatches[$matchKey])) {
-                        $this->pushParameter($matchKey, $urlMatches[$matchKey], False);
+                        $this->pushParameter($matchKey, $urlMatches[$matchKey], FALSE);
 
                         $matches[$k] = $urlMatches[$matchKey];
                     }
@@ -286,10 +285,10 @@ Class Router extends Injectable {
 
             $toActionName = implode("/", $matches);
         }
-        
+
         return $toActionName;
     }
-    
+
     protected function pushParameter($key, $value, $fromUrl) {
         if ($fromUrl) {
             $_GET[$key] = $value;
@@ -297,29 +296,29 @@ Class Router extends Injectable {
                 $_REQUEST[$key] = $value;
             }
         }
-        
+
         $this->params[$key] = $value;
     }
-    
+
     public function hasParameter($parameter) {
         return array_key_exists($parameter, $this->params);
     }
-    
+
     public function resetParameters() {
         $this->params = [];
     }
-    
+
     public function getParameters() {
         return $this->params;
     }
-    
+
     public function parseArgvParams($args) {
         function resolve(array $params) {
             $now = [];
             foreach ($params as $param) {
                 if (preg_match('/^--(\w+)(=(.*))?$/', $param, $matches)) {
                     $name = $matches[1];
-                    $now[$name] = isset($matches[3]) ? $matches[3] : true;
+                    $now[$name] = isset($matches[3]) ? $matches[3] : TRUE;
                 } else {
                     $now[] = $param;
                 }

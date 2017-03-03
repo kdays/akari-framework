@@ -8,9 +8,8 @@
 
 namespace Akari\system\i18n;
 
-
-use Akari\config\ConfigItem;
 use Akari\Context;
+use Akari\config\ConfigItem;
 
 class I18n {
 
@@ -19,16 +18,16 @@ class I18n {
 
     protected function getPath($name) {
         $suffix = ".php";
-        $baseDir = Context::$appEntryPath. DIRECTORY_SEPARATOR. "language". DIRECTORY_SEPARATOR;
+        $baseDir = Context::$appEntryPath . DIRECTORY_SEPARATOR . "language" . DIRECTORY_SEPARATOR;
         $languageId = Context::env(ConfigItem::LANGUAGE_ID, NULL, FALSE);
 
         $paths = [];
         if ($languageId) {
-            $paths[] = $baseDir. $languageId. DIRECTORY_SEPARATOR. $name. $suffix;
-            $paths[] = $baseDir. $languageId. ".". $name. $suffix;
+            $paths[] = $baseDir . $languageId . DIRECTORY_SEPARATOR . $name . $suffix;
+            $paths[] = $baseDir . $languageId . "." . $name . $suffix;
         }
 
-        $paths[] = $baseDir. $name. $suffix;
+        $paths[] = $baseDir . $name . $suffix;
 
         foreach ($paths as $path) {
             if (file_exists($path)) return $path;
@@ -38,7 +37,7 @@ class I18n {
     }
 
     public function loadPackage($packageId, $prefix = "", $useRelative = TRUE) {
-        if (isset($this->loadedPackages[ $prefix. $packageId ])) {
+        if (isset($this->loadedPackages[ $prefix . $packageId ])) {
             return FALSE;
         }
 
@@ -47,16 +46,17 @@ class I18n {
             throw new LanguageNotFound($packageId);
         }
 
-        $this->loadedPackages[ $prefix. $packageId ] = true;
+        $this->loadedPackages[ $prefix . $packageId ] = TRUE;
 
-        $allData = require($path);
+        $allData = require $path;
         foreach ($allData as $key => $value) {
-            $this->_data[ $prefix. $key ] = $value;
+            $this->_data[ $prefix . $key ] = $value;
         }
     }
 
     public function has($id, $prefix = "") {
-        $id = $prefix. $id;
+        $id = $prefix . $id;
+
         return array_key_exists($id, $this->_data);
     }
 
@@ -65,14 +65,14 @@ class I18n {
             return $id;
         }
 
-        $lang = $this->_data[ $prefix. $id ];
+        $lang = $this->_data[ $prefix . $id ];
         foreach($L as $key => $value){
             $lang = str_replace("%$key%", $value, $lang);
         }
 
         // 处理![语言句子] 或被替换成L(语言句子)
         $that = $this;
-        $lang = preg_replace_callback('/\!\[(\S+)\]/i', function($matches) use($that) {
+        $lang = preg_replace_callback('/\!\[(\S+)\]/i', function ($matches) use ($that) {
             if (isset($matches[1])) {
                 return $that->get($matches[1]);
             }

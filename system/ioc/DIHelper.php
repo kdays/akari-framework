@@ -8,7 +8,6 @@
 
 namespace Akari\system\ioc;
 
-
 trait DIHelper {
 
     /**

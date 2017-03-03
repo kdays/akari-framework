@@ -4,8 +4,8 @@ namespace Akari\system\http;
 use Akari\system\ioc\Injectable;
 use Akari\system\security\FilterFactory;
 
-Class Request extends Injectable{
-    
+class Request extends Injectable{
+
     protected $requestMethod;
     protected $requestURI;
     protected $host;
@@ -22,8 +22,8 @@ Class Request extends Injectable{
     /**
      * 构造函数
      */
-    public function __construct(){
-        $arr = Array(
+    public function __construct() {
+        $arr = array(
             'requestMethod' => 'REQUEST_METHOD',
             'requestURI' => 'REQUEST_URI',
             'host' => 'HTTP_HOST',
@@ -50,23 +50,23 @@ Class Request extends Injectable{
     // http://cn2.php.net/manual/en/function.ip2long.php#104163
     private function bin2ip($bin) {
         if(strlen($bin) <= 32) {
-            return long2ip(base_convert($bin,2,10));
+            return long2ip(base_convert($bin, 2, 10));
         } // 32bits (ipv4)
 
         if(strlen($bin) != 128) {
-            return false;
+            return FALSE;
         }
 
         $pad = 128 - strlen($bin);
         for ($i = 1; $i <= $pad; $i++) {
-            $bin = "0". $bin;
+            $bin = "0" . $bin;
         }
 
         $ipv6 = "";
         $bits = 0;
         while ($bits <= 7) {
             $bin_part = substr($bin, ($bits * 16), 16);
-            $ipv6 .= dechex(bindec($bin_part)).":";
+            $ipv6 .= dechex(bindec($bin_part)) . ":";
             $bits++;
         }
 
@@ -81,19 +81,19 @@ Class Request extends Injectable{
         $onlineIp = $this->getRemoteIP();
 
         // try ipv6 => ipv4
-        if (filter_var($onlineIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+        if (filter_var($onlineIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== FALSE) {
             $ipv4Address = $this->bin2ip(base_convert(ip2long($onlineIp), 10, 2));
             if ($ipv4Address) $onlineIp = $ipv4Address;
         }
 
-        $isInternal = false;
+        $isInternal = FALSE;
         $ipAddress = explode(".", $onlineIp);
         if ($ipAddress[0] == 10) {
-            $isInternal = true;
+            $isInternal = TRUE;
         } elseif ($ipAddress[0] == 172 && $ipAddress[1] > 15 && $ipAddress[1] < 32) {
-            $isInternal = true;
+            $isInternal = TRUE;
         } elseif ($ipAddress[0] == 192 && $ipAddress[1] == 168) {
-            $isInternal = true;
+            $isInternal = TRUE;
         }
 
         // 如果确定是内网IP的话 再检查X-FORWARDED-FOR字段,避免伪造
@@ -121,15 +121,16 @@ Class Request extends Injectable{
         if ($this->hasHeader('HTTPS')) {
             return !!(strtoupper($this->getHeader('HTTPS')) == 'ON');
         }
-        
+
         if ($this->hasHeader('KEL_SSL')) { // HOSTKER判断字段
             return TRUE;
         }
 
         $protocol = strtoupper($this->getHeader('SERVER_PROTOCOL'));
+
         return !!(strpos($protocol, 'HTTPS') !== FALSE);
     }
-    
+
     /**
      * 获得请求的字符串
      * @return string
@@ -142,7 +143,7 @@ Class Request extends Injectable{
      * 获得PathInfo
      * @return string
      */
-    public function getUrlPathInfo(){
+    public function getUrlPathInfo() {
         return $this->pathInfo;
     }
 
@@ -157,7 +158,7 @@ Class Request extends Injectable{
      * 获得引用页路径
      * @return string
      */
-    public function getReferrer(){
+    public function getReferrer() {
         return $this->referrer;
     }
 
@@ -189,7 +190,7 @@ Class Request extends Injectable{
      * @return string
      */
     public function getFullURI() {
-        return $this->host. $this->requestURI;
+        return $this->host . $this->requestURI;
     }
 
     /**
@@ -203,7 +204,7 @@ Class Request extends Injectable{
      * 获得请求的脚本名称
      * @return string
      */
-    public function getScriptName(){
+    public function getScriptName() {
         return $this->scriptName;
     }
 
@@ -211,7 +212,7 @@ Class Request extends Injectable{
      * 获得userAgent
      * @return string
      */
-    public function getUserAgent(){
+    public function getUserAgent() {
         return $this->userAgent;
     }
 
@@ -274,7 +275,7 @@ Class Request extends Injectable{
         if (array_key_exists($key, $_REQUEST)) {
             return FilterFactory::doFilter($_REQUEST[$key], $filter);
         }
-        
+
         return $defaultValue;
     } 
 
@@ -301,7 +302,7 @@ Class Request extends Injectable{
         if (array_key_exists($key, $_POST)) {
             return FilterFactory::doFilter($_POST[$key], $filter);
         }
-        
+
         return $defaultValue;
     }
 
@@ -322,6 +323,7 @@ Class Request extends Injectable{
         if (array_key_exists($key, $_GET)) {
             return FilterFactory::doFilter($_GET[$key], $filter);
         }
+
         return $defaultValue;
     }
 
@@ -333,7 +335,7 @@ Class Request extends Injectable{
         if ($this->hasHeader('HTTP_SEND_BY')) {
             return TRUE;
         }
-        
+
         // Andorid游览器也会发送这个头 内容是X-Requested-With	com.android.browser 所以必须特殊判断
         if ($this->hasHeader('HTTP_X_REQUESTED_WITH')) {
             $requestedWith = $this->getHeader('HTTP_X_REQUESTED_WITH');
@@ -341,7 +343,7 @@ Class Request extends Injectable{
                 return TRUE;
             }
         }
-        
+
         return FALSE;
     }
 
@@ -351,18 +353,18 @@ Class Request extends Injectable{
      */
     public function isMobileDevice() {
         if ($this->isIOSDevice()) {
-            return True;
+            return TRUE;
         }
 
         $ua = $this->getUserAgent();
         $keyword = ["ucweb", "Windows Phone", "android", "opera mini", "blackberry"];
         foreach ($keyword as $value) {
             if (preg_match("/$value/i", $ua)) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -376,7 +378,7 @@ Class Request extends Injectable{
      * 是否是iphone
      * @return bool
      */
-    public function isIOSDevice(){
+    public function isIOSDevice() {
         $ua = $this->getUserAgent();
 
         return (preg_match('/ipod/i', $ua) || preg_match('/iphone/i', $ua));
@@ -388,6 +390,7 @@ Class Request extends Injectable{
      */
     public function isInWeChat() {
         $ua = $this->getUserAgent();
+
         return (preg_match('/MicroMessenger/i', $ua) || preg_match('/Window Phone/i', $ua));
     }
 
@@ -399,18 +402,18 @@ Class Request extends Injectable{
      */
     public function getUploadedFiles($skipNoFiles = TRUE) {
         $files = [];
-        
+
         foreach ($_FILES as $fileKey => $file) {
             if (is_array($file['error'])) {
                 $valueKeys = array_keys($file);
                 $keys = array_keys($file['error']);
-                
+
                 foreach ($keys as $idx) {
                     $values = [];
                     foreach ($valueKeys as $vk) {
                         $values[] = $file[$vk][$idx];
                     }
-                    
+
                     $form = array_combine($valueKeys, $values);
                     if ($form['error'] == UPLOAD_ERR_NO_FILE && $skipNoFiles) {
                         continue;
@@ -418,9 +421,9 @@ Class Request extends Injectable{
 
                     $form['multiKey'] = $idx;
                     $form['multiBase'] = $fileKey;
-                    $files[] = new FileUpload($form, $fileKey. ".". $idx);
+                    $files[] = new FileUpload($form, $fileKey . "." . $idx);
                 }
-                
+
                 continue;
             }
 
@@ -441,26 +444,26 @@ Class Request extends Injectable{
      */
     public function getUploadedFile($name, $skipNoFiles = TRUE) {
         $files = self::getUploadedFiles($skipNoFiles);
-        
+
         if (in_string($name, '[]')) {
             $result = [];
             $keyword = substr($name, 0, -2);
-            
+
             foreach ($files as $file) {
                 if ($file->getName(TRUE) == $keyword) {
                     $result[] = $file;
                 }
             }
-            
+
             return $result;
         } 
-        
+
         foreach ($files as $file) {
             if ($file->getName() == $name) {
                 return $file;
             }
         }
-            
+
         return NULL;
     }
 
@@ -493,16 +496,16 @@ Class Request extends Injectable{
     public function getCookie($name, $autoPrefix = TRUE) {
         return $this->cookies->get($name, $autoPrefix);
     }
-    
+
     public function hasHeader($key) {
         return array_key_exists($key, $_SERVER);
     }
-    
+
     public function getHeader($key, $defaultValue = NULL, $filter = "default") {
         if ($this->hasHeader($key)) {
             return FilterFactory::doFilter($_SERVER[$key], $filter);
         }
-        
+
         return $defaultValue;
     }
 }

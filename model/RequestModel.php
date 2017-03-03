@@ -8,7 +8,7 @@
 
 namespace Akari\model;
 
-abstract Class RequestModel extends Model {
+abstract class RequestModel extends Model {
 
     const METHOD_POST = 'P';
     const METHOD_GET = 'G';
@@ -35,20 +35,20 @@ abstract Class RequestModel extends Model {
      */
     abstract protected function getColumnMap();
 
-    public function __construct(){
+    public function __construct() {
         $map = $this->getColumnMap();
 
         foreach($this as $key => $value){
             $reqKey = isset($map[$key]) ? $map[$key] : $key;
             $method = $this->getKeyMethod($key);
-            
+
             // 处理Map的特殊字段 比如[]
             if (in_string($reqKey, '[')) { // eg. voteOpt => specialCfg[voteOpt] 
                 $startPos = strpos($reqKey, '[');
-                
+
                 $baseKey = substr($reqKey, 0, $startPos);
                 $subKey =  substr($reqKey, $startPos + 1, -1);
-                
+
                 $values = GP($baseKey, $method);
                 if (array_key_exists($subKey, $values)) {
                     $value = $values[$subKey];
@@ -56,7 +56,7 @@ abstract Class RequestModel extends Model {
             } else {
                 $value = GP($reqKey, $method);
             }
-            
+
             if($value !== NULL){
                 $this->$key = $value;
             }
@@ -74,7 +74,7 @@ abstract Class RequestModel extends Model {
      * @param bool $includeNull
      * @return array
      */
-    public function toArray($toURL = false, $includeNull = false) {
+    public function toArray($toURL = FALSE, $includeNull = FALSE) {
         $map = $this->getColumnMap();
         if (!$toURL)    $map = array_flip($map);
         $result = [];

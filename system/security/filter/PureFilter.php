@@ -29,5 +29,5 @@ class PureFilter extends BaseFilter{
 
         return filter_var($data, FILTER_SANITIZE_STRING);
     }
-    
+
 }
