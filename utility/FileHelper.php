@@ -143,6 +143,11 @@ class FileHelper {
         return round($size, $dec)." ".$a[$pos];
     }
     
+    public static function getFilenameWithoutExt($fn) {
+        $pathInfo = pathinfo($fn);
+        return $pathInfo['filename'];
+    }
+    
     public static function getFileExtension($fn) {
         $exts = explode(".", $fn);
         $ext = end($exts);
