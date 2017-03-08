@@ -42,10 +42,7 @@ class FileUpload extends Injectable {
     }
 
     public function getExtension() {
-        $exts = $this->getNameSection();
-        $ext = end($exts);
-
-        return strtolower($ext);
+        return FileHelper::getFileExtension( $this->getFileName() );
     }
 
     public function isUploadedFile() {
