@@ -8,19 +8,18 @@
 
 namespace Akari\system\db;
 
-use Akari\system\event\Listener;
-use Akari\system\event\StopEventBubbling;
-use Akari\system\exception\AkariException;
-use Akari\utility\Benchmark;
-use Akari\utility\helper\Logging;
 use \PDO;
+use Akari\utility\Benchmark;
+use Akari\system\event\Listener;
+use Akari\utility\helper\Logging;
+use Akari\system\event\StopEventBubbling;
 
 /**
  * Class DBAgent
  * @package Akari\system\db
  * @deprecated 
  */
-Class DBAgent {
+class DBAgent {
 
     use Logging;
 
@@ -29,13 +28,13 @@ Class DBAgent {
 
     /** @var  \PDO $writeConnection */
     protected $writeConnection;
-    
+
     /** @var  \PDO $readConnection */
     protected $readConnection;
-    
+
     protected $options;
     protected $lastQuery;
-    
+
     /**
      * @var null|int
      */
@@ -65,9 +64,9 @@ Class DBAgent {
             $connection = new PDO($dsn, $username, $password, $options);
         } catch (\PDOException $e) {
             self::_logErr($e);
-            throw new DBAgentException("pdo connect failed: ". $e->getMessage());
+            throw new DBAgentException("pdo connect failed: " . $e->getMessage());
         }
-        
+
         return $connection;
     }
 
@@ -160,13 +159,13 @@ Class DBAgent {
      * @param mixed $defaultValue
      * @return bool
      */
-    public function getValue($sql, $params = NULL, $defaultValue = false) {
+    public function getValue($sql, $params = NULL, $defaultValue = FALSE) {
         $result = $this->getOne($sql, $params, PDO::FETCH_NUM);
         $field = 0;
-        
+
         return isset($result[$field]) ? $result[$field] : $defaultValue;
     }
-    
+
 
     /**
      * execute sql
@@ -187,7 +186,7 @@ Class DBAgent {
         }
 
         $this->lastInsertId = $pdo->lastInsertId();
-        
+
         $query->close();
         $this->benchmarkEnd();
 
@@ -290,29 +289,29 @@ Class DBAgent {
 
         return $output;
     }
-    
+
     public function getWriteConnection() {
         if (!$this->writeConnection) {
             $opts = $this->options;
             $this->writeConnection = $this->getPDOInstance($opts['dsn'], $opts['username'], $opts['password'], $opts['options']);
         }
-        
+
         return $this->writeConnection;
     }
-    
+
     public function getReadConnection() {
         if (!$this->readConnection) {
             $opts = $this->options;
-            
+
             // 主从分离存在从机时优先选择从机
             if (array_key_exists("slaves", $opts)) {
                 $opts = $this->options['slaves'][ array_rand($opts['slaves']) ];
             }
-            
+
             // 从机选择完毕 链接
             $this->readConnection = $this->getPDOInstance($opts['dsn'], $opts['username'], $opts['password'], $opts['options']);
         }
-        
+
         return $this->readConnection;
     }
 
@@ -327,13 +326,13 @@ Class DBAgent {
 
         $expMsg = sprintf("Database Query Failed, message: %s (code: %s) ", $errorMsg, $errorCode);
         if (!empty($this->lastQuery)) {
-            $expMsg .= "with SQL: ". $this->colorSql($this->lastQuery);
+            $expMsg .= "with SQL: " . $this->colorSql($this->lastQuery);
         }
 
         throw new DBAgentException($expMsg);
     }
 
-    private function colorSql( $query ) {
+    private function colorSql($query) {
         if (CLI_MODE) {
             return $query;
         }

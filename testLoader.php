@@ -8,7 +8,7 @@
 
 namespace Akari;
 
-Class testLoader {
+class testLoader {
 
     private static function getNSRootByFilename($ns, $file) {
         $fileDir = dirname($file);

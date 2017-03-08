@@ -11,15 +11,15 @@ namespace Akari\system\exception;
 use Akari\Context;
 use Akari\system\ioc\Injectable;
 use Akari\utility\helper\Logging;
-use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
+use Akari\utility\helper\ResultHelper;
 
-abstract Class BaseExceptionHandler extends Injectable{
+abstract class BaseExceptionHandler extends Injectable{
 
     use Logging, ResultHelper, ValueHelper;
-    
+
     abstract public function handleException(\Exception $ex);
-    
+
     protected function crash($file, $line, $trace) {
         $count = count($trace);
         $padLen = strlen($count);
@@ -40,14 +40,14 @@ abstract Class BaseExceptionHandler extends Injectable{
         if (is_file($file)) {
             $currentLine = $line - 1;
 
-            $fileLines = explode("\n", file_get_contents($file, null, null, 0, 10000000));
+            $fileLines = explode("\n", file_get_contents($file, NULL, NULL, 0, 10000000));
             $topLine = $currentLine - 5;
-            $fileLines = array_slice($fileLines, $topLine > 0 ? $topLine : 0, 10, true);
+            $fileLines = array_slice($fileLines, $topLine > 0 ? $topLine : 0, 10, TRUE);
 
             if (($count = count($fileLines)) > 0) {
                 $padLen = strlen($count);
                 foreach ($fileLines as $line => $fileLine){
-                    $fileLine = " <b>" .str_pad($line + 1, $padLen, "0", STR_PAD_LEFT) . "</b> " . htmlspecialchars(str_replace("\t",
+                    $fileLine = " <b>" . str_pad($line + 1, $padLen, "0", STR_PAD_LEFT) . "</b> " . htmlspecialchars(str_replace("\t",
                             "    ", rtrim($fileLine)), NULL, 'UTF-8');
                     $fileLines[$line] = $fileLine;
                 }
@@ -64,20 +64,20 @@ abstract Class BaseExceptionHandler extends Injectable{
         if (isset($call['function'])) {
             $call_signature .= '<span class="func">';
             if(isset($call['class'])) $call_signature .= "$call[class]->";
-            $call_signature .= $call['function']."(";
+            $call_signature .= $call['function'] . "(";
             if (isset($call['args'])) {
                 foreach ($call['args'] as $arg) {
                     if (is_string($arg))
                         $arg = '"' . (strlen($arg) <= 64 ? $arg : substr($arg, 0, 64) . "…") . '"';
-                    else if (is_object($arg))
+                    elseif (is_object($arg))
                         $arg = "[Instance of '" . get_class($arg) . "']";
-                    else if ($arg === true)
+                    elseif ($arg === TRUE)
                         $arg = "true";
-                    else if ($arg === false)
+                    elseif ($arg === FALSE)
                         $arg = "false";
-                    else if ($arg === null)
+                    elseif ($arg === NULL)
                         $arg = "null";
-                    else if (is_array($arg))
+                    elseif (is_array($arg))
                         $arg = '[Array]';
                     else
                         $arg = strval($arg);
@@ -86,6 +86,7 @@ abstract Class BaseExceptionHandler extends Injectable{
                 $call_signature = trim($call_signature, ',') . ")</span>";
             }
         }
+
         return $call_signature;
     }
 

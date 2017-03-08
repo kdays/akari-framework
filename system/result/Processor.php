@@ -9,27 +9,27 @@
 namespace Akari\system\result;
 
 use Akari\system\event\Listener;
-use Akari\system\exception\AkariException;
 use Akari\system\ioc\Injectable;
+use Akari\system\exception\AkariException;
 
-Class Processor extends Injectable{
-    
+class Processor extends Injectable{
+
     const EVT_RESULT_SENT = "Result.sent";
-    
+
     public function processJPEG(Result $result) {
         if (is_resource($result->data)) {
             ob_start();
-            
+
             if (isset($result->meta['quality'])) {
                 imagejpeg($result->data, NULL, $result->meta['quality']);
             } else {
                 imagejpeg($result->data);
             }
             imagedestroy($result->data);
-            
+
             return ob_get_clean();
         } 
-        
+
         return $result->data;
     }
 
@@ -37,6 +37,7 @@ Class Processor extends Injectable{
         ob_start();
         imagegif($result->data);
         imagedestroy($result->data);
+
         return ob_get_clean();
     }
 
@@ -48,6 +49,7 @@ Class Processor extends Injectable{
             imagepng($result->data);
         }
         imagedestroy($result->data);
+
         return ob_get_clean();
     }
 
@@ -58,13 +60,14 @@ Class Processor extends Injectable{
     public function processTPL(Result $result) {
         $layoutPath = $result->meta['layout'];
         $screenPath = $result->meta['view'];
-        
+
         if ($screenPath !== NULL)   $this->view->setScreen($screenPath);
         if ($layoutPath !== NULL)   $this->view->setLayout($layoutPath);
-        
+
         if (is_array($result->data)) {
             $this->view->bindVars($result->data);
         }
+
         return $this->view->getResult(NULL);
     }
 
@@ -86,17 +89,17 @@ Class Processor extends Injectable{
                 TRUE => 'true',
                 NULL => 'null'
             ];
-            
+
             foreach ($data as $k => $v){
                 if (isset($map[$k])) {
                     $v = $map[$k];
                 }
-                
+
                 if (is_array($v)) {
-                    $str .= "[k]". PHP_EOL;
+                    $str .= "[k]" . PHP_EOL;
                     $str .= _array2ini($v, $i + 1);
                 } else {
-                    $str .= $k. "=". $v. PHP_EOL;
+                    $str .= $k . "=" . $v . PHP_EOL;
                 }
             }
 
@@ -113,27 +116,27 @@ Class Processor extends Injectable{
             foreach($array as $key=>$val) {
                 is_numeric($key) && $key="item id=\"$key\"";
                 if($level > 0){
-                    $xml.= "\t";
+                    $xml .= "\t";
                 }
 
-                $xml.="<$key>";
-                if($level == 0)	$xml.="\n";
+                $xml .= "<$key>";
+                if($level == 0)	$xml .= "\n";
 
-                if($val === true){
+                if($val === TRUE){
                     $val = '1';
-                }elseif($val === false){
+                }elseif($val === FALSE){
                     $val = '0';
                 }
 
                 $xml .= is_array($val) ? _array2xml($val, ++$level) : $val;
-                list($key,) = explode(' ',$key);
+                list($key, ) = explode(' ', $key);
                 $xml .= "</$key>\n";
             }
 
             return $xml;
         }
 
-        $xml = '<?xml version="1.0" encoding="utf-8"?>'."\n";
+        $xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
         $xml .= _array2xml(["body" => $result->data]);
 
         return $xml;
@@ -149,15 +152,15 @@ Class Processor extends Injectable{
     }
 
     public function processResult(Result $result) {
-        $method = "process".$result->type;
-        
+        $method = "process" . $result->type;
+
         $this->response->setContentType($result->contentType);
-        
+
         if (method_exists($this, $method)) {
             $this->response->setContent($this->$method($result));
             Listener::fire(self::EVT_RESULT_SENT, $this);
         } else {
-            throw new AkariException("Unknown Result Type:". gettype($result));
+            throw new AkariException("Unknown Result Type:" . gettype($result));
         }
     }
 

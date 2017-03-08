@@ -8,7 +8,6 @@
 
 namespace Akari\system\ioc;
 
-
 use Akari\system\exception\AkariException;
 
 class Exception extends AkariException {

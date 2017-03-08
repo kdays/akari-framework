@@ -8,7 +8,6 @@
 
 namespace Akari\system\tpl;
 
-
 interface ExternalTemplateUtilInterface {
 
     /**
@@ -18,5 +17,5 @@ interface ExternalTemplateUtilInterface {
      * @return mixed
      */
     public static function execute($args);
-    
+
 }

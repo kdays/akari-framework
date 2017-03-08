@@ -8,9 +8,9 @@
 
 namespace Akari\utility\helper;
 
+use Akari\system\ioc\DI;
 use Akari\system\http\HttpCode;
 use Akari\system\http\Response;
-use Akari\system\ioc\DI;
 use Akari\system\result\Result;
 
 /**
@@ -25,22 +25,22 @@ trait ResultHelper {
             if (!$file->isReadable() || !$file->isFile()) {
                 throw new \Exception("file cannot readable");
             }
-            
+
             if ($attachName == NULL) {
                 $attachName = $file->getBasename();
             }
             $fileContent = $file->fread($file->getSize());
         } 
-        
-        return new Result(Result::TYPE_CUSTOM, $fileContent, ['name' => $attachName], 
-            Result::CONTENT_BINARY, function(Result $result) {
+
+        return new Result(Result::TYPE_CUSTOM, $fileContent, ['name' => $attachName],
+            Result::CONTENT_BINARY, function (Result $result) {
                 /** @var Response $resp */
                 $resp = DI::getDefault()->getShared("response");
                 $resp
                     ->setHeader('Accept-Ranges', 'bytes')
                     ->setHeader('Content-Length', strlen($result->data))
-                    ->setHeader('Content-Disposition', "attachment; filename=". rawurlencode($result->meta['name']));
-    
+                    ->setHeader('Content-Disposition', "attachment; filename=" . rawurlencode($result->meta['name']));
+
                 return TRUE;
             });
     }
@@ -86,9 +86,9 @@ trait ResultHelper {
             $js = "location.href='$uri'";
         }
 
-        $html = "<!DOCTYPE HTML><head><meta charset='". $encoding. "' /></head><body>";
-        $html.= sprintf("<script>alert('%s');%s;</script>", $message, $js);
-        $html.= "</body>";
+        $html = "<!DOCTYPE HTML><head><meta charset='" . $encoding . "' /></head><body>";
+        $html .= sprintf("<script>alert('%s');%s;</script>", $message, $js);
+        $html .= "</body>";
 
         return new Result(Result::TYPE_HTML, $html, Result::CONTENT_HTML);
     }
@@ -99,6 +99,7 @@ trait ResultHelper {
         $response->setStatusCode($code);
 
         $response->setHeader('Location', $uri);
+
         return self::_genNoneResult();
     }
 

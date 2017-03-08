@@ -9,9 +9,9 @@
 namespace Akari\config;
 
 use Akari\Context;
-use Akari\system AS Sys;
+use Akari\system as Sys;
 
-Class BaseConfig {
+class BaseConfig {
 
     public $appName = "Application";
     public $appBaseURL;
@@ -19,16 +19,16 @@ Class BaseConfig {
 
     public $notFoundTemplate = "";
     public $serverErrorTemplate = "";
-    
+
     public $timeZone = 8;
 
     // 如果没有result时的callback
     public $nonResultCallback = NULL;
     public $offsetTime = 0;
-    
+
     /** @var bool|callable  */
-    public $exceptionAutoLogging = true;
-    
+    public $exceptionAutoLogging = TRUE;
+
     public $bindDomain = [
         'default' => '\action'
     ];
@@ -49,7 +49,7 @@ Class BaseConfig {
     public $filters = [
         'default' => Sys\security\filter\DefaultFilter::class
     ];
-    
+
     public $database = [];
 
     public $defaultExceptionHandler = Sys\exception\DefaultExceptionHandler::class;
@@ -80,10 +80,10 @@ Class BaseConfig {
     public $cookiePrefix = 'w_';
     public $cookieTime = 86400;
     public $cookiePath = '/';
-    public $cookieSecure = false;
+    public $cookieSecure = FALSE;
     public $cookieDomain = '';
-    
-    public $autoPostTokenCheck = true; // 开启时,POST提交会自动检查令牌
+
+    public $autoPostTokenCheck = TRUE; // 开启时,POST提交会自动检查令牌
     public $csrfTokenName = '_akari';
 
     public $trigger = [
@@ -97,7 +97,7 @@ Class BaseConfig {
 
         // 执行操作后返回结果的处理，可以记录性能和对Result进行额外处理
         'applicationEnd' => [],
-        
+
         // 结果已经输出到OutputBuffer,可以进行繁体化之类的操作
         'applicationOutput' => []
     ];
@@ -107,11 +107,10 @@ Class BaseConfig {
     public $uploadDir = 'web/attachment/';
     public $allowUploadExt = [];
 
-    public function getDBConfig($name = "default"){
+    public function getDBConfig($name = "default") {
         if(!is_array(current($this->database)))	return $this->database;
         if($name == "default")	return current($this->database);
-        if (!isset($this->database[$name])) throw new \Exception("not found DB config: ". $name);
-        
+        if (!isset($this->database[$name])) throw new \Exception("not found DB config: " . $name);
         return $this->database[$name];
     }
 
@@ -121,22 +120,23 @@ Class BaseConfig {
      */
     public final function loadExternalConfig($key) {
         $namePolicies = [
-            Context::$mode. DIRECTORY_SEPARATOR. $key,
-            Context::$mode. ".". $key,
+            Context::$mode . DIRECTORY_SEPARATOR . $key,
+            Context::$mode . "." . $key,
             $key
         ];
-        $baseConfig = Context::$appEntryPath. DIRECTORY_SEPARATOR. "config". DIRECTORY_SEPARATOR;
+        $baseConfig = Context::$appEntryPath . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR;
 
         foreach ($namePolicies as $name) {
-            if (file_exists($baseConfig. $name. ".php")) {
-                return include($baseConfig. $name. ".php");
+            if (file_exists($baseConfig . $name . ".php")) {
+                return include $baseConfig . $name . ".php";
             }
 
-            if (file_exists($baseConfig. $name. ".yml")) {
-                return \Spyc::YAMLLoad($baseConfig. $name. ".yml");
+            if (file_exists($baseConfig . $name . ".yml")) {
+                return \Spyc::YAMLLoad($baseConfig . $name . ".yml");
             }
 
         }
+
         return NULL;
     }
 
@@ -149,7 +149,7 @@ Class BaseConfig {
     }
 
     public static $c;
-    public static function getInstance(){
+    public static function getInstance() {
         $h = get_called_class();
         if (!self::$c){
             self::$c = new $h();

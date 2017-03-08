@@ -10,16 +10,19 @@ namespace Akari\system\console;
 
 use Akari\system\ioc\Injectable;
 
-Class Input extends Injectable {
+class Input extends Injectable {
 
     protected $input;
     protected $parameters = [];
-    
+
     public function __construct($handle = 'php://stdin') {
         $this->input = fopen($handle, 'r');
-        $this->parameters = $this->dispatcher->getParameters();
+
+        if ($this->dispatcher) {
+            $this->parameters = $this->dispatcher->getParameters();
+        }
     }
-    
+
     public function __destruct() {
         // TODO: Implement __destruct() method.
         if ($this->input) {
@@ -30,7 +33,7 @@ Class Input extends Injectable {
     public function getInput() {
         return trim(fgets($this->input));
     }
-    
+
     public function hasParameter($key) {
         return !!array_key_exists($key, $this->parameters);
     }

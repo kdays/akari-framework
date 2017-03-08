@@ -10,7 +10,7 @@ namespace Akari\system\cache;
 
 use Akari\utility\Benchmark;
 
-Class CacheBenchmark {
+class CacheBenchmark {
 
     const HIT = "CACHE.HIT";
     const MISS = "CACHE.MISS";

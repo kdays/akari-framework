@@ -8,7 +8,6 @@
 
 namespace Akari\system;
 
-
 use Akari\system\ioc\Injectable;
 
 class Plugin extends Injectable{

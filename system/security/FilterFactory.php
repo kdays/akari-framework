@@ -14,7 +14,7 @@ use Akari\system\security\filter\BaseFilter;
 class FilterFactory {
 
     protected static $filters = [];
-    
+
     public static function doFilter($data, $filterName) {
         return self::getFilter($filterName)->filter($data);
     }
@@ -27,15 +27,15 @@ class FilterFactory {
      */
     public static function getFilter($filterName) {
         if (!isset(self::$filters[$filterName])) {
-            $clsName = implode(NAMESPACE_SEPARATOR, ['Akari', 'system', 'security', 'filter', ucfirst($filterName). 'Filter']);
+            $clsName = implode(NAMESPACE_SEPARATOR, ['Akari', 'system', 'security', 'filter', ucfirst($filterName) . 'Filter']);
             if (isset(Context::$appConfig->filters[$filterName])) {
                 $clsName = Context::$appConfig->filters[$filterName];
             }
-            
+
             self::$filters[$filterName] = new $clsName();
         }
-        
+
         return self::$filters[$filterName];
     }
-    
+
 }

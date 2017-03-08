@@ -15,7 +15,7 @@ namespace Akari\system\cache\handler;
  * @package Akari\system\cache\handler
  */
 class MemoryCacheHandler implements ICacheHandler{
-    
+
     protected $data = [];
 
     public function set($key, $value, $timeout = NULL) {
@@ -26,7 +26,7 @@ class MemoryCacheHandler implements ICacheHandler{
         if ($this->exists($key)) {
             return $this->data[$key];
         }
-        
+
         return $defaultValue;
     }
 
@@ -68,6 +68,7 @@ class MemoryCacheHandler implements ICacheHandler{
 
     public function increment($key, $value = 1) {
         $this->data[$key] += $value;
+
         return $this->data[$key];
     }
 

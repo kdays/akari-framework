@@ -8,8 +8,8 @@
 
 namespace Akari\system\cache\handler;
 
-use Akari\system\cache\CacheBenchmark;
 use Akari\system\cache\Exception;
+use Akari\system\cache\CacheBenchmark;
 
 class MemcachedCacheHandler implements ICacheHandler {
 
@@ -38,15 +38,15 @@ class MemcachedCacheHandler implements ICacheHandler {
         $this->host = $host;
         $this->port = $port;
 
-        $username = array_key_exists("username", $opts) ? $opts['username'] : false;
-        $password = array_key_exists("password", $opts) ? $opts['password'] : false;
+        $username = array_key_exists("username", $opts) ? $opts['username'] : FALSE;
+        $password = array_key_exists("password", $opts) ? $opts['password'] : FALSE;
 
         $this->username = $username;
         $this->password = $password;
         if ($password) {
             $memcached->setSaslAuthData($username, $password);
         }
-        
+
         $this->handler = $memcached;
     }
 
@@ -61,13 +61,13 @@ class MemcachedCacheHandler implements ICacheHandler {
      */
     public function set($key, $value, $timeout = NULL) {
         $value = serialize($value);
-        
+
         $this->handler->set($key, $value, $timeout);
         if ($this->handler->getResultCode() == \Memcached::RES_SUCCESS) {
-            return True;
+            return TRUE;
         } else {
             throw new Exception(
-                "Memcached Cache Exception: " . $this->handler->getResultMessage(), 
+                "Memcached Cache Exception: " . $this->handler->getResultMessage(),
                 $this->handler->getResultCode()
             );
         }
@@ -87,11 +87,13 @@ class MemcachedCacheHandler implements ICacheHandler {
         switch ($retCode) {
             case \Memcached::RES_SUCCESS:
                 CacheBenchmark::log(CacheBenchmark::HIT);
+
                 return unserialize($value);
 
             case \Memcached::RES_NOTFOUND:
             case \Memcached::RES_TIMEOUT:
                 CacheBenchmark::log(CacheBenchmark::MISS);
+
                 return $defaultValue;
 
             default:

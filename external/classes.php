@@ -4,7 +4,6 @@
  * 
  * composer会自动启发 无需配置
  **/
-
 !defined("AKARI_PATH") && exit;
 
 return [

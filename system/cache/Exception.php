@@ -8,7 +8,6 @@
 
 namespace Akari\system\cache;
 
-
 use Akari\system\exception\AkariException;
 
 class Exception extends AkariException {

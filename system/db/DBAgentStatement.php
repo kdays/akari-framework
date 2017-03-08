@@ -10,7 +10,7 @@ namespace Akari\system\db;
 
 use Akari\utility\PageHelper;
 
-Class DBAgentStatement {
+class DBAgentStatement {
 
     protected $agent;
     protected $SQL;
@@ -24,9 +24,9 @@ Class DBAgentStatement {
      * @var $parser SQLParser
      */
     protected $parser;
-    
+
     protected $_parsedSQL;
-    
+
     protected $pdo;
 
     private $_bind = [];
@@ -52,6 +52,7 @@ Class DBAgentStatement {
      */
     public function addSQL($str) {
         $this->SQL .= $str;
+
         return $this;
     }
 
@@ -64,7 +65,8 @@ Class DBAgentStatement {
      * @return $this
      */
     public function bindValue($key, $value) {
-        $this->_bind[':'. $key] = $value;
+        $this->_bind[':' . $key] = $value;
+
         return $this;
     }
 
@@ -77,6 +79,7 @@ Class DBAgentStatement {
      */
     public function addOrder($order) {
         $this->_args['ORDER'][] = $order;
+
         return $this;
     }
 
@@ -90,16 +93,17 @@ Class DBAgentStatement {
      * @param mixed $value
      * @return $this
      */
-    public function addWhere($field, $value, $onlyFields = False) {
+    public function addWhere($field, $value, $onlyFields = FALSE) {
         if ($value === NULL && is_array($field)) {
             foreach ($field as $k => $v) {
                 $this->_args['WHERE'][] = [$k, $v, $onlyFields];
             }
-        
+
             return $this;
         }
-        
+
         $this->_args['WHERE'][] = [$field, $value, $onlyFields];
+
         return $this;
     }
 
@@ -112,6 +116,7 @@ Class DBAgentStatement {
      */
     public function setWheres($data) {
         $this->_args['WHERES'] = $data;
+
         return $this;
     }
 
@@ -126,8 +131,9 @@ Class DBAgentStatement {
         if ($limit instanceof PageHelper) {
             $limit = [$limit->getStart(), $limit->getLength()];
         }
-        
+
         $this->_args['LIMIT'] = $this->parser->parseLimit($limit);
+
         return $this;
     }
 
@@ -141,6 +147,7 @@ Class DBAgentStatement {
      */
     public function addData($field, $value) {
         $this->_args['DATA'][$field] = $value;
+
         return $this;
     }
 
@@ -153,6 +160,7 @@ Class DBAgentStatement {
      */
     public function setData($data) {
         $this->_args['DATA'] = $data;
+
         return $this;
     }
 
@@ -172,14 +180,14 @@ Class DBAgentStatement {
         if (!empty($this->_args['WHERES'])) {
             $sql = str_ireplace('(where)', $parser->parseWhere($this->_args['WHERES']), $sql);
         }
-        
+
         if (!empty($this->_args['WHERE'])) {
             $where = $parser->parseData($this->_args['WHERE'], " AND ", TRUE);
 
             //var_dump($this->_args);die;
             if(!empty($where)){
                 // 注意找的是where空格 不是(where)
-                $replace = (stripos($sql, " where ")===FALSE ? " WHERE" : " AND")." ".$where;
+                $replace = (stripos($sql, " where ") === FALSE ? " WHERE" : " AND") . " " . $where;
                 $sql = str_ireplace('(where)', $replace, $sql);
             }
         }
@@ -188,7 +196,7 @@ Class DBAgentStatement {
         if (!empty($this->_args['DATA'])) {
             $data = [];
             foreach ($this->_args['DATA'] as $key => $value) {
-                $data[] = "`$key` = ".$parser->parseValue($value);
+                $data[] = "`$key` = " . $parser->parseValue($value);
             }
 
             $sql = str_ireplace("(data)", implode(",", $data), $sql);
@@ -196,13 +204,13 @@ Class DBAgentStatement {
         $sql = str_ireplace("(data)", "", $sql);
 
         if (!empty($this->_args['ORDER'])) {
-            $sql .= " ORDER BY ".implode(",", $this->_args['ORDER']);
+            $sql .= " ORDER BY " . implode(",", $this->_args['ORDER']);
         }
 
         if (!empty($this->_args['LIMIT'])) {
             $sql .= $this->_args['LIMIT'];
         }
-        
+
         foreach ($parser->_bind as $key => $value) {
             $this->bindValue($key, $value);
         }
@@ -223,7 +231,7 @@ Class DBAgentStatement {
         if (!empty($this->_bind)) {
             krsort($this->_bind);
             foreach ($this->_bind as $key => $value) {
-                $sql = str_replace($key, "'".$value."'", $sql);
+                $sql = str_replace($key, "'" . $value . "'", $sql);
             }
         }
 

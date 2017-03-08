@@ -8,13 +8,8 @@
 
 namespace Akari\system\result;
 
-use Akari\system\http\Request;
-use Akari\system\http\Response;
-use Akari\system\ioc\DIHelper;
 use Akari\system\ioc\Injectable;
-use Akari\system\tpl\TemplateHelper;
 use Akari\utility\helper\Logging;
-use Akari\utility\helper\ResultHelper;
 use Akari\utility\helper\ValueHelper;
 
 abstract class Widget extends Injectable{

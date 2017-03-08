@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\filter;
 
-
 use Akari\utility\TextHelper;
 
 /**
@@ -28,5 +27,5 @@ class DefaultFilter extends BaseFilter{
     public function filter($data) {
         return TextHelper::filter($data);
     }
-    
+
 }

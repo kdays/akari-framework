@@ -8,10 +8,9 @@
 
 namespace Akari\system\tpl\engine;
 
-
 class RawTemplateEngine extends BaseTemplateEngine{
 
-    public function parse($tplPath, array $data, $type, $onlyCompile = false) {
+    public function parse($tplPath, array $data, $type, $onlyCompile = FALSE) {
         return $onlyCompile ? $tplPath : $this->_getView($tplPath, $data);
     }
 
@@ -21,6 +20,7 @@ class RawTemplateEngine extends BaseTemplateEngine{
         }
 
         $screenCmd = $this->getOption('screenCmdMark', '#SCREEN#');
+
         return str_replace($screenCmd, $screenResult, $layoutResult);
     }
 

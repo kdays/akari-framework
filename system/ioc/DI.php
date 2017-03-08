@@ -5,10 +5,9 @@
  * Date: 15/5/19
  * Time: 下午10:56
  */
+
 namespace Akari\system\ioc;
 
-use Akari\NotFoundClass;
-use Akari\system\exception\AkariException;
 use core\system\ioc\DINotRegistered;
 
 class DI {
@@ -40,10 +39,10 @@ class DI {
 
             return $clsObj;
         }
-        
-        throw new DINotRegistered("DI:". $serviceName);
+
+        throw new DINotRegistered("DI:" . $serviceName);
     }
-    
+
     public function has($serviceName) {
         return !!array_key_exists($serviceName, $this->services);
     }
@@ -60,12 +59,12 @@ class DI {
 
     public function getShared($serviceName) {
         if (!$this->hasShared($serviceName)) {
-            throw new DINotRegistered("Shared:DI:". $serviceName);
+            throw new DINotRegistered("Shared:DI:" . $serviceName);
         }
-        
+
         return $this->instance[$serviceName];
     }
-    
+
     public function hasShared($serviceName) {
         return !!isset($this->instance[$serviceName]);
     }

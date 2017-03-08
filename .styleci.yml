@@ -1,9 +1,33 @@
-preset: recommended
-risky: false
-
-disabled:
-  - concat_without_spaces
-  - method_separation
+preset: none
 
 enabled:
   - concat_with_spaces
+  - binary_operator_spaces
+  - blank_line_after_namespace
+  - blank_line_before_return
+  - elseif
+  - encoding
+  - full_opening_tag
+  - length_ordered_imports
+  - method_argument_space
+  - no_blank_lines_after_phpdoc
+  - no_blank_lines_after_throw
+  - no_multiline_whitespace_around_double_arrow
+  - no_spaces_after_function_name
+  - no_unused_imports
+  - print_to_echo
+  - whitespace_after_comma_in_array
+  - single_line_after_imports
+  - standardize_not_equals
+  - lowercase_keywords
+  - uppercase_constants
+  - lowercase_cast
+  - cast_spaces
+  - single_blank_line_at_eof
+  - function_typehint_space
+  - include
+  - function_declaration
+  - no_whitespace_in_blank_line
+  - object_operator_without_whitespace
+  - short_scalar_cast
+  - single_blank_line_before_namespace

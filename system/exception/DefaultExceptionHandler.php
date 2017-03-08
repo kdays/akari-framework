@@ -12,7 +12,7 @@ use Akari\akari;
 use Akari\Context;
 use Akari\system\http\HttpCode;
 
-Class DefaultExceptionHandler extends BaseExceptionHandler {
+class DefaultExceptionHandler extends BaseExceptionHandler {
 
     /**
      * @param \Exception $ex
@@ -21,10 +21,10 @@ Class DefaultExceptionHandler extends BaseExceptionHandler {
     public function handleException(\Exception $ex) {
         $this->response->setStatusCode(HttpCode::INTERNAL_SERVER_ERROR);
 
-        $view = function($path, $data) {
+        $view = function ($path, $data) {
             ob_start();
             @extract($data, EXTR_PREFIX_SAME, 'a_');
-            include(AKARI_PATH. "/template/". $path. ".php");
+            include AKARI_PATH . "/template/" . $path . ".php";
             $content = ob_get_contents();
             ob_end_clean();
 

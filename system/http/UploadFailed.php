@@ -8,7 +8,6 @@
 
 namespace Akari\system\http;
 
-
 use Akari\system\exception\AkariException;
 
 class UploadFailed extends AkariException {
@@ -17,5 +16,5 @@ class UploadFailed extends AkariException {
         $this->message = "文件上传失败, 原因:" . $message;
         $this->code = $code;
     }
-    
+
 }

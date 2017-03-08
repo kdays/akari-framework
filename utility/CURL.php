@@ -10,15 +10,15 @@ namespace Akari\utility;
 
 use Akari\system\exception\AkariException;
 
-Class CURL {
+class CURL {
     protected $handler;
     protected $options = array(
-        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_RETURNTRANSFER => TRUE,
         CURLOPT_TIMEOUT => 5,
         CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
         CURLOPT_USERAGENT => "Akari/1.0",
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false
+        CURLOPT_SSL_VERIFYPEER => FALSE,
+        CURLOPT_SSL_VERIFYHOST => FALSE
     );
 
     /**
@@ -26,7 +26,7 @@ Class CURL {
      *
      * @throws CURLException
      */
-    public function __construct(){
+    public function __construct() {
         if(!function_exists("curl_init")){
             throw new CURLException("curl not installed");
         }
@@ -37,10 +37,10 @@ Class CURL {
      *
      * @return curl
      */
-    public function close(){
+    public function close() {
         if($this->handler){
             curl_close($this->handler);
-            $this->handler = null;
+            $this->handler = NULL;
         }
 
         return $this;
@@ -50,6 +50,7 @@ Class CURL {
         if (function_exists('curl_file_create')) {
             return curl_file_create($filename);
         }
+
         return "@$filename;filename=" . basename($filename);
     }
 
@@ -61,7 +62,7 @@ Class CURL {
      * @throws CURLException
      * @return mixed
      */
-    public function execute($url, $options = Array()) {
+    public function execute($url, $options = array()) {
         $this->close();
 
         $opts = $this->options;
@@ -73,7 +74,7 @@ Class CURL {
         $handler = curl_init();
         curl_setopt_array($handler, $opts);
         $result = curl_exec($handler);
-        if($result === false){
+        if($result === FALSE){
             throw new CURLException(curl_error($handler), curl_errno($handler), $url);
         }
 
@@ -88,10 +89,10 @@ Class CURL {
      * @param string $info
      * @return boolean|mixed
      */
-    public function getInfo($info = null){
-        if(!$this->handler) return false;
+    public function getInfo($info = NULL) {
+        if(!$this->handler) return FALSE;
 
-        return $info==null ? curl_getinfo($this->handler) : curl_getinfo($this->handler, $info);
+        return $info == NULL ? curl_getinfo($this->handler) : curl_getinfo($this->handler, $info);
     }
 
     /**
@@ -102,7 +103,7 @@ Class CURL {
      * @param array $params 参数
      * @return CUrlResponseObj {header, body, info}
      */
-    public function send($url, $method, $params = array()){
+    public function send($url, $method, $params = array()) {
         $method = strtoupper($method);
         $params = empty($params) ? NULL : http_build_query($params);
 
@@ -113,13 +114,13 @@ Class CURL {
             $url .= $params;
 
             if($method == 'GET'){
-                $options[CURLOPT_HTTPGET] = true;
+                $options[CURLOPT_HTTPGET] = TRUE;
             }else{
-                $options[CURLOPT_NOBODY] = true;
+                $options[CURLOPT_NOBODY] = TRUE;
             }
         }else{
             if($method == 'POST'){
-                $options[CURLOPT_POST] = true;
+                $options[CURLOPT_POST] = TRUE;
             }else{
                 $options[CURLOPT_CUSTOMREQUEST] = $method;
             }
@@ -127,7 +128,7 @@ Class CURL {
             if($params)  $options[CURLOPT_POSTFIELDS] = $params;
         }
 
-        $options[CURLOPT_HEADER] = true;
+        $options[CURLOPT_HEADER] = TRUE;
 
         $result = $this->execute($url, $options);
 
@@ -144,10 +145,10 @@ Class CURL {
     }
 
 
-    protected static function buildCookies( $data ) {
+    protected static function buildCookies($data) {
         $cookie = '';
         foreach( $data as $k => $v ) {
-            $cookie[] = $k.'='.$v;
+            $cookie[] = $k . '=' . $v;
         }
 
         if( count( $cookie ) > 0 ) {
@@ -179,6 +180,7 @@ Class CURL {
 
             $handler->options[$k] = $v;
         }
+
         return $handler;
     }
 
@@ -189,7 +191,7 @@ Class CURL {
      * @param array $opts
      * @return CUrlResponseObj 结果数组中header为头部信息 info为curl的信息 body为内容
      */
-    public static function get($url, array $params, $opts = []){
+    public static function get($url, array $params, $opts = []) {
         return self::getHandler($opts)->send($url, 'GET', $params);
     }
 
@@ -200,7 +202,7 @@ Class CURL {
      * @param array $opts
      * @return CUrlResponseObj 结果数组中header为头部信息 info为curl的信息 body为内容
      */
-    public static function post($url, array $params, $opts = []){
+    public static function post($url, array $params, $opts = []) {
         return self::getHandler($opts)->send($url, 'POST', $params);
     }
 
@@ -211,19 +213,19 @@ Class CURL {
      * @param array $opts
      * @return CUrlResponseObj 结果数组中header为头部信息 info为curl的信息 body为空
      */
-    public static function head($url, array $params, $opts = []){
+    public static function head($url, array $params, $opts = []) {
         return self::getHandler($opts)->send($url, 'HEAD', $params);
     }
 }
 
-Class CURLException extends AkariException {
+class CURLException extends AkariException {
     /**
      * @param string $message
      * @param int $code
      * @param string $requestURL
      */
     public function __construct($message, $code = NULL, $requestURL = "") {
-        $this->message = "CURL Access Failed: ". $message;
+        $this->message = "CURL Access Failed: " . $message;
         $this->code = $code;
 
         // 如果指示当前的CURL类没有任何意义
@@ -237,7 +239,7 @@ Class CURLException extends AkariException {
     }
 }
 
-Class CUrlResponseObj {
+class CUrlResponseObj {
 
     /**
      * Http头信息
@@ -263,7 +265,7 @@ Class CUrlResponseObj {
      * @return bool|int
      */
     public function getCode() {
-        return isset($this->info['http_code']) ? $this->info['http_code'] : false;
+        return isset($this->info['http_code']) ? $this->info['http_code'] : FALSE;
     }
 
     /**
@@ -272,7 +274,7 @@ Class CUrlResponseObj {
      * @return bool|string
      */
     public function getUrl() {
-        return isset($this->info['url']) ? $this->info['url'] : false;
+        return isset($this->info['url']) ? $this->info['url'] : FALSE;
     }
 
     /**
@@ -281,7 +283,7 @@ Class CUrlResponseObj {
      * @return bool|string
      */
     public function getContentType() {
-        return isset($this->info['content_type']) ? $this->info['content_type'] : false;
+        return isset($this->info['content_type']) ? $this->info['content_type'] : FALSE;
     }
 
     /**
@@ -290,7 +292,7 @@ Class CUrlResponseObj {
      * @return bool|string
      */
     public function getRemoteIP() {
-        return isset($this->info['primary_ip']) ?$this->info['primary_ip'] : false;
+        return isset($this->info['primary_ip']) ?$this->info['primary_ip'] : FALSE;
     }
 
     /**
@@ -348,7 +350,7 @@ Class CUrlResponseObj {
      * @param $header
      * @return array
      */
-    private function parseCookie( $header ) {
+    private function parseCookie($header) {
         $cookies = array();
         foreach( $header as $line ) {
             if( !preg_match( '/^Set-Cookie: /i', $line ) ) {

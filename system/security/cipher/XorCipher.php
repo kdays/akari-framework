@@ -8,14 +8,13 @@
 
 namespace Akari\system\security\cipher;
 
-
 class XorCipher extends Cipher{
-    
+
     private $_secret;
 
     public function __construct(array $opts) {
         parent::__construct($opts);
-    
+
         $this->_secret = md5($this->getOption('secret', 'Akari'));
     }
 
@@ -25,9 +24,9 @@ class XorCipher extends Cipher{
         $strLen = strlen($text);
         for ($i = 0;$i < $strLen; $i++) {
             $k		= $i % $keyLen;
-            $code  .= $text[$i] ^ $this->_secret[$k];
+            $code .= $text[$i] ^ $this->_secret[$k];
         }
-        
+
         return base64_encode($code);
     }
 
@@ -38,8 +37,9 @@ class XorCipher extends Cipher{
         $strLen = strlen($str);
         for ($i = 0; $i < $strLen; $i++) {
             $k		= $i % $keyLen;
-            $code  .= $str[$i] ^ $this->_secret[$k];
+            $code .= $str[$i] ^ $this->_secret[$k];
         }
+
         return $code;
     }
 }

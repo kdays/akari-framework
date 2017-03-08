@@ -8,15 +8,14 @@
 
 namespace Akari\system\cache\handler;
 
-
 use Akari\Context;
-use Akari\system\cache\CacheBenchmark;
-use Akari\system\event\Listener;
 use Akari\utility\FileHelper;
+use Akari\system\event\Listener;
+use Akari\system\cache\CacheBenchmark;
 
 class FileCacheHandler implements ICacheHandler{
 
-    protected $isInTransaction = False;
+    protected $isInTransaction = FALSE;
     protected $transaction = [];
 
     protected $fileIndex = [];
@@ -27,8 +26,8 @@ class FileCacheHandler implements ICacheHandler{
         $indexPath = array_key_exists("indexPath", $options) ? $options['indexPath'] : 'index.json';
         $baseDir = array_key_exists("baseDir", $options) ? $options['baseDir'] : '/runtime/cache/';
 
-        $baseDir = Context::$appBasePath. $baseDir;
-        $indexPath = $baseDir. $indexPath;
+        $baseDir = Context::$appBasePath . $baseDir;
+        $indexPath = $baseDir . $indexPath;
 
         $this->baseDir = $baseDir;
         $this->indexPath = $indexPath;
@@ -38,41 +37,42 @@ class FileCacheHandler implements ICacheHandler{
             FileHelper::write($indexPath, json_encode([]));
         }
 
-        $this->fileIndex = json_decode(FileHelper::read($indexPath), True);
+        $this->fileIndex = json_decode(FileHelper::read($indexPath), TRUE);
         $this->removeExpired();
     }
 
     private function removeExpired() {
-        
+
         foreach ($this->fileIndex as $key => $value) {
             if ($value['expire'] > 0 && $value['expire'] < TIMESTAMP) {
-                $this->_remove($key, False);
+                $this->_remove($key, FALSE);
             }
         }
 
         $this->_updateIndex();
     }
 
-    private function _updateIndex(){
+    private function _updateIndex() {
         FileHelper::write($this->indexPath, json_encode($this->fileIndex));
     }
 
     private function _getFileName($key) {
         $hash = md5(uniqid());
-        return $key."_".substr($hash, 6, 11);
+
+        return $key . "_" . substr($hash, 6, 11);
     }
 
     private function _getKey($key) {
         return $key;
     }
 
-    private function _set($key, $value, $timeout = NULL, $doUpdateIndex = True) {
+    private function _set($key, $value, $timeout = NULL, $doUpdateIndex = TRUE) {
         Listener::fire(CacheBenchmark::ACTION_CREATE, ['key' => $key]);
         $savedKey = $this->_getKey($key);
 
         if (isset($this->fileIndex[$savedKey])) {
             $data = $this->fileIndex[$savedKey];
-            if (file_exists($kPath = $this->baseDir. $data['f'])) {
+            if (file_exists($kPath = $this->baseDir . $data['f'])) {
                 unlink($kPath);
             }
         }
@@ -83,19 +83,19 @@ class FileCacheHandler implements ICacheHandler{
             'expire' => $timeout > 0 ? (TIMESTAMP + $timeout) : $timeout
         ];
 
-        FileHelper::write($this->baseDir. $index, serialize($value));
+        FileHelper::write($this->baseDir . $index, serialize($value));
         if ($doUpdateIndex) $this->_updateIndex();
     }
 
-    private function _remove($key, $doUpdateIndex = True) {
+    private function _remove($key, $doUpdateIndex = TRUE) {
         Listener::fire(CacheBenchmark::ACTION_REMOVE, ['key' => $key]);
         $savedKey = $this->_getKey($key);
         if (!isset($this->fileIndex[$savedKey])) {
-            return False;
+            return FALSE;
         }
 
         $data = $this->fileIndex[$savedKey];
-        $path = $this->baseDir. $data['f'];
+        $path = $this->baseDir . $data['f'];
 
         if (file_exists($path)) {
             unlink($path);
@@ -104,7 +104,7 @@ class FileCacheHandler implements ICacheHandler{
         unset($this->fileIndex[$savedKey]);
         if ($doUpdateIndex) $this->_updateIndex();
 
-        return True;
+        return TRUE;
     }
 
     /**
@@ -119,10 +119,10 @@ class FileCacheHandler implements ICacheHandler{
         if ($this->isInTransaction) {
             $this->transaction[] = ['set', $key, $value, $timeout];
         } else {
-            $this->_set($key, $value, $timeout, True);
+            $this->_set($key, $value, $timeout, TRUE);
         }
 
-        return True;
+        return TRUE;
     }
 
     /**
@@ -135,19 +135,22 @@ class FileCacheHandler implements ICacheHandler{
     public function get($key, $defaultValue = NULL) {
         if (!isset($this->fileIndex[$key])) {
             CacheBenchmark::log(CacheBenchmark::MISS);
+
             return $defaultValue;
         }
 
         // 获得值
         $data = $this->fileIndex[$key];
-        $cachePath = $this->baseDir. $data['f'];
+        $cachePath = $this->baseDir . $data['f'];
 
         if (!file_exists($cachePath)) {
             $this->_remove($key);
+
             return $defaultValue;
         }
 
         CacheBenchmark::log(CacheBenchmark::HIT);
+
         return unserialize(file_get_contents($cachePath));
     }
 
@@ -161,7 +164,7 @@ class FileCacheHandler implements ICacheHandler{
         if ($this->isInTransaction) {
             $this->transaction[] = ['remove', $key];
         } else {
-            $this->_remove($key, True);
+            $this->_remove($key, TRUE);
         }
     }
 
@@ -193,11 +196,12 @@ class FileCacheHandler implements ICacheHandler{
      */
     public function startTransaction() {
         if ($this->isInTransaction) {
-            return False;
+            return FALSE;
         }
 
-        $this->isInTransaction = True;
-        return True;
+        $this->isInTransaction = TRUE;
+
+        return TRUE;
     }
 
     /**
@@ -218,21 +222,22 @@ class FileCacheHandler implements ICacheHandler{
      */
     public function commit() {
         if (!$this->isInTransaction) {
-            return False;
+            return FALSE;
         }
 
-        $this->isInTransaction = False;
+        $this->isInTransaction = FALSE;
         if (empty($this->transaction)) {
-            return False;
+            return FALSE;
         }
 
         foreach ($this->transaction as $command) {
-            $cmd = "_". array_shift($command);
-            call_user_func_array([$this, $cmd], array_merge($command, [False]));
+            $cmd = "_" . array_shift($command);
+            call_user_func_array([$this, $cmd], array_merge($command, [FALSE]));
         }
 
         $this->_updateIndex();
-        return True;
+
+        return TRUE;
     }
 
     /**
@@ -241,7 +246,7 @@ class FileCacheHandler implements ICacheHandler{
      * @return boolean
      */
     public function rollback() {
-        $this->isInTransaction = False;
+        $this->isInTransaction = FALSE;
         $this->transaction = [];
     }
 
@@ -273,6 +278,7 @@ class FileCacheHandler implements ICacheHandler{
     public function increment($key, $value = 1) {
         // TODO: Implement increment() method.
         $value += $this->get($key);
+
         return $this->set($key, $value);
     }
 
