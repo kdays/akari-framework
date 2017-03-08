@@ -10,6 +10,7 @@ use Akari\system\event\Event;
 use Akari\system\event\Listener;
 use Akari\system\exception\ExceptionProcessor;
 use Akari\system\event\Trigger;
+use Akari\system\i18n\I18n;
 use Akari\system\ioc\Injectable;
 use Akari\system\logger\DefaultExceptionAutoLogger;
 use Akari\system\result\Result;
@@ -142,8 +143,9 @@ spl_autoload_register(Array('Akari\Context', 'autoload'));
  * 
  * @property \Akari\system\result\Processor $processor
  * @property \Akari\system\router\Router $router
+ * @property \Akari\system\i18n\I18n $lang
  */
-Class akari extends Injectable{
+Class akari extends Injectable {
 
     use Logging;
 
@@ -219,6 +221,8 @@ Class akari extends Injectable{
 
         $this->loadExternal();
         if (!Context::$testing) $this->setExceptionHandler();
+
+        $this->lang->loadPackage(__DIR__. "/system/i18n/DefaultFkI18n.php", '', FALSE);
 
         return $this;
     }

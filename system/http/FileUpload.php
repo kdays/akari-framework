@@ -8,22 +8,14 @@
 
 namespace Akari\system\http;
 
+use Akari\system\ioc\Injectable;
 use Akari\utility\FileHelper;
 
-class FileUpload {
+class FileUpload extends Injectable {
 
     protected $upload;
     protected $formName;
     
-    private $codeMessage = [
-        UPLOAD_ERR_INI_SIZE => "文件大小超过系统配置",
-        UPLOAD_ERR_FORM_SIZE => "文件大小超过表单配置",
-        UPLOAD_ERR_PARTIAL => "文件只有部分被上传",
-        UPLOAD_ERR_NO_FILE => "没有文件被上传",
-        UPLOAD_ERR_NO_TMP_DIR => "系统错误,没有找到临时文件夹",
-        UPLOAD_ERR_CANT_WRITE => "系统错误,文件写入失败"
-    ];
-
     public function __construct(array $form, $formId) {
         $this->upload = $form;
         $this->formName = $formId;
@@ -50,9 +42,7 @@ class FileUpload {
     }
 
     public function getExtension() {
-        $exts = $this->getNameSection();
-        $ext = end($exts);
-        return strtolower($ext);
+        return FileHelper::getFileExtension($this->getFileName());
     }
 
     public function isUploadedFile() {
@@ -85,7 +75,7 @@ class FileUpload {
     
     public function getErrorMessage() {
         $code = $this->getError();
-        return isset($this->codeMessage[$code]) ? $this->codeMessage[$code] : "#Err.". $code;
+        return $this->lang->get('upload_err.'. $code);
     }
 
     public function isImage() {
