@@ -8,8 +8,8 @@
 
 namespace Akari\system\http;
 
-use Akari\system\ioc\Injectable;
 use Akari\utility\FileHelper;
+use Akari\system\ioc\Injectable;
 
 class FileUpload extends Injectable {
 
@@ -75,7 +75,8 @@ class FileUpload extends Injectable {
 
     public function getErrorMessage() {
         $code = $this->getError();
-        return $this->lang->get("upload_err.". $code);
+
+        return $this->lang->get("upload_err." . $code);
     }
 
     public function isImage() {
