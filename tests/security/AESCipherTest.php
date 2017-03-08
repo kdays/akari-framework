@@ -8,8 +8,8 @@
 
 namespace Akari\tests\security;
 
-use Akari\system\security\cipher\AESCipher;
 use PHPUnit\Framework\TestCase;
+use Akari\system\security\cipher\AESCipher;
 
 require_once __DIR__ . "/../../testLoader.php";
 \Akari\TestLoader::initForTest(__NAMESPACE__, '\Akari\config\BaseConfig');

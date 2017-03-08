@@ -221,8 +221,8 @@ class akari extends Injectable{
 
         $this->loadExternal();
         if (!Context::$testing) $this->setExceptionHandler();
-        
-        $this->lang->loadPackage(__DIR__. "/system/i18n/DefaultFkI18n.php", '', FALSE);
+
+        $this->lang->loadPackage(__DIR__ . "/system/i18n/DefaultFkI18n.php", '', FALSE);
 
         return $this;
     }
