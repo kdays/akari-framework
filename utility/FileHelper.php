@@ -135,7 +135,7 @@ class FileHelper {
     }
 
     public static function formatFileSize($size, $dec = 2) {
-        $a = array("B", "KB", "MB", "GB", "TB", "PB");
+        $a = ["B", "KB", "MB", "GB", "TB", "PB"];
         $pos = 0;
         while ($size >= 1024) {
             $size /= 1024;

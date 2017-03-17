@@ -8,12 +8,13 @@
 
 namespace Akari\tests\security;
 
+use PHPUnit\Framework\TestCase;
 use Akari\system\security\cipher\AESCipher;
 
 require_once __DIR__ . "/../../testLoader.php";
 \Akari\TestLoader::initForTest(__NAMESPACE__, '\Akari\config\BaseConfig');
 
-class AESCipherTest extends \PHPUnit_Framework_TestCase {
+class AESCipherTest extends TestCase {
 
     public function testCipher() {
         $cipher = new AESCipher([

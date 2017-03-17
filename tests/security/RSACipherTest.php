@@ -8,12 +8,13 @@
 
 namespace Akari\tests\security;
 
+use PHPUnit\Framework\TestCase;
 use Akari\system\security\Cipher\RSACipher;
 
 require_once __DIR__ . "/../../testLoader.php";
 \Akari\TestLoader::initForTest(__NAMESPACE__, '\Akari\config\BaseConfig');
 
-class RSACipherTest extends \PHPUnit_Framework_TestCase {
+class RSACipherTest extends TestCase {
 
     public $publicKey = <<<'EOT'
 -----BEGIN PUBLIC KEY-----
