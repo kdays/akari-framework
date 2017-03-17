@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\filter;
 
-
 use Akari\system\security\SafeHTML;
 
 class HtmlFilter extends BaseFilter {
