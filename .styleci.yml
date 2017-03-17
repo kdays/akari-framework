@@ -27,7 +27,6 @@ enabled:
   - function_typehint_space
   - include
   - function_declaration
-  - no_whitespace_in_blank_line
   - object_operator_without_whitespace
   - short_scalar_cast
   - single_blank_line_before_namespace
