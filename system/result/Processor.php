@@ -80,8 +80,6 @@ class Processor extends Injectable{
     }
 
     public function processINI(Result $result) {
-        $array = ["body" => $result->data];
-
         function _array2ini($data, $i) {
             $str = "";
             $map = [
@@ -96,7 +94,7 @@ class Processor extends Injectable{
                 }
 
                 if (is_array($v)) {
-                    $str .= "[k]" . PHP_EOL;
+                    $str .= "[$k]" . PHP_EOL;
                     $str .= _array2ini($v, $i + 1);
                 } else {
                     $str .= $k . "=" . $v . PHP_EOL;
@@ -105,8 +103,13 @@ class Processor extends Injectable{
 
             return $str;
         }
+        
+        $body = $result->data;
+        if (!is_array($body)) {
+            $body = ['body' => $body];
+        }
 
-        return _array2ini($array, 0);
+        return _array2ini($body, 0);
     }
 
 
