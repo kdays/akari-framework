@@ -22,4 +22,5 @@ class HtmlFilter extends BaseFilter {
     public function filter($data) {
         return SafeHTML::filter($data);
     }
+    
 }
