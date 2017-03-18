@@ -8,6 +8,7 @@
 
 namespace Akari\utility\helper;
 
+use Akari\Context;
 use Akari\system\cache\Cache;
 use Akari\system\cache\CacheBenchmark;
 
@@ -24,6 +25,10 @@ trait CacheHelper {
     public static function _fetchCache($key, callable $failBack, $timeout = NULL) {
         $cache = self::_getCache();
 
+        if (Context::$mode == 'Dev') {
+            return $failBack();
+        }
+        
         if ($cache->exists($key)) {
             return $cache->get($key);
         }
