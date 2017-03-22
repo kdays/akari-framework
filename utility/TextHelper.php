@@ -8,6 +8,8 @@
 
 namespace Akari\utility;
 
+use Akari\system\security\Random;
+
 class TextHelper {
 
     public static function snakeCase($in) {
@@ -131,9 +133,7 @@ class TextHelper {
     }
 
     public static function randomStr($length) {
-        $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-        return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
+        return Random::hex($length);
     }
 
 }
