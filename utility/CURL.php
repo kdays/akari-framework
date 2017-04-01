@@ -110,9 +110,11 @@ class CURL {
         $options = array();
 
         if($method == 'GET' || $method == 'HEAD'){
-            $url .= strpos($url, "?") ? "&" : "?";
-            $url .= $params;
-
+            if ($params) {
+                $url .= strpos($url, "?") ? "&" : "?";
+                $url .= $params;
+            }
+            
             if($method == 'GET'){
                 $options[CURLOPT_HTTPGET] = TRUE;
             }else{
