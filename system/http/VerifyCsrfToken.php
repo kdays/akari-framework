@@ -47,7 +47,7 @@ class VerifyCsrfToken extends Injectable{
             $uToken = $this->request->getHeader('HTTP_X_CSRF_TOKEN');
         }
 
-        if (!empty($this->request->has($tokenName))) {
+        if ($this->request->has($tokenName)) {
             $uToken = $this->request->get($tokenName);
         }
 
