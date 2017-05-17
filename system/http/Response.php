@@ -38,6 +38,10 @@ class Response extends Injectable{
     public function setContent($content) {
         $this->content = $content;
     }
+    
+    public function setJsonContent($content) {
+        $this->content = json_encode($content);
+    }
 
     public function getContent() {
         return $this->content;
