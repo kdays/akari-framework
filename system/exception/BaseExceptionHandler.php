@@ -19,6 +19,14 @@ abstract class BaseExceptionHandler extends Injectable{
     use Logging, ResultHelper, ValueHelper;
 
     abstract public function handleException(\Exception $ex);
+    
+    protected function getMagicTraceString(\Exception $ex) {
+        return method_exists($ex, 'getTraceString') ? $ex->getTraceString() : $ex->getTraceAsString();
+    }
+
+    protected function getMagicTrace(\Exception $ex) {
+        return method_exists($ex, 'getMagicTrace') ? $ex->getMagicTrace() : $ex->getTrace();
+    }
 
     protected function crash($file, $line, $trace) {
         $count = count($trace);

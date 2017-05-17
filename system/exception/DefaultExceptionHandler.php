@@ -31,7 +31,7 @@ class DefaultExceptionHandler extends BaseExceptionHandler {
             return $content;
         };
 
-        list($fileLine, $trace) = $this->crash($ex->getFile(), $ex->getLine(), $ex->getTrace());
+        list($fileLine, $trace) = $this->crash($ex->getFile(), $ex->getLine(), $this->getMagicTrace($ex));
         foreach ($fileLine as &$value) {
             $value = str_replace("  ", "<span class='w-block'></span>", $value);
         }

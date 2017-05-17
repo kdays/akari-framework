@@ -39,7 +39,7 @@ class FrameworkExceptionHandler extends BaseExceptionHandler {
 
         // CLI模式时为了方便调试 任何错误不捕获时全调用
         if (CLI_MODE) {
-            echo $ex->getMessage() . "\n\n" . $ex->getTraceAsString();
+            echo $ex->getMessage() . "\n\n" . $this->getMagicTraceString($ex);
             die;
         }
 

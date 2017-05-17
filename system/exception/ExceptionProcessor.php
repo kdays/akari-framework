@@ -68,13 +68,14 @@ class ExceptionProcessor extends Injectable{
     }
     
     public function processException($ex) {
-        if (is_object($ex)) {
-            if (!$ex instanceof \Exception) {
-                // PHP7.0 ParseError
-                $ex = new FatalException($ex->getMessage(), $ex->getFile(), $ex->getLine(), get_class($ex));
-            }
-        } else {
+        if (!is_object($ex)) {
             throw new FatalException("Unknown Exception: " . $ex, __FILE__, __LINE__, E_USER_ERROR);
+        } else {
+            if (version_compare(PHP_VERSION, '7.0', '>=')) {
+                if ($ex instanceof \Error) {
+                    $ex = new PHPErrorException($ex);
+                }
+            }
         }
         
         Listener::fire(self::EVENT_EXCEPTION_EXECUTE, $ex);
