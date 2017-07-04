@@ -40,7 +40,7 @@ class Router extends Injectable {
             case AKARI_URI_AUTO:
                 $uri = $this->request->getUrlPathInfo();
                 if(empty($uri)){
-                    if(isset($_GET['uri']))	$uri = $_GET['uri'];
+                    if(isset($_GET['_url']))	$uri = $_GET['_url'];
                     if(empty($uri)){
                         $uri = $this->clearURI($this->request->getRequestURI());
                     }
