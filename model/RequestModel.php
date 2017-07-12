@@ -8,7 +8,16 @@
 
 namespace Akari\model;
 
+use Akari\system\security\FilterFactory;
+
 abstract class RequestModel extends Model {
+
+    private $pValues = [];
+
+    public static function createFromValues(array $values) {
+        $model = new static($values);
+        return $model;
+    }
 
     const METHOD_POST = 'P';
     const METHOD_GET = 'G';
@@ -35,36 +44,57 @@ abstract class RequestModel extends Model {
      */
     abstract protected function getColumnMap();
 
-    public function __construct() {
+    public function getValue($key, $defaultValue = NULL) {
+        $method = $this->getKeyMethod($key);
+        if (in_string($key, "[")) {
+            $startPos = strpos($key, '[');
+
+            $baseKey = substr($key, 0, $startPos);
+            $subKey =  substr($key, $startPos + 1, -1);
+
+            $values = $this->requestValue($baseKey, $method, $defaultValue);
+            if (array_key_exists($subKey, $values)) {
+                return $values[$subKey];
+            }
+
+            return $defaultValue;
+        }
+
+        return $this->requestValue($key, $method, $defaultValue);
+    }
+
+    public function requestValue($key, $method, $defaultValue) {
+        if (isset($this->pValues[$key])) {
+            return $this->filter( $key, $this->pValues[$key] );
+        }
+
+        if ($method == self::METHOD_GET_AND_POST) {
+            $value = isset($_REQUEST[$key]) ? $_REQUEST[$key] : $defaultValue;
+        } elseif ($method == self::METHOD_GET) {
+            $value = isset($_GET[$key]) ? $_GET[$key] : $defaultValue;
+        } else {
+            $value = isset($_POST[$key]) ? $_POST[$key] : $defaultValue;
+        }
+
+        return $this->filter($key, $value);
+    }
+
+    public function __construct($values = NULL) {
+        if ($values !== NULL) {
+            $this->pValues = $values;
+        }
+
         $map = $this->getColumnMap();
 
         foreach($this as $key => $value){
             $reqKey = isset($map[$key]) ? $map[$key] : $key;
-            $method = $this->getKeyMethod($key);
-
-            // 处理Map的特殊字段 比如[]
-            if (in_string($reqKey, '[')) { // eg. voteOpt => specialCfg[voteOpt] 
-                $startPos = strpos($reqKey, '[');
-
-                $baseKey = substr($reqKey, 0, $startPos);
-                $subKey =  substr($reqKey, $startPos + 1, -1);
-
-                $values = GP($baseKey, $method);
-                if (array_key_exists($subKey, $values)) {
-                    $value = $values[$subKey];
-                }
-            } else {
-                $value = GP($reqKey, $method);
-            }
-
-            if($value !== NULL){
-                $this->$key = $value;
-            }
+            $this->$key = $this->getValue($reqKey, $value);
         }
-
         $this->checkParameters();
+    }
 
-        return $this;
+    public function filter($key, $value) {
+        return FilterFactory::doFilter($value, 'default');
     }
 
     /**
