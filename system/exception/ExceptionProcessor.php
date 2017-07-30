@@ -8,8 +8,8 @@
 
 namespace Akari\system\exception;
 
-use Akari\system\event\Listener;
 use Akari\system\event\Trigger;
+use Akari\system\event\Listener;
 use Akari\system\ioc\Injectable;
 use Akari\system\result\Processor;
 
@@ -22,7 +22,7 @@ class ExceptionProcessor extends Injectable{
      */
     const EVENT_EXCEPTION_EXECUTE = "coreException.exception";
     
-    private $_isFired = false;
+    private $_isFired = FALSE;
 
     public static $p;
     public static function getInstance() {

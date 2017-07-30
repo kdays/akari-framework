@@ -69,6 +69,7 @@ class Dispatcher extends Injectable{
         if (isset($config['default'])) {
             return Context::$appBaseNS . $config['default'];
         }
+
         return Context::$appBaseNS . NAMESPACE_SEPARATOR . 'action';
     }
 
