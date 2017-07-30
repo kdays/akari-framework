@@ -11,7 +11,6 @@ namespace Akari\system\exception;
 use \Exception;
 use Akari\Context;
 use Akari\system\http\HttpCode;
-use Akari\system\http\Response;
 use Akari\system\router\NotFoundURI;
 
 /**

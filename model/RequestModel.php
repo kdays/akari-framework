@@ -16,6 +16,7 @@ abstract class RequestModel extends Model {
 
     public static function createFromValues(array $values) {
         $model = new static($values);
+
         return $model;
     }
 

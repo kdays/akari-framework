@@ -8,7 +8,6 @@
 
 namespace Akari\system\exception;
 
-
 class PHPErrorException extends \Exception {
     
     protected $context;
