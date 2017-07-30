@@ -56,6 +56,12 @@ class Dispatcher extends Injectable{
         }
 
         $config = Context::env('bindDomain', NULL, []);
+
+        if (is_string($config)) {
+            // 那么说明直接调用class方法
+            return $config::handleAppActionNs($this->request);
+        }
+
         if (isset($config[$this->request->getHost()])) {
             return Context::$appBaseNS . $config[$this->request->getHost()];
         }
@@ -63,7 +69,6 @@ class Dispatcher extends Injectable{
         if (isset($config['default'])) {
             return Context::$appBaseNS . $config['default'];
         }
-
         return Context::$appBaseNS . NAMESPACE_SEPARATOR . 'action';
     }
 

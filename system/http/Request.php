@@ -18,6 +18,7 @@ class Request extends Injectable{
     protected $userAgent;
     protected $requestTime;
     protected $pathInfo;
+    protected $requestScheme;
 
     /**
      * 构造函数
@@ -26,6 +27,7 @@ class Request extends Injectable{
         $arr = array(
             'requestMethod' => 'REQUEST_METHOD',
             'requestURI' => 'REQUEST_URI',
+            'requestScheme' => 'REQUEST_SCHEME',
             'host' => 'HTTP_HOST',
             'remoteIP' => 'REMOTE_ADDR',
             'serverIP' => 'SERVER_ADDR',
@@ -214,6 +216,10 @@ class Request extends Injectable{
      */
     public function getUserAgent() {
         return $this->userAgent;
+    }
+
+    public function getRequestScheme() {
+        return $this->requestScheme;
     }
 
     /**
