@@ -9,8 +9,6 @@
 namespace Akari\system\conn;
 
 use \PDO;
-use Akari\utility\Benchmark;
-use Akari\system\db\DBAgentException;
 
 class DBConnection {
 
@@ -167,7 +165,6 @@ class DBConnection {
      * @param array $values
      * @param int $columnIdx 返回查询返回的第几个值
      * @return bool|string
-     * @throws DBAgentException
      */
     public function fetchValue($sql, $values = [], $columnIdx = 0) {
         $st = $this->_packPrepareSQL($this->getReadConnection(), $sql, $values);
@@ -183,12 +180,12 @@ class DBConnection {
 
     private function _closeConn(\PDOStatement $st) {
         $st->closeCursor();
-        $this->_benchmarkEnd($st->queryString);
+        DBUtil::endBenchmark($st->queryString);
     }
 
     private function _throwErr(\PDOStatement $st) {
         $errorInfo = $st->errorInfo();
-        throw new DBAgentException("Query Failed. 
+        throw new DBException("Query Failed. 
         [Err] " . $errorInfo[0] . " " . $errorInfo[2] . " 
         [SQL] " . $st->queryString . $this->_appendMsg);
     }
@@ -200,8 +197,7 @@ class DBConnection {
             $st->bindValue($key, $value);   
         }
 
-        $this->_benchmarkBegin();
-
+        DBUtil::beginBenchmark();
         return $st;
     }
 
@@ -215,16 +211,5 @@ class DBConnection {
 
     public function appendMsg($msg) {
         $this->_appendMsg = $msg;
-    }
-
-    private function _benchmarkBegin() {
-        Benchmark::setTimer(self::BENCHMARK_KEY);
-    }
-
-    private function _benchmarkEnd($sql) {
-        Benchmark::logParams(self::BENCHMARK_KEY, [
-            'time' => Benchmark::getTimerDiff(self::BENCHMARK_KEY),
-            'sql' => $sql . " " . $this->_appendMsg
-        ]);
     }
 }

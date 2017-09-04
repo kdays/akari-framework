@@ -13,7 +13,7 @@ define("NAMESPACE_SEPARATOR", "\\");
 
 define("CLI_MODE", php_sapi_name() == "cli" ? TRUE : FALSE);
 defined("BASE_APP_DIR") or define("BASE_APP_DIR", "app");
-defined('DISPLAY_BENCHMARK') or define("DISPLAY_BENCHMARK", FALSE);
+defined('DISPLAY_BENCHMARK') or define("DISPLAY_BENCHMARK", false);
 
 define('AKARI_URI_AUTO', 0);
 define('AKARI_URI_PATHINFO', 1);

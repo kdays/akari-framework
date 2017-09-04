@@ -213,7 +213,6 @@ class akari extends Injectable{
         // 应该是实际执行的Action被赋值
         Context::$appEntryName = basename($_SERVER['SCRIPT_FILENAME']);
 
-        header("X-Akari-Version: " . self::getVersion(FALSE));
         include "defaultBoot.php";
         if (file_exists($bootPath = Context::$appBasePath . DIRECTORY_SEPARATOR . "boot.php") && !Context::$testing) {
             include $bootPath;

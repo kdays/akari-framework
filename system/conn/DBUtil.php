@@ -8,6 +8,8 @@
 
 namespace Akari\system\conn;
 
+use Akari\utility\Benchmark;
+
 class DBUtil {
 
     public static function mergeMetaKeys($keys, DBConnection $DBConnection) {
@@ -41,6 +43,17 @@ class DBUtil {
         }
 
         return $result;
+    }
+
+    public static function beginBenchmark() {
+        Benchmark::setTimer(DBConnection::BENCHMARK_KEY);
+    }
+
+    public static function endBenchmark($sql) {
+        Benchmark::logParams(DBConnection::BENCHMARK_KEY, [
+            'time' => Benchmark::getTimerDiff(DBConnection::BENCHMARK_KEY),
+            'sql' => $sql
+        ]);
     }
 
 }

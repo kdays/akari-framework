@@ -10,11 +10,9 @@ namespace Akari\system\conn;
 
 abstract class BaseSQLMap {
 
-    public $table;
-
     public $args = [];
 
-    public $lists;
+    public $items = [];
 
     protected static $m = [];
 

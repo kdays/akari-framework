@@ -32,104 +32,34 @@ class SQLMapBuilder {
      * @return mixed
      * @throws DBException
      */
-    public function execute($id, array $data) {
-        $lists = $this->map->lists;
+    public function execute(string $id, array $data) {
+        $items = $this->map->items;
 
         $mapId = get_class($this->map) . "@" . $id;
-        if (!isset($lists[$id])) {
-            throw new DBException("Not Found SQLMap:" . $mapId);
+        if (!isset($items[$id])) {
+            throw new DBException("not found map item: ". $mapId);
         }
 
-        $item = $lists[$id];
+        $item = $items[$id];
         $type = strtoupper(explode(".", $id)[0]);
 
+        $sql = $item['sql'];
         $connection = $this->connection;
-        $connection->appendMsg(" [FROM: " . $mapId . "]");
 
-        list($item, $data) = $this->prepareDataForSql($item, $data, $mapId);
-        $sql = $item['sql'];
-        $vars = [];
-
-        // 增加全局参数的替换
-        $commArgs = array_merge(
-            ['TABLE_NAME' => $this->map->table],
-            $this->map->args,
-            empty($data['args']) ? [] : $data['args']);
-
-        foreach ($commArgs as $k => $v) {
-            $sql = str_replace('@' . $k, $v, $sql);
-        }
-
-        foreach ($data as $k => $v) {
-            if ($k[0] == '@')   continue;
-
-            if (is_array($v) && isset($data['@in']) && in_array($k, $data['@in'])) {
-                $sql = str_ireplace(":" . $k, $this->parseValue($v), $sql);
-            } else {
-                $vars[$k] = $v;   
-            }
-        }
-
-        foreach ($this->_values as $k => $v) {
-            $vars['AB_' . $k] = $v;
-        }
-
-        $result = NULL;
-        if ($type == self::TYPE_COUNT) {
-            $result = $connection->fetchValue($sql, $vars);
-        } elseif ($type == self::TYPE_SELECT) {
-            $result = $connection->fetch($sql, $vars, \PDO::FETCH_ASSOC);
-        } elseif ($type == self::TYPE_ROW) {
-            $result = $connection->fetchOne($sql, $vars, \PDO::FETCH_ASSOC);
-        } elseif ($type == self::TYPE_INSERT) {
-            $result = $connection->query($sql, $vars, TRUE);
-            if (empty($result)) { // 如果没有InsertId
-                $result = TRUE;
-            }
-        } else {
-            $result = $connection->query($sql, $vars);
-        }
-
-        $this->close();
-        $connection->resetAppendMsg();
-
-        return $result;
-    }
-
-    public function close() {
-        $this->_values = [];
-        $this->_bindCount = 0;
-    }
-
-    private function prepareDataForSql($item, $data, $mapId) {
-        $sql = $item['sql'];
-
-        if (isset($item['required'])) {
-            foreach ($item['required'] as $key) {
-                if (!isset($data[$key]) 
-                    and !isset($data['@vars'][$key]) 
-                    and !isset($data['@bind'][$key])) {
-                    throw new MissingDbValue($mapId, $key);
+        if (isset($item['vars'])) {
+            foreach ($item['vars'] as $key => $value) {
+                if (!array_key_exists($key, $data)) {
+                    $data[$key] = $value;
                 }
             }
         }
 
-        if (isset($item['var'])) {
-            foreach ($item['var'] as $key => $value) {
-                if (!array_key_exists($key, $data)) $data[$key] = $value;
-            }
+        if (isset($data['@keys'])) {
+            $sql = str_ireplace("#keys", DBUtil::mergeMetaKeys($data['@keys'], $connection), $sql);
         }
 
         if (isset($data['@limit'])) {
             $sql = str_ireplace("#limit", DBUtil::makeLimit($data['@limit']), $sql);
-        } 
-
-        if (isset($data['@keys'])) {
-            $sql = str_ireplace(
-                "#keys",
-                DBUtil::mergeMetaKeys($data['@keys'], $this->connection),
-                $sql
-            );
         }
 
         if (isset($data['@sort'])) {
@@ -142,23 +72,56 @@ class SQLMapBuilder {
             }
         }
 
-        if (isset($data['@bind'])) {
-            foreach ($data['@bind'] as $k => $v) {
+        $connection->appendMsg(" [FROM: " . $mapId . "]");
+
+        // 增加全局参数的替换
+        $commArgs = array_merge($this->map->args, $data['args'] ?? []);
+        foreach ($commArgs as $k => $v) {
+            $sql = str_replace('@' . $k, $v, $sql);
+        }
+
+        $bindData = [];
+        foreach ($data as $k => $v) {
+            if ($k[0] == '@') {
+                continue;
+            }
+
+            if (is_array($v)) {
                 $sql = str_ireplace(":" . $k, $this->parseValue($v), $sql);
+            } else {
+                $bindData[$k] = $v;
             }
         }
 
-        if (isset($data['@callback'])) {
-            $sql = $data['@callback']($item, $data);
+        foreach ($this->_values as $k => $v) {
+            $bindData['AB_' . $k] = $v;
         }
 
-        if (isset($item['check'])) {
-            call_user_func_array($item['check'], [&$sql, &$item, &$data]);
+        $result = NULL;
+        if ($type == self::TYPE_COUNT) {
+            $result = $connection->fetchValue($sql, $bindData);
+        } elseif ($type == self::TYPE_SELECT) {
+            $result = $connection->fetch($sql, $bindData, \PDO::FETCH_ASSOC);
+        } elseif ($type == self::TYPE_ROW) {
+            $result = $connection->fetchOne($sql, $bindData, \PDO::FETCH_ASSOC);
+        } elseif ($type == self::TYPE_INSERT) {
+            $result = $connection->query($sql, $bindData, TRUE);
+            if (empty($result)) { // 如果没有InsertId
+                $result = TRUE;
+            }
+        } else {
+            $result = $connection->query($sql, $bindData);
         }
 
-        $item['sql'] = $sql;
+        $this->close();
+        $connection->resetAppendMsg();
 
-        return [$item, $data];
+        return $result;
+    }
+
+    public function close() {
+        $this->_values = [];
+        $this->_bindCount = 0;
     }
 
     private $_values = [];
