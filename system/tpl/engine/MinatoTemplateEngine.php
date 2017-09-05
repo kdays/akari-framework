@@ -49,9 +49,20 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
             }, $template);
 
             $template = preg_replace_callback('/' . $beginUtilMark . '(.*?)' . $endUtilMark . '/iu', function ($matches) use ($that) {
-                $matches[1] = str_replace("$", "_#_", $matches[1]);
+                $cmd = trim(str_replace("$", "_#_", $matches[1]));
 
-                return '<?= ViewUtil::' . trim($matches[1]) . "?>";
+                $cmdPos = strpos($cmd, "(");
+                $cmdName = substr($cmd, 0, $cmdPos);
+                $cmdParameters = substr($cmd, $cmdPos + 1, -1);
+
+                if (in_string($cmdName, ".")) {
+                    $cmdFunc = explode(".", $cmdName);
+                    $viewCmd = 'ViewUtil::' . $cmdFunc[0]. "('" . $cmdFunc[1] . "', ". $cmdParameters. ")";
+                } else {
+                    $viewCmd = 'ViewUtil::'. $cmdName . "(" . $cmdParameters . ")";
+                }
+
+                return '<?=' . $viewCmd . "?>";
             }, $template);
 
             $template = preg_replace_callback('/' . $beginLangMark . '(.*?)' . $endLangMark . '/iu', function ($matches) {
