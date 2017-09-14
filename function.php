@@ -238,3 +238,24 @@ if (!function_exists("hex2bin")) {
         return $hex !== FALSE && preg_match('/^[0-9a-fA-F]+$/i', $hex) ? pack("H*", $hex) : FALSE;
     } 
 }
+
+if (!function_exists('mb_parse_url')) {
+    function mb_parse_url($url, $component = -1) {
+        $enc_url = preg_replace_callback('%[^:/@?&=#]+%usD', function ($matches) {
+                return urlencode($matches[0]);
+            }, $url);
+
+        $parts = parse_url($enc_url, $component);
+        if($parts === false) {
+            throw new \InvalidArgumentException('Malformed URL: ' . $url);
+        }
+
+        if ($component == -1) {
+            foreach($parts as $name => $value) {
+                $parts[$name] = urldecode($value);
+            }
+        }
+
+        return $parts;
+    }
+}
