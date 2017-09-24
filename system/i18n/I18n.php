@@ -67,7 +67,9 @@ class I18n {
 
         $lang = $this->_data[ $prefix . $id ];
         foreach($L as $key => $value){
-            $lang = str_replace("%$key%", $value, $lang);
+            if (is_string($value) || is_numeric($value)) {
+                $lang = str_replace("%$key%", $value, $lang);
+            }
         }
 
         // 处理![语言句子] 或被替换成L(语言句子)
