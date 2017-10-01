@@ -92,7 +92,7 @@ class Dispatcher extends Injectable{
 
     protected function doAction($cls, $method) {
         if (empty($method) || $method[0] == '_') {
-            throw new NotFoundClass($method, $cls);
+            throw new NotFoundClass($cls);
         }
         $clsObj = new $cls();
 
