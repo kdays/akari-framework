@@ -12,7 +12,7 @@ use Akari\system\security\FilterFactory;
 
 abstract class RequestModel extends Model {
 
-    private $pValues = [];
+    private $_pValues = [];
 
     public static function createFromValues(array $values) {
         $model = new static($values);
@@ -65,8 +65,8 @@ abstract class RequestModel extends Model {
     }
 
     public function requestValue($key, $method, $defaultValue) {
-        if (isset($this->pValues[$key])) {
-            return $this->filter( $key, $this->pValues[$key] );
+        if (isset($this->_pValues[$key])) {
+            return $this->_pValues[$key];
         }
 
         if ($method == self::METHOD_GET_AND_POST) {
@@ -82,15 +82,20 @@ abstract class RequestModel extends Model {
 
     public function __construct($values = NULL) {
         if ($values !== NULL) {
-            $this->pValues = $values;
+            $this->_pValues = $values;
         }
 
         $map = $this->getColumnMap();
 
         foreach($this as $key => $value){
+            if ($key == '_pValues') {
+                continue;
+            }
+
             $reqKey = isset($map[$key]) ? $map[$key] : $key;
             $this->$key = $this->getValue($reqKey, $value);
         }
+
         $this->checkParameters();
     }
 
