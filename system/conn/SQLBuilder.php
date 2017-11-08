@@ -84,7 +84,6 @@ class SQLBuilder {
         }
 
         $statement = $this->getConnection()->prepare($query);
-
         if ($statement) {
             foreach ($map as $key => $value) {
                 $statement->bindValue($key, $value[0], $value[1]);
@@ -93,8 +92,7 @@ class SQLBuilder {
             DBUtil::beginBenchmark();
 
             if (!$statement->execute()) {
-                $errorInfo = $statement->errorInfo();
-                throw new DBException("Query Failed.  [Err] " . $errorInfo[0] . " " . $errorInfo[2] . "  [SQL] " . $statement->queryString);
+                $this->connection->throwErr($statement, $this->generate($query, $map));
             }
 
             DBUtil::endBenchmark($query);

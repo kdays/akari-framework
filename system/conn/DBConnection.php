@@ -178,16 +178,22 @@ class DBConnection {
         $this->_throwErr($st);
     }
 
+    public function throwErr(\PDOStatement $st, $madeSQL = null) {
+        $this->_throwErr($st, $madeSQL);
+    }
+
     private function _closeConn(\PDOStatement $st) {
         $st->closeCursor();
         DBUtil::endBenchmark($st->queryString);
     }
 
-    private function _throwErr(\PDOStatement $st) {
+    private function _throwErr(\PDOStatement $st, $madeSQL = NULL) {
         $errorInfo = $st->errorInfo();
-        throw new DBException("Query Failed. 
-        [Err] " . $errorInfo[0] . " " . $errorInfo[2] . " 
-        [SQL] " . $st->queryString . $this->_appendMsg);
+
+        $ex = new DBException("Query Failed: " . $errorInfo[0] . " " . $errorInfo[2] . $this->_appendMsg);
+        $ex->setQueryString($madeSQL === null ? $st->queryString : $madeSQL);
+
+        throw $ex;
     }
 
     private function _packPrepareSQL(\PDO $conn, $sql, $values) {

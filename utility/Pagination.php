@@ -36,7 +36,7 @@ class Pagination extends Plugin {
     public $totalPage;
     public $pagination = [];
 
-    public function __construct($currentPage, $baseUrl = NULL, $urlArgs = NULL) {
+    public function __construct($currentPage, $baseUrl = NULL, $urlArgs = NULL, $pageSize = NULL, $total = NULL) {
         if ($urlArgs === NULL) {
             $urlArgs = $_GET;
         }
@@ -49,6 +49,14 @@ class Pagination extends Plugin {
         $this->urlArgs = $urlArgs;
         $this->widget = Context::env(ConfigItem::DEFAULT_PAGE_TEMPLATE, NULL, 'Pager');
         $this->currentPage = $currentPage;
+
+        if ($pageSize !== NULL) {
+            $this->setPageSize($pageSize);
+        }
+
+        if ($total !== NULL) {
+            $this->setTotal($total);
+        }
     }
 
     public function setWidget($widget) {
