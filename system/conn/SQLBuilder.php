@@ -106,6 +106,7 @@ class SQLBuilder {
     }
 
     protected function generate($query, $map) {
+        krsort($map);
         foreach ($map as $key => $value) {
             if ($value[1] === PDO::PARAM_STR) {
                 $query = str_replace($key, $this->quote($value[0]), $query);

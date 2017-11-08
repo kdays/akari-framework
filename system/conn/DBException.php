@@ -14,9 +14,9 @@ class DBException extends AkariException {
 
     private $queryString;
 
-    public function getCodeErrorTrace() {
-        $traces = $this->getTrace();
-        foreach ($traces as $trace) {
+    public function __construct($message = "", $code = 0, $previous = null) {
+        parent::__construct($message, $code, $previous);
+        foreach ($this->getTrace() as $trace) {
             if (isset($trace['class']) && in_array($trace['class'], [
                     DBConnection::class,
                     SQLBuilder::class
@@ -24,20 +24,11 @@ class DBException extends AkariException {
                 continue;
             }
 
-            return $trace;
+            $this->file = $trace['file'];
+            $this->line = $trace['line'];
+
+            break;
         }
-
-        return NULL;
-    }
-
-    public function getCodeFile() {
-        $trace = $this->getCodeErrorTrace();
-        return $trace !== NULL ? $trace['file'] : '';
-    }
-
-    public function getCodeLine() {
-        $trace = $this->getCodeErrorTrace();
-        return $trace !== NULL ? $trace['line'] : '';
     }
 
     public function setQueryString(string $queryString) {
