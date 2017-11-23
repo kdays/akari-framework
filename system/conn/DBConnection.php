@@ -31,7 +31,14 @@ class DBConnection {
         }
 
         try {
-            $connection = new PDO($options['dsn'], $options['username'], $options['password'], $options['options']);
+            // 如果没有dsn 我们则看一下
+            if (!empty($options['host'])) {
+                $dsn = $options['type'] . ":host=" . $options['host'] . ";port=" . $options['port'] . ";dbname=" . $options['database'];
+            } else {
+                $dsn = $options['dsn'];
+            }
+
+            $connection = new PDO($dsn, $options['username'], $options['password'], $options['options']);
         } catch (\PDOException $e) {
             throw new DBException("Connect Failed: " . $e->getMessage());
         }
@@ -217,5 +224,20 @@ class DBConnection {
 
     public function appendMsg($msg) {
         $this->_appendMsg = $msg;
+    }
+
+    public function getDatabaseName() {
+        if (!empty($this->options['dsn'])) {
+            list($type, $_options) = explode(":", $this->options['dsn']);
+            $options = [];
+
+            foreach (explode(";", $_options) as $v) {
+                parse_str($v, $v);
+                $options = array_merge($options, $v);
+            }
+            return $options['dbname'];
+        }
+
+        return $this->options['database'];
     }
 }
