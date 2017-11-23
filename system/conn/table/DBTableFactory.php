@@ -18,7 +18,7 @@ class DBTableFactory {
     protected $tableName;
 
     protected $stub = [];
-    protected $index;
+    protected $indexes = [];
 
     protected $connection;
     protected $isCreateMode;
@@ -62,6 +62,31 @@ class DBTableFactory {
         }
 
         $this->isCreateMode = empty($this->stub);
+        if (!$this->isCreateMode) {
+            $indexes = $DBConnection->fetch("show keys from " . $tableName);
+
+            $indexColumns = [];
+            foreach ($indexes as $indexCol) {
+                $index = new DBTableIndex();
+                $index->name = $indexCol['Key_name'];
+                if ($indexCol['Non_unique'] != 1) {
+                    $index->type = DBTableIndex::TYPE_UNIQUE;
+                }
+
+                $index->comment = $indexCol['Index_comment'];
+
+                $this->indexes[ $index->name ] = $index;
+                $indexColumns[ $index->name ][] = $indexCol['Column_name'];
+            }
+
+            /**
+             * @var string $name
+             * @var DBTableIndex $index
+             */
+            foreach ($this->indexes as $name => $index) {
+                $index->fields = $indexColumns[$name];
+            }
+        }
     }
 
     /**
@@ -87,12 +112,20 @@ class DBTableFactory {
         return $this->stub;
     }
 
-    public function createIndex(...$args) {
-        if (count($args) < 1) {
-            return false;
+    /**
+     * @param string $indexName
+     * @return DBTableIndex
+     */
+    public function index(string $indexName) {
+        if (!isset($this->indexes[$indexName])) {
+            $index = new DBTableIndex();
+            $index->name = $indexName;
+            $index->modifyFields[] = '*';
+
+            $this->indexes[ $indexName ] = $index;
+
         }
-
-
+        return $this->indexes[ $indexName ];
     }
 
     private function makeSqlProp(DBTableStub $stub) {
@@ -130,7 +163,7 @@ class DBTableFactory {
         return $sql;
     }
 
-    public function execute($onlyReturn = false) {
+    protected function getStubSQL() {
         $sqls = [];
         $pk = [];
 
@@ -160,6 +193,9 @@ class DBTableFactory {
                 $sql = sprintf('ALTER TABLE `%s`', $this->tableName);
                 if (in_array('*', $stub->modifyFields)) {
                     $sql .= sprintf(" ADD COLUMN `%s`", $stub->name);
+                } elseif (in_array('_DROP', $stub->modifyFields)) {
+                    $sqls[] .= $sql . sprintf(" DROP COLUMN `%s`", $stub->name);
+                    continue; //drop column, not need next step.
                 } else {
                     $sql .= sprintf(" CHANGE COLUMN `%s` `%s`", $stub->oldName, $stub->name);
                 }
@@ -185,6 +221,54 @@ class DBTableFactory {
             }
         }
 
+        return $sqls;
+    }
+
+    protected function getIndexSQL() {
+        $sqls = [];
+
+        $typeMap = [ //ADD INDEX `aaa` USING BTREE (`fid`, `type`) comment '';
+            DBTableIndex::TYPE_NORMAL => 'INDEX',
+            DBTableIndex::TYPE_UNIQUE => 'UNIQUE',
+            DBTableIndex::TYPE_FULLTEXT => 'FULLTEXT'
+        ];
+
+        /**
+         * @var string $indexName
+         * @var DBTableIndex $index
+         */
+        foreach ($this->indexes as $indexName => $index) {
+            if (empty($index->fields) || empty($index->modifyFields)) {
+                continue;
+            }
+
+            $sql = sprintf('ALTER TABLE `%s` ', $this->tableName);
+            if (!in_array('*', $index->modifyFields)) {
+                $sql .= sprintf(' DROP INDEX `%s`', $index->name);
+                if (in_array('_DROP', $index->modifyFields)) {
+                    $sqls[] = $sql;
+                    continue;
+                }
+
+                $sql .= ",";
+            }
+
+            $sql .= sprintf('ADD %s `%s` (%s) comment "%s"',
+                $typeMap[$index->type],
+                $index->name,
+                implode(",", $index->fields),
+                $index->comment
+            );
+
+            $sqls[] = $sql;
+        }
+
+        return $sqls;
+    }
+
+    public function execute($onlyReturn = false) {
+        $sqls = array_merge($this->getStubSQL(), $this->getIndexSQL());
+
         if ($onlyReturn) return $sqls;
 
         $this->connection->beginTransaction();
@@ -198,6 +282,7 @@ class DBTableFactory {
         }
 
         $this->connection->commit();
+
     }
 
     public function loadModelClass(string $className) {

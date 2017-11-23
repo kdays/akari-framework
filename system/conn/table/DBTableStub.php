@@ -114,5 +114,8 @@ class DBTableStub {
         return $this;
     }
 
+    public function drop() {
+        $this->modifyFields[] = '_DROP';
+    }
 
 }
