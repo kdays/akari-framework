@@ -29,6 +29,16 @@ class DBTableMigration {
         return new self(DBConnFactory::get($config), $tableName);
     }
 
+    public static function loadModel($className, $config = 'default') {
+        /** @var DatabaseModel $class */
+        $class = new $className();
+
+        $m = self::init($class->tableName(), $config);
+        $m->loadModelClass($className);
+
+        return $m;
+    }
+
     public function getConnection() {
         return $this->connection;
     }
@@ -300,7 +310,11 @@ class DBTableMigration {
         }
 
         $this->connection->commit();
+    }
 
+    public function dropTable() {
+        $this->doDropTable = true;
+        return $this;
     }
 
     public function loadModelClass($className) {
@@ -343,27 +357,13 @@ class DBTableMigration {
         ];
 
         foreach ($result as $key => $c) {
-            $f = $this->field($key);
+            $f = $this->column($key);
 
-            if ($c['default'] !== NULL) {
-                $f->setDefault( $c['default'] );
-            }
-
-            if (!empty($c['description'])) {
-                $f->setRemark($c['description']);
-            }
-
-            if (isset($c['nullable'])) {
-                $f->nullable(true);
-            }
-
-            if (isset($c['unsigned'])) {
-                $f->unsigned();
-            }
-
-            if (isset($c['zerofill'])) {
-                $f->zerofill();
-            }
+            if ($c['default'] !== NULL) $f->setDefault( $c['default'] );
+            if (!empty($c['description'])) $f->setRemark($c['description']);
+            if (isset($c['nullable'])) $f->nullable(true);
+            if (isset($c['unsigned'])) $f->unsigned();
+            if (isset($c['zerofill'])) $f->zerofill();
 
             if (!empty($c['type'])) {
                 $f->setType( $c['type'] );
@@ -373,19 +373,9 @@ class DBTableMigration {
                 }
             }
 
-            if (isset($c['length'])) {
-                $f->setLength( $c['length'] );
-            }
-
-            if (isset($c['primary'])) {
-                $f->primary();
-            }
+            if (isset($c['length'])) $f->setLength( $c['length'] );
+            if (isset($c['primary'])) $f->primary();
         }
-    }
-
-    public function dropTable() {
-        $this->doDropTable = true;
-        return $this;
     }
 
 }
