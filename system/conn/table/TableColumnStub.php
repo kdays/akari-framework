@@ -11,7 +11,7 @@ namespace Akari\system\conn\table;
 
 use Akari\system\conn\DBException;
 
-class DBTableStub {
+class TableColumnStub {
 
     const TYPE_VARCHAR = 'varchar';
     const TYPE_TEXT = 'text';
@@ -49,7 +49,7 @@ class DBTableStub {
 
     public $modifyFields = [];
 
-    public function _handleModify(string $fieldName, $value) {
+    protected function _handleModify(string $fieldName, $value) {
         if ($this->$fieldName != $value) {
             $this->modifyFields[] = $fieldName;
         }
@@ -100,7 +100,7 @@ class DBTableStub {
         return $this->_handleModify('extra', self::EXTRA_AUTO_INCREMENT);
     }
 
-    public function modifyName(string $toName) {
+    public function renameTo(string $toName) {
         if (empty($this->oldName)) {
             throw new DBException("modifyName can not run on create mode");
         }

@@ -11,9 +11,10 @@ namespace Akari\system\conn\table;
 
 use Akari\model\DatabaseModel;
 use Akari\system\conn\DBConnection;
+use Akari\system\conn\DBConnFactory;
 use Akari\system\conn\DBException;
 
-class DBTableFactory {
+class DBTableMigration {
 
     protected $tableName;
 
@@ -22,8 +23,17 @@ class DBTableFactory {
 
     protected $connection;
     protected $isCreateMode;
+    protected $doDropTable = false;
 
-    public function __construct(DBConnection $DBConnection, string $tableName) {
+    public static function init($tableName, $config = 'default') {
+        return new self(DBConnFactory::get($config), $tableName);
+    }
+
+    public function getConnection() {
+        return $this->connection;
+    }
+
+    public function __construct(DBConnection $DBConnection, $tableName) {
         $this->tableName = $tableName;
         $this->connection = $DBConnection;
 
@@ -34,7 +44,7 @@ class DBTableFactory {
         ]);
 
         foreach ($cols as $col) {
-            $stub = new DBTableStub();
+            $stub = new TableColumnStub();
             $stub->name = $col['COLUMN_NAME'];
             $stub->type = $col['DATA_TYPE'];
             if (!empty($col['CHARACTER_MAXIMUM_LENGTH'])) {
@@ -67,10 +77,10 @@ class DBTableFactory {
 
             $indexColumns = [];
             foreach ($indexes as $indexCol) {
-                $index = new DBTableIndex();
+                $index = new TableIndexStub();
                 $index->name = $indexCol['Key_name'];
                 if ($indexCol['Non_unique'] != 1) {
-                    $index->type = DBTableIndex::TYPE_UNIQUE;
+                    $index->type = TableIndexStub::TYPE_UNIQUE;
                 }
 
                 $index->comment = $indexCol['Index_comment'];
@@ -81,7 +91,7 @@ class DBTableFactory {
 
             /**
              * @var string $name
-             * @var DBTableIndex $index
+             * @var TableIndexStub $index
              */
             foreach ($this->indexes as $name => $index) {
                 $index->fields = $indexColumns[$name];
@@ -89,13 +99,17 @@ class DBTableFactory {
         }
     }
 
+    public function hasColumn($name) {
+        return isset($this->stub[$name]);
+    }
+
     /**
      * @param string $name
-     * @return DBTableStub
+     * @return TableColumnStub
      */
-    public function field(string $name) {
+    public function column($name) {
         if (!isset($this->stub[$name])) {
-            $stub = new DBTableStub();
+            $stub = new TableColumnStub();
             $stub->name = $name;
             $stub->modifyFields[] = '*'; // = CREATE
 
@@ -106,19 +120,19 @@ class DBTableFactory {
     }
 
     /**
-     * @return DBTableStub[]
+     * @return TableColumnStub[]
      */
-    public function fields() {
+    public function columns() {
         return $this->stub;
     }
 
     /**
      * @param string $indexName
-     * @return DBTableIndex
+     * @return TableIndexStub
      */
-    public function index(string $indexName) {
+    public function index($indexName) {
         if (!isset($this->indexes[$indexName])) {
-            $index = new DBTableIndex();
+            $index = new TableIndexStub();
             $index->name = $indexName;
             $index->modifyFields[] = '*';
 
@@ -128,7 +142,7 @@ class DBTableFactory {
         return $this->indexes[ $indexName ];
     }
 
-    private function makeSqlProp(DBTableStub $stub) {
+    protected function makeSqlProp(TableColumnStub $stub) {
         $sql = sprintf(
             " %s%s",
                 $stub->type,
@@ -143,9 +157,9 @@ class DBTableFactory {
             $sql .= " UNSIGNED ";
         }
 
-        if ($stub->defaultValue !== NULL && $stub->type != DBTableStub::TYPE_TEXT) {
+        if ($stub->defaultValue !== NULL && $stub->type != TableColumnStub::TYPE_TEXT) {
             $value = $stub->defaultValue;
-            if (in_array($stub->type, DBTableStub::$stringTypes)) { //字符串类型时 我们包裹一下
+            if (in_array($stub->type, TableColumnStub::$stringTypes)) { //字符串类型时 我们包裹一下
                 $value = "'$value'";
             }
             $sql .= sprintf(' DEFAULT %s', $value);
@@ -184,7 +198,7 @@ class DBTableFactory {
         } else {
             $isModifyPK = false;
 
-            /** @var DBTableStub $stub */
+            /** @var TableColumnStub $stub */
             foreach ($this->stub as $stub) {
                 if (empty($stub->modifyFields)) {
                     continue;
@@ -228,14 +242,14 @@ class DBTableFactory {
         $sqls = [];
 
         $typeMap = [ //ADD INDEX `aaa` USING BTREE (`fid`, `type`) comment '';
-            DBTableIndex::TYPE_NORMAL => 'INDEX',
-            DBTableIndex::TYPE_UNIQUE => 'UNIQUE',
-            DBTableIndex::TYPE_FULLTEXT => 'FULLTEXT'
+            TableIndexStub::TYPE_NORMAL => 'INDEX',
+            TableIndexStub::TYPE_UNIQUE => 'UNIQUE',
+            TableIndexStub::TYPE_FULLTEXT => 'FULLTEXT'
         ];
 
         /**
          * @var string $indexName
-         * @var DBTableIndex $index
+         * @var TableIndexStub $index
          */
         foreach ($this->indexes as $indexName => $index) {
             if (empty($index->fields) || empty($index->modifyFields)) {
@@ -267,8 +281,12 @@ class DBTableFactory {
     }
 
     public function execute($onlyReturn = false) {
-        $sqls = array_merge($this->getStubSQL(), $this->getIndexSQL());
+        $extraSqls = [];
+        if ($this->doDropTable) {
+            $extraSqls[] = 'DROP TABLE `' . $this->tableName . '`';
+        }
 
+        $sqls = array_merge($extraSqls, $this->getStubSQL(), $this->getIndexSQL());
         if ($onlyReturn) return $sqls;
 
         $this->connection->beginTransaction();
@@ -285,7 +303,7 @@ class DBTableFactory {
 
     }
 
-    public function loadModelClass(string $className) {
+    public function loadModelClass($className) {
         $reflector = new \ReflectionClass($className);
         $class = new $className();
         $result = [];
@@ -321,7 +339,7 @@ class DBTableFactory {
         }
 
         $varMap = [
-            'int' => DBTableStub::TYPE_INT
+            'int' => TableColumnStub::TYPE_INT
         ];
 
         foreach ($result as $key => $c) {
@@ -363,6 +381,11 @@ class DBTableFactory {
                 $f->primary();
             }
         }
+    }
+
+    public function dropTable() {
+        $this->doDropTable = true;
+        return $this;
     }
 
 }

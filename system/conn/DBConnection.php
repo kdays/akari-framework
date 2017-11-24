@@ -240,4 +240,21 @@ class DBConnection {
 
         return $this->options['database'];
     }
+
+    public function getTables() {
+        $r = $this->fetch("SELECT `TABLE_NAME` from INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA= :db", [
+            'db' => $this->getDatabaseName()
+        ]);
+
+        return array_column($r, 'TABLE_NAME');
+    }
+
+    public function hasTable($name) {
+        static $tables = NULL;
+        if ($tables === NULL) {
+            $tables = $this->getTables();
+        }
+
+        return in_array($name, $tables);
+    }
 }

@@ -9,7 +9,7 @@
 namespace Akari\system\conn\table;
 
 
-class DBTableIndex {
+class TableIndexStub {
 
     const TYPE_UNIQUE = 'UNIQUE';
     const TYPE_NORMAL = 'NORMAL';
@@ -31,7 +31,7 @@ class DBTableIndex {
         return $this;
     }
 
-    public function _handleModify(string $fieldName, $value) {
+    protected function _handleModify(string $fieldName, $value) {
         if ($this->$fieldName != $value) {
             $this->modifyFields[] = $fieldName;
         }
