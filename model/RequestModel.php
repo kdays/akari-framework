@@ -77,6 +77,7 @@ abstract class RequestModel extends Model {
             $value = isset($_POST[$key]) ? $_POST[$key] : $defaultValue;
         }
 
+        if ($value === $defaultValue) return $defaultValue;
         return $this->filter($key, $value);
     }
 
