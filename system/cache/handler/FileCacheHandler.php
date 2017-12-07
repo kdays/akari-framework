@@ -34,10 +34,10 @@ class FileCacheHandler implements ICacheHandler{
 
         // 读取fileIndex
         if (!file_exists($indexPath)) {
-            FileHelper::write($indexPath, json_encode([]));
+            file_put_contents($indexPath, json_encode([]));
         }
 
-        $this->fileIndex = json_decode(FileHelper::read($indexPath), TRUE);
+        $this->fileIndex = json_decode(file_get_contents($indexPath), TRUE);
         $this->removeExpired();
     }
 
@@ -53,7 +53,7 @@ class FileCacheHandler implements ICacheHandler{
     }
 
     private function _updateIndex() {
-        FileHelper::write($this->indexPath, json_encode($this->fileIndex));
+        file_put_contents($this->indexPath, json_encode($this->fileIndex));
     }
 
     private function _getFileName($key) {
@@ -83,7 +83,7 @@ class FileCacheHandler implements ICacheHandler{
             'expire' => $timeout > 0 ? (TIMESTAMP + $timeout) : $timeout
         ];
 
-        FileHelper::write($this->baseDir . $index, serialize($value));
+        file_put_contents($this->baseDir . $index, serialize($value));
         if ($doUpdateIndex) $this->_updateIndex();
     }
 

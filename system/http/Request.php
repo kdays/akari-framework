@@ -276,7 +276,7 @@ class Request extends Injectable{
      * @param string $filter
      * @return mixed
      */
-    public function get($key, $defaultValue = NULL, $filter = "default") {
+    public function get($key, $filter = "default", $defaultValue = NULL) {
         if ($key == NULL) return $_REQUEST;
         if (array_key_exists($key, $_REQUEST)) {
             return FilterFactory::doFilter($_REQUEST[$key], $filter);
@@ -303,7 +303,7 @@ class Request extends Injectable{
      * @param string $filter
      * @return mixed
      */
-    public function getPost($key, $defaultValue = NULL, $filter = "default") {
+    public function getPost($key, $filter = "default", $defaultValue = NULL) {
         if ($key == NULL) return $_POST;
         if (array_key_exists($key, $_POST)) {
             return FilterFactory::doFilter($_POST[$key], $filter);
@@ -320,11 +320,11 @@ class Request extends Injectable{
      * 获得GET的参数
      *
      * @param string|NULL $key
-     * @param mixed $defaultValue
      * @param string $filter
+     * @param mixed $defaultValue
      * @return mixed
      */
-    public function getQuery($key, $defaultValue = NULL, $filter = "default") {
+    public function getQuery($key, $filter = "default", $defaultValue = NULL) {
         if ($key == NULL) return $_GET;
         if (array_key_exists($key, $_GET)) {
             return FilterFactory::doFilter($_GET[$key], $filter);
@@ -388,16 +388,6 @@ class Request extends Injectable{
         $ua = $this->getUserAgent();
 
         return (preg_match('/ipod/i', $ua) || preg_match('/iphone/i', $ua));
-    }
-
-    /**
-     * 判断是否是微信的
-     * @return bool
-     */
-    public function isInWeChat() {
-        $ua = $this->getUserAgent();
-
-        return (preg_match('/MicroMessenger/i', $ua) || preg_match('/Window Phone/i', $ua));
     }
 
     /**
@@ -507,7 +497,7 @@ class Request extends Injectable{
         return array_key_exists($key, $_SERVER);
     }
 
-    public function getHeader($key, $defaultValue = NULL, $filter = "default") {
+    public function getHeader($key, $filter = "default", $defaultValue = NULL) {
         if ($this->hasHeader($key)) {
             return FilterFactory::doFilter($_SERVER[$key], $filter);
         }

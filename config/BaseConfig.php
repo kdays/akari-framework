@@ -46,6 +46,13 @@ class BaseConfig {
         ]
     ];
 
+    public $storage = [
+        'default' => [
+            'handler' => Sys\storage\handler\FileStorageHandler::class,
+            'baseDir' => 'storage/'
+        ]
+    ];
+
     public $filters = [
         'default' => Sys\security\filter\DefaultFilter::class
     ];

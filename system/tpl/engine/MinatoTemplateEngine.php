@@ -8,7 +8,6 @@
 
 namespace Akari\system\tpl\engine;
 
-use Akari\utility\FileHelper;
 use Akari\system\tpl\TemplateCommandInvalid;
 
 class MinatoTemplateEngine extends BaseTemplateEngine{
@@ -97,7 +96,7 @@ use Akari\system\tpl\TemplateUtil AS ViewUtil;
 TAG;
 
             $template = $tempHeader . $template;
-            FileHelper::write($cachePath, $template);
+            file_put_contents($cachePath, $template);
         }
 
         return $onlyCompile ? $cachePath : self::_getView($cachePath, $data);

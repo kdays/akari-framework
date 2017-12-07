@@ -136,4 +136,21 @@ class TextHelper {
         return Random::hex($length);
     }
 
+    public static function formatFriendlySize(int $size, int $dec = 2) {
+        $a = ["B", "KB", "MB", "GB", "TB", "PB"];
+        $pos = 0;
+        while ($size >= 1024) {
+            $size /= 1024;
+            $pos++;
+        }
+
+        return round($size, $dec) . " " . $a[$pos];
+    }
+
+    public static function getFileExtension(string $fn) {
+        $ext = last( explode(".", $fn) );
+
+        return strtolower($ext);
+    }
+
 }

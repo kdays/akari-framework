@@ -8,8 +8,9 @@
 
 namespace Akari\system\http;
 
-use Akari\utility\FileHelper;
+use Akari\system\storage\Storage;
 use Akari\system\ioc\Injectable;
+use Akari\utility\TextHelper;
 
 class FileUpload extends Injectable {
 
@@ -37,12 +38,12 @@ class FileUpload extends Injectable {
         return $this->upload;
     }
 
-    protected function getNameSection() {
+    protected function getPureName() {
         return explode(".", $this->upload['name']);
     }
 
     public function getExtension() {
-        return FileHelper::getFileExtension( $this->getFileName() );
+        return TextHelper::getFileExtension( $this->getFileName() );
     }
 
     public function isUploadedFile() {
@@ -53,16 +54,20 @@ class FileUpload extends Injectable {
         return $this->upload['name'];
     }
 
-    public function getFileSize() {
+    public function getSize() {
         return $this->upload['size'];
     }
 
-    public function getTempPath() {
+    protected function getTempPath() {
         return $this->upload['tmp_name'];
     }
 
-    public function formatFileSize($dec = 2) {
-        return FileHelper::formatFileSize($this->getFileSize(), $dec);
+    public function getResource() {
+        return fopen($this->getTempPath(), 'rb');
+    }
+
+    public function getFriendlySize($dec = 2) {
+        return TextHelper::formatFriendlySize($this->getSize(), $dec);
     }
 
     public function hasError() {
@@ -92,20 +97,15 @@ class FileUpload extends Injectable {
         return TRUE;
     }
 
-    public function getIdx() {
+    public function getIndex() {
         return isset($this->upload['multiKey']) ? $this->upload['multiKey'] : 0;
     }
 
-    public function getSavePath($target) {
-        return FileHelper::getUploadPath($target);
-    }
-
-    public function save($target, $isRelativePath = TRUE) {
-        $savePath = $isRelativePath ? $this->getSavePath($target) : $target;
+    public function saveTo(string $target, string $storageName = 'default') {
         if (empty($this->getTempPath())) {
             throw new UploadFailed($this->getErrorMessage(), $this->getError());
         }
 
-        return FileHelper::moveFile($savePath, $this->getTempPath());
+        return Storage::disk($storageName)->put($target, $this->getResource());
     }
 }

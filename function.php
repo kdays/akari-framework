@@ -259,3 +259,18 @@ if (!function_exists('mb_parse_url')) {
         return $parts;
     }
 }
+
+
+function first(array $array) {
+    if (!count($array)) return NULL;
+    reset($array);
+
+    return $array[ key($array) ];
+}
+
+function last(array $array) {
+    if (!count($array)) return NULL;
+    end($array);
+
+    return $array[ key($array) ];
+}
