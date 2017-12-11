@@ -38,9 +38,10 @@ interface IStorageHandler {
 
     /**
      * @param string $path
+     * @param array $options
      * @return string
      */
-    public function toUrl(string $path);
+    public function toUrl(string $path, array $options = []);
 
     /**
      * @param string $path

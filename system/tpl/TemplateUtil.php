@@ -102,7 +102,7 @@ EOT
         }
 
         $bindVars = array_merge($view->getVar(NULL), $params);
-        $c = $view->getEngine()->parse($tplPath, $bindVars, View::TYPE_BLOCK, FALSE);
+        $c = $view->getViewEngine($tplPath)->parse($tplPath, $bindVars, View::TYPE_BLOCK, FALSE);
 
         return $c;
     }
@@ -128,7 +128,7 @@ EOT
 
         // 模板只需要编译后在讲result处理
         $tplPath = View::find($widgetTpl, View::TYPE_WIDGET);
-        $cachePath = $view->getEngine()->parse($tplPath, [], View::TYPE_WIDGET, TRUE);
+        $cachePath = $view->getViewEngine($tplPath)->parse($tplPath, [], View::TYPE_WIDGET, TRUE);
 
         $result = $cls->execute($args);
         if ($result === NULL) {

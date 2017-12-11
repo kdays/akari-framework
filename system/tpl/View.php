@@ -12,6 +12,7 @@ use Akari\Context;
 use Akari\config\ConfigItem;
 use Akari\system\ioc\Injectable;
 use Akari\system\tpl\engine\BaseTemplateEngine;
+use Akari\utility\TextHelper;
 
 class View extends Injectable{
 
@@ -30,6 +31,9 @@ class View extends Injectable{
     private $baseActionNs = NULL;
     private $defaultLayoutName = NULL;
 
+    protected $engines = [];
+    protected static $_registeredExtensions = [];
+
     public function setDefaultLayoutName($layoutName) {
         $this->defaultLayoutName = $layoutName;
     }
@@ -39,7 +43,6 @@ class View extends Injectable{
      *
      * @param string|array $key
      * @param mixed $value
-     * @return array
      */
     public function bindVar($key, $value = NULL) {
         if (is_array($key)) {
@@ -95,16 +98,15 @@ class View extends Injectable{
 
     public function getScreenPath() {
         $screenName = empty($this->screen) ? $this->getScreenName() : $this->screen;
-
-        $suffix = Context::$appConfig->templateSuffix;
         $baseDirs = $this->getBaseDirs(self::TYPE_SCREEN);
         $screenPath = NULL;
 
         foreach ($baseDirs as $screenDir) {
-            $screenPath = $this->dispatcher->findWay($screenName, $screenDir . DIRECTORY_SEPARATOR, $suffix, FALSE);
-            if ($screenPath) break;
+            foreach (self::$_registeredExtensions as $suffix) {
+                $screenPath = $this->dispatcher->findWay($screenName, $screenDir . DIRECTORY_SEPARATOR, $suffix, FALSE);
+                if ($screenPath) break 2;
+            }
         }
-
         return $screenPath;
     }
 
@@ -114,14 +116,14 @@ class View extends Injectable{
             $screenName = !empty($this->defaultLayoutName) ? $this->defaultLayoutName : $this->getScreenName();
         }
 
-        $suffix = Context::$appConfig->templateSuffix;
-
         $baseDirs = $this->getBaseDirs(self::TYPE_LAYOUT);
 
         $layoutPath = NULL;
         foreach ($baseDirs as $layoutDir) {
-            $layoutPath = $this->dispatcher->findWay($screenName, $layoutDir . DIRECTORY_SEPARATOR, $suffix, FALSE);
-            if ($layoutPath) break;
+            foreach (self::$_registeredExtensions as $suffix) {
+                $layoutPath = $this->dispatcher->findWay($screenName, $layoutDir . DIRECTORY_SEPARATOR, $suffix, FALSE);
+                if ($layoutPath) break 2;
+            }
         }
 
         return $layoutPath;
@@ -183,13 +185,15 @@ class View extends Injectable{
             throw new TemplateNotFound('NOT_FOUND_LAYOUT_OR_SCREEN');
         }
 
-        $viewEngine = $this->getEngine();
-        if ($layoutPath) {
-            $layoutResult = $viewEngine->parse($layoutPath, $data, self::TYPE_LAYOUT);
+        $viewEngine = NULL;
+        if ($screenPath) {
+            $viewEngine = $this->getViewEngine($screenPath);
+            $screenResult = $viewEngine->parse($screenPath, $data, self::TYPE_SCREEN);
         }
 
-        if ($screenPath) {
-            $screenResult = $viewEngine->parse($screenPath, $data, self::TYPE_SCREEN);
+        if ($layoutPath) {
+            $viewEngine = $this->getViewEngine($layoutPath);
+            $layoutResult = $this->getViewEngine($layoutPath)->parse($layoutPath, $data, self::TYPE_LAYOUT);
         }
 
         return $viewEngine->getResult($layoutResult, $screenResult);
@@ -223,29 +227,47 @@ class View extends Injectable{
         return $baseDirs;
     }
 
-    public static function find($tplName, $type) {
+    public static function find(string $tplName, string $type) {
         $baseDirs = self::getBaseDirs($type);
-
-        $suffix = Context::$appConfig->templateSuffix;
         $tplName = str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $tplName);
 
-        foreach ($baseDirs as $baseDir) {
-            if (file_exists($tplPath = $baseDir . $tplName . $suffix)) {
-                return realpath($tplPath);
-            }
+        foreach (self::$_registeredExtensions as $suffix) {
+            foreach ($baseDirs as $baseDir) {
+                if (file_exists($tplPath = $baseDir . $tplName . $suffix)) {
+                    return realpath($tplPath);
+                }
 
-            if (file_exists($tplPath = $baseDir . "default" . $suffix)) {
-                return realpath($tplPath);
+                if (file_exists($tplPath = $baseDir . "default" . $suffix)) {
+                    return realpath($tplPath);
+                }
             }
         }
 
         throw new TemplateNotFound($type . "/" . $tplName);
     }
 
+    public function getViewEngine(string $fileName) {
+        $ext = TextHelper::getFileExtension($fileName);
+        return $this->engines["." . $ext];
+    }
+
     /**
-     * @return BaseTemplateEngine
+     * @return BaseTemplateEngine[]
      */
-    public function getEngine() {
-        return $this->getDI()->getShared('viewEngine');
+    public function getEngines() {
+        return $this->engines;
+    }
+
+    public function registerEngine(string $extension, $engine) {
+        if ($extension[0] != '.') {
+            $extension = "." . $extension;
+        }
+
+        if (is_callable($engine)) {
+            $this->engines[ $extension ] = $engine();
+        } else {
+            $this->engines[ $extension ] = $engine;
+        }
+        self::$_registeredExtensions[] = $extension;
     }
 }

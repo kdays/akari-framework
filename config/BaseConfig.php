@@ -64,7 +64,6 @@ class BaseConfig {
     public $uriMode = AKARI_URI_AUTO;
     public $uriSuffix = '';
 
-    public $templateSuffix = ".htm";
     public $templateNamePrefix = '';
     public $templateCacheDir = '/runtime/tpl';
 

@@ -11,7 +11,7 @@ namespace Akari\system\tpl;
 use Akari\Context;
 use Akari\system\exception\AkariException;
 
-class TemplateCommandInvalid extends AkariException {
+class TemplateCommandInvalid extends ViewException {
 
     public function __construct($commandName, $args, $file = NULL) {
         $file = str_replace(Context::$appEntryPath, '', $file);

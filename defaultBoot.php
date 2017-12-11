@@ -9,8 +9,6 @@ use Akari\Context;
 
 $di = \Akari\system\ioc\DI::getDefault();
 
-$di->setShared('viewEngine', \Akari\system\tpl\engine\MinatoTemplateEngine::class);
-
 $di->setShared('logger', function () use ($di) {
     $logger = new Akari\system\logger\handler\FileLoggerHandler();
     $logger->setLevel(AKARI_LOG_LEVEL_PRODUCTION);
@@ -38,3 +36,8 @@ $di->setShared('assets', Akari\system\tpl\asset\AssetsMgr::class);
 $di->setShared("url", \Akari\system\router\BaseUrlGenerator::class);
 $di->setShared("csrf", \Akari\system\http\VerifyCsrfToken::class);
 $di->setShared("lang", \Akari\system\i18n\I18n::class);
+
+
+/** @var \Akari\system\tpl\View $view */
+$view = $di->getShared('view');
+$view->registerEngine('htm', new \Akari\system\tpl\engine\MinatoTemplateEngine());

@@ -35,6 +35,10 @@ abstract class BaseTemplateEngine {
         return $this;
     }
 
+    public function getCacheDir() {
+        return Context::$appBasePath . DIRECTORY_SEPARATOR . Context::$appConfig->templateCacheDir . '/';
+    }
+
     public function getCachePath($tplPath) {
         $tpl = str_replace(Context::$appEntryPath, '', $tplPath);
         $tpl = str_replace([ '.', '/', DIRECTORY_SEPARATOR], '_', $tpl);

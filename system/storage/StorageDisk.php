@@ -35,8 +35,8 @@ class StorageDisk {
         return $this->handler->exists($path);
     }
 
-    public function toUrl(string $path) {
-        return $this->handler->toUrl($path);
+    public function toUrl(string $path, array $options = []) {
+        return $this->handler->toUrl($path, $options);
     }
 
     public function size(string $path) {
