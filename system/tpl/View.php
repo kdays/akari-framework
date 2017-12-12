@@ -98,16 +98,7 @@ class View extends Injectable{
 
     public function getScreenPath() {
         $screenName = empty($this->screen) ? $this->getScreenName() : $this->screen;
-        $baseDirs = $this->getBaseDirs(self::TYPE_SCREEN);
-        $screenPath = NULL;
-
-        foreach ($baseDirs as $screenDir) {
-            foreach (self::$_registeredExtensions as $suffix) {
-                $screenPath = $this->dispatcher->findWay($screenName, $screenDir . DIRECTORY_SEPARATOR, $suffix, FALSE);
-                if ($screenPath) break 2;
-            }
-        }
-        return $screenPath;
+        return self::find($screenName, self::TYPE_SCREEN);
     }
 
     public function getLayoutPath() {
@@ -116,17 +107,7 @@ class View extends Injectable{
             $screenName = !empty($this->defaultLayoutName) ? $this->defaultLayoutName : $this->getScreenName();
         }
 
-        $baseDirs = $this->getBaseDirs(self::TYPE_LAYOUT);
-
-        $layoutPath = NULL;
-        foreach ($baseDirs as $layoutDir) {
-            foreach (self::$_registeredExtensions as $suffix) {
-                $layoutPath = $this->dispatcher->findWay($screenName, $layoutDir . DIRECTORY_SEPARATOR, $suffix, FALSE);
-                if ($layoutPath) break 2;
-            }
-        }
-
-        return $layoutPath;
+        return self::find($screenName, self::TYPE_LAYOUT);
     }
 
     public function setBaseViewDir($viewDir, $onAppDir = TRUE) {
@@ -199,12 +180,14 @@ class View extends Injectable{
         return $viewEngine->getResult($layoutResult, $screenResult);
     }
 
-    public static function getBaseDirs($type) {
+    public static function getBaseDirs(string $type) {
         $baseDirs = [];
 
         $defaultWebPath = Context::$appEntryPath . 'template' . DIRECTORY_SEPARATOR;
         $baseTplDir = realpath(Context::env(ConfigItem::BASE_TPL_DIR, NULL, $defaultWebPath)) . DIRECTORY_SEPARATOR;
-        if (empty($baseTplDir)) $baseTplDir = $defaultWebPath;
+        if (empty($baseTplDir)) {
+            $baseTplDir = $defaultWebPath;
+        }
 
         $dirPrefix = Context::env(ConfigItem::TEMPLATE_PREFIX);
 
@@ -231,12 +214,14 @@ class View extends Injectable{
         $baseDirs = self::getBaseDirs($type);
         $tplName = str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $tplName);
 
-        foreach (self::$_registeredExtensions as $suffix) {
-            foreach ($baseDirs as $baseDir) {
+        foreach ($baseDirs as $baseDir) {
+            foreach (self::$_registeredExtensions as $suffix) {
                 if (file_exists($tplPath = $baseDir . $tplName . $suffix)) {
                     return realpath($tplPath);
                 }
+            }
 
+            foreach (self::$_registeredExtensions as $suffix) {
                 if (file_exists($tplPath = $baseDir . "default" . $suffix)) {
                     return realpath($tplPath);
                 }
