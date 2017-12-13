@@ -231,6 +231,10 @@ class View extends Injectable{
         throw new TemplateNotFound($type . "/" . $tplName);
     }
 
+    /**
+     * @param string $fileName
+     * @return BaseTemplateEngine
+     */
     public function getViewEngine(string $fileName) {
         $ext = TextHelper::getFileExtension($fileName);
         return $this->engines["." . $ext];

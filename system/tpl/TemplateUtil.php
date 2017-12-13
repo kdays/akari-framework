@@ -126,16 +126,13 @@ EOT
             throw new TemplateNotFound("widget class: $widgetName");
         }
 
-        // 模板只需要编译后在讲result处理
-        $tplPath = View::find($widgetTpl, View::TYPE_WIDGET);
-        $cachePath = $view->getViewEngine($tplPath)->parse($tplPath, [], View::TYPE_WIDGET, TRUE);
-
         $result = $cls->execute($args);
         if ($result === NULL) {
             return '';
         }
 
-        return BaseTemplateEngine::_getView($cachePath, $result);
+        $tplPath = View::find($widgetTpl, View::TYPE_WIDGET);
+        return $view->getViewEngine($tplPath)->parse($tplPath, $result, View::TYPE_WIDGET);
     }
 
     public static function output_js($name = 'default') {
@@ -152,7 +149,7 @@ EOT
         return $assets->outputCss($name);
     }
 
-    public static function page($pagination) {
+    public static function pager($pagination) {
         if (!($pagination instanceof Pagination)) {
             throw new AkariException("Template Command 'Page' need Pagination instance");
         }
