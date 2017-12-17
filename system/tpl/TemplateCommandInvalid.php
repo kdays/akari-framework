@@ -9,7 +9,6 @@
 namespace Akari\system\tpl;
 
 use Akari\Context;
-use Akari\system\exception\AkariException;
 
 class TemplateCommandInvalid extends ViewException {
 

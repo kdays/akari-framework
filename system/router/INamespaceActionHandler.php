@@ -8,7 +8,6 @@
 
 namespace Akari\system\router;
 
-
 use Akari\system\http\Request;
 
 interface INamespaceActionHandler {

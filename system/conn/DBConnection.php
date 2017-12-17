@@ -185,7 +185,7 @@ class DBConnection {
         $this->_throwErr($st);
     }
 
-    public function throwErr(\PDOStatement $st, $madeSQL = null) {
+    public function throwErr(\PDOStatement $st, $madeSQL = NULL) {
         $this->_throwErr($st, $madeSQL);
     }
 
@@ -198,7 +198,7 @@ class DBConnection {
         $errorInfo = $st->errorInfo();
 
         $ex = new DBException("Query Failed: " . $errorInfo[0] . " " . $errorInfo[2] . $this->_appendMsg);
-        $ex->setQueryString($madeSQL === null ? $st->queryString : $madeSQL);
+        $ex->setQueryString($madeSQL === NULL ? $st->queryString : $madeSQL);
 
         throw $ex;
     }
@@ -211,6 +211,7 @@ class DBConnection {
         }
 
         DBUtil::beginBenchmark();
+
         return $st;
     }
 
@@ -235,6 +236,7 @@ class DBConnection {
                 parse_str($v, $v);
                 $options = array_merge($options, $v);
             }
+
             return $options['dbname'];
         }
 

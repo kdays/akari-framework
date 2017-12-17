@@ -8,7 +8,6 @@
 
 namespace Akari\system\conn\table;
 
-
 use Akari\system\conn\DBException;
 
 class TableColumnStub {
@@ -37,13 +36,13 @@ class TableColumnStub {
 
     public $remark = '';
 
-    public $isPrimary = false;
+    public $isPrimary = FALSE;
 
-    public $allowNull = false;
+    public $allowNull = FALSE;
 
-    public $unsigned = false;
+    public $unsigned = FALSE;
 
-    public $zerofill = false;
+    public $zerofill = FALSE;
 
     public $extra = '';
 
@@ -55,6 +54,7 @@ class TableColumnStub {
         }
 
         $this->$fieldName = $value;
+
         return $this;
     }
 
@@ -75,24 +75,26 @@ class TableColumnStub {
     }
 
     public function primary() {
-        return $this->_handleModify('isPrimary', true);
+        return $this->_handleModify('isPrimary', TRUE);
     }
 
-    public function nullable($to = true) {
+    public function nullable($to = TRUE) {
         return $this->_handleModify('allowNull', !!$to);
     }
 
-    public function zeroFill($to = true) {
+    public function zeroFill($to = TRUE) {
         if (in_array($this->type, self::$stringTypes)) {
-            throw new DBException("Field ". $this->name . " is TEXT type. can't SET zerofill");
+            throw new DBException("Field " . $this->name . " is TEXT type. can't SET zerofill");
         }
+
         return $this->_handleModify('zerofill', !!$to);
     }
 
-    public function unsigned($to = true) {
+    public function unsigned($to = TRUE) {
         if (in_array($this->type, self::$stringTypes)) {
-            throw new DBException("Field ". $this->name . " is TEXT type. can't SET unsigned");
+            throw new DBException("Field " . $this->name . " is TEXT type. can't SET unsigned");
         }
+
         return $this->_handleModify('unsigned', !!$to);
     }
 
@@ -111,6 +113,7 @@ class TableColumnStub {
 
         $this->name = $toName;
         $this->modifyFields[] = 'name';
+
         return $this;
     }
 

@@ -8,7 +8,6 @@
 
 namespace Akari\system\conn\table;
 
-
 class TableIndexStub {
 
     const TYPE_UNIQUE = 'UNIQUE';
@@ -28,6 +27,7 @@ class TableIndexStub {
     public function setFields(...$fields) {
         $this->fields = $fields;
         $this->modifyFields[] = 'fields';
+
         return $this;
     }
 
@@ -37,6 +37,7 @@ class TableIndexStub {
         }
 
         $this->$fieldName = $value;
+
         return $this;
     }
 

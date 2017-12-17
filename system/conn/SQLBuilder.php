@@ -26,10 +26,10 @@ class SQLBuilder {
 
     protected $prefix;
     protected $statement;
-    protected $debug_mode = false;
+    protected $debug_mode = FALSE;
     protected $guid = 0;
 
-    public $isWR = false;
+    public $isWR = FALSE;
 
     public function __construct(DBConnection $connection) {
         $this->connection = $connection;
@@ -47,13 +47,13 @@ class SQLBuilder {
     }
 
     public function query($query, $map = []) {
-        $this->setWRMode(true);
+        $this->setWRMode(TRUE);
 
         if (!empty($map)) {
             foreach ($map as $key => $value) {
                 switch (gettype($value)) {
                     case 'NULL':
-                        $map[$key] = [null, PDO::PARAM_NULL];
+                        $map[$key] = [NULL, PDO::PARAM_NULL];
                         break;
                     case 'resource':
                         $map[$key] = [$value, PDO::PARAM_LOB];
@@ -78,9 +78,9 @@ class SQLBuilder {
     public function exec($query, $map = []) {
         if ($this->debug_mode) {
             echo $this->generate($query, $map);
-            $this->debug_mode = false;
+            $this->debug_mode = FALSE;
 
-            return false;
+            return FALSE;
         }
 
         $statement = $this->getConnection()->prepare($query);
@@ -98,6 +98,7 @@ class SQLBuilder {
             DBUtil::endBenchmark($query);
 
             $this->statement = $statement;
+
             return $statement;
         }
 
@@ -116,6 +117,7 @@ class SQLBuilder {
                 $query = str_replace($key, $value[0], $query);
             }
         }
+
         return $query;
     }
 
@@ -146,8 +148,9 @@ class SQLBuilder {
         }
 
         if ($this->database_type == self::DB_TYPE_MYSQL) {
-            return '`'. $string . '`';
+            return '`' . $string . '`';
         }
+
         return '"' . $string . '"';
     }
 
@@ -172,6 +175,7 @@ class SQLBuilder {
                 }
             }
         }
+
         return implode($stack, ',');
     }
 
@@ -180,6 +184,7 @@ class SQLBuilder {
         foreach ($array as $value) {
             $stack[] = is_int($value) ? $value : $this->getConnection()->quote($value);
         }
+
         return implode($stack, ',');
     }
 
@@ -188,6 +193,7 @@ class SQLBuilder {
         foreach ($data as $value) {
             $stack[] = '(' . $this->dataImplode($value, $map, $conjunctor) . ')';
         }
+
         return implode($outer_conjunctor . ' ', $stack);
     }
 
@@ -308,6 +314,7 @@ class SQLBuilder {
                 }
             }
         }
+
         return implode($conjunctor . ' ', $wheres);
     }
 
@@ -373,9 +380,9 @@ class SQLBuilder {
                     foreach ($ORDER as $column => $value) {
                         if (is_array($value)) {
                             $stack[] = 'FIELD(' . $this->columnQuote($column) . ', ' . $this->arrayQuote($value) . ')';
-                        } else if ($value === 'ASC' || $value === 'DESC') {
+                        } elseif ($value === 'ASC' || $value === 'DESC') {
                             $stack[] = $this->columnQuote($column) . ' ' . $value;
-                        } else if (is_int($column)) {
+                        } elseif (is_int($column)) {
                             $stack[] = $this->columnQuote($value);
                         }
                     }
@@ -405,14 +412,15 @@ class SQLBuilder {
             }
 
         } else {
-            if ($where !== null) {
+            if ($where !== NULL) {
                 $where_clause .= ' ' . $where;
             }
         }
+
         return $where_clause;
     }
 
-    protected function selectContext($table, &$map, $join, &$columns = null, $where = null, $column_fn = null) {
+    protected function selectContext($table, &$map, $join, &$columns = NULL, $where = NULL, $column_fn = NULL) {
         preg_match('/(?<table>[a-zA-Z0-9_]+)\s*\((?<alias>[a-zA-Z0-9_]+)\)/i', $table, $table_match);
 
         if (isset($table_match['table'], $table_match['alias'])) {
@@ -422,7 +430,7 @@ class SQLBuilder {
             $table = $this->tableQuote($table);
             $table_query = $table;
         }
-        $join_key = is_array($join) ? array_keys($join) : null;
+        $join_key = is_array($join) ? array_keys($join) : NULL;
         if (isset($join_key[0]) && strpos($join_key[0], '[') === 0) {
             $table_join = [];
             $join_array = ['>' => 'LEFT', '<' => 'RIGHT', '<>' => 'FULL', '><' => 'INNER'];
@@ -460,14 +468,14 @@ class SQLBuilder {
                 if (is_null($where)) {
                     if (is_array($join) && isset($column_fn)) {
                         $where = $join;
-                        $columns = null;
+                        $columns = NULL;
                     } else {
-                        $where = null;
+                        $where = NULL;
                         $columns = $join;
                     }
                 } else {
                     $where = $join;
-                    $columns = null;
+                    $columns = NULL;
                 }
             } else {
                 $where = $columns;
@@ -490,6 +498,7 @@ class SQLBuilder {
         } else {
             $column = $this->columnPush($columns);
         }
+
         return 'SELECT ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
     }
 
@@ -511,6 +520,7 @@ class SQLBuilder {
                 $this->columnMap($value, $stack);
             }
         }
+
         return $stack;
     }
 
@@ -523,16 +533,16 @@ class SQLBuilder {
                     switch ($map[1]) {
                         case 'Number':
                         case 'Int':
-                            $stack[$column_key] = (int)$data[$column_key];
+                            $stack[$column_key] = (int) $data[$column_key];
                             break;
                         case 'Bool':
-                            $stack[$column_key] = (bool)$data[$column_key];
+                            $stack[$column_key] = (bool) $data[$column_key];
                             break;
                         case 'Object':
                             $stack[$column_key] = unserialize($data[$column_key]);
                             break;
                         case 'JSON':
-                            $stack[$column_key] = json_decode($data[$column_key], true);
+                            $stack[$column_key] = json_decode($data[$column_key], TRUE);
                             break;
                         case 'String':
                             $stack[$column_key] = $data[$column_key];
@@ -549,19 +559,19 @@ class SQLBuilder {
         }
     }
 
-    public function select($table, $join, $columns = null, $where = null) {
-        $this->setWRMode(false);
+    public function select($table, $join, $columns = NULL, $where = NULL) {
+        $this->setWRMode(FALSE);
 
         $map = [];
         $stack = [];
         $column_map = [];
         $index = 0;
-        $column = $where === null ? $join : $columns;
+        $column = $where === NULL ? $join : $columns;
         $is_single_column = (is_string($column) && $column !== '*');
         $query = $this->exec($this->selectContext($table, $map, $join, $columns, $where), $map);
         $this->columnMap($columns, $column_map);
         if (!$query) {
-            return false;
+            return FALSE;
         }
 
         if ($columns === '*') {
@@ -576,11 +586,12 @@ class SQLBuilder {
             $stack[$index] = $current_stack;
             $index++;
         }
+
         return $stack;
     }
 
     public function insert($table, $datas) {
-        $this->setWRMode(true);
+        $this->setWRMode(TRUE);
 
         $stack = [];
         $columns = [];
@@ -605,12 +616,12 @@ class SQLBuilder {
                 $map_key = $this->mapKey();
                 $values[] = $map_key;
                 if (!isset($data[$key])) {
-                    $map[$map_key] = [null, PDO::PARAM_NULL];
+                    $map[$map_key] = [NULL, PDO::PARAM_NULL];
                 } else {
                     $value = $data[$key];
                     switch (gettype($value)) {
                         case 'NULL':
-                            $map[$map_key] = [null, PDO::PARAM_NULL];
+                            $map[$map_key] = [NULL, PDO::PARAM_NULL];
                             break;
                         case 'array':
                             $map[$map_key] = [strpos($key, '[JSON]') === strlen($key) - 6 ? json_encode($value) : serialize($value), PDO::PARAM_STR];
@@ -639,11 +650,12 @@ class SQLBuilder {
         foreach ($columns as $key) {
             $fields[] = $this->columnQuote(preg_replace("/(^#|\s*\[JSON\]$)/i", '', $key));
         }
+
         return $this->exec('INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack), $map);
     }
 
-    public function update($table, $data, $where = null) {
-        $this->setWRMode(true);
+    public function update($table, $data, $where = NULL) {
+        $this->setWRMode(TRUE);
 
         $fields = [];
         $map = [];
@@ -663,7 +675,7 @@ class SQLBuilder {
                 $fields[] = $column . ' = ' . $map_key;
                 switch (gettype($value)) {
                     case 'NULL':
-                        $map[$map_key] = [null, PDO::PARAM_NULL];
+                        $map[$map_key] = [NULL, PDO::PARAM_NULL];
                         break;
                     case 'array':
                         $map[$map_key] = [strpos($key, '[JSON]') === strlen($key) - 6 ? json_encode($value) : serialize($value), PDO::PARAM_STR];
@@ -687,18 +699,20 @@ class SQLBuilder {
                 }
             }
         }
+
         return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . implode(', ', $fields) . $this->whereClause($where, $map), $map);
     }
 
     public function delete($table, $where) {
-        $this->setWRMode(true);
+        $this->setWRMode(TRUE);
 
         $map = [];
+
         return $this->exec('DELETE FROM ' . $this->tableQuote($table) . $this->whereClause($where, $map), $map);
     }
 
-    public function replace($table, $columns, $where = null) {
-        $this->setWRMode(true);
+    public function replace($table, $columns, $where = NULL) {
+        $this->setWRMode(TRUE);
 
         $map = [];
         if (is_array($columns)) {
@@ -720,16 +734,17 @@ class SQLBuilder {
             }
             $replace_query = implode(', ', $replace_query);
         }
+
         return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . $replace_query . $this->whereClause($where, $map), $map);
     }
 
-    public function get($table, $join = null, $columns = null, $where = null) {
-        $this->setWRMode(false);
+    public function get($table, $join = NULL, $columns = NULL, $where = NULL) {
+        $this->setWRMode(FALSE);
 
         $map = [];
         $stack = [];
         $column_map = [];
-        $column = $where === null ? $join : $columns;
+        $column = $where === NULL ? $join : $columns;
         $is_single_column = (is_string($column) && $column !== '*');
 
         $query = $this->exec($this->selectContext($table, $map, $join, $columns, $where) . ' LIMIT 1', $map);
@@ -748,82 +763,87 @@ class SQLBuilder {
 
                 return $stack;
             } else {
-                return false;
+                return FALSE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
-    public function has($table, $join, $where = null) {
-        $this->setWRMode(false);
+    public function has($table, $join, $where = NULL) {
+        $this->setWRMode(FALSE);
 
         $map = [];
-        $column = null;
+        $column = NULL;
         $query = $this->exec('SELECT EXISTS(' . $this->selectContext($table, $map, $join, $column, $where, 1) . ')', $map);
         if ($query) {
             return $query->fetchColumn() === '1';
         } else {
-            return false;
+            return FALSE;
         }
     }
 
-    public function count($table, $join = null, $column = null, $where = null) {
-        $this->setWRMode(false);
+    public function count($table, $join = NULL, $column = NULL, $where = NULL) {
+        $this->setWRMode(FALSE);
 
         $map = [];
         $query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'COUNT'), $map);
-        return $query ? 0 + $query->fetchColumn() : false;
+
+        return $query ? 0 + $query->fetchColumn() : FALSE;
     }
 
-    public function max($table, $join, $column = null, $where = null) {
-        $this->setWRMode(false);
+    public function max($table, $join, $column = NULL, $where = NULL) {
+        $this->setWRMode(FALSE);
 
         $map = [];
         $query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'MAX'), $map);
         if ($query) {
             $max = $query->fetchColumn();
+
             return is_numeric($max) ? $max + 0 : $max;
         } else {
-            return false;
+            return FALSE;
         }
     }
 
-    public function min($table, $join, $column = null, $where = null) {
-        $this->setWRMode(false);
+    public function min($table, $join, $column = NULL, $where = NULL) {
+        $this->setWRMode(FALSE);
 
         $map = [];
         $query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'MIN'), $map);
         if ($query) {
             $min = $query->fetchColumn();
+
             return is_numeric($min) ? $min + 0 : $min;
         } else {
-            return false;
+            return FALSE;
         }
     }
 
-    public function avg($table, $join, $column = null, $where = null) {
-        $this->setWRMode(false);
+    public function avg($table, $join, $column = NULL, $where = NULL) {
+        $this->setWRMode(FALSE);
 
         $map = [];
         $query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'AVG'), $map);
-        return $query ? 0 + $query->fetchColumn() : false;
+
+        return $query ? 0 + $query->fetchColumn() : FALSE;
     }
 
-    public function sum($table, $join, $column = null, $where = null) {
-        $this->setWRMode(false);
+    public function sum($table, $join, $column = NULL, $where = NULL) {
+        $this->setWRMode(FALSE);
 
         $map = [];
         $query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'SUM'), $map);
-        return $query ? 0 + $query->fetchColumn() : false;
+
+        return $query ? 0 + $query->fetchColumn() : FALSE;
     }
 
     public function action(callable $actions) {
-        $this->setWRMode(true);
+        $this->setWRMode(TRUE);
 
         $this->getConnection()->beginTransaction();
         $result = $actions($this);
-        if ($result === false) {
+        if ($result === FALSE) {
             $this->getConnection()->rollBack();
         } else {
             $this->getConnection()->commit();
@@ -840,16 +860,18 @@ class SQLBuilder {
         } elseif ($type === self::DB_TYPE_PGSQL) {
             return $this->getConnection()->query('SELECT LASTVAL()')->fetchColumn();
         }
+
         return $this->getConnection()->lastInsertId();
     }
 
     public function debug() {
-        $this->debug_mode = true;
+        $this->debug_mode = TRUE;
+
         return $this;
     }
 
     public function error() {
-        return $this->statement ? $this->statement->errorInfo() : null;
+        return $this->statement ? $this->statement->errorInfo() : NULL;
     }
 
     public function info() {
@@ -857,6 +879,7 @@ class SQLBuilder {
         foreach ($output as $key => $value) {
             $output[$key] = @$this->getConnection()->getAttribute(constant('PDO::ATTR_' . $value));
         }
+
         return $output;
     }
 

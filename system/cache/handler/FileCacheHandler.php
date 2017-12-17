@@ -9,7 +9,6 @@
 namespace Akari\system\cache\handler;
 
 use Akari\Context;
-use Akari\utility\FileHelper;
 use Akari\system\event\Listener;
 use Akari\system\cache\CacheBenchmark;
 

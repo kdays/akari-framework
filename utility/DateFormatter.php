@@ -24,7 +24,7 @@ class DateFormatter {
             $formats = ['d', 'h', 'i', 's'];
             foreach ($formats as $format) {
                 if ($diff->$format > 0) {
-                    return L('df.'. $format, ['d' => $diff->$format]);
+                    return L('df.' . $format, ['d' => $diff->$format]);
                 }
             }
         }

@@ -14,9 +14,9 @@ use Akari\utility\Pagination;
 use Akari\system\ioc\DIHelper;
 use Akari\system\result\Widget;
 use Akari\system\security\Security;
+use Akari\system\router\UrlGenerator;
 use Akari\system\tpl\asset\AssetsMgr;
 use Akari\utility\ApplicationDataMgr;
-use Akari\system\router\UrlGenerator;
 
 class TemplateUtil {
 
@@ -134,7 +134,7 @@ EOT
             return $view->getViewEngine($tplPath)->parse($tplPath, $result, View::TYPE_WIDGET);
         }
 
-        throw new ViewException("Not found Widget view: ". $widgetName);
+        throw new ViewException("Not found Widget view: " . $widgetName);
     }
 
     public static function output_js($name = 'default') {
@@ -175,7 +175,7 @@ EOT
         self::$_registeredFn[$name] = $fn;
     }
 
-    public static function getRegisteredFunctions($includeDefaultMethods = False) {
+    public static function getRegisteredFunctions($includeDefaultMethods = FALSE) {
         $methods = [];
 
         if ($includeDefaultMethods) {

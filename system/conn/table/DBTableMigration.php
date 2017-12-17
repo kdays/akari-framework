@@ -8,11 +8,10 @@
 
 namespace Akari\system\conn\table;
 
-
 use Akari\model\DatabaseModel;
+use Akari\system\conn\DBException;
 use Akari\system\conn\DBConnection;
 use Akari\system\conn\DBConnFactory;
-use Akari\system\conn\DBException;
 
 class DBTableMigration {
 
@@ -23,7 +22,7 @@ class DBTableMigration {
 
     protected $connection;
     protected $isCreateMode;
-    protected $doDropTable = false;
+    protected $doDropTable = FALSE;
 
     public static function init($tableName, $config = 'default') {
         return new self(DBConnFactory::get($config), $tableName);
@@ -58,10 +57,10 @@ class DBTableMigration {
             $stub->name = $col['COLUMN_NAME'];
             $stub->type = $col['DATA_TYPE'];
             if (!empty($col['CHARACTER_MAXIMUM_LENGTH'])) {
-                $stub->length = (int)$col['CHARACTER_MAXIMUM_LENGTH'];
+                $stub->length = (int) $col['CHARACTER_MAXIMUM_LENGTH'];
             } else {
                 preg_match('/(\d+)/', $col['COLUMN_TYPE'], $matches);
-                $stub->length = (int)$matches[0];
+                $stub->length = (int) $matches[0];
             }
             $stub->remark = $col['COLUMN_COMMENT'];
             $stub->isPrimary = $col['COLUMN_KEY'] == 'PRI';
@@ -70,12 +69,12 @@ class DBTableMigration {
             $stub->defaultValue = $col['COLUMN_DEFAULT'];
 
             $stub->allowNull = $col['IS_NULLABLE'] != 'NO';
-            if (in_string($col['COLUMN_TYPE'],'unsigned')) {
-                $stub->unsigned = true;
+            if (in_string($col['COLUMN_TYPE'], 'unsigned')) {
+                $stub->unsigned = TRUE;
             }
 
             if (in_string($col['COLUMN_TYPE'], 'zerofill')) {
-                $stub->zerofill = true;
+                $stub->zerofill = TRUE;
             }
 
             $this->stub[ $stub->name ] = $stub;
@@ -149,6 +148,7 @@ class DBTableMigration {
             $this->indexes[ $indexName ] = $index;
 
         }
+
         return $this->indexes[ $indexName ];
     }
 
@@ -206,7 +206,7 @@ class DBTableMigration {
 
             $sqls[] = sprintf('CREATE TABLE %s (%s) COMMENT = ""', $this->tableName, implode(",\n", $cols));
         } else {
-            $isModifyPK = false;
+            $isModifyPK = FALSE;
 
             /** @var TableColumnStub $stub */
             foreach ($this->stub as $stub) {
@@ -230,7 +230,7 @@ class DBTableMigration {
                 }
 
                 if (in_array('isPrimary', $stub->modifyFields)) {
-                    $isModifyPK = true;
+                    $isModifyPK = TRUE;
                 }
 
                 $sql .= $this->makeSqlProp($stub);
@@ -290,7 +290,7 @@ class DBTableMigration {
         return $sqls;
     }
 
-    public function execute($onlyReturn = false) {
+    public function execute($onlyReturn = FALSE) {
         $extraSqls = [];
         if ($this->doDropTable) {
             $extraSqls[] = 'DROP TABLE `' . $this->tableName . '`';
@@ -313,7 +313,8 @@ class DBTableMigration {
     }
 
     public function dropTable() {
-        $this->doDropTable = true;
+        $this->doDropTable = TRUE;
+
         return $this;
     }
 
@@ -333,7 +334,7 @@ class DBTableMigration {
                 $parser = new \DocParser();
                 $values = $parser->parse($prop->getDocComment());
                 if ($prop->isDefault()) {
-                    $prop->setAccessible(true);
+                    $prop->setAccessible(TRUE);
                     $default = $prop->getValue($class);
 
                     if ($default === TIMESTAMP) {
@@ -361,7 +362,7 @@ class DBTableMigration {
 
             if ($c['default'] !== NULL) $f->setDefault( $c['default'] );
             if (!empty($c['description'])) $f->setRemark($c['description']);
-            if (isset($c['nullable'])) $f->nullable(true);
+            if (isset($c['nullable'])) $f->nullable(TRUE);
             if (isset($c['unsigned'])) $f->unsigned();
             if (isset($c['zerofill'])) $f->zerofill();
 

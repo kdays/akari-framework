@@ -10,9 +10,9 @@ namespace Akari\system\tpl;
 
 use Akari\Context;
 use Akari\config\ConfigItem;
+use Akari\utility\TextHelper;
 use Akari\system\ioc\Injectable;
 use Akari\system\tpl\engine\BaseTemplateEngine;
-use Akari\utility\TextHelper;
 
 class View extends Injectable{
 
@@ -98,6 +98,7 @@ class View extends Injectable{
 
     public function getScreenPath() {
         $screenName = empty($this->screen) ? $this->getScreenName() : $this->screen;
+
         return self::find($screenName, self::TYPE_SCREEN);
     }
 
@@ -241,6 +242,7 @@ class View extends Injectable{
      */
     public function getViewEngine(string $fileName) {
         $ext = TextHelper::getFileExtension($fileName);
+
         return $this->engines["." . $ext];
     }
 

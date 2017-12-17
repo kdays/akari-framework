@@ -1,4 +1,5 @@
 <?php
+
 namespace Akari\utility\helper;
 
 trait Instance {

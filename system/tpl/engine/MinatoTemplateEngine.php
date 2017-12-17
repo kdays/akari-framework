@@ -57,12 +57,12 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
                 if (in_string($cmdName, ".")) {
                     $cmdFunc = explode(".", $cmdName);
 
-                    $viewCmd = 'ViewUtil::' . $cmdFunc[0]. "('" . $cmdFunc[1] . "', ". $cmdParameters. ")";
+                    $viewCmd = 'ViewUtil::' . $cmdFunc[0] . "('" . $cmdFunc[1] . "', " . $cmdParameters . ")";
                     if (empty($cmdParameters)) {
-                        $viewCmd = 'ViewUtil::' . $cmdFunc[0]. "('" . $cmdFunc[1] . "')";
+                        $viewCmd = 'ViewUtil::' . $cmdFunc[0] . "('" . $cmdFunc[1] . "')";
                     }
                 } else {
-                    $viewCmd = 'ViewUtil::'. $cmdName . "(" . $cmdParameters . ")";
+                    $viewCmd = 'ViewUtil::' . $cmdName . "(" . $cmdParameters . ")";
                 }
 
                 return '<?=' . $viewCmd . "?>";

@@ -245,7 +245,7 @@ if (!function_exists('mb_parse_url')) {
             }, $url);
 
         $parts = parse_url($enc_url, $component);
-        if($parts === false) {
+        if($parts === FALSE) {
             throw new \InvalidArgumentException('Malformed URL: ' . $url);
         }
 

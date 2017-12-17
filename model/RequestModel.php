@@ -78,6 +78,7 @@ abstract class RequestModel extends Model {
         }
 
         if ($value === $defaultValue) return $defaultValue;
+
         return $this->filter($key, $value);
     }
 
