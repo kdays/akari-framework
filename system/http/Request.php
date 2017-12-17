@@ -1,4 +1,5 @@
 <?php
+
 namespace Akari\system\http;
 
 use Akari\system\ioc\Injectable;

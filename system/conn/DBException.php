@@ -14,7 +14,7 @@ class DBException extends AkariException {
 
     private $queryString;
 
-    public function __construct($message = "", $code = 0, $previous = null) {
+    public function __construct($message = "", $code = 0, $previous = NULL) {
         parent::__construct($message, $code, $previous);
         foreach ($this->getTrace() as $trace) {
             if (isset($trace['class']) && in_array($trace['class'], [

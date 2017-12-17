@@ -1,4 +1,5 @@
 <?php
+
 namespace Akari\utility;
 
 use Akari\Context;

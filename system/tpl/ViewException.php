@@ -8,7 +8,6 @@
 
 namespace Akari\system\tpl;
 
-
 use Akari\system\exception\AkariException;
 
 class ViewException extends AkariException {

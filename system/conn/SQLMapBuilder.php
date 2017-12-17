@@ -37,7 +37,7 @@ class SQLMapBuilder {
 
         $mapId = get_class($this->map) . "@" . $id;
         if (!isset($items[$id])) {
-            throw new DBException("not found map item: ". $mapId);
+            throw new DBException("not found map item: " . $mapId);
         }
 
         $item = $items[$id];

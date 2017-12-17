@@ -8,9 +8,9 @@
 
 namespace Akari\system\http;
 
-use Akari\system\storage\Storage;
-use Akari\system\ioc\Injectable;
 use Akari\utility\TextHelper;
+use Akari\system\ioc\Injectable;
+use Akari\system\storage\Storage;
 
 class FileUpload extends Injectable {
 

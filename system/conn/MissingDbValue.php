@@ -25,7 +25,7 @@ class MissingDbValue extends DBException {
     public function __construct($mapId, $missingKey) {
         $this->key = $missingKey;
         $this->mapId = $mapId;
-        $message = "Map ". $mapId . " need " . $missingKey;
+        $message = "Map " . $mapId . " need " . $missingKey;
 
         parent::__construct($message);
     }
