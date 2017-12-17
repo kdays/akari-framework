@@ -83,10 +83,6 @@ class MinatoTemplateEngine extends BaseTemplateEngine{
             }, $template);
 
             $template = str_replace("_#_", "\$", $template);
-            
-            if ($this->getOption("useSecurityHash", TRUE)) {
-                $template .= $this->getSecurityHash($tplPath, $template);
-            }
 
             $tempHeader = <<<'TAG'
 <?php

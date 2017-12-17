@@ -163,7 +163,7 @@ class View extends Injectable{
         $layoutPath = $this->getLayoutPath();
 
         if (empty($layoutPath) && empty($screenPath)) {
-            throw new TemplateNotFound('NOT_FOUND_LAYOUT_OR_SCREEN');
+            throw new ViewException("not found any available view file");
         }
 
         $viewEngine = NULL;
@@ -211,6 +211,10 @@ class View extends Injectable{
     }
 
     public static function find(string $tplName, string $type) {
+        if (empty($tplName)) {
+            return NULL;
+        }
+
         $baseDirs = self::getBaseDirs($type);
         $tplName = str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $tplName);
 
@@ -228,7 +232,7 @@ class View extends Injectable{
             }
         }
 
-        throw new TemplateNotFound($type . "/" . $tplName);
+        return FALSE;
     }
 
     /**
@@ -258,5 +262,19 @@ class View extends Injectable{
             $this->engines[ $extension ] = $engine;
         }
         self::$_registeredExtensions[] = $extension;
+    }
+
+    public static function render4Data($viewContent, array $data) {
+        $view = function ($pView, $assignData) {
+            ob_start();
+            @extract($assignData, EXTR_PREFIX_SAME, 'a_');
+            include $pView;
+            $content = ob_get_contents();
+            ob_end_clean();
+
+            return $content;
+        };
+
+        return $view($viewContent, $data);
     }
 }

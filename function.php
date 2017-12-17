@@ -225,10 +225,9 @@ function get_date($format, $timestamp = TIMESTAMP) {
     return date($format, $timestamp);
 }
 
-function get_timestamp($str) {
+function get_timestamp($str, $useOffset = TRUE) {
     $timestamp = is_numeric($str) ? $str : strtotime($str);
-    // timestamp的时候如果有timeZone 也必须指定
-    $timestamp -= Context::$appConfig->offsetTime;
+    if ($useOffset) $timestamp -= Context::$appConfig->offsetTime;
 
     return $timestamp;
 }

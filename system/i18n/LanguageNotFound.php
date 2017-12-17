@@ -14,7 +14,7 @@ class LanguageNotFound extends AkariException {
 
 
     public function __construct($packageId) {
-        $this->message = "not found language package " . $packageId;
+        $this->message = "Language package not found: " . $packageId;
     }
 
 }

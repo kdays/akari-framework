@@ -17,6 +17,8 @@ class AssetsMgr {
 
     protected $collections = [];
 
+    const DEFAULT_COLLECTION_NAME = 'default';
+
     /**
      * @param $name
      * @return AssetCollection
@@ -78,18 +80,18 @@ class AssetsMgr {
 
 
     public function addBehaviour($item) {
-        return $this->collection('default')->addBehaviour($item);
+        return $this->collection(self::DEFAULT_COLLECTION_NAME)->addBehaviour($item);
     }
 
     public function addJs($path) {
-        return $this->collection('default')->addJs($path);
+        return $this->collection(self::DEFAULT_COLLECTION_NAME)->addJs($path);
     }
 
     public function addCss($path) {
-        return $this->collection('default')->addCss($path);
+        return $this->collection(self::DEFAULT_COLLECTION_NAME)->addCss($path);
     }
 
     public function setPrefix($prefix) {
-        return $this->collection('default')->setPrefix($prefix);
+        return $this->collection(self::DEFAULT_COLLECTION_NAME)->setPrefix($prefix);
     }
 }

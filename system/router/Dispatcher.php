@@ -48,6 +48,8 @@ class Dispatcher extends Injectable{
             $this->_controllerName = implode(NAMESPACE_SEPARATOR, array_merge($parts, [$class]));
             $this->_exeParams = $parameters;
         }
+
+        return $isExistCls;
     }
 
     protected function getAppActionNS() {
@@ -58,7 +60,7 @@ class Dispatcher extends Injectable{
         $config = Context::env('bindDomain', NULL, []);
 
         if (is_string($config)) {
-            // 那么说明直接调用class方法
+            /** @var $config INamespaceActionHandler */
             return $config::handleAppActionNs($this->request);
         }
 
@@ -78,6 +80,7 @@ class Dispatcher extends Injectable{
      *
      * @return Result|NULL
      * @throws NotFoundURI
+     * @throws NotFoundClass
      */
     public function dispatch() {
         if (empty($this->getControllerName())) {

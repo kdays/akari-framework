@@ -16,9 +16,7 @@ use Akari\system\result\Widget;
 use Akari\system\security\Security;
 use Akari\system\tpl\asset\AssetsMgr;
 use Akari\utility\ApplicationDataMgr;
-use Akari\system\router\BaseUrlGenerator;
-use Akari\system\exception\AkariException;
-use Akari\system\tpl\engine\BaseTemplateEngine;
+use Akari\system\router\UrlGenerator;
 
 class TemplateUtil {
 
@@ -48,7 +46,7 @@ class TemplateUtil {
     }
 
     public static function url($path, $arr = [], $withToken = FALSE) {
-        /** @var BaseUrlGenerator $url */
+        /** @var UrlGenerator $url */
         $url = self::_getDI()->getShared("url");
 
         return $url->get($path, $arr, $withToken);
@@ -123,7 +121,7 @@ EOT
             /** @var Widget $cls */
             $cls = new $widgetCls();
         } catch (NotFoundClass $e) {
-            throw new TemplateNotFound("widget class: $widgetName");
+            throw new ViewException("Not found Widget execute class: $widgetName");
         }
 
         $result = $cls->execute($args);
@@ -132,7 +130,11 @@ EOT
         }
 
         $tplPath = View::find($widgetTpl, View::TYPE_WIDGET);
-        return $view->getViewEngine($tplPath)->parse($tplPath, $result, View::TYPE_WIDGET);
+        if ($tplPath) {
+            return $view->getViewEngine($tplPath)->parse($tplPath, $result, View::TYPE_WIDGET);
+        }
+
+        throw new ViewException("Not found Widget view: ". $widgetName);
     }
 
     public static function output_js($name = 'default') {
@@ -151,27 +153,43 @@ EOT
 
     public static function pager($pagination) {
         if (!($pagination instanceof Pagination)) {
-            throw new AkariException("Template Command 'Page' need Pagination instance");
+            throw new ViewException("Template Command 'pager' need Pagination instance");
         }
 
         return $pagination->render();
     }
 
-    public static function __callStatic($name, $arguments) {
+    public static function __callStatic($name, array $arguments) {
         $name[0] = strtoupper($name[0]);
-
-        $utilCls = implode(NAMESPACE_SEPARATOR, [
-            Context::$appBaseNS, 'lib', $name . 'Plugin'
-        ]);
-
-        try {
-            if (class_exists($utilCls) && method_exists($utilCls, 'execute')) {
-                return $utilCls::execute($arguments);
-            }
-        } catch (NotFoundClass $e) {
-
+        if (isset(self::$_registeredFn[$name])) {
+            return call_user_func_array(self::$_registeredFn[$name], $arguments);
         }
 
         throw new TemplateCommandInvalid($name, $arguments);
+    }
+
+    protected static $_registeredFn = [];
+    public static function registerFunction($name, callable $fn) {
+        $name[0] = strtoupper($name[0]);
+
+        self::$_registeredFn[$name] = $fn;
+    }
+
+    public static function getRegisteredFunctions($includeDefaultMethods = False) {
+        $methods = [];
+
+        if ($includeDefaultMethods) {
+            $defaultMethods = get_class_methods(self::class);
+            $exceptMethods = [
+                'registerFunction',
+                'getRegisteredFunctions',
+                '__callStatic'
+            ];
+
+            $methods = array_diff($defaultMethods, $exceptMethods);
+        }
+
+
+        return array_merge($methods, array_keys(self::$_registeredFn));
     }
 }

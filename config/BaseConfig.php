@@ -20,8 +20,6 @@ class BaseConfig {
     public $notFoundTemplate = "";
     public $serverErrorTemplate = "";
 
-    public $timeZone = 8;
-
     // 如果没有result时的callback
     public $nonResultCallback = NULL;
     public $offsetTime = 0;

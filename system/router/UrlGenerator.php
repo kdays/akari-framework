@@ -11,7 +11,7 @@ namespace Akari\system\router;
 use Akari\Context;
 use Akari\system\security\Security;
 
-class BaseUrlGenerator {
+class UrlGenerator {
 
     public function get($path, $args = [], $withToken = FALSE) {
         return $this->createBaseUrl($path, $args, $withToken);

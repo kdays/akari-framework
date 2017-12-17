@@ -33,7 +33,7 @@ $di->setShared("processor", Akari\system\result\Processor::class);
 
 $di->setShared('assets', Akari\system\tpl\asset\AssetsMgr::class);
 
-$di->setShared("url", \Akari\system\router\BaseUrlGenerator::class);
+$di->setShared("url", \Akari\system\router\UrlGenerator::class);
 $di->setShared("csrf", \Akari\system\http\VerifyCsrfToken::class);
 $di->setShared("lang", \Akari\system\i18n\I18n::class);
 
