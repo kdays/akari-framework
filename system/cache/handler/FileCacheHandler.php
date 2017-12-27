@@ -11,6 +11,8 @@ namespace Akari\system\cache\handler;
 use Akari\Context;
 use Akari\system\event\Listener;
 use Akari\system\cache\CacheBenchmark;
+use Akari\system\storage\Storage;
+use Akari\system\storage\StorageDisk;
 
 class FileCacheHandler implements ICacheHandler{
 
@@ -18,25 +20,26 @@ class FileCacheHandler implements ICacheHandler{
     protected $transaction = [];
 
     protected $fileIndex = [];
-    protected $indexPath;
-    protected $baseDir;
+
+    /** @var StorageDisk */
+    protected $_storage;
+    protected $indexName;
 
     public function __construct(array $options) {
-        $indexPath = array_key_exists("indexPath", $options) ? $options['indexPath'] : 'index.json';
-        $baseDir = array_key_exists("baseDir", $options) ? $options['baseDir'] : '/runtime/cache/';
+        $indexName = array_key_exists("indexPath", $options) ? $options['indexPath'] : 'index.json';
+        $cacheStorage = array_key_exists('storage', $options) ? $options['storage'] : '.cache';
 
-        $baseDir = Context::$appBasePath . $baseDir;
-        $indexPath = $baseDir . $indexPath;
+        $cacheStorage = Storage::disk($cacheStorage);
 
-        $this->baseDir = $baseDir;
-        $this->indexPath = $indexPath;
+        $this->_storage = $cacheStorage;
+        $this->indexName = $indexName;
 
         // 读取fileIndex
-        if (!file_exists($indexPath)) {
-            file_put_contents($indexPath, json_encode([]));
+        if (!$cacheStorage->exists($indexName)) {
+            $cacheStorage->put($indexName, json_encode([]));
         }
 
-        $this->fileIndex = json_decode(file_get_contents($indexPath), TRUE);
+        $this->fileIndex = json_decode($cacheStorage->get($indexName), TRUE);
         $this->removeExpired();
     }
 
@@ -52,7 +55,7 @@ class FileCacheHandler implements ICacheHandler{
     }
 
     private function _updateIndex() {
-        file_put_contents($this->indexPath, json_encode($this->fileIndex));
+        $this->_storage->put($this->indexName, json_encode($this->fileIndex));
     }
 
     private function _getFileName($key) {
@@ -68,11 +71,12 @@ class FileCacheHandler implements ICacheHandler{
     private function _set($key, $value, $timeout = NULL, $doUpdateIndex = TRUE) {
         Listener::fire(CacheBenchmark::ACTION_CREATE, ['key' => $key]);
         $savedKey = $this->_getKey($key);
+        $storage = $this->_storage;
 
         if (isset($this->fileIndex[$savedKey])) {
             $data = $this->fileIndex[$savedKey];
-            if (file_exists($kPath = $this->baseDir . $data['f'])) {
-                unlink($kPath);
+            if ($storage->exists($data['f'])) {
+                $storage->delete($data['f']);
             }
         }
 
@@ -82,22 +86,22 @@ class FileCacheHandler implements ICacheHandler{
             'expire' => $timeout > 0 ? (TIMESTAMP + $timeout) : $timeout
         ];
 
-        file_put_contents($this->baseDir . $index, serialize($value));
+        $storage->put($index, serialize($value));
         if ($doUpdateIndex) $this->_updateIndex();
     }
 
     private function _remove($key, $doUpdateIndex = TRUE) {
         Listener::fire(CacheBenchmark::ACTION_REMOVE, ['key' => $key]);
         $savedKey = $this->_getKey($key);
+        $storage = $this->_storage;
+
         if (!isset($this->fileIndex[$savedKey])) {
             return FALSE;
         }
 
         $data = $this->fileIndex[$savedKey];
-        $path = $this->baseDir . $data['f'];
-
-        if (file_exists($path)) {
-            unlink($path);
+        if ($storage->exists($data['f'])) {
+            $storage->delete($data['f']);
         }
 
         unset($this->fileIndex[$savedKey]);
@@ -138,11 +142,12 @@ class FileCacheHandler implements ICacheHandler{
             return $defaultValue;
         }
 
+        $storage = $this->_storage;
         // 获得值
         $data = $this->fileIndex[$key];
-        $cachePath = $this->baseDir . $data['f'];
+        $cachePath = $data['f'];
 
-        if (!file_exists($cachePath)) {
+        if (!$storage->exists($cachePath)) {
             $this->_remove($key);
 
             return $defaultValue;
@@ -150,7 +155,7 @@ class FileCacheHandler implements ICacheHandler{
 
         CacheBenchmark::log(CacheBenchmark::HIT);
 
-        return unserialize(file_get_contents($cachePath));
+        return unserialize($storage->get($cachePath));
     }
 
     /**

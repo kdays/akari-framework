@@ -34,7 +34,6 @@ class BaseConfig {
     public $cache = [
         'default' => [
             'handler' => Sys\cache\handler\FileCacheHandler::class,
-            'baseDir' => '/runtime/cache/',
             'indexPath' => 'index.json'
         ],
 
@@ -48,6 +47,11 @@ class BaseConfig {
         'default' => [
             'handler' => Sys\storage\handler\FileStorageHandler::class,
             'baseDir' => 'storage/'
+        ],
+
+        '.cache' => [
+            'handler' => Sys\storage\handler\FileStorageHandler::class,
+            'baseDir' => 'runtime/cache/'
         ]
     ];
 
