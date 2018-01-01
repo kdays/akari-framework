@@ -38,6 +38,10 @@ class FileUpload extends Injectable {
         return $this->upload;
     }
 
+    public function makeMD5() {
+        return md5_file( $this->getTempPath() );
+    }
+
     protected function getPureName() {
         return explode(".", $this->upload['name']);
     }
