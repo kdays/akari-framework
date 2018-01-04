@@ -57,7 +57,7 @@ class MemcachedCacheHandler implements ICacheHandler {
      * @param mixed $value 值
      * @param null|int $timeout 超时时间
      * @return bool
-     * @throws AkariException
+     * @throws Exception
      */
     public function set($key, $value, $timeout = NULL) {
         $value = serialize($value);

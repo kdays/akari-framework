@@ -17,6 +17,7 @@ class Cache {
     /**
      * @param $configKey
      * @return Cache
+     * @throws Exception
      */
     public static function getInstance($configKey = 'default') {
         if (!isset(self::$s[$configKey])) {
@@ -45,10 +46,11 @@ class Cache {
      * @param string $key 键名
      * @param mixed $value 值
      * @param null|int $timeout 超时时间
+     * @param bool $raw
      * @return boolean
      */
-    public function set($key, $value, $timeout = NULL) {
-        return $this->cacheHandler->set($key, $value, $timeout);
+    public function set($key, $value, $timeout = NULL, $raw = FALSE) {
+        return $this->cacheHandler->set($key, $value, $timeout, $raw);
     }
 
     /**
@@ -56,10 +58,11 @@ class Cache {
      *
      * @param string $key
      * @param null|mixed $defaultValue
+     * @param bool $raw
      * @return mixed
      */
-    public function get($key, $defaultValue = NULL) {
-        return $this->cacheHandler->get($key, $defaultValue);
+    public function get($key, $defaultValue = NULL, $raw = FALSE) {
+        return $this->cacheHandler->get($key, $defaultValue, $raw);
     }
 
     /**

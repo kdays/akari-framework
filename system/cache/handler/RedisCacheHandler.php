@@ -52,11 +52,12 @@ class RedisCacheHandler implements ICacheHandler{
      * @param string $key 键名
      * @param mixed $value 值
      * @param null|int $timeout 超时时间
+     * @param bool $raw
      * @return boolean
      */
-    public function set($key, $value, $timeout = NULL) {
+    public function set($key, $value, $timeout = NULL, $raw = FALSE) {
         $key = $this->prefix . $key;
-        $value = serialize($value);
+        $value = $raw ? $value : serialize($value);
 
         return $this->redisHandler->set($key, $value, $timeout);
     }
@@ -66,9 +67,10 @@ class RedisCacheHandler implements ICacheHandler{
      *
      * @param string $key
      * @param null|mixed $defaultValue
+     * @param bool $raw
      * @return mixed
      */
-    public function get($key, $defaultValue = NULL) {
+    public function get($key, $defaultValue = NULL, $raw = FALSE) {
         $key = $this->prefix . $key;
         if (!$this->exists($key)) {
             CacheBenchmark::log(CacheBenchmark::MISS);
@@ -79,7 +81,7 @@ class RedisCacheHandler implements ICacheHandler{
         CacheBenchmark::log(CacheBenchmark::HIT);
         $value = $this->redisHandler->get($key);
 
-        return unserialize($value);
+        return $raw ? $value : unserialize($value);
     }
 
     /**

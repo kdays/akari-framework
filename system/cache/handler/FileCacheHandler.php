@@ -68,7 +68,7 @@ class FileCacheHandler implements ICacheHandler{
         return $key;
     }
 
-    private function _set($key, $value, $timeout = NULL, $doUpdateIndex = TRUE) {
+    private function _set($key, $value, $timeout = NULL, $doUpdateIndex = TRUE, $rawValue = FALSE) {
         Listener::fire(CacheBenchmark::ACTION_CREATE, ['key' => $key]);
         $savedKey = $this->_getKey($key);
         $storage = $this->_storage;
@@ -86,7 +86,7 @@ class FileCacheHandler implements ICacheHandler{
             'expire' => $timeout > 0 ? (TIMESTAMP + $timeout) : $timeout
         ];
 
-        $storage->put($index, serialize($value));
+        $storage->put($index, $rawValue ? $value : serialize($value));
         if ($doUpdateIndex) $this->_updateIndex();
     }
 
@@ -116,11 +116,12 @@ class FileCacheHandler implements ICacheHandler{
      * @param string $key 键名
      * @param mixed $value 值
      * @param null|int $timeout 超时时间
+     * @param bool $raw
      * @return boolean
      */
-    public function set($key, $value, $timeout = NULL) {
+    public function set($key, $value, $timeout = NULL, $raw = FALSE) {
         if ($this->isInTransaction) {
-            $this->transaction[] = ['set', $key, $value, $timeout];
+            $this->transaction[] = ['set', $key, $value, $timeout, $raw];
         } else {
             $this->_set($key, $value, $timeout, TRUE);
         }
@@ -135,7 +136,7 @@ class FileCacheHandler implements ICacheHandler{
      * @param null|mixed $defaultValue
      * @return mixed
      */
-    public function get($key, $defaultValue = NULL) {
+    public function get($key, $defaultValue = NULL, $raw = FALSE) {
         if (!isset($this->fileIndex[$key])) {
             CacheBenchmark::log(CacheBenchmark::MISS);
 
@@ -155,7 +156,8 @@ class FileCacheHandler implements ICacheHandler{
 
         CacheBenchmark::log(CacheBenchmark::HIT);
 
-        return unserialize($storage->get($cachePath));
+        $value = $storage->get($cachePath);
+        return $raw ? $value : unserialize($value);
     }
 
     /**

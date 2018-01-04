@@ -18,13 +18,13 @@ class MemoryCacheHandler implements ICacheHandler{
 
     protected $data = [];
 
-    public function set($key, $value, $timeout = NULL) {
-        $this->data[$key] = $value;
+    public function set($key, $value, $timeout = NULL, $raw = FALSE) {
+        $this->data[$key] = $raw ? $value : unserialize($raw);
     }
 
-    public function get($key, $defaultValue = NULL) {
+    public function get($key, $defaultValue = NULL, $raw = FALSE) {
         if ($this->exists($key)) {
-            return $this->data[$key];
+            return $raw ? $this->data[$key] : unserialize($this->data[$key]);
         }
 
         return $defaultValue;

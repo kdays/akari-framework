@@ -27,7 +27,7 @@ interface ICacheHandler {
      * @param null|int $timeout 超时时间
      * @return boolean
      */
-    public function set($key, $value, $timeout = NULL);
+    public function set($key, $value, $timeout = NULL, $raw = FALSE);
 
     /**
      * 获得缓存设置的键
@@ -36,7 +36,7 @@ interface ICacheHandler {
      * @param null|mixed $defaultValue
      * @return mixed
      */
-    public function get($key, $defaultValue = NULL);
+    public function get($key, $defaultValue = NULL, $raw = FALSE);
 
     /**
      * 删除某个缓存键

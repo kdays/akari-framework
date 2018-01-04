@@ -18,7 +18,7 @@ class NullCacheHandler implements ICacheHandler{
      * @param null|int $timeout 超时时间
      * @return boolean
      */
-    public function set($key, $value, $timeout = NULL) {
+    public function set($key, $value, $timeout = NULL, $raw = FALSE) {
         // TODO: Implement set() method.
         return TRUE;
     }
@@ -30,7 +30,7 @@ class NullCacheHandler implements ICacheHandler{
      * @param null|mixed $defaultValue
      * @return mixed
      */
-    public function get($key, $defaultValue = NULL) {
+    public function get($key, $defaultValue = NULL, $raw = FALSE) {
         // TODO: Implement get() method.
         return $defaultValue;
     }
