@@ -1,7 +1,7 @@
-#Akari Framework
+# Akari Framework
 KDays Akari Framework
 
-[![StyleCI](https://styleci.io/repos/19662337/shield?branch=v4)](https://styleci.io/repos/19662337)
+[![StyleCI](https://styleci.io/repos/19662337/shield?branch=v5)](https://styleci.io/repos/19662337)
 
 一个轻量的，以自我为中心的PHP框架，用于开发[KDays](http://kdays.net)的相关应用。
 
