@@ -21,6 +21,10 @@ class Cache {
     public static function getInstance($configKey = 'default') {
         if (!isset(self::$s[$configKey])) {
             $conf = Context::$appConfig->cache[$configKey];
+            if (empty($conf['handler'])) {
+                throw new Exception("Not found Cache Config: $configKey");
+            }
+
             self::$s[$configKey] = new self($conf['handler'], $conf);
         }
 
