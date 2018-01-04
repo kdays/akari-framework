@@ -143,7 +143,6 @@ class FileCacheHandler implements ICacheHandler{
         }
 
         $storage = $this->_storage;
-        // 获得值
         $data = $this->fileIndex[$key];
         $cachePath = $data['f'];
 
@@ -154,8 +153,8 @@ class FileCacheHandler implements ICacheHandler{
         }
 
         CacheBenchmark::log(CacheBenchmark::HIT);
-
         $value = $storage->get($cachePath);
+
         return $raw ? $value : unserialize($value);
     }
 
