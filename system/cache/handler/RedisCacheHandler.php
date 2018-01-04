@@ -17,6 +17,7 @@ class RedisCacheHandler implements ICacheHandler{
     protected $host;
     protected $port;
     protected $password;
+    protected $prefix;
 
     protected $isInTransaction = FALSE;
 
@@ -25,6 +26,7 @@ class RedisCacheHandler implements ICacheHandler{
 
         $host = array_key_exists("host", $opts) ? $opts['host'] : '127.0.0.1';
         $port = array_key_exists("port", $opts) ? $opts['port'] : 6379;
+        $db = array_key_exists("db", $opts) ? $opts['db'] : FALSE;
 
         $redis->connect($host, $port);
 
@@ -33,10 +35,15 @@ class RedisCacheHandler implements ICacheHandler{
             $redis->auth($password);
         }
 
+        if ($db) {
+            $redis->select($db);
+        }
+
         $this->redisHandler = $redis;
         $this->host = $host;
         $this->port = $port;
         $this->password = $password;
+        $this->prefix = $opts['prefix'] ?? '';
     }
 
     /**
@@ -48,6 +55,7 @@ class RedisCacheHandler implements ICacheHandler{
      * @return boolean
      */
     public function set($key, $value, $timeout = NULL) {
+        $key = $this->prefix . $key;
         $value = serialize($value);
 
         return $this->redisHandler->set($key, $value, $timeout);
@@ -61,6 +69,7 @@ class RedisCacheHandler implements ICacheHandler{
      * @return mixed
      */
     public function get($key, $defaultValue = NULL) {
+        $key = $this->prefix . $key;
         if (!$this->exists($key)) {
             CacheBenchmark::log(CacheBenchmark::MISS);
 
@@ -80,6 +89,7 @@ class RedisCacheHandler implements ICacheHandler{
      * @return boolean
      */
     public function remove($key) {
+        $key = $this->prefix . $key;
         if (!$this->exists($key)) {
             return FALSE;
         }
@@ -96,6 +106,7 @@ class RedisCacheHandler implements ICacheHandler{
      * @return boolean
      */
     public function exists($key) {
+        $key = $this->prefix . $key;
         return $this->redisHandler->exists($key);
     }
 
@@ -105,7 +116,8 @@ class RedisCacheHandler implements ICacheHandler{
      * @return array
      */
     public function all() {
-        return $this->redisHandler->keys("*");
+
+        return $this->redisHandler->keys($this->prefix . "*");
     }
 
     /**
@@ -180,10 +192,12 @@ class RedisCacheHandler implements ICacheHandler{
     }
 
     public function increment($key, $value = 1) {
+        $key = $this->prefix . $key;
         return $this->redisHandler->incrBy($key, $value);
     }
 
     public function decrement($key, $value = 1) {
+        $key = $this->prefix . $key;
         return $this->redisHandler->decrBy($key, $value);
     }
 
