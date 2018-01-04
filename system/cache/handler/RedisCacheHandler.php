@@ -107,6 +107,7 @@ class RedisCacheHandler implements ICacheHandler{
      */
     public function exists($key) {
         $key = $this->prefix . $key;
+
         return $this->redisHandler->exists($key);
     }
 
@@ -193,11 +194,13 @@ class RedisCacheHandler implements ICacheHandler{
 
     public function increment($key, $value = 1) {
         $key = $this->prefix . $key;
+
         return $this->redisHandler->incrBy($key, $value);
     }
 
     public function decrement($key, $value = 1) {
         $key = $this->prefix . $key;
+
         return $this->redisHandler->decrBy($key, $value);
     }
 

@@ -38,9 +38,9 @@ class FrameworkExceptionHandler extends BaseExceptionHandler {
 
         // CLI模式时为了方便调试 任何错误不捕获时全调用
         if (CLI_MODE) {
-            echo "\n-------\n\033[31;49;1m". $ex->getMessage() . "\n". get_class($ex) . "\033[39;49;0m";
+            echo "\n-------\n\033[31;49;1m" . $ex->getMessage() . "\n" . get_class($ex) . "\033[39;49;0m";
 
-            echo "\n\n" . $this->getMagicTraceString($ex). "\n";
+            echo "\n\n" . $this->getMagicTraceString($ex) . "\n";
             die;
         }
 
