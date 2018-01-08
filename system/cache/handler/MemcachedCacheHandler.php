@@ -56,18 +56,19 @@ class MemcachedCacheHandler implements ICacheHandler {
      * @param string $key 键名
      * @param mixed $value 值
      * @param null|int $timeout 超时时间
+     * @param bool $raw
      * @return bool
      * @throws Exception
      */
-    public function set($key, $value, $timeout = NULL) {
-        $value = serialize($value);
+    public function set($key, $value, $timeout = NULL, $raw = FALSE) {
+        $value = $raw ? $value : serialize($value);
 
         $this->handler->set($key, $value, $timeout);
         if ($this->handler->getResultCode() == \Memcached::RES_SUCCESS) {
             return TRUE;
         } else {
             throw new Exception(
-                "Memcached Cache Exception: " . $this->handler->getResultMessage(),
+                "Memcached Cache: " . $this->handler->getResultMessage(),
                 $this->handler->getResultCode()
             );
         }
@@ -78,9 +79,11 @@ class MemcachedCacheHandler implements ICacheHandler {
      *
      * @param string $key
      * @param null|mixed $defaultValue
+     * @param bool $raw
      * @return mixed
+     * @throws Exception
      */
-    public function get($key, $defaultValue = NULL) {
+    public function get($key, $defaultValue = NULL, $raw = FALSE) {
         $value = $this->handler->get($key);
 
         $retCode = $this->handler->getResultCode();
@@ -88,7 +91,7 @@ class MemcachedCacheHandler implements ICacheHandler {
             case \Memcached::RES_SUCCESS:
                 CacheBenchmark::log(CacheBenchmark::HIT);
 
-                return unserialize($value);
+                return $raw ? $value : unserialize($value);
 
             case \Memcached::RES_NOTFOUND:
             case \Memcached::RES_TIMEOUT:
@@ -97,7 +100,7 @@ class MemcachedCacheHandler implements ICacheHandler {
                 return $defaultValue;
 
             default:
-                throw new \MemcachedException($this->handler->getResultMessage(), $this->handler->getResultCode());
+                throw new Exception("Memcached Cache: " . $this->handler->getResultMessage(), $this->handler->getResultCode());
         }
     }
 
