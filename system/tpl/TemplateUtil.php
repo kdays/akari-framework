@@ -52,6 +52,13 @@ class TemplateUtil {
         return $url->get($path, $arr, $withToken);
     }
 
+    public static function static_url($path) {
+        /** @var UrlGenerator $url */
+        $url = self::_getDI()->getShared("url");
+
+        return $url->getStaticUrl($path);
+    }
+
     public static function form($url, $urlParameters = [], $method = 'POST', $formParameters = []) {
         $url = self::url($url, $urlParameters);
         $extraForm = '';

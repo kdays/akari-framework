@@ -102,7 +102,11 @@ abstract class RequestModel extends Model {
     }
 
     public function filter($key, $value) {
-        return FilterFactory::doFilter($value, 'default');
+        return FilterFactory::doFilter($value, $this->getFilter($key));
+    }
+
+    public function getFilter($key) {
+        return 'default';
     }
 
     /**

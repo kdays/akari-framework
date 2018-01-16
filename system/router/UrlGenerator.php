@@ -23,6 +23,10 @@ class UrlGenerator {
         return Context::$appConfig->appBaseURL . $url;
     }
 
+    public function getStaticUrl($path) {
+        return str_replace('//', '/', '/static/' . $path);
+    }
+
     public function createBaseUrl($path, $args, $withToken) {
         if ($withToken && Context::$appConfig->csrfTokenName) {
             $args[ Context::$appConfig->csrfTokenName ] = Security::getCSRFToken();
