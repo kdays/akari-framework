@@ -70,6 +70,7 @@ class FrameworkExceptionHandler extends BaseExceptionHandler {
 
             // 系统的fatal
             case FatalException::class:
+            case PHPErrorException::class:
                 $this->response->setStatusCode(HttpCode::INTERNAL_SERVER_ERROR);
                 $message = [
                     "message" => $ex->getMessage(),

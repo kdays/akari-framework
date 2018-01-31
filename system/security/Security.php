@@ -81,20 +81,22 @@ class Security {
 		return $instance;
 	}
 
-	/**
-	 * @param $text
-	 * @param string $mode
-	 * @return mixed
-	 */
+    /**
+     * @param $text
+     * @param string $mode
+     * @return mixed
+     * @throws AkariException
+     */
 	public static function encrypt($text, $mode = 'default') {
 		return self::getCipher($mode)->encrypt($text);
 	}
 
-	/**
-	 * @param $text
-	 * @param string $mode
-	 * @return mixed
-	 */
+    /**
+     * @param $text
+     * @param string $mode
+     * @return mixed
+     * @throws AkariException
+     */
 	public static function decrypt($text, $mode = 'default') {
 		return self::getCipher($mode)->decrypt($text);
 	}

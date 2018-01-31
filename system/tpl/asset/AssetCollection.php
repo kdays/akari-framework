@@ -53,6 +53,7 @@ class AssetCollection {
             if (is_callable($item)) {
                 $path = $item($path, $type);
             } else {
+                /** @var IAssetsBehaviour $item */
                 $path = $item::execute($path, $type);
             }
         }

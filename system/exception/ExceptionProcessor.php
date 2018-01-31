@@ -77,7 +77,7 @@ class ExceptionProcessor extends Injectable{
                 }
             }
         }
-        
+
         Listener::fire(self::EVENT_EXCEPTION_EXECUTE, $ex);
 
         if (ob_get_level() !== 0) {
@@ -106,7 +106,7 @@ class ExceptionProcessor extends Injectable{
         $this->response->send();
     }
 
-    public function setFrameworkExceptionHandler($handler) {
+    public function setFrameworkExceptionHandler(BaseExceptionHandler $handler) {
         $this->fkExceptionHandler = $handler;
     }
 
