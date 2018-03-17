@@ -71,13 +71,13 @@ class RedisCacheHandler implements ICacheHandler{
      * @return mixed
      */
     public function get($key, $defaultValue = NULL, $raw = FALSE) {
-        $key = $this->prefix . $key;
         if (!$this->exists($key)) {
             CacheBenchmark::log(CacheBenchmark::MISS);
 
             return $defaultValue;
         }
 
+        $key = $this->prefix . $key;
         CacheBenchmark::log(CacheBenchmark::HIT);
         $value = $this->redisHandler->get($key);
 
@@ -91,11 +91,11 @@ class RedisCacheHandler implements ICacheHandler{
      * @return boolean
      */
     public function remove($key) {
-        $key = $this->prefix . $key;
         if (!$this->exists($key)) {
             return FALSE;
         }
 
+        $key = $this->prefix . $key;
         $this->redisHandler->delete($key);
 
         return TRUE;

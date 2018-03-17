@@ -242,6 +242,9 @@ class View extends Injectable{
      */
     public function getViewEngine(string $fileName) {
         $ext = TextHelper::getFileExtension($fileName);
+        if (!isset($this->engines['.' . $ext])) {
+            throw new ViewException("No Available View Engine: " . $ext);
+        }
 
         return $this->engines["." . $ext];
     }
