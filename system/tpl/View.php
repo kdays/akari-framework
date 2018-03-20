@@ -233,19 +233,24 @@ class View extends Injectable{
 
         $baseDirs = $this->getViewDirs($type);
         $tplName = str_replace(NAMESPACE_SEPARATOR, DIRECTORY_SEPARATOR, $tplName);
+        $dirPrefix = Context::env(ConfigItem::TEMPLATE_PREFIX);
+
         foreach ($baseDirs as $baseDir) {
             foreach (self::$_registeredExtensions as $suffix) {
-                $tplPath = $baseDir . $tplName . $suffix;
-                if (file_exists($tplPath)) {
-                    return realpath($tplPath);
+                if (!empty($dirPrefix)) {
+                    if (file_exists($tplPath = $baseDir . $dirPrefix . $tplName . $suffix)) {
+                        return realpath($tplPath);
+                    }
                 }
-            }
 
-            foreach (self::$_registeredExtensions as $suffix) {
-                if (file_exists($tplPath = $baseDir . "default" . $suffix)) {
+                if (file_exists($tplPath = $baseDir . $tplName . $suffix)) {
                     return realpath($tplPath);
                 }
             }
+        }
+
+        if ($tplName != 'default') {
+            return $this->find("default", $type);
         }
 
         return FALSE;
