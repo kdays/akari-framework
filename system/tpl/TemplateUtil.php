@@ -101,7 +101,7 @@ EOT
         $view = self::_getDI()->getShared('view');
 
         if ($useRelative) {
-            $tplPath = View::find($blockName, View::TYPE_BLOCK);
+            $tplPath = $view->find($blockName, View::TYPE_BLOCK);
         } else {
             $tplPath = $blockName;
         }
@@ -136,7 +136,7 @@ EOT
             return '';
         }
 
-        $tplPath = View::find($widgetTpl, View::TYPE_WIDGET);
+        $tplPath = $view->find($widgetTpl, View::TYPE_WIDGET);
         if ($tplPath) {
             return $view->getViewEngine($tplPath)->parse($tplPath, $result, View::TYPE_WIDGET);
         }

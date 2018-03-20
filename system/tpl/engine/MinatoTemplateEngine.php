@@ -107,6 +107,10 @@ TAG;
             return $layoutResult;
         }
 
+        if (empty($layoutResult) && !empty($screenResult)) {
+            return $screenResult;
+        }
+
         $screenCmd = $this->getOption('screenCmdMark', '<!--@screen-->');
 
         return str_replace($screenCmd, $screenResult, $layoutResult);
