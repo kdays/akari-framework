@@ -8,7 +8,6 @@
 
 namespace Akari\system\tpl\asset;
 
-
 interface IAssetsBehaviour {
 
     public static function execute($content, $type);

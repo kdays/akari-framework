@@ -13,7 +13,6 @@ use Akari\config\ConfigItem;
 use Akari\utility\TextHelper;
 use Akari\system\ioc\Injectable;
 use Akari\system\tpl\engine\BaseTemplateEngine;
-use Honoka\config\Config;
 
 class View extends Injectable{
 
@@ -74,7 +73,7 @@ class View extends Injectable{
                 $this->registeredDirs[$type] = [];
 
                 foreach ($dirs as $dir) {
-                    $this->registeredDirs[$type][] = $dir . DIRECTORY_SEPARATOR . $type. DIRECTORY_SEPARATOR;
+                    $this->registeredDirs[$type][] = $dir . DIRECTORY_SEPARATOR . $type . DIRECTORY_SEPARATOR;
                 }
             }
 
@@ -82,6 +81,7 @@ class View extends Injectable{
         }
 
         $this->registeredDirs[$viewType] = $dirs;
+
         return $this->registeredDirs[$viewType];
     }
 
@@ -119,6 +119,7 @@ class View extends Injectable{
         if (empty($this->registeredDirs[$viewType])) {
             $this->registeredDirs[$viewType] = $this->getDefaultViewDirs($viewType);
         }
+
         return $viewType === NULL ? $this->registeredDirs : $this->registeredDirs[$viewType];
     }
 
