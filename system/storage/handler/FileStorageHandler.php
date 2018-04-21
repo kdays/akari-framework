@@ -57,9 +57,9 @@ class FileStorageHandler extends BaseStorageHandler implements IStorageHandler {
      */
     public function delete($path) {
         // TODO: Implement delete() method.
-        $savePath = $this->formatPath($path);
+        if ($this->exists($path)) {
+            $savePath = $this->formatPath($path);
 
-        if ($this->exists($savePath)) {
             return unlink($savePath);
         }
 

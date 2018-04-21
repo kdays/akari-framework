@@ -199,6 +199,8 @@ class View extends Injectable{
         return $screenName;
     }
 
+    private $_screenResult = NULL;
+
     public function getResult($data) {
         if (empty($data) && !is_array($data)) {
             $data = $this->_vars;
@@ -212,18 +214,28 @@ class View extends Injectable{
             throw new ViewException("not found any available view file");
         }
 
-        $viewEngine = NULL;
         if ($screenPath) {
-            $viewEngine = $this->getViewEngine($screenPath);
-            $screenResult = $viewEngine->parse($screenPath, $data, self::TYPE_SCREEN);
+            $screenResult = $this->render($screenPath, $data, self::TYPE_SCREEN);
+            $this->_screenResult = $screenResult;
         }
 
         if ($layoutPath) {
-            $viewEngine = $this->getViewEngine($layoutPath);
-            $layoutResult = $this->getViewEngine($layoutPath)->parse($layoutPath, $data, self::TYPE_LAYOUT);
+            $layoutResult = $this->render($layoutPath, $data, self::TYPE_LAYOUT);
         }
 
-        return $viewEngine->getResult($layoutResult, $screenResult);
+        if (empty($layoutResult)) {
+            return $screenResult;
+        }
+        return $layoutResult;
+    }
+
+    public function getScreenResult() {
+        return $this->_screenResult;
+    }
+
+    public function render(string $path, array $data, string $type = self::TYPE_BLOCK) {
+        $viewEngine = $this->getViewEngine($path);
+        return $viewEngine->parse($path, $data, $type);
     }
 
     public function find(string $tplName, string $type) {
@@ -264,7 +276,7 @@ class View extends Injectable{
     public function getViewEngine(string $fileName) {
         $ext = TextHelper::getFileExtension($fileName);
         if (!isset($this->engines['.' . $ext])) {
-            throw new ViewException("No Available View Engine: " . $ext);
+            throw new ViewException("No Available View Engine: " . $fileName);
         }
 
         return $this->engines["." . $ext];

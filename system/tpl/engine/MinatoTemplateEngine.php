@@ -8,14 +8,15 @@
 
 namespace Akari\system\tpl\engine;
 
+use Akari\system\storage\Storage;
 use Akari\system\tpl\TemplateCommandInvalid;
 
 class MinatoTemplateEngine extends BaseTemplateEngine{
 
     public function parse($tplPath, array $data, $type, $onlyCompile = FALSE) {
         $this->engineArgs = $data;
-        $cachePath = $this->getCachePath($tplPath);
 
+        $cachePath = $this->getCachePath($tplPath);
         $isAlwaysCompile = $this->getOption('alwaysCompile', FALSE);
 
         $beginCmdMark = preg_quote($this->getOption('beginCmdMark', '<!--#'));

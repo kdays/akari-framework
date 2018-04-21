@@ -13,6 +13,10 @@ use Akari\Context;
 
 class Storage {
 
+    const KEY_RUNTIME = '.runtime';
+    const KEY_CACHE = '.cache';
+    const KEY_DEFAULT = 'default';
+
     /**
      * @param string $configName
      * @return StorageDisk
@@ -30,11 +34,11 @@ class Storage {
     }
 
     public static function put(string $path, $content) {
-        return self::disk('default')->put($path, $content);
+        return self::disk(self::KEY_DEFAULT)->put($path, $content);
     }
 
     public static function get(string $path) {
-        return self::disk('default')->get($path);
+        return self::disk(self::KEY_DEFAULT)->get($path);
     }
 
 

@@ -44,14 +44,19 @@ class BaseConfig {
     ];
 
     public $storage = [
-        'default' => [
+        Sys\storage\Storage::KEY_DEFAULT => [
             'handler' => Sys\storage\handler\FileStorageHandler::class,
             'baseDir' => 'storage/'
         ],
 
-        '.cache' => [
+        Sys\storage\Storage::KEY_CACHE => [
             'handler' => Sys\storage\handler\FileStorageHandler::class,
             'baseDir' => 'runtime/cache/'
+        ],
+
+        Sys\storage\Storage::KEY_RUNTIME => [
+            'handler' => Sys\storage\handler\FileStorageHandler::class,
+            'baseDir' => 'runtime/data/'
         ]
     ];
 

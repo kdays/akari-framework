@@ -109,7 +109,14 @@ class DBTableMigration {
     }
 
     public function hasColumn($name) {
-        return isset($this->stub[$name]);
+        // 处理
+        foreach ($this->stub as $columnName => $column) {
+            if (strtolower($name) == strtolower($columnName)) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
     }
 
     /**
@@ -117,14 +124,18 @@ class DBTableMigration {
      * @return TableColumnStub
      */
     public function column($name) {
-        if (!isset($this->stub[$name])) {
-            $stub = new TableColumnStub();
-            $stub->name = $name;
-            $stub->modifyFields[] = '*'; // = CREATE
-
-            $this->stub[ $name ] = $stub;
+        $found = NULL;
+        foreach ($this->stub as $colName => $column) {
+            if (strtolower($colName) == strtolower($name)) {
+                return $column;
+            }
         }
 
+        $stub = new TableColumnStub();
+        $stub->name = $name;
+        $stub->modifyFields[] = '*'; // = CREATE
+
+        $this->stub[ $name ] = $stub;
         return $this->stub[$name];
     }
 

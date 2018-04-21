@@ -10,6 +10,7 @@ namespace Akari\system\tpl;
 
 use Akari\Context;
 use Akari\NotFoundClass;
+use Akari\system\event\Listener;
 use Akari\utility\Pagination;
 use Akari\system\ioc\DIHelper;
 use Akari\system\result\Widget;
@@ -19,6 +20,8 @@ use Akari\system\tpl\asset\AssetsMgr;
 use Akari\utility\ApplicationDataMgr;
 
 class TemplateUtil {
+
+    const EVENT_REGISTER_FUNC = 'ak.treg';
 
     use DIHelper;
 
@@ -166,8 +169,18 @@ EOT
         return $pagination->render();
     }
 
+    public static function screen($onlyReturn = TRUE) {
+        /** @var View $view */
+        $view = self::_getDI()->getShared('view');
+
+        if (!$onlyReturn) {
+            echo $view->getScreenResult();
+        }
+        return $view->getScreenResult();
+    }
+
     public static function __callStatic($name, array $arguments) {
-        $name[0] = strtoupper($name[0]);
+        //$name[0] = strtoupper($name[0]);
         if (isset(self::$_registeredFn[$name])) {
             return call_user_func_array(self::$_registeredFn[$name], $arguments);
         }
@@ -177,9 +190,10 @@ EOT
 
     protected static $_registeredFn = [];
     public static function registerFunction($name, callable $fn) {
-        $name[0] = strtoupper($name[0]);
-
+        //$name[0] = strtoupper($name[0]);
         self::$_registeredFn[$name] = $fn;
+
+        Listener::fire(self::EVENT_REGISTER_FUNC, [$name]);
     }
 
     public static function getRegisteredFunctions($includeDefaultMethods = FALSE) {
