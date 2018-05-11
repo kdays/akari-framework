@@ -85,4 +85,12 @@ class I18n {
         return $lang;
     }
 
+    public function match($id, $defaultValue = NULL, $L = []) {
+        if ($this->has($id)) {
+            return $this->get($id, $L);
+        }
+
+        return $defaultValue === NULL ? $id : $defaultValue;
+    }
+
 }
