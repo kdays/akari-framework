@@ -26,7 +26,7 @@ class SQLBuilder {
 
     protected $prefix;
     protected $statement;
-    protected $debug_mode = FALSE;
+    protected $debug_mode = false;
     protected $guid = 0;
 
     public $isWR = FALSE;
@@ -605,6 +605,7 @@ class SQLBuilder {
                 $columns[] = $key;
             }
         }
+
         $columns = array_unique($columns);
         foreach ($datas as $data) {
             $values = [];

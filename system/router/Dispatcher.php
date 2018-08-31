@@ -18,6 +18,11 @@ class Dispatcher extends Injectable{
     private $_fullControllerName;
     private $_actionName;
     private $_exeParams = [];
+    private $_actionSuffix = 'Action';
+
+    public function setActionSuffix($suffix) {
+        $this->_actionSuffix = $suffix;
+    }
 
     /**
      * @param $uri
@@ -29,7 +34,7 @@ class Dispatcher extends Injectable{
         $parts = explode("/", $uri);
         $method = array_pop($parts);
 
-        $suffix = CLI_MODE ? 'Task' : 'Action';
+        $suffix = $this->_actionSuffix;
         $class = ucfirst(array_pop($parts)) . $suffix;
 
         //避免爆炸

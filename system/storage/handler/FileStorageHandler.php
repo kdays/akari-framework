@@ -26,7 +26,7 @@ class FileStorageHandler extends BaseStorageHandler implements IStorageHandler {
         if (!is_dir(dirname($savePath))) {
             mkdir(dirname($savePath), 0777, TRUE);
         }
-        file_put_contents($savePath, $content);
+        return file_put_contents($savePath, $content);
     }
 
     /**

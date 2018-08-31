@@ -264,6 +264,8 @@ class akari extends Injectable{
 
                 $this->dispatcher->invoke( $toUrl, $toParameters );
             } else {
+                $this->dispatcher->setActionSuffix('Task');
+
                 $toParameters = [];
                 if (array_key_exists("argv", $_SERVER)) {
                     $toParameters = $_SERVER['argv'];
