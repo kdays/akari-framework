@@ -164,6 +164,10 @@ class DBTableMigration {
     }
 
     protected function makeSqlProp(TableColumnStub $stub) {
+        if ($stub->type != TableColumnStub::TYPE_TEXT && empty($stub->length)) {
+            throw new \Exception($stub->name . " need SET length");
+        }
+
         $sql = sprintf(
             " %s%s",
                 $stub->type,
@@ -341,7 +345,9 @@ class DBTableMigration {
 
         import('core.external.DocParser');
         foreach($reflector->getProperties() as $prop) {
-            if ($prop->isProtected() && $prop->getName()[0] != '_') {
+            if (($prop->isProtected() || $prop->isPublic()) && $prop->getName()[0] != '_') {
+                if ($prop->isStatic()) continue;
+
                 $parser = new \DocParser();
                 $values = $parser->parse($prop->getDocComment());
                 if ($prop->isDefault()) {

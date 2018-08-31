@@ -8,7 +8,6 @@
 
 namespace Akari\system\logger\handler;
 
-use Akari\utility\FileHelper;
 use Akari\system\logger\Logger;
 
 class FileLoggerHandler implements ILoggerHandler{
@@ -21,7 +20,7 @@ class FileLoggerHandler implements ILoggerHandler{
         $logPath = $this->opts['path'];
         if (!$this->handler) {
             if (!file_exists($logPath)) {
-                FileHelper::createDir(dirname($logPath));
+                mkdir(dirname($logPath), 0777, TRUE);
             }
 
             @$this->handler = fopen($logPath, 'a');

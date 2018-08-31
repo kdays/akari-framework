@@ -101,6 +101,10 @@ class FileUpload extends Injectable {
         return TRUE;
     }
 
+    public function getTmpAccessPath() {
+        return $this->getTempPath();
+    }
+
     public function getIndex() {
         return isset($this->upload['multiKey']) ? $this->upload['multiKey'] : 0;
     }

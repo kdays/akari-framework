@@ -9,6 +9,8 @@
 namespace Akari\utility;
 
 use Akari\system\exception\AkariException;
+use Akari\system\result\Result;
+use Akari\system\storage\Storage;
 
 class CURL {
     protected $handler;
@@ -169,7 +171,8 @@ class CURL {
             'cookie' => CURLOPT_COOKIE,
             'range' => CURLOPT_RANGE,
             'user-agent' => CURLOPT_USERAGENT,
-            'referer' => CURLOPT_REFERER
+            'referer' => CURLOPT_REFERER,
+            'headers' => CURLOPT_HTTPHEADER
         ];
 
         foreach ($opts as $k => $v) {
@@ -315,13 +318,17 @@ class CUrlResponseObj {
         return $this->body;
     }
 
+    public function getJsonBody($assoc = FALSE) {
+        return json_decode($this->body, $assoc);
+    }
+
     /**
      * 将请求结果保存到文件
      *
      * @param $target
      */
-    public function save($target) {
-        FileHelper::write($target, $this->getBody());
+    public function save($target, $storage = 'default') {
+        Storage::disk($storage)->put($target, $this->getBody());
     }
 
     /**
