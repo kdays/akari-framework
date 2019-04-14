@@ -8,10 +8,9 @@
 
 namespace Akari\system\view;
 
-
 use Akari\exception\ActionNotFound;
-use Akari\system\security\BaseExceptionProcessor;
 use Akari\system\util\ExceptionUtil;
+use Akari\system\security\BaseExceptionProcessor;
 
 class DefaultExceptionProcessor extends BaseExceptionProcessor {
 
@@ -24,6 +23,7 @@ class DefaultExceptionProcessor extends BaseExceptionProcessor {
         if (defined('APP_DEBUG') && APP_DEBUG) {
             /// traceback
             list($fileLines, $trace) = ExceptionUtil::getCrashDebugInfo($ex->getFile(), $ex->getLine(), $ex->getTrace());
+
             return $this->_genHTMLResult(
                 View::render4Data(AKARI_PATH . "views/traceback.phtml", [
                     'ex' => $ex,

@@ -8,8 +8,6 @@
 
 namespace Akari\system\cache;
 
-
-
 use Akari\Core;
 use Akari\exception\AkariException;
 use Akari\system\cache\handler\ICacheHandler;
@@ -31,7 +29,7 @@ class Cache {
 
         $config = Core::env('cache')[$key] ?? [];
         if (empty($config) || empty($config['handler'])) {
-            throw new AkariException("cache not exists: ". $key);
+            throw new AkariException("cache not exists: " . $key);
         }
 
         $handler = $config['handler'];

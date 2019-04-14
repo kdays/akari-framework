@@ -8,7 +8,6 @@
 
 namespace Akari\system\console;
 
-
 class Output {
 
     const PLAIN = 1;

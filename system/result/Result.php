@@ -8,7 +8,6 @@
 
 namespace Akari\system\result;
 
-
 class Result {
 
     const TYPE_NONE = "NONE";

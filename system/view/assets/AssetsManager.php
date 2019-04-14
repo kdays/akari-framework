@@ -8,7 +8,6 @@
 
 namespace Akari\system\view\assets;
 
-
 class AssetsManager {
 
     const TYPE_CSS = 0;

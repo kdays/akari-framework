@@ -8,8 +8,6 @@
 
 namespace Akari\system\result;
 
-
-use Akari\exception\AkariException;
 use Akari\system\ioc\Injectable;
 
 class Processor extends Injectable {

@@ -8,9 +8,8 @@
 
 namespace Akari\system\router;
 
-
-use Akari\system\security\helper\VerifyCSRFToken;
 use Akari\system\util\helper\AppValueTrait;
+use Akari\system\security\helper\VerifyCSRFToken;
 
 class UrlGenerator {
 

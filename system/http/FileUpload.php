@@ -8,11 +8,10 @@
 
 namespace Akari\system\http;
 
-
-use Akari\exception\UploadError;
-use Akari\system\storage\Storage;
-use Akari\system\ioc\Injectable;
 use Akari\system\util\TextUtil;
+use Akari\exception\UploadError;
+use Akari\system\ioc\Injectable;
+use Akari\system\storage\Storage;
 
 class FileUpload extends Injectable {
 
@@ -51,6 +50,7 @@ class FileUpload extends Injectable {
         if (array_key_exists("data", $this->upload)) {
             return md5($this->upload['data']);
         }
+
         return md5_file( $this->getTempPath() );
     }
 
@@ -70,6 +70,7 @@ class FileUpload extends Injectable {
         if (array_key_exists('data', $this->upload)) {
             return strlen($this->upload['data']);
         }
+
         return $this->upload['size'];
     }
 
@@ -78,6 +79,7 @@ class FileUpload extends Injectable {
             $this->upload['tmp_name'] = tempnam(sys_get_temp_dir(), 'ak');
             file_put_contents($this->upload['tmp_name'], $this->upload['data']);
         }
+
         return $this->upload['tmp_name'];
     }
 
@@ -93,6 +95,7 @@ class FileUpload extends Injectable {
         if (!array_key_exists("data", $this->upload) && !is_uploaded_file($this->getTempPath())) {
             return TRUE;
         }
+
         return $this->getError() != UPLOAD_ERR_OK;
     }
 

@@ -8,7 +8,6 @@
 
 namespace Akari\system\security;
 
-
 class Random {
 
     public static function hex($length) {

@@ -8,7 +8,6 @@
 
 namespace Akari\system\util;
 
-
 class AppValueMgr {
 
     protected static $values = [];

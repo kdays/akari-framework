@@ -8,7 +8,6 @@
 
 namespace Akari\exception;
 
-
 class ActionNotFound extends \Exception {
 
 }

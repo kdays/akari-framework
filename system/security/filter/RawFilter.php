@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\filter;
 
-
 class RawFilter extends BaseFilter  {
 
     /**

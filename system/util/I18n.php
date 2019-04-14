@@ -8,7 +8,6 @@
 
 namespace Akari\system\util;
 
-
 use Akari\system\ioc\Injectable;
 
 class I18n extends Injectable {

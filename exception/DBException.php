@@ -8,7 +8,6 @@
 
 namespace Akari\exception;
 
-
 use Akari\system\db\DBModel;
 
 class DBException extends \Exception {

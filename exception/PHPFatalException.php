@@ -8,9 +8,6 @@
 
 namespace Akari\exception;
 
-
-use Throwable;
-
 class PHPFatalException extends \Exception {
 
     protected $type;

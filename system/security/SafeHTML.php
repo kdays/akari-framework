@@ -8,7 +8,6 @@
 
 namespace Akari\system\security;
 
-
 class SafeHTML {
 
     protected $DOM;

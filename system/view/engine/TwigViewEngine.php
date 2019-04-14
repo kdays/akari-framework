@@ -8,14 +8,13 @@
 
 namespace Akari\system\view\engine;
 
-
 use Akari\Core;
-use Akari\system\ioc\Injectable;
-use Akari\system\view\ViewFunctions;
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
+use Twig\Environment;
 use Twig\TwigFunction;
+use Akari\system\ioc\Injectable;
+use Twig\Loader\FilesystemLoader;
+use Akari\system\view\ViewFunctions;
 
 class TwigViewEngine extends BaseViewEngine {
 
@@ -45,7 +44,7 @@ class TwigViewEngine extends BaseViewEngine {
 
     public function parse($tplPath, array $data, $type, $onlyCompile = FALSE) {
         $that = $this;
-        $getView = function($path, $data) use($that, $type) {
+        $getView = function ($path, $data) use ($that, $type) {
             ob_start();
             $baseDir = Core::$baseDir;
             $pathName = str_replace([$baseDir], '', $path);
@@ -69,6 +68,7 @@ class TwigViewEngine extends BaseViewEngine {
         }
 
         $screenCmd = $this->options['screenCmd'] ?? '#screen#';
+
         return str_replace($screenCmd, $screenResult, $layoutResult);
     }
 
@@ -77,20 +77,20 @@ class TwigViewEngine extends BaseViewEngine {
         $that = $this;
         $options = ['is_safe' => ['html']];
 
-        ViewFunctions::registerFunction('L', function($lang, array $parameters = []) use($that) {
+        ViewFunctions::registerFunction('L', function ($lang, array $parameters = []) use ($that) {
             return ViewFunctions::lang($lang, $parameters);
         });
 
         $methodMap = ViewFunctions::getRegisteredFunctions(TRUE);
         foreach ($methodMap as $func) {
-            $func = new TwigFunction($func, function() use($func) {
+            $func = new TwigFunction($func, function () use ($func) {
                 return call_user_func_array([ViewFunctions::class, $func], func_get_args());
             }, $options);
             $twig->addFunction($func);
         }
 
         // 语言转换
-        $i18nFilter = new TwigFilter('t', function($string) {
+        $i18nFilter = new TwigFilter('t', function ($string) {
             return ViewFunctions::lang($string);
         }, $options);
         $twig->addFilter($i18nFilter);

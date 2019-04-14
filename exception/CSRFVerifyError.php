@@ -8,7 +8,6 @@
 
 namespace Akari\exception;
 
-
 class CSRFVerifyError extends \Exception {
 
 }

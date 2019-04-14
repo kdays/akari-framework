@@ -9,13 +9,12 @@
 namespace Akari\system\view;
 
 use Akari\Core;
-use Akari\exception\AkariException;
-use Akari\system\event\Event;
 use Akari\system\ioc\DI;
+use Akari\system\event\Event;
 use Akari\system\ioc\Injectable;
-use Akari\system\result\Processor;
-use Akari\system\util\AppValueMgr;
 use Akari\system\util\Pagination;
+use Akari\system\util\AppValueMgr;
+use Akari\exception\AkariException;
 use Akari\system\view\assets\AssetsManager;
 
 class ViewFunctions extends Injectable {
@@ -101,6 +100,7 @@ EOT
             $result = $widgetCls->handle($params);
 
             $c = $view->getViewEngine($tplPath)->parse($tplPath, $result, View::TYPE_BLOCK, FALSE);
+
             return $c;
         }
 
@@ -130,6 +130,7 @@ EOT
 
         /** @var AssetsManager $assets */
         $assets = $di->getShared('assets');
+
         return $assets->outputJs($name);
     }
 
@@ -138,6 +139,7 @@ EOT
 
         /** @var AssetsManager $assets */
         $assets = $di->getShared('assets');
+
         return $assets->outputCss($name);
     }
 
@@ -152,6 +154,7 @@ EOT
 
     public static function pages(Pagination $pagination) {
         $bindVars = $pagination->getBindVars();
+
         return self::load_block($pagination->viewName, $bindVars);
     }
 
@@ -160,7 +163,7 @@ EOT
             return call_user_func_array(self::$_registeredFn[$name], $arguments);
         }
 
-        throw new AkariException("Missing view function: ". $name);
+        throw new AkariException("Missing view function: " . $name);
     }
 
     protected static $_registeredFn = [];

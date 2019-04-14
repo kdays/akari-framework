@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\cipher;
 
-
 class AESCipher extends BaseCipher {
 
     protected $bits;
@@ -25,11 +24,11 @@ class AESCipher extends BaseCipher {
         return 'AES-' . $this->bits . "-ECB";
     }
 
-    public function encrypt($text){
+    public function encrypt($text) {
         return openssl_encrypt($text, $this->getOpenSSLMethod(), $this->secret);
     }
 
-    public function decrypt($text){
+    public function decrypt($text) {
         return openssl_decrypt($text, $this->getOpenSSLMethod(), $this->secret);
     }
 

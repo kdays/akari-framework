@@ -8,9 +8,8 @@
 
 namespace Akari\system\security\cipher;
 
-
-use Akari\exception\AkariException;
 use Akari\system\util\TextUtil;
+use Akari\exception\AkariException;
 
 class RSACipher extends BaseCipher {
 

@@ -1,13 +1,14 @@
 <?php
+
 namespace Akari;
 
-use Akari\exception\PHPFatalException;
 use Akari\system\BaseConfig;
 use Akari\system\event\Event;
-use Akari\system\ioc\Injectable;
 use Akari\system\result\Result;
+use Akari\system\ioc\Injectable;
 use Akari\system\router\Dispatcher;
 use Akari\system\util\ExceptionUtil;
+use Akari\exception\PHPFatalException;
 
 class Core extends Injectable {
 
@@ -47,7 +48,7 @@ class Core extends Injectable {
         self::$appDir = Loader::getDir($appNs);
 
         if (file_exists($defBoot = AKARI_PATH . "/defaultBoot.php")) {
-            include($defBoot);
+            include $defBoot;
         }
 
         $akari->registerException();
@@ -56,14 +57,14 @@ class Core extends Injectable {
     }
 
     protected function registerException() {
-        set_error_handler(function($code, $message, $file, $line, $context) {
+        set_error_handler(function ($code, $message, $file, $line, $context) {
             throw new \ErrorException($message, $code, $code, $file, $line);
         }, error_reporting());
 
         $fatalTypes = [E_ERROR, E_PARSE, E_CORE_ERROR, E_USER_ERROR, E_COMPILE_ERROR];
 
         set_exception_handler([ExceptionUtil::class, 'dispatchException']);
-        register_shutdown_function(function() use($fatalTypes) {
+        register_shutdown_function(function () use ($fatalTypes) {
             $error = error_get_last();
             if (!empty($error) && in_array($error['type'], $fatalTypes)) {
                 $ex = new PHPFatalException($error['message'], $error['file'], $error['line'], $error['type']);
@@ -96,4 +97,3 @@ class Core extends Injectable {
     }
 
 }
-

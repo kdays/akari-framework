@@ -8,13 +8,12 @@
 
 namespace Akari\system\security\helper;
 
-
-use Akari\exception\CSRFVerifyError;
 use Akari\system\event\Event;
 use Akari\system\ioc\Injectable;
 use Akari\system\router\Dispatcher;
-use Akari\system\util\helper\AppValueTrait;
+use Akari\exception\CSRFVerifyError;
 use Akari\system\view\ViewFunctions;
+use Akari\system\util\helper\AppValueTrait;
 
 class VerifyCSRFToken extends Injectable {
 
@@ -88,17 +87,18 @@ class VerifyCSRFToken extends Injectable {
     public static function register() {
         $instance = new self();
 
-        Event::register(Dispatcher::EVENT_APP_START, function() use($instance) {
+        Event::register(Dispatcher::EVENT_APP_START, function () use ($instance) {
             $instance->autoVerify();
         });
 
         // CSRF View Register
-        ViewFunctions::registerFunction("csrf_token", function() use($instance) {
+        ViewFunctions::registerFunction("csrf_token", function () use ($instance) {
             return $instance->getToken();
         });
 
-        ViewFunctions::registerFunction('csrf_form', function() use($instance) {
+        ViewFunctions::registerFunction('csrf_form', function () use ($instance) {
             $tokenKey = $instance->getRequestName();
+
             return sprintf('<input type="hidden" name="%s" value="%s" />',
                 $tokenKey,
                $instance->getToken());

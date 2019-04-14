@@ -5,12 +5,12 @@
  * Date: 2019-02-25
  * Time: 14:17
  */
+
 namespace Akari;
 
-include(__DIR__ . "/consts.php");
+include __DIR__ . "/consts.php";
 
 use Akari\exception\LoaderClassNotExists;
-use Akari\system\exception\LoaderException;
 
 class Loader {
 
@@ -51,5 +51,5 @@ class Loader {
 spl_autoload_register(['Akari\Loader', '__loaderFn']);
 
 // load core functions
-include(__DIR__ . '/Core.php');
-include(__DIR__ . '/functions.php');
+include __DIR__ . '/Core.php';
+include __DIR__ . '/functions.php';

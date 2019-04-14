@@ -8,7 +8,6 @@
 
 namespace Akari\system\util;
 
-
 use Akari\system\ioc\Injectable;
 
 class Pagination extends Injectable {
@@ -43,6 +42,7 @@ class Pagination extends Injectable {
 
         $urlArgs = $this->urlArgs ?? [];
         $urlArgs[ $this->parameterName ] = $page;
+
         return $this->url->get($this->baseUrl, $urlArgs);
     }
 

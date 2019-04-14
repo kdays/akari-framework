@@ -8,7 +8,6 @@
 
 namespace Akari\system\util;
 
-
 class ArrayUtil {
 
     public static function flatten(array $items, string $columnKey, ?string $indexKey, $allowRepeat = FALSE) {

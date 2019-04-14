@@ -8,7 +8,6 @@
 
 namespace Akari\system\event;
 
-
 class Event {
 
     protected static $listeners = [];

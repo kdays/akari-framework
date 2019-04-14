@@ -8,9 +8,8 @@
 
 namespace Akari\system\db;
 
-
-use Akari\exception\DBException;
 use Akari\system\util\TextUtil;
+use Akari\exception\DBException;
 
 class DBMigration {
 
@@ -40,14 +39,16 @@ class DBMigration {
         $result = $this->connection->query($sql);
 
         $this->initBasic();
+
         return $result;
     }
 
     public function rename(string $fromName, string $toName) {
         $sql = sprintf("RENAME TABLE `%s` TO `%s`", $fromName, $toName);
-        $result = $this-$this->connection->query($sql);
+        $result = $this - $this->connection->query($sql);
 
         $this->initBasic();
+
         return $result;
     }
 
@@ -59,6 +60,7 @@ class DBMigration {
                 return $table->execute();
             }
         }
+
         return $table;
     }
 
@@ -223,7 +225,7 @@ class Table {
 
         // 处理ENUM
         if ($stub->type == TableColumn::TYPE_ENUM) {
-            $sql .= "('" . implode("','", $stub->enumFields) ."')";
+            $sql .= "('" . implode("','", $stub->enumFields) . "')";
         } elseif ($stub->length > 0) {
             $sql .= "(" . $stub->length . ")";
         }
@@ -384,6 +386,7 @@ class Table {
         }
 
         $this->connection->commit();
+
         return count($sqls);
     }
 
@@ -391,6 +394,7 @@ class Table {
         $extraSqls = [];
 
         $sqls = array_merge($extraSqls, $this->getStubSQL(), $this->getIndexSQL());
+
         return $sqls;
     }
 
@@ -527,7 +531,7 @@ class TableColumn {
     }
 
     public function afterColumn(string $columnName) {
-        $this->extraFields .= " AFTER `". $columnName . "`";
+        $this->extraFields .= " AFTER `" . $columnName . "`";
     }
 
     public function drop() {

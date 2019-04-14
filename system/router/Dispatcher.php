@@ -9,10 +9,10 @@
 namespace Akari\system\router;
 
 use Akari\Core;
-use Akari\exception\LoaderClassNotExists;
-use Akari\exception\ActionNotFound;
-use Akari\system\ioc\Injectable;
 use Akari\system\result\Result;
+use Akari\system\ioc\Injectable;
+use Akari\exception\ActionNotFound;
+use Akari\exception\LoaderClassNotExists;
 use Akari\system\util\helper\AppValueTrait;
 
 class Dispatcher extends Injectable {
@@ -112,7 +112,6 @@ class Dispatcher extends Injectable {
 
     protected function doAction(string $class, string $method) {
         if (empty($method) || $method[0] == '_') throw new ActionNotFound("method private");
-
         $ctl = new $class();
         $methodCaller = NULL;
 
@@ -188,6 +187,7 @@ class Dispatcher extends Injectable {
         }
 
         $ref = new \ReflectionClass( $actionName );
+
         return $ref->getFileName();
     }
 

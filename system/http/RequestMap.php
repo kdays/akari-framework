@@ -8,9 +8,8 @@
 
 namespace Akari\system\http;
 
-
-use Akari\system\ioc\Injectable;
 use Akari\system\util\TextUtil;
+use Akari\system\ioc\Injectable;
 
 abstract class RequestMap extends Injectable {
 
