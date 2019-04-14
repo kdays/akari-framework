@@ -8,7 +8,6 @@
 
 namespace Akari\system\ioc;
 
-
 use Akari\exception\AkariException;
 
 class DI {
@@ -29,7 +28,7 @@ class DI {
 
     public function get(string $name) {
         if (!$this->has($name)) {
-            throw new AkariException("module ". $name . " not exists");
+            throw new AkariException("module " . $name . " not exists");
         }
 
         return $this->getFn( $this->services[$name] );
@@ -49,8 +48,9 @@ class DI {
 
     public function getShared(string $name) {
         if (!$this->hasShared($name)) {
-            throw new AkariException("instance ". $name .  " no set up");
+            throw new AkariException("instance " . $name . " no set up");
         }
+
         return $this->instances[$name];
     }
 

@@ -31,7 +31,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return $this->items;
     }
 
-    public function times($number, callable $callback = null) {
+    public function times($number, callable $callback = NULL) {
         if ($number < 1) {
             return new static();
         }
@@ -78,6 +78,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     public function map(callable $callback) {
         $keys = array_keys($this->items);
         $items = array_map($callback, $this->items, $keys);
+
         return new static(array_combine($keys, $items));
     }
 
@@ -110,6 +111,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         } elseif ($items instanceof Traversable) {
             return iterator_to_array($items);
         }
+
         return (array) $items;
     }
 

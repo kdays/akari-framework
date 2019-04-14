@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\filter;
 
-
 use Akari\system\util\TextUtil;
 
 class StrFilter extends BaseFilter{

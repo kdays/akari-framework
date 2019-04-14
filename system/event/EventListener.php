@@ -8,7 +8,6 @@
 
 namespace Akari\system\event;
 
-
 class EventListener {
 
     protected $handler;

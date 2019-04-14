@@ -8,6 +8,7 @@
  */
 function L(string $name, array $L = []) {
     $di = \Akari\system\ioc\DI::getDefault();
+
     return $di->getShared('lang')->get($name, $L);
 }
 
@@ -21,6 +22,7 @@ function env(string $key, $defaultValue = NULL) {
  */
 function request() {
     $di = \Akari\system\ioc\DI::getDefault();
+
     return $di->getShared('request');
 }
 
@@ -30,6 +32,7 @@ function request() {
  */
 function router() {
     $di = \Akari\system\ioc\DI::getDefault();
+
     return $di->getShared('router');
 }
 

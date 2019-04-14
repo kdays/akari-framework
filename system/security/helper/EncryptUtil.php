@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\helper;
 
-
 use Akari\Core;
 use Akari\exception\AkariException;
 use Akari\system\security\cipher\BaseCipher;

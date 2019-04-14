@@ -18,8 +18,9 @@ $di->setShared("lang", \Akari\system\util\I18n::class);
 
 /** @var \Akari\system\view\View $view */
 $view = $di->getShared('view');
-$view->registerEngine("phtml", function() {
+$view->registerEngine("phtml", function () {
     $engine = new \Akari\system\view\engine\RawViewEngine();
+
     return $engine;
 });
 

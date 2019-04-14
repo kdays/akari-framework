@@ -8,7 +8,6 @@
 
 namespace Akari\system\console;
 
-
 class Input {
 
     protected $input;

@@ -8,7 +8,6 @@
 
 namespace Akari\system\view\engine;
 
-
 use Akari\system\view\View;
 
 class RawViewEngine extends BaseViewEngine {
@@ -23,6 +22,7 @@ class RawViewEngine extends BaseViewEngine {
         }
 
         $screenCmd = $this->options['screenCmdMark'] ?? '#SCREEN#';
+
         return str_replace($screenCmd, $screenResult, $layoutResult);
     }
 

@@ -8,8 +8,6 @@
 
 namespace Akari\system\util\helper;
 
-
-use Akari\Akari;
 use Akari\Core;
 use Akari\system\util\AppValueMgr;
 

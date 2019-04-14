@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Akari\system\event;
-
 
 class EventParameters {
 

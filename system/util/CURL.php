@@ -8,9 +8,8 @@
 
 namespace Akari\system\util;
 
-
-use Akari\exception\AkariException;
 use Akari\storage\Storage;
+use Akari\exception\AkariException;
 
 class CURL {
 

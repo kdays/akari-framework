@@ -8,7 +8,6 @@
 
 namespace Akari\system\view\assets;
 
-
 class AssetsCollection {
 
     private $_id;

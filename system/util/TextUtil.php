@@ -8,7 +8,6 @@
 
 namespace Akari\system\util;
 
-use Akari\system\security\FilterFactory;
 use Akari\system\security\Random;
 
 class TextUtil {

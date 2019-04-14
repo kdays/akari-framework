@@ -8,7 +8,6 @@
 
 namespace Akari\exception;
 
-
 class LoaderClassNotExists extends \Exception {
 
     protected $class;

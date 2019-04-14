@@ -8,8 +8,6 @@
 
 namespace Akari\system\ioc;
 
-
-
 /**
  * Class Injectable
  * @package Akari\system\ioc

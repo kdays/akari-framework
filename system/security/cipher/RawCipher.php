@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\cipher;
 
-
 class RawCipher extends BaseCipher {
 
     public function encrypt($text) {

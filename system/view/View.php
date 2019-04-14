@@ -8,11 +8,10 @@
 
 namespace Akari\system\view;
 
-
-use Akari\exception\AkariException;
+use Akari\system\util\TextUtil;
 use Akari\system\ioc\Injectable;
 use Akari\system\util\ArrayUtil;
-use Akari\system\util\TextUtil;
+use Akari\exception\AkariException;
 use Akari\system\view\engine\BaseViewEngine;
 
 class View extends Injectable {
@@ -86,6 +85,7 @@ class View extends Injectable {
 
     public function getVar(?string $key) {
         if ($key === NULL) return $this->vars;
+
         return $this->vars[$key] ?? NULL;
     }
 
@@ -118,6 +118,7 @@ class View extends Injectable {
         $layoutName = array_values(array_filter(explode(NAMESPACE_SEPARATOR, $layoutName)));
 
         if (count($layoutName) == 1) return 'default';
+
         return ArrayUtil::first($layoutName);
     }
 
@@ -137,6 +138,7 @@ class View extends Injectable {
         $actionMethod = $this->dispatcher->getActionMethod();
 
         $viewName[] = $actionMethod;
+
         return implode(DIRECTORY_SEPARATOR, $viewName);
     }
 
@@ -179,6 +181,7 @@ class View extends Injectable {
         }
 
         if (empty($layoutResult)) return $screenResult;
+
         return $layoutResult;
     }
 
@@ -203,7 +206,7 @@ class View extends Injectable {
             throw new AkariException("No Available View Engine:" . $ext);
         }
 
-        return self::$_registerExtensions[".". $ext];
+        return self::$_registerExtensions["." . $ext];
     }
 
     public function registerEngine(string $extension, $engine) {

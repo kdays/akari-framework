@@ -8,10 +8,8 @@
 
 namespace Akari\system\cache\handler;
 
-use Akari\system\event\Listener;
 use Akari\system\storage\Storage;
 use Akari\system\storage\StorageDisk;
-use Akari\system\cache\CacheBenchmark;
 
 class FileCacheHandler implements ICacheHandler{
 

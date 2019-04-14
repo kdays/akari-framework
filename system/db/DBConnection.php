@@ -8,7 +8,6 @@
 
 namespace Akari\system\db;
 
-
 use Akari\Core;
 use Akari\exception\DBException;
 use Akari\system\util\Collection;
@@ -48,7 +47,7 @@ class DBConnection {
 
             return new \PDO($dsn, $options['username'], $options['password'], $options['options']);
         } catch (\PDOException $e) {
-            throw new DBException("Connect Failed: ". $e->getMessage());
+            throw new DBException("Connect Failed: " . $e->getMessage());
         }
 
     }
@@ -129,12 +128,14 @@ class DBConnection {
         foreach ($values as $key => $value) {
             $st->bindValue($key, $value);
         }
+
         return $st;
     }
 
     public function getDbType() {
         if (!empty($this->options['dsn'])) {
             list($type, $_options) = explode(":", $this->options['dsn']);
+
             return strtolower($type);
         }
 

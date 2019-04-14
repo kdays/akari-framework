@@ -8,8 +8,8 @@
 
 namespace Akari\system\security;
 
-use Akari\system\util\helper\AppResultTrait;
 use Akari\system\util\helper\AppValueTrait;
+use Akari\system\util\helper\AppResultTrait;
 
 abstract class BaseExceptionProcessor {
 

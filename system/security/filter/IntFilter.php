@@ -8,7 +8,6 @@
 
 namespace Akari\system\security\filter;
 
-
 class IntFilter extends BaseFilter{
 
     /**

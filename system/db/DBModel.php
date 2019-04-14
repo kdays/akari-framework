@@ -8,11 +8,10 @@
 
 namespace Akari\system\db;
 
-
+use Akari\system\util\TextUtil;
 use Akari\exception\DBException;
 use Akari\system\util\ArrayUtil;
 use Akari\system\util\Collection;
-use Akari\system\util\TextUtil;
 
 abstract class DBModel {
 
@@ -22,6 +21,7 @@ abstract class DBModel {
 
     public static function findById(int $id) {
         $pk = static::getPrimaryKey();
+
         return static::findFirst([$pk => $id]);
     }
 
@@ -31,7 +31,7 @@ abstract class DBModel {
      * @param null $where
      * @return Collection
      */
-    public static function find($join, $columns = null, $where = null) {
+    public static function find($join, $columns = NULL, $where = NULL) {
         if (is_array($join) && is_null($columns)) {// 如果有Fields字段 我们单独处理
             $columns = $join;
             $join = $join['FIELDS'] ?? $join['fields'] ?? '*';
@@ -48,10 +48,11 @@ abstract class DBModel {
 
             $data[$key] = $model;
         }
+
         return Collection::make($data);
     }
 
-    public static function findFirst($join, $columns = null, $where = null) {
+    public static function findFirst($join, $columns = NULL, $where = NULL) {
         if (is_array($join) && is_null($columns)) {// 如果有Fields字段 我们单独处理
             $columns = $join;
             $join = $join['FIELDS'] ?? $join['fields'] ?? '*';
@@ -79,21 +80,25 @@ abstract class DBModel {
         if ($result) {
             return $builder->id();
         }
+
         return TRUE;
     }
 
     public static function update($where, $data) {
         $builder = static::getSQLBuilder();
+
         return $builder->update(static::getTableName(), $data, $where);
     }
 
     public static function delete($where) {
         $builder = static::getSQLBuilder();
+
         return $builder->delete(static::getTableName(), $where);
     }
 
-    public static function count($join = null, $column = null, $where = null) {
+    public static function count($join = NULL, $column = NULL, $where = NULL) {
         $builder = static::getSQLBuilder();
+
         return $builder->count(static::getTableName(), $join, $column, $where);
     }
 
@@ -104,6 +109,7 @@ abstract class DBModel {
         if (!isset(self::$_cachedBuilder[static::class])) {
             self::$_cachedBuilder[static::class] = new SQLBuilder( static::getConnection() );
         }
+
         return self::$_cachedBuilder[static::class];
     }
 
@@ -115,6 +121,7 @@ abstract class DBModel {
         }
 
         $mKey = $this->columnMap()[$pk] ?? $pk;
+
         return static::delete([$pk => $this->$mKey]);
     }
 
@@ -147,6 +154,7 @@ abstract class DBModel {
         if (empty($this->$pk)) {
             return static::getSQLBuilder()->id(); // maybe insert?
         }
+
         return $this->$pk;
     }
 

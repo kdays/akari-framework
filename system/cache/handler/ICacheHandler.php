@@ -8,7 +8,6 @@
 
 namespace Akari\system\cache\handler;
 
-
 interface ICacheHandler {
 
     /**

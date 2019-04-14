@@ -8,9 +8,8 @@
 
 namespace Akari\system\http;
 
-
-use Akari\system\security\FilterFactory;
 use Akari\system\util\TextUtil;
+use Akari\system\security\FilterFactory;
 
 class Request {
 

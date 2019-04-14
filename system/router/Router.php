@@ -8,13 +8,11 @@
 
 namespace Akari\system\router;
 
-
-use Akari\Core;
 use Akari\system\event\Event;
-use Akari\system\ioc\Injectable;
 use Akari\system\result\Result;
-use Akari\system\util\helper\AppValueTrait;
 use Akari\system\util\TextUtil;
+use Akari\system\ioc\Injectable;
+use Akari\system\util\helper\AppValueTrait;
 
 class Router extends Injectable {
 
@@ -347,7 +345,7 @@ class Router extends Injectable {
 
     public function bindPreEvent(string $re, callable $callback) {
         $that = $this;
-        Event::register(Dispatcher::EVENT_APP_START, function() use($callback, $that, $re) {
+        Event::register(Dispatcher::EVENT_APP_START, function () use ($callback, $that, $re) {
             if ($that->matchURLByString($that->parsedUrl, $re)) {
                 $pResult = $callback();
                 if ($pResult && $pResult instanceof Result) {
@@ -360,7 +358,7 @@ class Router extends Injectable {
 
     public function bindAfterEvent(string $re, callable $callback) {
         $that = $this;
-        Event::register(Dispatcher::EVENT_APP_END, function() use($callback, $that, $re) {
+        Event::register(Dispatcher::EVENT_APP_END, function () use ($callback, $that, $re) {
             if ($that->matchURLByString($that->parsedUrl, $re)) {
                 $pResult = $callback();
                 if ($pResult && $pResult instanceof Result) {

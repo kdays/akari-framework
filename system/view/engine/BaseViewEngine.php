@@ -8,7 +8,6 @@
 
 namespace Akari\system\view\engine;
 
-
 use Akari\system\ioc\Injectable;
 
 abstract class BaseViewEngine extends Injectable {

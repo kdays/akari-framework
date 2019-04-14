@@ -8,9 +8,6 @@
 
 namespace Akari\system\http;
 
-
-use Akari\system\ioc\Injectable;
-
 class Response {
 
     private $isSent = FALSE;

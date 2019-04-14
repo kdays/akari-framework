@@ -8,10 +8,9 @@
 
 namespace Akari\system\container;
 
-
 use Akari\system\ioc\Injectable;
-use Akari\system\util\helper\AppResultTrait;
 use Akari\system\util\helper\AppValueTrait;
+use Akari\system\util\helper\AppResultTrait;
 
 abstract class BaseAction extends Injectable {
 

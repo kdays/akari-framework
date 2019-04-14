@@ -8,7 +8,6 @@
 
 namespace Akari\system\container;
 
-
 use Akari\system\ioc\Injectable;
 use Akari\system\util\helper\AppValueTrait;
 

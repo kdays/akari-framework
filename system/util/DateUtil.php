@@ -8,7 +8,6 @@
 
 namespace Akari\system\util;
 
-
 class DateUtil {
 
     public static function friendlyTime($unixTime, string $overFormat = 'Y-m-d H:i') {
@@ -40,6 +39,7 @@ class DateUtil {
         if (!is_numeric($unixTime)) $unixTime = strtotime($unixTime);
 
         if ($addOffset) $unixTime += self::getTimeOffset();
+
         return new \DateTime(date('Y-m-d H:i:s', $unixTime));
     }
 
