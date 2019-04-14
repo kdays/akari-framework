@@ -1,0 +1,116 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>异常跟踪 - <?=get_class($ex)?></title>
+
+<style>
+
+    body, ul, h1, h2, p{ margin: 0; padding: 0;}
+    body {
+        font-size: 14px;
+        color: #333;
+    }
+
+
+    h2{font-size: 14px;margin: 6px 0;}
+    h2 span{font-size: 12px; color: #666;}
+
+    #message {
+        padding: 10px;
+    }
+
+    #message span {
+        color: #777;
+    }
+
+    #message p{
+        font-size: 20px;
+    }
+
+    #where {
+        border: 1px #ddd solid;
+    }
+
+    #where ul {
+        padding: 5px 10px;
+    }
+
+    #where b {
+        color: #999;
+        margin-right: 15px;
+        font-weight: normal;
+    }
+
+    #where li {
+        padding: 3px 0;
+        border-bottom: 1px #eee solid;
+        display: block;
+    }
+
+    #where li.current {
+        background: lightyellow;
+    }
+
+
+    #trace {
+        padding: 10px;
+    }
+
+    .func{display: block; margin: 8px 0; color: #666; padding: 3px 20px;}
+
+    #footer {
+        text-align: center;
+        font-size: 12px;
+        padding: 5px 0;
+        color: #666;
+    }
+
+    #footer a {
+        color: #999;
+    }
+</style>
+</head>
+
+
+<body>
+    <div id="message">
+        <span><?=$ex->getFile()?>:<?=$ex->getLine()?></span>
+        <p><?=$ex->getMessage()?></p>
+    </div>
+
+
+
+<?php if (is_array($fileLine)): ?>
+    <div id="where">
+        <ul>
+            <?php foreach ($fileLine as $key => $value): ?>
+                <?php if ($key == $line - 1): ?>
+                    <li class="current"><?=$value?></li>
+                <?php else: ?>
+                    <li><?=$value?></li>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
+
+    <div id="trace">
+        <h2>跟踪堆栈</h2>
+        <?php if (empty($trace)): ?>
+            <p>这是一个致命错误，无法生成跟踪日志</p>
+        <?php else: ?>
+            <ul id="trace_log">
+                <?php foreach ($trace as $line): ?>
+                    <li><?=$line?></li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+    </div>
+
+
+    <div id="footer">
+        Akari Framework build.<?=AKARI_BUILD?> / <a href="https://www.kdays.net/">KDays Team</a>
+    </div>
+</body>
+</html>

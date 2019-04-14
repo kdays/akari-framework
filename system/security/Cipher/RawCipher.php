@@ -1,19 +1,23 @@
 <?php
-!defined("AKARI_PATH") && exit;
+/**
+ * Created by PhpStorm.
+ * User: admin
+ * Date: 2019/2/17
+ * Time: 23:05
+ */
 
-Class RawCipher extends Cipher{
-	public static function getInstance(){
-		if (self::$d == null) {
-            self::$d = new self();
-        }
-        return self::$d;
-	}
+namespace Akari\system\security\cipher;
 
-	public function encrypt($str){
-		return rawurlencode($str);
-	}
-	
-	public function decrypt($str){
-		return rawurldecode($str);
-	}
+
+class RawCipher extends BaseCipher {
+
+    public function encrypt($text) {
+        // TODO: Implement encrypt() method.
+        return $text;
+    }
+
+    public function decrypt($text) {
+        // TODO: Implement decrypt() method.
+        return $text;
+    }
 }

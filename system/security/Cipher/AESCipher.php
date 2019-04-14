@@ -1,56 +1,36 @@
 <?php
-!defined("AKARI_PATH") && exit;
+/**
+ * Created by PhpStorm.
+ * User: admin
+ * Date: 2019/2/17
+ * Time: 23:01
+ */
 
-Class AESCipher extends Cipher{
-	public $padMethod = "pkcs5";
-	protected $cipher = MCRYPT_RIJNDAEL_128;
-	protected $mode   = MCRYPT_MODE_ECB;
-	protected $iv	  = '';
+namespace Akari\system\security\cipher;
 
-	public static function getInstance(){
-		if (self::$d == null) {
-            self::$d = new self();
-        }
-        return self::$d;
-	}
 
-	protected function __construct(){
-		$this->iv = Context::$appConfig->cipherIv;
-		$this->secretKey = md5(Context::$appConfig->encryptionKey);
-	}
+class AESCipher extends BaseCipher {
 
-	public function encrypt($str){
-		$str = $this->pad($str);
-		$td = mcrypt_module_open($this->cipher, '', $this->mode, '');
-		
-		if(empty($this->iv)){
-			$iv = @mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
-		}else{
-			$iv = $this->iv;
-		}
+    protected $bits;
+    protected $secret;
 
-		mcrypt_generic_init($td, $this->secretKey, $iv);
-        $cyperText = mcrypt_generic($td, $str);
-        $result = bin2hex($cyperText);
-        mcrypt_generic_deinit($td);
-        mcrypt_module_close($td);
+    public function __construct(array $options) {
+        parent::__construct($options);
 
-        return $result;
-	}
+        $this->bits = $this->getOption("bits", 256);
+        $this->secret = $this->getOption("secret");
+    }
 
-	public function decrypt($str){
-		$td = mcrypt_module_open($this->cipher, '', $this->mode, '');
-		if(empty($this->iv)){
-			$iv = @mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
-		}else{
-			$iv = $this->iv;
-		}
-		
-		mcrypt_generic_init($td, $this->secretKey, $iv);
-        $decryptedText = mdecrypt_generic($td, $this->hex2bin($str));
-        mcrypt_generic_deinit($td);
-        mcrypt_module_close($td);
- 
-        return $this->unpad($decryptedText);
-	}
+    protected function getOpenSSLMethod() {
+        return 'AES-' . $this->bits . "-ECB";
+    }
+
+    public function encrypt($text){
+        return openssl_encrypt($text, $this->getOpenSSLMethod(), $this->secret);
+    }
+
+    public function decrypt($text){
+        return openssl_decrypt($text, $this->getOpenSSLMethod(), $this->secret);
+    }
+
 }

@@ -1,80 +1,81 @@
 <?php
-!defined("AKARI_PATH") && exit;
+/**
+ * Created by PhpStorm.
+ * User: kdays
+ * Date: 2019-02-27
+ * Time: 16:16
+ */
 
-Class Cookie{
-    public $flag = "|ENC";
-	protected static $c;
-	public static function getInstance() {
-        if (self::$c == NULL){
-            self::$c = new self();
+namespace Akari\system\http;
+
+
+use Akari\system\ioc\Injectable;
+use Akari\system\util\helper\AppValueTrait;
+
+class Cookie extends Injectable {
+
+    use AppValueTrait;
+
+    protected $_values = [];
+
+    public function exists(string $name, $prefix = TRUE) {
+        if ($prefix) {
+            $prefix = is_string($prefix) ? $prefix : $this->_getConfigValue("cookiePrefix", '');
+        } else {
+            $prefix = '';
         }
-        return self::$c;
+
+        return array_key_exists($prefix . $name, $_COOKIE);
     }
 
-    public function set($key, $value, $expire = NULL, $isEncrypt = FALSE, $option = array()){
-        $config = Context::$appConfig;
-
-        $expire = isset($expire) ? $expire : $config->cookieTime;
-        if(is_numeric($expire)){
-            $expire += time();
-        }else{
-            $expire = $expire=='now' ? 0 : strtotime($expire);
+    public function set(string $name, string $value, ?int $time = NULL, array $options = []) {
+        if (is_numeric($time)) {
+            $time += TIMESTAMP;
+        } else {
+            $time = $time == 'now' ? 0 : strtotime($time);
         }
 
-        if(is_array($value)){
-            $tmp = array();
-            foreach($value as $k => $v) $tmp[] = "$k:$v";
-            $value = implode("&", $tmp)."|A";
-        }
+        $path = $options['path'] ?? $this->_getConfigValue("cookiePath", '/');
+        $domain = $options['domain'] ?? $this->_getConfigValue("cookieDomain", '');
+        $prefix = $options['prefix'] ?? $this->_getConfigValue("cookiePrefix", '');
 
-        if($isEncrypt){
-            $value = Security::encrypt($value, $config->cookieEncrypt).$this->flag;
-        }
+        $name = $prefix . $name;
 
-        $path = array_key_exists("path", $option) ? $option['path'] : $config->cookiePath;
-        $domain  = array_key_exists("domain", $option) ? $option['domain'] : $config->cookieDomain;
-
-        if($config->cookiePrefix)   $name = $config->cookiePrefix.$name;
-
-        if($value === FALSE){
-            setCookie($name, '', time() - 3600, $path, $domain);
-        }else{
-            setCookie($name, $value, $expire, $path, $domain);
+        if ($value === FALSE) {
+            setcookie($name, '', TIMESTAMP - 3600, $path, $domain);
+            unset($this->_values[$name]);
+        } else {
+            setcookie($name, $value, $time, $path, $domain);
+            $this->_values[$name] = $value;
         }
     }
 
-    public function get($key, $encryptType = FALSE, $autoPrefix = true){
-    	$config = Context::$appConfig;
-
-        if(!in_string($name, $config->cookiePrefix) && $autoPrefix){
-            $name = $config->cookiePrefix.$name;
+    public function get(string $name, $prefix = TRUE) {
+        if ($prefix) {
+            $prefix = is_string($prefix) ? $prefix : $this->_getConfigValue("cookiePrefix", '');
+        } else {
+            $prefix = '';
         }
 
-        if(!array_key_exists($name, $_COOKIE)) return NULL;
-        $cookie = $_COOKIE[$name];
+        $name = $prefix . $name;
 
-        if($encryptType != FALSE)   $cookie = Security::decrypt($cookie, $encryptType);
-
-        $flag = $this->flag;
-        $fLen = strlen($flag);
-
-        if(substr($cookie, -$fLen, $fLen) == $flag){
-            $cookie = substr($cookie, 0, -$fLen);
-            $cookie = Security::decrypt($cookie, $config->cookieEncrypt);
+        if (isset($this->_values[$name])) {
+            return $this->_values[$name];
         }
 
-        //@todo: 如果最后2位是|A 代表是数组 
-        if(substr($cookie, -2, 2) == '|A'){
-            $result = array();
-            $value = explode("&", substr($cookie, 0, sizeof($cookie) - 3));
-            foreach($value as $v){
-                list($key, $val) = explode(":", $v);
-                $result[ $key ] = $val;
-            }
-
-            return $result;
-        }
-
-        return $cookie;
+        return $_COOKIE[$name];
     }
+
+    public function remove(string $key, $prefix = TRUE) {
+        if ($prefix) {
+            $prefix = is_string($prefix) ? $prefix : $this->_getConfigValue("cookiePrefix", '');
+        } else {
+            $prefix = '';
+        }
+
+        return $this->set($key, FALSE, NULL, ['prefix' => $prefix]);
+    }
+
+
+
 }

@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>500 INTERNAL SERVER ERROR</title>
+
+    <style>
+        * {margin: 0; padding: 0;}
+        #wrap {text-align: center; font-size: 60px; margin-top: 10%;}
+        #wrap .code {color: #666; font-size: 20px;}
+        #wrap .file {font-size: 9px; color: #ccc}
+    </style>
+</head>
+
+<body>
+
+<div id="wrap">
+    <p>发生了一个意外错误</p>
+    <p class="code">
+        <?=$ex->getMessage()?>
+        <div class="file"><?=basename($ex->getFile())?>:<?=$ex->getLine()?></div>
+    </p>
+</div>
+
+</body>
+</html>
