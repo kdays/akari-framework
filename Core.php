@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: admin
- * Date: 2019/2/17
- * Time: 22:12
- */
-
 namespace Akari;
 
 use Akari\exception\PHPFatalException;

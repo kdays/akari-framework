@@ -51,5 +51,5 @@ class Loader {
 spl_autoload_register(['Akari\Loader', '__loaderFn']);
 
 // load core functions
-include(__DIR__ . '/core.php');
+include(__DIR__ . '/Core.php');
 include(__DIR__ . '/functions.php');
