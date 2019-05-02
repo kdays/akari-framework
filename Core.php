@@ -38,6 +38,12 @@ class Core extends Injectable {
 
         if ($config === NULL) {
             $configCls = implode(NAMESPACE_SEPARATOR, [$appNs, 'config', 'Config']);
+            if (defined('APP_ENV')) {
+                if (file_exists($modeEnv = $appDir . '/config/' . ucfirst(APP_ENV) . 'Config.php')) {
+                    $configCls = implode(NAMESPACE_SEPARATOR, [$appNs, 'config', ucfirst(APP_ENV) . 'Config']);
+                }
+            }
+
             $config = new $configCls();
         }
 
@@ -51,9 +57,26 @@ class Core extends Injectable {
             include $defBoot;
         }
 
+        $akari->updateConfig($config);
         $akari->registerException();
 
         return self::$fkInstance;
+    }
+
+    protected function updateConfig(BaseConfig $config) {
+        if ($config->timeZone) {
+            if (function_exists('date_default_timezone_set')) {
+                date_default_timezone_set($config->timeZone);
+            }
+        }
+
+        if (defined('APP_DEBUG') && APP_DEBUG) {
+            Event::$debug = TRUE;
+        }
+
+        if (!defined('TIMESTAMP')) {
+            define('TIMESTAMP', time());
+        }
     }
 
     protected function registerException() {

@@ -21,6 +21,10 @@ class DBConnection {
 
     protected static $instances = [];
 
+    /**
+     * @param string $config
+     * @return DBConnection
+     */
     public static function init(string $config = 'default') {
         if (!isset(self::$instances[$config])) {
             self::$instances[$config] = new self( Core::env('database')[$config] );

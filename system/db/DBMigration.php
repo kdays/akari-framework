@@ -76,6 +76,14 @@ class Table {
     protected $indexes = [];
     protected $columns = [];
 
+    public function setComment(string $message) {
+        $this->tableComment = $message;
+    }
+
+    public function getComment() {
+        return $this->tableComment;
+    }
+
     public function __construct(DBConnection $connection, string $tableName) {
         $this->connection = $connection;
         $this->tableName = $tableName;
@@ -230,12 +238,14 @@ class Table {
             $sql .= "(" . $stub->length . ")";
         }
 
-        if (!$stub->nullable) {
-            $sql .= " NOT NULL ";
-        }
-
         if ($stub->unsigned) {
             $sql .= " UNSIGNED ";
+        }
+
+        if (!$stub->nullable) {
+            $sql .= " NOT NULL ";
+        } else {
+            $sql .= ' NULL ';
         }
 
         if ($stub->defaultValue !== NULL && $stub->type != TableColumn::TYPE_TEXT) {

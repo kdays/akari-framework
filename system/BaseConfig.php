@@ -24,6 +24,7 @@ abstract class BaseConfig {
 
     public $uriRewrite = [];
     public $timeOffset = 0;
+    public $timeZone = 'Asia/shanghai';
 
     public $storage = [
         Storage::KEY_DEFAULT => [

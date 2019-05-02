@@ -395,4 +395,9 @@ class Request {
     public function hasFiles() {
         return count($_FILES) > 0;
     }
+
+    public function isXhr() {
+        $serverVar = $this->getServer('HTTP_X_REQUESTED_WITH');
+        return strtolower($serverVar) == 'xmlhttprequest';
+    }
 }

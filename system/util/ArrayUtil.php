@@ -10,6 +10,14 @@ namespace Akari\system\util;
 
 class ArrayUtil {
 
+    public static function isAssoc(array $arr) {
+        if(array_keys($arr) !== range(0, count($arr) - 1)) {
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
     public static function flatten(array $items, string $columnKey, ?string $indexKey, $allowRepeat = FALSE) {
         $result = [];
 

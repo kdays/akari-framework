@@ -2,8 +2,6 @@
 
 $di = \Akari\system\ioc\DI::getDefault();
 
-//\Akari\system\event\Event::$debug = FALSE;
-
 $di->setShared('request', \Akari\system\http\Request::class);
 $di->setShared('response', \Akari\system\http\Response::class);
 $di->setShared('cookie', \Akari\system\http\Cookie::class);
@@ -15,6 +13,11 @@ $di->setShared('url', \Akari\system\router\UrlGenerator::class);
 $di->setShared('processor', \Akari\system\result\Processor::class);
 $di->setShared('assets', \Akari\system\view\assets\AssetsManager::class);
 $di->setShared("lang", \Akari\system\util\I18n::class);
+
+if (CLI_MODE) {
+    $di->setShared('input', \Akari\system\console\Input::class);
+    $di->setShared('output', \Akari\system\console\Output::class);
+}
 
 /** @var \Akari\system\view\View $view */
 $view = $di->getShared('view');

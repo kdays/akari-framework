@@ -8,11 +8,30 @@
 
 namespace Akari\system\util;
 
+use Akari\exception\AkariException;
 use Akari\system\ioc\Injectable;
 
 class I18n extends Injectable {
 
     protected $data = [];
+    protected $loadedPrefix = [];
+
+    public function load(string $name, string $prefix = '') {
+        if (empty($this->loadedPrefix)) {
+            throw new AkariException("Empty loaded prefix");
+        }
+
+        foreach ($this->loadedPrefix as $loadedPrefix) {
+            if (file_exists($tarPath = $loadedPrefix . DIRECTORY_SEPARATOR . $name . ".php")) {
+                $this->register(require($tarPath), $prefix);
+                break;
+            }
+        }
+    }
+
+    public function registerLoadPrefix(string $dirPath) {
+        $this->loadedPrefix[] = $dirPath;
+    }
 
     public function register(array $lang, string $prefix = '') {
         foreach ($lang as $key => $text) {

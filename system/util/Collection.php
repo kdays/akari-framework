@@ -31,6 +31,16 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return $this->items;
     }
 
+    public function push($values, $key = NULL) {
+        if ($key === NULL) {
+            $this->items[] = $values;
+        } else {
+            $this->items[$key] = $values;
+        }
+
+        return $this;
+    }
+
     public function times($number, callable $callback = NULL) {
         if ($number < 1) {
             return new static();
@@ -99,6 +109,10 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
 
     public function keys() {
         return new static(array_keys($this->items));
+    }
+
+    public function isAssoc() {
+        return ArrayUtil::isAssoc($this->items);
     }
 
     protected function getArrayableItems($items) {

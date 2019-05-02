@@ -109,6 +109,17 @@ class FileUpload extends Injectable {
         return $this->lang->get("upload_err." . $code);
     }
 
+    public function hash($hashType = 'md5') {
+        $rawData = $this->getForm();
+        if (!empty($rawData['data'])) {
+            $hashFn = $hashType == 'md5' ? 'md5' : 'sha1';
+            return $hashFn($rawData['data']);
+        }
+
+        $hashFn = $hashType == 'md5' ? 'md5_file' : 'sha1_file';
+        return $hashFn($rawData['tmp_name']);
+    }
+
     public function isImage() {
         $allowExt = ['png', 'jpg', 'gif', 'jpeg'];
         if (!in_array($this->getExtension(), $allowExt)) {

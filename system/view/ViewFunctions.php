@@ -119,6 +119,10 @@ EOT
             $tplPath = $blockName;
         }
 
+        if (empty($tplPath)) {
+            throw new AkariException($blockName . " block not exists");
+        }
+
         $bindVars = array_merge($view->getVar(NULL), $params);
         $c = $view->getViewEngine($tplPath)->parse($tplPath, $bindVars, View::TYPE_BLOCK, FALSE);
 
