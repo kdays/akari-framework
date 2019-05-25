@@ -53,6 +53,23 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return (new static(range(1, $number)))->map($callback);
     }
 
+    public function except($keys) {
+        return new static(ArrayUtil::except($this->items, $keys));
+    }
+
+    /**
+     * 转换为"点"的数组
+     *
+     * @return Collection
+     */
+    public function toDot() {
+        return new static(ArrayUtil::dot($this->items));
+    }
+
+    public function get($key, $default = NULL) {
+        return ArrayUtil::get($this->items, $key, $default);
+    }
+
     public function diff($items) {
         return new static(array_diff($this->items, $this->getArrayableItems($items)));
     }
@@ -77,7 +94,10 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return new static(ArrayUtil::flatten($this->items, $columnKey, $indexKey, $allowRepeat));
     }
 
-    public function indexByKey(string $indexKey) {
+    public function indexByKey(string $indexKey, $multi = FALSE) {
+        if ($multi) {
+            return new static(ArrayUtil::indexMulti($this->items, $indexKey));
+        }
         return new static(ArrayUtil::index($this->items, $indexKey));
     }
 
@@ -111,6 +131,11 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return new static(array_keys($this->items));
     }
 
+    /**
+     * 是否是关联数组
+     *
+     * @return bool
+     */
     public function isAssoc() {
         return ArrayUtil::isAssoc($this->items);
     }

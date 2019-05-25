@@ -38,7 +38,7 @@ class Cache {
         return self::$_instances[$key];
     }
 
-    public static function set(string $key, $value, int $timeout, $raw = FALSE, string $config = self::KEY_DEFAULT) {
+    public static function set(string $key, $value, ?int $timeout, $raw = FALSE, string $config = self::KEY_DEFAULT) {
         return self::getHandler($config)->set($key, $value, $timeout, $raw);
     }
 

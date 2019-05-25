@@ -40,7 +40,10 @@ function router() {
  * @param array $items
  * @return \Akari\system\util\Collection
  */
-function collection(array $items) {
+function collection($items) {
+    if ($items instanceof \Akari\system\util\Collection) {
+        return $items;
+    }
     return new \Akari\system\util\Collection($items);
 }
 

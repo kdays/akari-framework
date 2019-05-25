@@ -19,6 +19,12 @@ EOT
     'df.h' => '%d%小时前',
     'df.m' => '%d%月前',
     'df.s' => '%d%秒前',
-    'df.i' => '%d%分钟前'
+    'df.i' => '%d%分钟前',
+
+    'df.after.d' => '%d%天',
+    'df.after.h' => '%d%小时',
+    'df.after.m' => '%d%月',
+    'df.after.s' => '%d%秒',
+    'df.after.i' => '%d%分钟'
 
 ];

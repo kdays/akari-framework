@@ -98,6 +98,9 @@ abstract class DBModel {
 
     public static function count($join = NULL, $column = NULL, $where = NULL) {
         $builder = static::getSQLBuilder();
+        if (isset($join['conditions'])) {
+            $join = $join['conditions'];
+        }
 
         return $builder->count(static::getTableName(), $join, $column, $where);
     }

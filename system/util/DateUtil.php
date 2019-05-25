@@ -14,6 +14,8 @@ class DateUtil {
         if (!is_numeric($unixTime)) $unixTime = strtotime($unixTime);
         if ($unixTime == TIMESTAMP) return L('df.now');
 
+        $prefix = $unixTime < TIMESTAMP ?  'df.' : 'df.after.';
+
         $now = new \DateTime();
         $last = self::getDateTime($unixTime, FALSE);
 
@@ -23,7 +25,7 @@ class DateUtil {
             $formats = ['d', 'h', 'i', 's'];
             foreach ($formats as $format) {
                 if ($diff->$format > 0) {
-                    return L('df.' . $format, ['d' => $diff->$format]);
+                    return L($prefix . $format, ['d' => $diff->$format]);
                 }
             }
         }
