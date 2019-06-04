@@ -8,10 +8,11 @@
 
 namespace Akari\system\router;
 
+use Akari\system\ioc\Injectable;
 use Akari\system\util\helper\AppValueTrait;
 use Akari\system\security\helper\VerifyCSRFToken;
 
-class UrlGenerator {
+class UrlGenerator extends Injectable {
 
     use AppValueTrait;
 

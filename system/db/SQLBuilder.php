@@ -617,7 +617,6 @@ class SQLBuilder {
 
     public function exec($query, array $map) {
         $this->logs[] = [$query, $map];
-
         $st = $this->getConnection()->prepare($query);
 
         if ($st) {

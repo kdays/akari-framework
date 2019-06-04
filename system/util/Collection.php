@@ -73,6 +73,12 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return ArrayUtil::first($this->items);
     }
 
+    /**
+     * @param string $columnKey
+     * @param string|null $indexKey
+     * @param bool $allowRepeat
+     * @return Collection
+     */
     public function flatten(string $columnKey, ?string $indexKey, $allowRepeat = FALSE) {
         return new static(ArrayUtil::flatten($this->items, $columnKey, $indexKey, $allowRepeat));
     }
