@@ -627,7 +627,7 @@ class SQLBuilder {
             if (!$st->execute()) {
                 $queryString = $this->generate($query, $map);
 
-                $ex = new DBException(implode(" ", $st->errorInfo()), $st->errorCode() . " SQL: " . $queryString);
+                $ex = new DBException(implode(" ", $st->errorInfo()), $st->errorCode());
                 $ex->setQueryString($queryString);
 
                 throw $ex;

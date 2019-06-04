@@ -15,7 +15,10 @@ class DBException extends \Exception {
     private $queryString;
 
     public function __construct($message = "", $code = 0, $previous = NULL) {
-        parent::__construct($message, $code, $previous);
+        //parent::__construct($message, $code, $previous);
+
+        $this->message = $message;
+        $this->code = $code;
 
         $trace = $this->getTrace();
         if (!empty($trace)) {

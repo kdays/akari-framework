@@ -57,6 +57,8 @@ class DI {
     protected function getFn($call) {
         if (is_callable($call)) {
             return call_user_func_array($call, [$this]);
+        } elseif (is_object($call)) {
+            return $call;
         } elseif (class_exists($call)) {
             return new $call();
         }
