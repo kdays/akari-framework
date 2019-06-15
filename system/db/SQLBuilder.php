@@ -680,7 +680,7 @@ class SQLBuilder {
     }
 
     protected function buildRaw($raw, &$map) {
-        if ($raw instanceof Raw) {
+        if (!($raw instanceof Raw)) {
             return FALSE;
         }
 
