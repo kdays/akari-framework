@@ -95,7 +95,8 @@ class Pagination extends Injectable {
             'currentPage' => $this->currentPage,
             'pagination' => $pagination,
             'lastPage' => $this->getUrl($this->getTotalPage()),
-            'firstPage' => $this->getUrl(1)
+            'firstPage' => $this->getUrl(1),
+            'viewArgs' => $this->bindVars ?? []
         ];
 
         if (array_key_exists($this->currentPage + 1, $pagination)) {

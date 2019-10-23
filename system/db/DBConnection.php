@@ -15,6 +15,7 @@ use Akari\system\util\Collection;
 class DBConnection {
 
     protected $options;
+    protected $inTrans = FALSE;
 
     protected $readConnection;
     protected $writeConnection;
@@ -85,6 +86,7 @@ class DBConnection {
      * @return bool
      */
     public function beginTransaction() {
+        $this->inTrans = TRUE;
         return $this->getWriteConnection()->beginTransaction();
     }
 
@@ -94,6 +96,7 @@ class DBConnection {
      * @return bool
      */
     public function commit() {
+        $this->inTrans = FALSE;
         return $this->getWriteConnection()->commit();
     }
 
@@ -103,6 +106,7 @@ class DBConnection {
      * @return bool
      */
     public function rollback() {
+        $this->inTrans = FALSE;
         return $this->getWriteConnection()->rollBack();
     }
 
@@ -197,7 +201,8 @@ class DBConnection {
      * @throws DBException
      */
     public function fetch($sql, $values = [], $fetchMode = \PDO::FETCH_ASSOC) {
-        $st = $this->prepare($this->getReadConnection(), $sql, $values);
+        $conn = $this->inTrans ? $this->getWriteConnection() : $this->getReadConnection();
+        $st = $this->prepare($conn, $sql, $values);
 
         if ($st->execute()) {
             $result = $st->fetchAll($fetchMode);
@@ -210,7 +215,8 @@ class DBConnection {
     }
 
     public function fetchOne($sql, $values = [], $fetchMode = \PDO::FETCH_ASSOC) {
-        $st = $this->prepare($this->getReadConnection(), $sql, $values);
+        $conn = $this->inTrans ? $this->getWriteConnection() : $this->getReadConnection();
+        $st = $this->prepare($conn, $sql, $values);
         if ($st->execute()) {
             $result = $st->fetch($fetchMode);
             $this->closeCollection($st);
@@ -232,7 +238,8 @@ class DBConnection {
      * @throws DBException
      */
     public function fetchValue($sql, $values = [], $columnIdx = 0) {
-        $st = $this->prepare($this->getReadConnection(), $sql, $values);
+        $conn = $this->inTrans ? $this->getWriteConnection() : $this->getReadConnection();
+        $st = $this->prepare($conn, $sql, $values);
         if ($st->execute()) {
             $result = $st->fetchColumn($columnIdx);
             $this->closeCollection($st);

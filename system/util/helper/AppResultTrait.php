@@ -20,10 +20,18 @@ use Akari\system\result\Result;
  */
 trait AppResultTrait {
 
-    public function _genTplResult(array $data, string $viewName = NULL, string $layoutName = NULL) {
+    /**
+     * @param array $data
+     * @param string|NULL $viewName
+     * @param string|NULL $layoutName
+     * @param bool $mergeParentVars 如果设置为false时，view渲染这个模板时，data仅渲染提供的，不会采纳view之前提交的数据
+     * @return Result
+     */
+    public function _genTplResult(array $data, string $viewName = NULL, string $layoutName = NULL, $mergeParentVars = TRUE) {
         return new Result(Result::TYPE_VIEW, $data, [
             'layout' => $layoutName,
-            'view' => $viewName
+            'view' => $viewName,
+            'merge_vars' => $mergeParentVars ? 1 : 0
         ]);
     }
 

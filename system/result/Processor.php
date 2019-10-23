@@ -23,6 +23,10 @@ class Processor extends Injectable {
         if ($screenPath !== NULL)   $this->view->setScreen($screenPath);
         if ($layoutPath !== NULL)   $this->view->setLayout($layoutPath);
 
+        if ($result->meta['merge_vars'] == 1) {
+            $result->data = array_merge($this->view->getVar(NULL), $result->data);
+        }
+
         return $this->view->getResult($result->data);
     }
 

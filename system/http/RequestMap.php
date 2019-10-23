@@ -22,7 +22,7 @@ abstract class RequestMap extends Injectable {
         return $model;
     }
 
-    public function __construct(array $values = NULL, callable $valueGetter = NULL) {
+    public function __construct(array $values = NULL, callable $valueGetter = NULL, $skipCheck = FALSE) {
         if ($values !== NULL) {
             $this->_pValues = $values;
         }
@@ -39,7 +39,7 @@ abstract class RequestMap extends Injectable {
             $this->$key = $this->getValue($reqKey, $value);
         }
 
-        $this->checkParameters();
+        if (!$skipCheck) $this->checkParameters();
     }
 
     /// HttpMethod
@@ -101,7 +101,8 @@ abstract class RequestMap extends Injectable {
         $callMap = [
             self::METHOD_ALL => 'get',
             self::METHOD_GET => 'getQuery',
-            self::METHOD_POST => 'getPost'
+            self::METHOD_POST => 'getPost',
+            NULL => 'get'
         ];
 
         $value = $this->request->{$callMap[$method]}($key, $this->getFilter($key), $defaultValue);

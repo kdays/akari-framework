@@ -116,6 +116,14 @@ abstract class DBModel {
         return self::$_cachedBuilder[static::class];
     }
 
+    public static function setDebugEnabled($isEnabled) {
+        static::getSQLBuilder()->debug = $isEnabled;
+    }
+
+    public static function action(callable $action) {
+        static::getSQLBuilder()->action($action);
+    }
+
     public function remove() {
         $pk = static::getPrimaryKey();
 

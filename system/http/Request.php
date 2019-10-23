@@ -88,37 +88,37 @@ class Request {
         return $this->remoteIP;
     }
 
+    private function bin2ip($bin) {
+        if(strlen($bin) <= 32) {
+            return long2ip(base_convert($bin, 2, 10));
+        } // 32bits (ipv4)
+
+        if(strlen($bin) != 128) {
+            return FALSE;
+        }
+
+        $pad = 128 - strlen($bin);
+        for ($i = 1; $i <= $pad; $i++) {
+            $bin = "0" . $bin;
+        }
+
+        $ipv6 = "";
+        $bits = 0;
+        while ($bits <= 7) {
+            $bin_part = substr($bin, ($bits * 16), 16);
+            $ipv6 .= dechex(bindec($bin_part)) . ":";
+            $bits++;
+        }
+
+        return inet_ntop(inet_pton(substr($ipv6, 0, -1)));
+    }
+
     public function getUserIP() {
         $onlineIp = $this->getRemoteIP();
 
-        function bin2ip($bin) {
-            if(strlen($bin) <= 32) {
-                return long2ip(base_convert($bin, 2, 10));
-            } // 32bits (ipv4)
-
-            if(strlen($bin) != 128) {
-                return FALSE;
-            }
-
-            $pad = 128 - strlen($bin);
-            for ($i = 1; $i <= $pad; $i++) {
-                $bin = "0" . $bin;
-            }
-
-            $ipv6 = "";
-            $bits = 0;
-            while ($bits <= 7) {
-                $bin_part = substr($bin, ($bits * 16), 16);
-                $ipv6 .= dechex(bindec($bin_part)) . ":";
-                $bits++;
-            }
-
-            return inet_ntop(inet_pton(substr($ipv6, 0, -1)));
-        }
-
         // try ipv6 => ipv4
         if (filter_var($onlineIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== FALSE) {
-            $ipv4Address = bin2ip(base_convert(ip2long($onlineIp), 10, 2));
+            $ipv4Address = $this->bin2ip(base_convert(ip2long($onlineIp), 10, 2));
             if ($ipv4Address) $onlineIp = $ipv4Address;
         }
 

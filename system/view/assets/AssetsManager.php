@@ -14,6 +14,7 @@ class AssetsManager {
     const TYPE_JS = 1;
     const TYPE_JS_INLINE = 2;
     const TYPE_CSS_INLINE = 3;
+    const TYPE_IMAGES = 4;
 
     protected $collections = [];
 

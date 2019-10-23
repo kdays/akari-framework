@@ -6,10 +6,10 @@
  * @return string
  * @throws \Akari\exception\AkariException
  */
-function L(string $name, array $L = []) {
+function L(string $name, array $L = [], string $prefix = '') {
     $di = \Akari\system\ioc\DI::getDefault();
 
-    return $di->getShared('lang')->get($name, $L);
+    return $di->getShared('lang')->get($name, $L, $prefix);
 }
 
 function env(string $key, $defaultValue = NULL) {

@@ -19,9 +19,15 @@ class SQLBuilder {
     protected $statement = NULL;
     protected $logs = [];
     protected $queryWrite = FALSE;
+    protected $inAction = FALSE;
+    public $debug = FALSE;
+
+    public function setIsReadQuery($isReadQuery) {
+        $this->queryWrite = !$isReadQuery;
+    }
 
     public function getConnection() {
-        if ($this->queryWrite) {
+        if ($this->queryWrite || $this->inAction) {
             return $this->connection->getWriteConnection();
         }
 
@@ -619,6 +625,10 @@ class SQLBuilder {
         $this->logs[] = [$query, $map];
 
         $st = $this->getConnection()->prepare($query);
+        if ($this->debug) {
+            var_dump($this->generate($query, $map));
+            var_dump($query, $map);die;
+        }
 
         if ($st) {
             foreach ($map as $key => $value) {
@@ -708,7 +718,7 @@ class SQLBuilder {
     }
 
     public function action(callable $action) {
-        $this->queryWrite = TRUE;
+        $this->inAction = TRUE;
         $this->getConnection()->beginTransaction();
         $result = NULL;
 
@@ -721,6 +731,8 @@ class SQLBuilder {
         } catch (\Exception $e) {
             $this->getConnection()->rollBack();
             throw $e;
+        } finally {
+            $this->inAction = FALSE;
         }
 
         return $result;
@@ -729,7 +741,7 @@ class SQLBuilder {
 
     ////// 执行相关操作
     public function select($table, $join, $columns = NULL, $where = NULL) {
-        $this->queryWrite = FALSE;
+        $this->setIsReadQuery(TRUE);
 
         $map = [];
         $stack = [];
@@ -768,7 +780,7 @@ class SQLBuilder {
     }
 
     public function insert($table, $datas) {
-        $this->queryWrite = TRUE;
+        $this->setIsReadQuery(FALSE);
 
         $stack = [];
         $columns = [];
@@ -843,7 +855,7 @@ class SQLBuilder {
     }
 
     public function update($table, $data, $where = NULL) {
-        $this->queryWrite = TRUE;
+        $this->setIsReadQuery(FALSE);
         $fields = [];
         $map = [];
 
@@ -898,7 +910,7 @@ class SQLBuilder {
     }
 
     public function delete($table, $where) {
-        $this->queryWrite = TRUE;
+        $this->setIsReadQuery(FALSE);
         $map = [];
 
         return $this->exec('DELETE FROM ' . $this->tableQuote($table) . $this->whereClause($where, $map), $map);
@@ -906,7 +918,7 @@ class SQLBuilder {
 
 
     public function replace($table, $columns, $where = NULL) {
-        $this->queryWrite = TRUE;
+        $this->setIsReadQuery(FALSE);
 
         if (!is_array($columns) || empty($columns)) {
             return FALSE;
@@ -936,7 +948,7 @@ class SQLBuilder {
     }
 
     public function get($table, $join = NULL, $columns = NULL, $where = NULL) {
-        $this->queryWrite = FALSE;
+        $this->setIsReadQuery(TRUE);
 
         $map = [];
         $stack = [];
@@ -976,7 +988,7 @@ class SQLBuilder {
     }
 
     private function aggregate($type, $table, $join = NULL, $column = NULL, $where = NULL) {
-        $this->queryWrite = FALSE;
+        $this->setIsReadQuery(TRUE);
         $map = [];
         $query = $this->exec($this->selectContext($table, $map, $join, $column, $where, strtoupper($type)), $map);
 
