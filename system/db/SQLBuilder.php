@@ -623,7 +623,6 @@ class SQLBuilder {
 
     public function exec($query, array $map) {
         $this->logs[] = [$query, $map];
-
         $st = $this->getConnection()->prepare($query);
         if ($this->debug) {
             var_dump($this->generate($query, $map));
@@ -691,7 +690,7 @@ class SQLBuilder {
     }
 
     protected function buildRaw($raw, &$map) {
-        if ($raw instanceof Raw) {
+        if (!($raw instanceof Raw)) {
             return FALSE;
         }
 

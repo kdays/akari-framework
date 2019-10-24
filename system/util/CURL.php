@@ -8,8 +8,8 @@
 
 namespace Akari\system\util;
 
-use Akari\storage\Storage;
 use Akari\exception\AkariException;
+use Akari\system\storage\Storage;
 
 class CURL {
 
@@ -313,6 +313,7 @@ class CURLResponse {
      *
      * @param $target
      * @param string $storage
+     * @throws AkariException
      */
     public function save($target, $storage = 'default') {
         Storage::disk($storage)->put($target, $this->getBody());

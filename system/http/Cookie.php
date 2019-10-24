@@ -49,7 +49,7 @@ class Cookie extends Injectable {
         }
     }
 
-    public function get(string $name, $prefix = TRUE) {
+    public function get(string $name, $prefix = TRUE, $defaultValue = NULL) {
         if ($prefix) {
             $prefix = is_string($prefix) ? $prefix : $this->_getConfigValue("cookiePrefix", '');
         } else {
@@ -62,7 +62,7 @@ class Cookie extends Injectable {
             return $this->_values[$name];
         }
 
-        return $_COOKIE[$name];
+        return array_key_exists($name, $_COOKIE) ? $_COOKIE[$name] : $defaultValue;
     }
 
     public function remove(string $key, $prefix = TRUE) {

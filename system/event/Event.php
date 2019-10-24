@@ -24,7 +24,8 @@ class Event {
 
         $handler = new EventListener($callback, $event, $priority, ++self::$eventId);
         if (self::$debug) {
-            $trace = array_shift(debug_backtrace());
+            $stacks = debug_backtrace();
+            $trace = array_shift($stacks);
             $handler->setDebug($trace['file'], $trace['line']);
         }
 

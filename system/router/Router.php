@@ -95,6 +95,7 @@ class Router extends Injectable {
 
                     if (empty($uri)) {
                         $uri = $this->request->getRequestURI();
+                        $uri = parse_url($uri, PHP_URL_PATH);
                     }
                 }
                 break;
