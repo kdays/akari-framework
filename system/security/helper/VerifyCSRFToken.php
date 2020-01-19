@@ -12,8 +12,8 @@ use Akari\system\event\Event;
 use Akari\system\ioc\Injectable;
 use Akari\system\router\Dispatcher;
 use Akari\exception\CSRFVerifyError;
-use Akari\system\util\helper\Instance;
 use Akari\system\view\ViewFunctions;
+use Akari\system\util\helper\Instance;
 use Akari\system\util\helper\AppValueTrait;
 
 class VerifyCSRFToken extends Injectable {
@@ -102,6 +102,7 @@ class VerifyCSRFToken extends Injectable {
      */
     public static function getTokenParameter() {
         $instance = self::instance();
+
         return [$instance->getRequestToken(), $instance->getServerToken()];
     }
 
@@ -117,7 +118,7 @@ class VerifyCSRFToken extends Injectable {
             return $instance->getServerToken();
         });
 
-        ViewFunctions::registerFunction("csrf_name", function() use($instance) {
+        ViewFunctions::registerFunction("csrf_name", function () use ($instance) {
             return $instance->getRequestName();
         });
 

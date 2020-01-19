@@ -44,6 +44,7 @@ function collection($items) {
     if ($items instanceof \Akari\system\util\Collection) {
         return $items;
     }
+
     return new \Akari\system\util\Collection($items);
 }
 

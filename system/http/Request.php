@@ -8,8 +8,8 @@
 
 namespace Akari\system\http;
 
-use Akari\system\util\ArrayUtil;
 use Akari\system\util\TextUtil;
+use Akari\system\util\ArrayUtil;
 use Akari\system\security\FilterFactory;
 
 class Request {
@@ -67,7 +67,7 @@ class Request {
 
         // (create an associative array 'language' => 'preference')
         $lang2pref = [];
-        for($i=0; $i<count($langs); $i++)
+        for($i=0; $i < count($langs); $i++)
             $lang2pref[$langs[$i]] = (float) (!empty($ranks[$i]) ? $ranks[$i] : 1);
 
         // sort the languages by prefered language and by the most specific region
@@ -433,6 +433,7 @@ class Request {
 
     public function isXhr() {
         $serverVar = $this->getServer('HTTP_X_REQUESTED_WITH');
+
         return strtolower($serverVar) == 'xmlhttprequest';
     }
 }
