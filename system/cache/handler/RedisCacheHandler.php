@@ -8,6 +8,8 @@
 
 namespace Akari\system\cache\handler;
 
+use Akari\system\util\AkariDebugUtil;
+
 class RedisCacheHandler implements ICacheHandler{
 
     /** @var \Redis */
@@ -104,8 +106,10 @@ class RedisCacheHandler implements ICacheHandler{
      */
     public function exists($key) {
         $key = $this->prefix . $key;
+        $result = $this->redisHandler->exists($key);
+        AkariDebugUtil::pushCacheFetch($this, $key, !$result);
 
-        return $this->redisHandler->exists($key);
+        return $result;
     }
 
     /**

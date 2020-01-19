@@ -18,11 +18,11 @@ class I18n extends Injectable {
 
     public function load(string $name, string $prefix = '') {
         if (empty($this->loadedPrefix)) {
-            throw new AkariException("Empty loaded prefix");
+            throw new AkariException('Empty loaded prefix');
         }
 
         foreach ($this->loadedPrefix as $loadedPrefix) {
-            if (file_exists($tarPath = $loadedPrefix . DIRECTORY_SEPARATOR . $name . ".php")) {
+            if (file_exists($tarPath = $loadedPrefix . DIRECTORY_SEPARATOR . $name . '.php')) {
                 $this->register(require($tarPath), $prefix);
                 break;
             }

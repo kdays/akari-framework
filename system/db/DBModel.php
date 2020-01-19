@@ -144,7 +144,10 @@ abstract class DBModel {
            return static::update([$pk => $this->$mKey], $this->toArray());
         } else {
             if (empty($this->$mKey)) {
-                return static::insert($this->toArray());
+                $id = static::insert($this->toArray());
+                $this->$mKey = $id;
+
+                return $id;
             }
 
             $ifExists = static::findById($this->$mKey);
@@ -186,7 +189,7 @@ abstract class DBModel {
     public static function toModel(array $in) {
         $model = new static();
         foreach ($model->columnMap() as $dbKey => $modelKey) {
-            $model->$modelKey = $in[$dbKey];
+            $model->$modelKey = $in[$dbKey] ?? NULL;
         }
 
         return $model;

@@ -443,6 +443,8 @@ class TableColumn {
 
     public $extraFields = "";
 
+    public $extra;
+
     public $modifyFields = [];
 
     public function __construct(?array $column) {

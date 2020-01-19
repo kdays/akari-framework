@@ -8,9 +8,11 @@
 
 namespace Akari\system\cache\handler;
 
+use Akari\system\util\AkariDebugUtil;
+
 /**
  * WARNING: 这并不是一个缓存类
- * 
+ *
  * Class MemoryCacheHandler
  * @package Akari\system\cache\handler
  */
@@ -31,7 +33,10 @@ class MemoryCacheHandler implements ICacheHandler{
     }
 
     public function exists($key) {
-        return array_key_exists($key, $this->data);
+        $result = array_key_exists($key, $this->data);
+        AkariDebugUtil::pushCacheFetch($this, $key, !$result);
+
+        return $result;
     }
 
     public function all() {

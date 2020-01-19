@@ -10,6 +10,7 @@ namespace Akari\system\cache\handler;
 
 use Akari\system\storage\Storage;
 use Akari\system\storage\StorageDisk;
+use Akari\system\util\AkariDebugUtil;
 
 class FileCacheHandler implements ICacheHandler{
 
@@ -41,7 +42,6 @@ class FileCacheHandler implements ICacheHandler{
     }
 
     private function removeExpired() {
-
         foreach ($this->fileIndex as $key => $value) {
             if ($value['expire'] > 0 && $value['expire'] < TIMESTAMP) {
                 $this->_remove($key, FALSE);
@@ -172,7 +172,10 @@ class FileCacheHandler implements ICacheHandler{
      * @return boolean
      */
     public function exists($key) {
-        return isset($this->fileIndex[$this->_getKey($key)]);
+        $result = isset($this->fileIndex[$this->_getKey($key)]);
+        AkariDebugUtil::pushCacheFetch($this, $key, !$result);
+
+        return $result;
     }
 
     /**

@@ -43,4 +43,8 @@ class StorageDisk {
         return $this->handler->size($path);
     }
 
+    public function items(string $path, array $options = []) {
+        return $this->handler->items($path, $options);
+    }
+
 }

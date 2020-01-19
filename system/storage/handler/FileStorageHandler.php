@@ -104,4 +104,25 @@ class FileStorageHandler extends BaseStorageHandler implements IStorageHandler {
         return $path;
     }
 
+    public function items(string $dirName, array $options = []) {
+        $baseDir = $this->config['baseDir'];
+        $baseDir = $baseDir[0] == '/' ? $baseDir : Core::$appDir . DIRECTORY_SEPARATOR . $baseDir;
+        $baseDir = str_replace('//', '/', $baseDir);
+
+        $targetName = $baseDir . DIRECTORY_SEPARATOR . $dirName;
+        $targetName = str_replace('//', '/', $targetName);
+
+        // 处理dirName的情况
+        $files = scandir($targetName);
+        $result = [];
+        foreach ($files as $file) {
+            if ($file == '.' || $file == '..') {
+               continue;
+            }
+
+            $result[] = $dirName . $file;
+        }
+
+        return $result;
+    }
 }

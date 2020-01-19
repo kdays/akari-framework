@@ -49,5 +49,7 @@ interface IStorageHandler {
      */
     public function size(string $path);
 
+    public function items(string $dirName, array $options = []);
+
 
 }

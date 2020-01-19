@@ -47,7 +47,31 @@ class ViewFunctions extends Injectable {
         return $di->getShared('url')->getStaticUrl($path);
     }
 
-    public static function form(string $url, array $urlParameters, string $method = 'POST', array $formParameters = []) {
+    public static function form(string $url, ...$parameters) {
+        $method = 'POST';
+        $urlParameters = [];
+        $formParameters = [];
+
+        if (isset($parameters[0]) && is_array($parameters[0])) {
+            $urlParameters = $parameters[0];
+        }
+
+        if (isset($parameters[1])) {
+            if (is_array($parameters[1])) {
+                $formParameters = $parameters[1];
+            } elseif (is_string($parameters[1])) {
+                $method = $parameters[1];
+            }
+        }
+
+        if (isset($parameters[2])) {
+            if (is_array($parameters[2])) {
+                $formParameters = $parameters[2];
+            } elseif (is_string($parameters[2])) {
+                $method = $parameters[2];
+            }
+        }
+
         $url = self::url($url, $urlParameters);
         $extraForm = '';
         $afterForm = '';

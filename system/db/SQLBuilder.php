@@ -10,6 +10,7 @@ namespace Akari\system\db;
 
 use PDO;
 use Akari\exception\DBException;
+use Akari\system\util\AkariDebugUtil;
 
 class SQLBuilder {
 
@@ -375,16 +376,27 @@ class SQLBuilder {
 
             $opOrder = $where['ORDER'] ?? $where['order'] ?? NULL;
             $opLimit = $where['LIMIT'] ?? $where['limit'] ?? NULL;
+            $opSkip = $where['SKIP'] ?? $where['skip'] ?? NULL;
+
+            if (!empty($opSkip)) {
+                // 这里我们先检查opLimit的拼接
+                if (!empty($opLimit)) {
+                    $opLimit = is_numeric($opLimit) ? [$opSkip, $opLimit] : [$opSkip, $opLimit[1]];
+                } else {
+                    $opLimit = [$opSkip, $opLimit];
+                }
+            }
 
             if (!empty($opOrder)) {
                 if (is_array($opOrder)) {
                     $stack = [];
+                    $specOrderMap = ['-1' => 'DESC', '1' => 'ASC'];
 
                     foreach ($opOrder as $column => $value) {
                         if (is_array($value)) {
                             $stack[] = 'FIELD(' . $this->columnQuote($column) . ', ' . $this->arrayQuote($value) . ')';
-                        } elseif ($value === 'ASC' || $value === 'DESC') {
-                            $stack[] = $this->columnQuote($column) . ' ' . $value;
+                        } elseif ($value === 'ASC' || $value === 'DESC' || isset($specOrderMap[$value])) {
+                            $stack[] = $this->columnQuote($column) . ' ' . ($specOrderMap[$value] ?? $value);
                         } elseif (is_int($column)) {
                             $stack[] = $this->columnQuote($value);
                         }
@@ -399,7 +411,7 @@ class SQLBuilder {
 
                 if(!empty($opLimit) && in_array($this->connection->getDbType(), ['oracle', 'mssql'])) {
                     if (is_numeric($opLimit)) {
-                        $LIMIT = [0, $opLimit];
+                        $opLimit = [0, $opLimit];
                     }
 
                     if (is_array($opLimit) && is_numeric($opLimit[ 0 ]) && is_numeric($opLimit[ 1 ])) {
@@ -629,6 +641,8 @@ class SQLBuilder {
             var_dump($query, $map);die;
         }
 
+        AkariDebugUtil::pushSqlBuilder($this, $query, $map);
+
         if ($st) {
             foreach ($map as $key => $value) {
                 $st->bindValue($key, $value[0], $value[1]);
@@ -650,7 +664,7 @@ class SQLBuilder {
         return FALSE;
     }
 
-    protected function generate($query, array $map) {
+    public function generate($query, array $map) {
         $identifier = [
             'mysql' => '`$1`',
             'mssql' => '[$1]'
