@@ -17,7 +17,7 @@ class Core extends Injectable {
     /**
      * @var BaseConfig
      */
-    protected static $appConfig;
+    public static $appConfig;
     public static $appNs;
     public static $appDir;
     public static $baseDir;

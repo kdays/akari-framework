@@ -12,12 +12,13 @@ use Akari\system\event\Event;
 use Akari\system\ioc\Injectable;
 use Akari\system\router\Dispatcher;
 use Akari\exception\CSRFVerifyError;
+use Akari\system\util\helper\Instance;
 use Akari\system\view\ViewFunctions;
 use Akari\system\util\helper\AppValueTrait;
 
 class VerifyCSRFToken extends Injectable {
 
-    use AppValueTrait;
+    use AppValueTrait, Instance;
 
     const DATA_KEY = 'Security:CSRF';
     protected $requestName;
@@ -42,7 +43,12 @@ class VerifyCSRFToken extends Injectable {
         return $madeToken;
     }
 
-    public function getToken() {
+    public function getServerToken() {
+        $setupValue = $this->_getValue(self::DATA_KEY);
+        if (!empty($setupValue)) {
+            return $setupValue;
+        }
+
         $keyName = $this->getRequestName();
         if ($this->cookie->exists( $keyName )) {
             return $this->cookie->get( $keyName );
@@ -51,7 +57,7 @@ class VerifyCSRFToken extends Injectable {
         return $this->makeToken();
     }
 
-    public function verifyToken() {
+    public function getRequestToken() {
         $tokenName = $this->getRequestName();
         $uToken = NULL;
 
@@ -63,12 +69,19 @@ class VerifyCSRFToken extends Injectable {
             $uToken = $this->request->get($tokenName);
         }
 
-        $rToken = $this->getToken();
-        if ($uToken != $rToken) {
+        return $uToken;
+    }
+
+    public function verifyToken() {
+        if ($this->getServerToken() != $this->getRequestToken()) {
             throw new CSRFVerifyError();
         }
     }
 
+    public static function verify() {
+        $instance = self::instance();
+        $instance->verifyToken();
+    }
 
     public function autoVerify() {
         $needVerify = $this->_getConfigValue("autoPostTokenCheck", TRUE);
@@ -84,8 +97,16 @@ class VerifyCSRFToken extends Injectable {
         }
     }
 
+    /**
+     * @return array list($tokenName, $tokenValue) = VerifyCSRFToken::getTokenParameter()
+     */
+    public static function getTokenParameter() {
+        $instance = self::instance();
+        return [$instance->getRequestToken(), $instance->getServerToken()];
+    }
+
     public static function register() {
-        $instance = new self();
+        $instance = self::instance();
 
         Event::register(Dispatcher::EVENT_APP_START, function () use ($instance) {
             $instance->autoVerify();
@@ -93,7 +114,11 @@ class VerifyCSRFToken extends Injectable {
 
         // CSRF View Register
         ViewFunctions::registerFunction("csrf_token", function () use ($instance) {
-            return $instance->getToken();
+            return $instance->getServerToken();
+        });
+
+        ViewFunctions::registerFunction("csrf_name", function() use($instance) {
+            return $instance->getRequestName();
         });
 
         ViewFunctions::registerFunction('csrf_form', function () use ($instance) {
@@ -101,7 +126,7 @@ class VerifyCSRFToken extends Injectable {
 
             return sprintf('<input type="hidden" name="%s" value="%s" />',
                 $tokenKey,
-               $instance->getToken());
+               $instance->getServerToken());
         });
     }
 
