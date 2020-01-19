@@ -8,8 +8,8 @@
 
 namespace Akari\system\util;
 
-use Akari\exception\AkariException;
 use Akari\system\ioc\Injectable;
+use Akari\exception\AkariException;
 
 class I18n extends Injectable {
 

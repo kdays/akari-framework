@@ -104,6 +104,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         if ($multi) {
             return new static(ArrayUtil::indexMulti($this->items, $indexKey));
         }
+
         return new static(ArrayUtil::index($this->items, $indexKey));
     }
 

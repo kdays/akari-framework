@@ -88,6 +88,7 @@ class ArrayUtil {
 
     public static function except($array, array $keys) {
         static::forget($array, $keys);
+
         return $array;
     }
 
@@ -109,9 +110,9 @@ class ArrayUtil {
         $results = [];
         foreach ($array as $key => $value) {
             if (is_array($value) && ! empty($value)) {
-                $results = array_merge($results, static::dot($value, $prepend.$key.'.'));
+                $results = array_merge($results, static::dot($value, $prepend . $key . '.'));
             } else {
-                $results[$prepend.$key] = $value;
+                $results[$prepend . $key] = $value;
             }
         }
 
@@ -154,7 +155,7 @@ class ArrayUtil {
             return $array[$key];
         }
 
-        if (strpos($key, '.') === false) {
+        if (strpos($key, '.') === FALSE) {
             return $array[$key] ?? $default;
         }
 

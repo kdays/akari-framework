@@ -87,6 +87,7 @@ class DBConnection {
      */
     public function beginTransaction() {
         $this->inTrans = TRUE;
+
         return $this->getWriteConnection()->beginTransaction();
     }
 
@@ -97,6 +98,7 @@ class DBConnection {
      */
     public function commit() {
         $this->inTrans = FALSE;
+
         return $this->getWriteConnection()->commit();
     }
 
@@ -107,6 +109,7 @@ class DBConnection {
      */
     public function rollback() {
         $this->inTrans = FALSE;
+
         return $this->getWriteConnection()->rollBack();
     }
 

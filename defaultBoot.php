@@ -29,4 +29,4 @@ $view->registerEngine("phtml", function () {
 
 /** @var \Akari\system\util\I18n $lang */
 $lang = $di->getShared('lang');
-$lang->register( require(__DIR__ . "/lang/zh.php") );
+$lang->register( require __DIR__ . "/lang/zh.php");

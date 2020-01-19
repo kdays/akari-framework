@@ -113,10 +113,12 @@ class FileUpload extends Injectable {
         $rawData = $this->getForm();
         if (!empty($rawData['data'])) {
             $hashFn = $hashType == 'md5' ? 'md5' : 'sha1';
+
             return $hashFn($rawData['data']);
         }
 
         $hashFn = $hashType == 'md5' ? 'md5_file' : 'sha1_file';
+
         return $hashFn($rawData['tmp_name']);
     }
 
