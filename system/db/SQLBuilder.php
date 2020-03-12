@@ -316,7 +316,7 @@ class SQLBuilder {
                 $conditions = $where['conditions'];
             } else {
                 $conditions = array_diff_key($where, array_flip(
-                    ['GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH']
+                    ['GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH', 'SKIP']
                 ));
             }
 

@@ -34,7 +34,7 @@ class VerifyCSRFToken extends Injectable {
     public function makeToken() {
         static $madeToken = NULL;
         if ($madeToken === NULL) {
-            $key = $this->_getValue("csrfTokenKey", uniqid());
+            $key = $this->_getValue("csrfTokenKey", uniqid('', TRUE));
             $madeToken = substr(md5($key), 7, 9);
 
             $this->_setValue(self::DATA_KEY, $madeToken);

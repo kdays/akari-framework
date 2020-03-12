@@ -9,6 +9,7 @@
 namespace Akari\system\util\helper;
 
 use Akari\system\http\HttpCode;
+use Akari\system\http\Response;
 use Akari\system\result\Result;
 
 /**
@@ -43,6 +44,17 @@ trait AppResultTrait {
         return new Result(Result::TYPE_JSON, $result, [
             'jsonp' => $jsonp
         ], 'application/javascript');
+    }
+
+    public function _genDownloadResult(string $data, string $name) {
+        return $this->_genCUSTOMResult($data, ['name' => $name], Result::CONTENT_BINARY, function(Result $result) {
+            $this->response->setHeader('Content-Disposition', 'attachment;filename=' . $result->meta['name']);
+            $this->response->setHeader('Content-Transfer-Encoding', 'binary');
+        });
+    }
+
+    public function _genCUSTOMResult(string $data, array $meta, string $contentType, callable $callback) {
+        return new Result(Result::TYPE_CUSTOM, $data, $meta, $contentType, $callback);
     }
 
     public function _genNoneResult() {
