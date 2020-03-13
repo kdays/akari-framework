@@ -8,7 +8,6 @@ use Akari\system\util\ArrayUtil;
 use Akari\system\util\Collection;
 use Akari\system\util\TextUtil;
 use MongoDB\BSON\ObjectId;
-use MongoDB\Driver\Exception\RuntimeException;
 
 abstract class MongoCollection {
 
@@ -135,27 +134,27 @@ abstract class MongoCollection {
     public function save() {
         if ($this->fromQuery) {
             return static::update(['_id' => $this->_id], $this->toArray())->getMatchedCount() > 0;
-        } else {
-            if (empty($this->_id)) {
-                // usingObjectId关闭时 自动生成
-                if (!static::usingObjectId()) {
-                    $this->_id = static::seqId();
-                }
+        }
 
-                $result = static::insert($this->toArray());
-                $this->_id = $result->getInsertedId();
-
-                return $this->getId();
+        if (empty($this->_id)) {
+            // usingObjectId关闭时 自动生成
+            if (!static::usingObjectId()) {
+                $this->_id = static::seqId();
             }
 
-            $ifExists = static::findById($this->_id);
-            if ($ifExists) {
-                return static::update(['_id' => $this->_id], $this->toArray())->getMatchedCount()  > 0;
-            }
+            $result = static::insert($this->toArray());
+            $this->_id = $result->getInsertedId();
 
-            if (static::insert($this->toArray())->getInsertedCount() > 0) {
-                return $this->getId();
-            }
+            return $this->getId();
+        }
+
+        $ifExists = static::findById($this->_id);
+        if ($ifExists) {
+            return static::update(['_id' => $this->_id], $this->toArray())->getMatchedCount()  > 0;
+        }
+
+        if (static::insert($this->toArray())->getInsertedCount() > 0) {
+            return $this->getId();
         }
 
         return FALSE;
