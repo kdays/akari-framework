@@ -38,7 +38,14 @@ class MongoConnection {
             );
         }
 
-        $client = new \MongoDB\Client($dsn);
+        $drvOpts = ($config['driverOptions'] ?? []) + [
+            'typeMap' => [
+                'array' => 'array',
+                'document' => 'array'
+            ]
+        ];
+
+        $client = new \MongoDB\Client($dsn, [], $drvOpts);
         return $client->selectDatabase($config['database']);
     }
 

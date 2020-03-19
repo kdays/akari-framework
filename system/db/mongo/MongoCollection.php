@@ -32,7 +32,7 @@ abstract class MongoCollection {
     public static function toModel($in) {
         $model = new static();
         foreach ($model->columnMap() + ['_id' => '_id'] as $dbKey => $modelKey) {
-            $model->$modelKey = $in[$dbKey] ?? NULL;
+            $model->$modelKey = $in->$dbKey ?? NULL;
         }
 
         return $model;
