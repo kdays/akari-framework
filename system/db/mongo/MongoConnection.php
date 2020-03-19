@@ -4,6 +4,7 @@
 namespace Akari\system\db\mongo;
 
 use Akari\Core;
+use MongoDB\Model\BSONDocument;
 
 class MongoConnection {
 
@@ -40,6 +41,7 @@ class MongoConnection {
 
         $drvOpts = ($config['driverOptions'] ?? []) + [
             'typeMap' => [
+                'root' => BSONDocument::class,
                 'array' => 'array',
                 'document' => 'array'
             ]
