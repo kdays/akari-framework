@@ -173,6 +173,10 @@ abstract class MongoCollection {
             throw new \RuntimeException('Mongo.Seq Error: now using ObjectId');
         }
 
+        if ($key === NULL) {
+            $key = static::getCollectionName();
+        }
+
         $result = static::getConnection()
             ->getQuery()
             ->selectCollection($seqColName)
