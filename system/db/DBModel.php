@@ -19,7 +19,7 @@ abstract class DBModel {
 
     protected $fromQuery = FALSE;
 
-    public static function findById(int $id) {
+    public static function findById($id) {
         $pk = static::getPrimaryKey();
 
         return static::findFirst([$pk => $id]);

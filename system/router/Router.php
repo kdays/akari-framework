@@ -213,6 +213,10 @@ class Router extends Injectable {
             return !$this->matchURLByString($now, substr($re, 1));
         }
 
+        if ($re == '*') {
+            return [];
+        }
+
         $rules = explode("/", $re);
         $now = explode("/", $now);
 
