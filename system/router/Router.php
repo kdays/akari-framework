@@ -351,7 +351,7 @@ class Router extends Injectable {
     public function bindPreEvent(string $re, callable $callback) {
         $that = $this;
         Event::register(Dispatcher::EVENT_APP_START, function () use ($callback, $that, $re) {
-            if ($that->matchURLByString($that->parsedUrl, $re)) {
+            if ($that->matchURLByString($that->parsedUrl, $re) !== FALSE) {
                 $pResult = $callback();
                 if ($pResult && $pResult instanceof Result) {
                     $that->processor->process($pResult);
@@ -364,7 +364,7 @@ class Router extends Injectable {
     public function bindAfterEvent(string $re, callable $callback) {
         $that = $this;
         Event::register(Dispatcher::EVENT_APP_END, function () use ($callback, $that, $re) {
-            if ($that->matchURLByString($that->parsedUrl, $re)) {
+            if ($that->matchURLByString($that->parsedUrl, $re) !== FALSE) {
                 $pResult = $callback();
                 if ($pResult && $pResult instanceof Result) {
                     $that->processor->process($pResult);
