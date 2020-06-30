@@ -128,6 +128,9 @@ abstract class RequestMap extends Injectable {
         $result = [];
 
         foreach ($this as $key => $value) {
+            // ignore inner values.
+            if ($key == '_pValues' || $key == '_dependencyInjector') continue;
+
             $reqKey = $map[$key] ?? $key;
             if ($value !== NULL || $includeNull) {
                 $result[ $reqKey ] = $value;
