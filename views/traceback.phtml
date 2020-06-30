@@ -12,6 +12,10 @@
         color: #333;
     }
 
+    h1 {
+        background: #eee;
+        padding: 6px 10px;
+    }
 
     h2{font-size: 14px;margin: 6px 0;}
     h2 span{font-size: 12px; color: #666;}
@@ -74,6 +78,8 @@
 
 
 <body>
+    <h1><?=get_class($ex)?></h1>
+
     <div id="message">
         <span><?=$ex->getFile()?>:<?=$ex->getLine()?></span>
         <p><?=$ex->getMessage()?></p>
