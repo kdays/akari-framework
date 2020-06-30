@@ -258,7 +258,7 @@ class Request {
      * @return bool
      */
     public function has($key) {
-        return array_key_exists($key, $_REQUEST);
+        return $this->hasPost($key) || $this->hasQuery($key);
     }
 
 
@@ -271,9 +271,10 @@ class Request {
      * @return mixed
      */
     public function get($key, $filter = "default", $defaultValue = NULL) {
-        if ($key == NULL) return $_REQUEST;
-        if (array_key_exists($key, $_REQUEST)) {
-            return FilterFactory::doFilter($_REQUEST[$key], $filter);
+        $allValues = array_merge($_POST, $_GET);
+        if ($key == NULL) return $allValues;
+        if (array_key_exists($key, $allValues)) {
+            return FilterFactory::doFilter($allValues[$key], $filter);
         }
 
         return $defaultValue;
