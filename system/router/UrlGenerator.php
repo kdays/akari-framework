@@ -27,7 +27,7 @@ class UrlGenerator extends Injectable {
     public function createBaseUrl($path, $args, $withToken) {
         if ($withToken) {
             $tokenKey = $this->_getConfigValue('csrfTokenName', '_akari');
-            $tokenValue = $this->_getValue(VerifyCSRFToken::DATA_KEY, '');
+            list($_, $tokenValue) = VerifyCSRFToken::getTokenParameter();
 
             if ($tokenKey) {
                 $args[ $tokenKey ] = $tokenValue;
