@@ -167,6 +167,13 @@ class Table {
         return $column;
     }
 
+    public function decimal(string $columnName, int $digits, int $point) {
+        $column = $this->_handleFieldType('decimal', $columnName);
+        $column->modifyField('length', $digits . ',' . $point);
+
+        return $column;
+    }
+
     public function integer(string $columnName) {
         return $this->_handleFieldType(TableColumn::TYPE_INT, $columnName);
     }
@@ -418,6 +425,7 @@ class TableColumn {
     const TYPE_TINYINT = 'tinyint';
     const TYPE_ENUM = 'enum';
     const TYPE_TIMESTAMP = 'timestamp';
+    const TYPE_DECIMAL = 'decimal'; // for bank
 
     public static $stringTypes = [self::TYPE_VARCHAR, self::TYPE_TEXT];
 
