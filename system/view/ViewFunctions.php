@@ -118,11 +118,15 @@ EOT
         $widgetCls = implode(NAMESPACE_SEPARATOR, [Core::$appNs, 'widget', ucfirst($widgetName)]);
         $widgetCls = new $widgetCls();
 
-        $tplPath = $view->find($widgetName, View::TYPE_BLOCK);
+        $tplName = $widgetName;
+        $tplName[0] = strtolower($tplName[0]);
+        $tplPath = $view->find($tplName, View::TYPE_BLOCK);
+        if (empty($tplPath)) {
+            throw new AkariException(get_class($widgetCls) . " not found view:" . $tplName);
+        }
 
         if ($widgetCls instanceof BaseWidget) {
             $result = $widgetCls->handle($params);
-
             $c = $view->getViewEngine($tplPath)->parse($tplPath, $result, View::TYPE_BLOCK, FALSE);
 
             return $c;
