@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Akari\system\db\mongo;
 
 use Akari\Core;
@@ -28,7 +27,7 @@ class MongoConnection {
         if (isset($config['url'])) {
             $dsn = $config['url'];
         } elseif (empty($config['username']) || empty($config['password'])) {
-            $dsn = 'mongodb://' . $config['host']. ":". $config['port'];
+            $dsn = 'mongodb://' . $config['host'] . ":" . $config['port'];
         } else {
             $dsn = sprintf(
                 'mongodb://%s:%s@%s:%d',
@@ -48,6 +47,7 @@ class MongoConnection {
         ];
 
         $client = new \MongoDB\Client($dsn, [], $drvOpts);
+
         return $client->selectDatabase($config['database']);
     }
 

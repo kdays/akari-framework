@@ -9,7 +9,6 @@
 namespace Akari\system\util\helper;
 
 use Akari\system\http\HttpCode;
-use Akari\system\http\Response;
 use Akari\system\result\Result;
 
 /**
@@ -47,7 +46,7 @@ trait AppResultTrait {
     }
 
     public function _genDownloadResult(string $data, string $name) {
-        return $this->_genCUSTOMResult($data, ['name' => $name], Result::CONTENT_BINARY, function(Result $result) {
+        return $this->_genCUSTOMResult($data, ['name' => $name], Result::CONTENT_BINARY, function (Result $result) {
             $this->response->setHeader('Content-Disposition', 'attachment;filename=' . $result->meta['name']);
             $this->response->setHeader('Content-Transfer-Encoding', 'binary');
         });

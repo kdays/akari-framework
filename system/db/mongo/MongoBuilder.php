@@ -1,12 +1,9 @@
 <?php
 
-
 namespace Akari\system\db\mongo;
 
-
-use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
-use MongoDB\Model\BSONDocument;
+use MongoDB\BSON\ObjectId;
 
 class MongoBuilder
 {
@@ -51,12 +48,12 @@ class MongoBuilder
 
         $opLimit = $data['LIMIT'] ?? $data['limit'] ?? NULL;
         if ($opLimit !== NULL) {
-            $options['limit'] = (int)$opLimit;
+            $options['limit'] = (int) $opLimit;
         }
 
         $opSkip = $data['SKIP'] ?? $data['skip'] ?? NULL;
         if ($opSkip !== NULL) {
-            $options['skip'] = (int)$opSkip;
+            $options['skip'] = (int) $opSkip;
         }
 
         return [$conditions, $options];
@@ -104,7 +101,7 @@ class MongoBuilder
                 // 如果有操作符的话
                 if (isset($operMap[$operator])) {
                     if (!isset($stack[$column])) $stack[$column] = [];
-                    $stack[$column][$operMap[$operator]] = (int)$value;
+                    $stack[$column][$operMap[$operator]] = (int) $value;
                 } elseif ($operator === '!') {
                     if (!isset($stack[$column])) $stack[$column] = [];
 
@@ -144,9 +141,9 @@ class MongoBuilder
             if (isset($match['operator'])) {
                 $operator = $match['operator'];
                 if ($operator === '+') {
-                    $stack['$inc'][$column] = (int)$value;
+                    $stack['$inc'][$column] = (int) $value;
                 } elseif ($operator === '-') {
-                    $stack['$inc'][$column] = (int)-$value;
+                    $stack['$inc'][$column] = (int) -$value;
                 }
             } else {
                 if (!$this->usingNULL && $value === NULL) {
@@ -196,6 +193,7 @@ class MongoBuilder
 
     public function count(array $filter) {
         $filter = $this->parseFilterConds($filter);
+
         return $this->getQuery()->countDocuments($filter);
     }
 
