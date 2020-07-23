@@ -12,6 +12,7 @@ use Akari\Core;
 use Akari\system\ioc\DI;
 use Akari\system\event\Event;
 use Akari\system\ioc\Injectable;
+use Akari\system\util\ArrayUtil;
 use Akari\system\util\Pagination;
 use Akari\system\util\AppValueMgr;
 use Akari\exception\AkariException;
@@ -115,7 +116,13 @@ EOT
         /** @var View $view */
         $view = $di->getShared('view');
 
-        $widgetCls = implode(NAMESPACE_SEPARATOR, [Core::$appNs, 'widget', ucfirst($widgetName)]);
+        $widgetNamePaths = explode('.', $widgetName);
+        if (count($widgetNamePaths) > 1) {
+            $lastWidgetName = ucfirst(array_pop($widgetNamePaths));
+            $widgetNamePaths[] = $lastWidgetName;
+        }
+
+        $widgetCls = implode(NAMESPACE_SEPARATOR, array_merge([Core::$appNs, 'widget'], $widgetNamePaths));
         $widgetCls = new $widgetCls();
 
         $tplName = $widgetName;
