@@ -1,13 +1,11 @@
 <?php
 
-
 namespace Akari\system\db\mongo;
 
-
+use MongoDB\BSON\ObjectId;
+use Akari\system\util\TextUtil;
 use Akari\system\util\ArrayUtil;
 use Akari\system\util\Collection;
-use Akari\system\util\TextUtil;
-use MongoDB\BSON\ObjectId;
 
 abstract class MongoCollection {
 
@@ -73,7 +71,7 @@ abstract class MongoCollection {
     abstract public function columnMap() :array;
 
     public function getId() {
-        return $this->_id instanceof ObjectId ? (string)$this->_id : $this->_id;
+        return $this->_id instanceof ObjectId ? (string) $this->_id : $this->_id;
     }
 
     public static function find(array $conds) {
@@ -86,6 +84,7 @@ abstract class MongoCollection {
             $model->fromQuery = TRUE;
             $result[] = $model;
         }
+
         return Collection::make($result);
     }
 
@@ -109,16 +108,19 @@ abstract class MongoCollection {
 
     public static function update(array $filter, array $data) {
         $builder = static::getMongoBuilder();
+
         return $builder->update($filter, $data);
     }
 
     public static function insert(array $data) {
         $builder = static::getMongoBuilder();
+
         return $builder->insert($data);
     }
 
     public static function count(array $filter) {
         $builder = static::getMongoBuilder();
+
         return $builder->count($filter);
     }
 
@@ -128,6 +130,7 @@ abstract class MongoCollection {
         }
 
         $builder = static::getMongoBuilder();
+
         return $builder->delete($filter);
     }
 
@@ -150,7 +153,7 @@ abstract class MongoCollection {
 
         $ifExists = static::findById($this->_id);
         if ($ifExists) {
-            return static::update(['_id' => $this->_id], $this->toArray())->getMatchedCount()  > 0;
+            return static::update(['_id' => $this->_id], $this->toArray())->getMatchedCount() > 0;
         }
 
         if (static::insert($this->toArray())->getInsertedCount() > 0) {
@@ -180,7 +183,7 @@ abstract class MongoCollection {
         $result = static::getConnection()
             ->getQuery()
             ->selectCollection($seqColName)
-            ->findOneAndUpdate(['_id' => $key], ['$inc' => ['v' => 1]], ['upsert' => true]);
+            ->findOneAndUpdate(['_id' => $key], ['$inc' => ['v' => 1]], ['upsert' => TRUE]);
 
         if (empty($result)) {
             return self::seqId($key, $seqColName);  // no field, repeat

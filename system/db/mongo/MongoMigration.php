@@ -1,9 +1,6 @@
 <?php
 
-
 namespace Akari\system\db\mongo;
-
-use Akari\system\util\Collection;
 
 class MongoMigration {
 
@@ -23,7 +20,7 @@ class MongoMigration {
         return $data;
     }
 
-    public function createCollection( string $name) {
+    public function createCollection(string $name) {
         return $this->conn->getQuery()->createCollection($name);
     }
 
@@ -31,7 +28,7 @@ class MongoMigration {
         return $this->conn->getQuery()->dropCollection($name);
     }
 
-    public function createIndex(string $collection,  array $keys) {
+    public function createIndex(string $collection, array $keys) {
         return $this->conn->getQuery()->selectCollection($collection)->createIndex($keys);
     }
 
