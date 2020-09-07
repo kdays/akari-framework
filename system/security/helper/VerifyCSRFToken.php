@@ -103,7 +103,7 @@ class VerifyCSRFToken extends Injectable {
     public static function getTokenParameter() {
         $instance = self::instance();
 
-        return [$instance->getRequestToken(), $instance->getServerToken()];
+        return [$instance->getRequestName(), $instance->getServerToken()];
     }
 
     public static function register() {

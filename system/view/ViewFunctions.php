@@ -127,6 +127,7 @@ EOT
 
         $tplName = $widgetName;
         $tplName[0] = strtolower($tplName[0]);
+        $tplName = str_replace('.', DIRECTORY_SEPARATOR, $tplName);
         $tplPath = $view->find($tplName, View::TYPE_BLOCK);
         if (empty($tplPath)) {
             throw new AkariException(get_class($widgetCls) . " not found view:" . $tplName);
