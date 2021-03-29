@@ -91,6 +91,17 @@ class ViewFunctions extends Injectable {
                 break;
 
             case 'GET':
+                $urlParsed = parse_url($url);
+                $urlParameters = explode('&', $urlParsed['query'] ?? '');
+
+                $url = $urlParsed['path'];
+
+                foreach ($urlParameters as $values) {
+                    $values = explode('=', $values);
+                    $key = urlencode(urldecode(array_shift($values)));
+                    $afterForm .= sprintf('<input type="hidden" name="%s" value="%s" />', $key, implode('=', $values));
+                }
+
                 break;
         }
 

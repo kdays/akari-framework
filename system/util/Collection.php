@@ -100,6 +100,10 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return new static(ArrayUtil::flatten($this->items, $columnKey, $indexKey, $allowRepeat));
     }
 
+    public function reverse() {
+        return new static(array_reverse($this->items, TRUE));
+    }
+
     public function indexByKey(string $indexKey, $multi = FALSE) {
         if ($multi) {
             return new static(ArrayUtil::indexMulti($this->items, $indexKey));

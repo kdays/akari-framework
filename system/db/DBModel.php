@@ -25,6 +25,20 @@ abstract class DBModel {
         return static::findFirst([$pk => $id]);
     }
 
+    public static function query($join, $columns = NULL, $where = NULL) {
+        if (is_array($join) && is_null($columns)) {// 如果有Fields字段 我们单独处理
+            $columns = $join;
+            $join = $join['FIELDS'] ?? $join['fields'] ?? '*';
+
+            unset($columns['FIELDS']);
+        }
+
+        $builder = static::getSQLBuilder();
+        $data = $builder->select(static::getTableName(), $join, $columns, $where);
+
+        return Collection::make($data);
+    }
+
     /**
      * @param $join
      * @param null $columns
