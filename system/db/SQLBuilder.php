@@ -121,7 +121,7 @@ class SQLBuilder {
             }
         }
 
-        return implode($stack, ',');
+        return implode(',', $stack);
     }
 
     protected function arrayQuote(array $array) {
@@ -131,7 +131,7 @@ class SQLBuilder {
             $stack[] = is_int($value) ? $value : $this->getConnection()->quote($value);
         }
 
-        return implode($stack, ',');
+        return implode(',', $stack);
     }
 
     protected function innerConjunct(array $data, $map, $conjunctor, $outer_conjunctor) {
@@ -402,7 +402,7 @@ class SQLBuilder {
                         }
                     }
 
-                    $where_clause .= ' ORDER BY ' . implode($stack, ',');
+                    $where_clause .= ' ORDER BY ' . implode(',', $stack);
                 } elseif ($raw = $this->buildRaw($opOrder, $map)) {
                     $where_clause .= ' ORDER BY ' . $raw;
                 } else {
@@ -857,7 +857,7 @@ class SQLBuilder {
                 }
             }
 
-            $stack[] = '(' . implode($values, ', ') . ')';
+            $stack[] = '(' . implode(', ', $values) . ')';
         }
 
         foreach ($columns as $key) {

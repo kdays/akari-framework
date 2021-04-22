@@ -402,7 +402,9 @@ class Table {
             }
         }
 
-        $this->connection->commit();
+        if ($this->connection->inTransaction()) {
+            $this->connection->commit();
+        }
 
         return count($sqls);
     }
