@@ -25,6 +25,7 @@ class Result {
     const CONTENT_XML = 'application/xml';
     const CONTENT_INI = 'text/ini';
     const CONTENT_BINARY = 'application/octet-stream';
+    const CONTENT_JAVACRIPT = 'application/javascript';
 
     public $type;
     public $data;

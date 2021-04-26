@@ -42,7 +42,7 @@ trait AppResultTrait {
     public function _genJSONResult(array $result, $jsonp = NULL) {
         return new Result(Result::TYPE_JSON, $result, [
             'jsonp' => $jsonp
-        ], 'application/javascript');
+        ], Result::CONTENT_JSON);
     }
 
     public function _genDownloadResult(string $data, string $name) {
