@@ -3,6 +3,7 @@
   "description": "KDays Akari Framework",
   "autoload": {
     "files": [
+      "consts.php",
       "functions.php",
       "defaultBoot.php"
     ],
