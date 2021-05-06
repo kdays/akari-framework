@@ -52,7 +52,7 @@ trait AppResultTrait {
         });
     }
 
-    public function _genCUSTOMResult(string $data, array $meta, string $contentType, callable $callback) {
+    public function _genCUSTOMResult($data, array $meta, string $contentType, callable $callback) {
         return new Result(Result::TYPE_CUSTOM, $data, $meta, $contentType, $callback);
     }
 
