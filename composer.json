@@ -1,0 +1,13 @@
+{
+  "name": "kdays/akari-framework",
+  "description": "KDays Akari Framework",
+  "autoload": {
+    "files": [
+      "functions.php",
+      "defaultBoot.php"
+    ],
+    "psr-4": {
+      "Akari\\": ""
+    }
+  }
+}
