@@ -42,12 +42,12 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     }
 
     public function times($number, callable $callback = NULL) {
-        if ($number < 1) {
-            return new static();
-        }
-
         if (is_null($callback)) {
             return new static(range(1, $number));
+        }
+
+        if ($number < 1) {
+            return new static();
         }
 
         return (new static(range(1, $number)))->map($callback);
@@ -140,6 +140,11 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
 
     public function keys() {
         return new static(array_keys($this->items));
+    }
+
+    public function each(callable $callback) {
+        array_walk($this->items, $callback);
+        return $this;
     }
 
     /**
@@ -250,7 +255,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      * @since 5.4.0
      */
     public function jsonSerialize() {
-        return json_encode($this->items);
+        return ($this->items);
     }
 
 }

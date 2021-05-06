@@ -9,6 +9,7 @@
 namespace Akari\system\router;
 
 use Akari\Core;
+use Akari\system\event\Event;
 use Akari\system\result\Result;
 use Akari\system\ioc\Injectable;
 use Akari\exception\ActionNotFound;
@@ -21,6 +22,7 @@ class Dispatcher extends Injectable {
 
     const EVENT_APP_START = 'dispatcher.appStart';
     const EVENT_APP_END = 'dispatcher.appEnd';
+    const EVENT_NOT_VALID_RESULT = 'dispatcher.notValidResult';
 
     const DEFAULT_SUFFIX = 'Action';
     const DEFAULT_HANDLER_NAME = '_handle';
@@ -30,6 +32,7 @@ class Dispatcher extends Injectable {
     protected $actionParameters;
     protected $actionNameSuffix = self::DEFAULT_SUFFIX; // 方法尾部
     protected $actionMethodSuffix = self::DEFAULT_SUFFIX;
+    protected $lastResult;
 
     public function setActionMethodSuffix(string $suffix) {
         $this->actionMethodSuffix = $suffix;
@@ -124,30 +127,32 @@ class Dispatcher extends Injectable {
         }
 
         if (method_exists($ctl, '_pre')) {
-            $result = $ctl->_pre();
-            if ($result instanceof Result) {
-                return $result;
+            $this->lastResult = $ctl->_pre();
+            if ($this->lastResult instanceof Result) {
+                return $this->lastResult;
             }
         }
 
-        $result = $ctl->$methodCaller();
+        $this->lastResult = $ctl->$methodCaller();
         if (method_exists($ctl, '_after')) {
-            $afterResult = $ctl->_after($result);
+            $afterResult = $ctl->_after($this->lastResult);
             if ($afterResult instanceof Result) {
-                return $afterResult;
+                $this->lastResult = $afterResult;
             }
         }
 
-        if (!is_a($result, Result::class)) {
-            $nonResult = $this->_getConfigValue("nonResultCallback", NULL);
-            if ($nonResult) {
-                return call_user_func_array($nonResult, [$result]);
-            }
+        if (!is_a($this->lastResult, Result::class)) {
+            $defaultResult = new Result(Result::TYPE_NONE, $this->lastResult, []);
+            Event::fire(self::EVENT_NOT_VALID_RESULT, [$defaultResult]);
 
-            return new Result(Result::TYPE_NONE, $result, []);
+            $this->lastResult = $defaultResult;
         }
 
-        return $result;
+        return $this->lastResult;
+    }
+
+    public function getLastResult() {
+        return $this->lastResult;
     }
 
     public function getActionName() {

@@ -32,6 +32,9 @@ class Processor extends Injectable {
 
     public function processJSON(Result $result) {
         if (!empty($result->meta['jsonp'])) {
+            if ($result->contentType == Result::CONTENT_JSON) {
+                $result->contentType = Result::CONTENT_JAVACRIPT;
+            }
             return sprintf("%s(%s)", $result->meta['jsonp'], json_encode($result->data));
         }
 

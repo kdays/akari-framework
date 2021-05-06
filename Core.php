@@ -80,7 +80,7 @@ class Core extends Injectable {
     }
 
     protected function registerException() {
-        set_error_handler(function ($code, $message, $file, $line, $context) {
+        set_error_handler(function ($code, $message, $file, $line) {
             throw new \ErrorException($message, $code, $code, $file, $line);
         }, error_reporting());
 
