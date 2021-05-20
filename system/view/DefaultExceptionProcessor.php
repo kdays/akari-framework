@@ -8,8 +8,8 @@
 
 namespace Akari\system\view;
 
-use Akari\exception\ActionNotFound;
 use Akari\system\http\HttpCode;
+use Akari\exception\ActionNotFound;
 use Akari\system\util\ExceptionUtil;
 use Akari\system\security\BaseExceptionProcessor;
 
@@ -19,6 +19,7 @@ class DefaultExceptionProcessor extends BaseExceptionProcessor {
         // TODO: Implement process() method.
         if ($ex instanceof ActionNotFound) {
             $this->response->setStatusCode(HttpCode::NOT_FOUND);
+
             return $this->_genHTMLResult( View::render4Data( AKARI_PATH . "views/404.phtml", []) );
         }
 

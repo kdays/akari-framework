@@ -1,4 +1,5 @@
 <?php
+
 namespace Akari;
 
 include __DIR__ . "/consts.php";
