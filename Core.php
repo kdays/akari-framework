@@ -34,7 +34,6 @@ class Core extends Injectable {
         $akari = new self();
 
         $appDir = $baseDir . DIRECTORY_SEPARATOR . $appEntryFolderName;
-        Loader::register($appNs, $appDir);
 
         if ($config === NULL) {
             $configCls = implode(NAMESPACE_SEPARATOR, [$appNs, 'config', 'Config']);
@@ -51,11 +50,7 @@ class Core extends Injectable {
         self::$appNs = $appNs;
         self::$appConfig = $config;
         self::$fkInstance = $akari;
-        self::$appDir = Loader::getDir($appNs);
-
-        if (file_exists($defBoot = AKARI_PATH . "/defaultBoot.php")) {
-            include $defBoot;
-        }
+        self::$appDir = $appDir;
 
         $akari->updateConfig($config);
         $akari->registerException();

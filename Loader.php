@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: kdays
- * Date: 2019-02-25
- * Time: 14:17
- */
-
 namespace Akari;
 
 include __DIR__ . "/consts.php";
