@@ -472,7 +472,7 @@ class TableColumn {
                     $stub->enumFields = $matches;
                 } else {
                     preg_match('/(\d+)/', $column['COLUMN_TYPE'], $matches);
-                    $stub->length = (int) $matches[0];
+                    $stub->length = (int) ($matches[0] ?? 0);
                 }
             }
             $stub->remark = $column['COLUMN_COMMENT'];
