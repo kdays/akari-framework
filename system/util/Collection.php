@@ -144,6 +144,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
 
     public function each(callable $callback) {
         array_walk($this->items, $callback);
+
         return $this;
     }
 
