@@ -28,7 +28,7 @@ class Core extends Injectable {
             $parent = self::$appConfig->{array_shift($keys)} ?? NULL;
             if ($parent === NULL) return $defaultValue;
 
-            return $parent[join('.', $keys)];
+            return $parent[join('.', $keys)] ?? $defaultValue;
         }
         return self::$appConfig->$key ?? $defaultValue;
     }
