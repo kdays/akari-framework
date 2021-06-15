@@ -11,7 +11,7 @@ class Loader {
         'Akari' => AKARI_PATH
     ];
 
-    protected static $classes = [];
+    protected static $loaded = [];
 
     public static function register(string $ns, string $dir) {
         self::$nsPaths[$ns] = $dir;
@@ -24,16 +24,17 @@ class Loader {
     public static function __loaderFn(string $class) {
         $nsPaths = explode(NAMESPACE_SEPARATOR, $class);
 
+        $clsPath = NULL;
         if ( isset(self::$nsPaths[$nsPaths[0]]) ) {
             $basePath = self::$nsPaths[ array_shift($nsPaths)];
             $clsPath = $basePath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $nsPaths) . ".php";
         }
 
-
-        if(isset(self::$classes[$clsPath]))	return ;
-        if($clsPath && file_exists($clsPath)) {
-            self::$classes[$clsPath] = TRUE;
-            require_once $clsPath;
+        if ($clsPath && file_exists($clsPath)) {
+            if (!isset(self::$loaded[$clsPath])) {
+                self::$loaded[$clsPath] = TRUE;
+                require $clsPath;
+            }
         } else {
             throw new LoaderClassNotExists($class);
         }
@@ -46,3 +47,4 @@ spl_autoload_register(['Akari\Loader', '__loaderFn']);
 // load core functions
 include __DIR__ . '/Core.php';
 include __DIR__ . '/functions.php';
+include __DIR__ . '/defaultBoot.php';

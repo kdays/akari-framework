@@ -23,6 +23,13 @@ class Core extends Injectable {
     public static $baseDir;
 
     public static function env(string $key, $defaultValue = NULL) {
+        $keys = explode('.', $key);
+        if (count($keys) > 1) {
+            $parent = self::$appConfig->{array_shift($keys)} ?? NULL;
+            if ($parent === NULL) return $defaultValue;
+
+            return $parent[join('.', $keys)];
+        }
         return self::$appConfig->$key ?? $defaultValue;
     }
 
