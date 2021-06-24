@@ -36,8 +36,6 @@ class Loader {
                 self::$loaded[$clsPath] = TRUE;
                 require $clsPath;
             }
-        } else {
-            throw new LoaderClassNotExists($class);
         }
     }
 
