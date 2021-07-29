@@ -99,6 +99,8 @@ class ViewFunctions extends Injectable {
                 foreach ($urlParameters as $values) {
                     $values = explode('=', $values);
                     $key = urlencode(urldecode(array_shift($values)));
+                    if (empty($key)) continue;
+
                     $afterForm .= sprintf('<input type="hidden" name="%s" value="%s" />', $key, implode('=', $values));
                 }
 
