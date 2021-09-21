@@ -634,14 +634,17 @@ class SQLBuilder {
     }
 
     public function exec($query, array $map) {
-        $this->logs[] = [$query, $map];
         $st = $this->getConnection()->prepare($query);
         if ($this->debug) {
+            $this->logs[] = [$query, $map];
+
             var_dump($this->generate($query, $map));
             var_dump($query, $map);die;
         }
 
-        AkariDebugUtil::pushSqlBuilder($this, $query, $map);
+        if (APP_DEBUG) {
+            AkariDebugUtil::pushSqlBuilder($this, $query, $map);
+        }
 
         if ($st) {
             foreach ($map as $key => $value) {
@@ -657,6 +660,8 @@ class SQLBuilder {
                 throw $ex;
             }
             $this->statement = $st;
+
+            $map = null;
 
             return $this->statement;
         }
@@ -988,8 +993,8 @@ class SQLBuilder {
                 }
 
                 $this->columnMap($columns, $column_map);
-
                 $this->dataMap($data[ 0 ], $columns, $column_map, $stack);
+                $query->closeCursor();
 
                 if ($is_single) {
                     return $stack[ $column_map[ $column ][ 0 ] ];
@@ -1007,6 +1012,7 @@ class SQLBuilder {
 
         if ($query) {
             $number = $query->fetchColumn();
+            $query->closeCursor();
 
             return is_numeric($number) ? $number + 0 : $number;
         }

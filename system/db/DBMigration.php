@@ -8,6 +8,7 @@
 
 namespace Akari\system\db;
 
+use Akari\system\util\Collection;
 use Akari\system\util\TextUtil;
 use Akari\exception\DBException;
 
@@ -27,7 +28,7 @@ class DBMigration {
             'name' => $this->connection->getDbName()
         ]);
 
-        $this->tables = $result->indexByKey('TABLE_NAME');
+        $this->tables = Collection::make($result)->indexByKey('TABLE_NAME');
     }
 
     public function exists(string $tableName) {
@@ -101,7 +102,7 @@ class Table {
         }
 
 
-        $this->isNew = $cols->isEmpty();
+        $this->isNew = empty($cols);
         if (!$this->isNew) {
             $indexes = $connection->fetch("show keys from " . $tableName);
 
@@ -136,6 +137,10 @@ class Table {
     //// 注册基础方法
     public function text(string $columnName) {
         return $this->_handleFieldType(TableColumn::TYPE_TEXT, $columnName);
+    }
+
+    public function mediumtext(string $column) {
+        return $this->_handleFieldType(TableColumn::TYPE_MEDIUMTEXT, $column);
     }
 
     public function string(string $columnName, int $length) {
@@ -428,8 +433,9 @@ class TableColumn {
     const TYPE_ENUM = 'enum';
     const TYPE_TIMESTAMP = 'timestamp';
     const TYPE_DECIMAL = 'decimal'; // for bank
+    const TYPE_MEDIUMTEXT = 'mediumtext';
 
-    public static $stringTypes = [self::TYPE_VARCHAR, self::TYPE_TEXT];
+    public static $stringTypes = [self::TYPE_VARCHAR, self::TYPE_TEXT, self::TYPE_MEDIUMTEXT];
 
     public $name;
 

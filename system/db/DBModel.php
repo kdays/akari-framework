@@ -92,9 +92,13 @@ abstract class DBModel {
 
         $result = $builder->insert( static::getTableName(), $data );
         if ($result) {
-            return $builder->id();
+            $id = $builder->id();
+            $result->closeCursor();
+
+            return $id;
         }
 
+        $result->closeCursor();
         return TRUE;
     }
 
@@ -166,6 +170,7 @@ abstract class DBModel {
 
             $ifExists = static::findById($this->$mKey);
             if ($ifExists) {
+                $ifExists = null;
                 return static::update([$pk => $this->$mKey], $this->toArray());
             }
 

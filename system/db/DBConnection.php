@@ -200,7 +200,7 @@ class DBConnection {
      * @param string $sql
      * @param array $values
      * @param int $fetchMode see \PDO::FETCH_*
-     * @return Collection
+     * @return array
      * @throws DBException
      */
     public function fetch($sql, $values = [], $fetchMode = \PDO::FETCH_ASSOC) {
@@ -211,7 +211,7 @@ class DBConnection {
             $result = $st->fetchAll($fetchMode);
             $this->closeCollection($st);
 
-            return Collection::make($result);
+            return $result;
         }
 
         $this->throwErr($st);

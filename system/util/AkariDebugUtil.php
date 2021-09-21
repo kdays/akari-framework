@@ -11,7 +11,7 @@ class AkariDebugUtil {
     protected static $caches = [];
 
     public static function pushSqlBuilder(SQLBuilder $builder, $query, array $map) {
-        if (APP_DEBUG == 1) {
+        if (APP_DEBUG == 1 && !CLI_MODE) {
             $track = debug_backtrace();
             self::$sqls[] = [
                 'sql' => $builder->generate($query, $map),
