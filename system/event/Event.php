@@ -11,6 +11,7 @@ namespace Akari\system\event;
 class Event {
 
     protected static $listeners = [];
+    protected static $eventCounter = [];
     protected static $eventId = 0;
 
     public static $debug = FALSE;
@@ -58,6 +59,12 @@ class Event {
     }
 
     public static function fire(string $eventType, $parameters) {
+        if (empty(self::$eventCounter[$eventType])) {
+            self::$eventCounter[$eventType] = 0;
+        }
+
+        ++self::$eventCounter[$eventType];
+
         /** @var EventListener $listener */
         foreach (self::getListeners($eventType, TRUE) as $listener) {
             $listener->fire($parameters);
@@ -66,6 +73,10 @@ class Event {
         if ($parameters instanceof EventParameters) {
             return $parameters->get();
         }
+    }
+
+    public static function getFiredCount(string $eventType) {
+        return self::$eventCounter[$eventType] ?? 0;
     }
 
     /**

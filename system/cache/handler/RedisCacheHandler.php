@@ -93,7 +93,7 @@ class RedisCacheHandler implements ICacheHandler{
         }
 
         $key = $this->prefix . $key;
-        $this->redisHandler->delete($key);
+        $this->redisHandler->del($key);
 
         return TRUE;
     }
