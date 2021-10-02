@@ -108,7 +108,10 @@ class VerifyCSRFToken extends Injectable {
 
     public static function register() {
         $instance = self::instance();
-        $instance->autoVerify();
+
+        Event::register(Dispatcher::EVENT_APP_START, function () use ($instance) {
+            $instance->autoVerify();
+        });
 
         // CSRF View Register
         ViewFunctions::registerFunction("csrf_token", function () use ($instance) {

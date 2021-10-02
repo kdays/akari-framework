@@ -16,6 +16,8 @@ class Event {
 
     public static $debug = FALSE;
 
+    const ON_FRAMEWORK_BEFORE = 'fkBefore.';
+
     public static function register(string $event, callable $callback, $priority = 0) {
         list($gloEvent, $subEvent) = explode(".", $event);
 
@@ -64,6 +66,11 @@ class Event {
         }
 
         ++self::$eventCounter[$eventType];
+
+        /** @var EventListener $listener */
+        foreach (self::getListeners(self::ON_FRAMEWORK_BEFORE . $eventType) as $listener) {
+            $listener->fire($parameters);
+        }
 
         /** @var EventListener $listener */
         foreach (self::getListeners($eventType, TRUE) as $listener) {
