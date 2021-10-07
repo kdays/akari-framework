@@ -132,6 +132,8 @@ EOT
         if (count($widgetNamePaths) > 1) {
             $lastWidgetName = ucfirst(array_pop($widgetNamePaths));
             $widgetNamePaths[] = $lastWidgetName;
+        } else {
+            $widgetNamePaths[0] = ucfirst($widgetNamePaths[0]);
         }
 
         $widgetCls = implode(NAMESPACE_SEPARATOR, array_merge([Core::$appNs, 'widget'], $widgetNamePaths));
