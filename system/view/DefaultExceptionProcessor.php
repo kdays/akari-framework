@@ -26,10 +26,12 @@ class DefaultExceptionProcessor extends BaseExceptionProcessor {
         if (defined('APP_DEBUG') && APP_DEBUG) {
             /// traceback
             list($fileLines, $trace) = ExceptionUtil::getCrashDebugInfo($ex->getFile(), $ex->getLine(), $ex->getTrace());
+            $filePath = ExceptionUtil::friendlyPath($ex->getFile());
 
             return $this->_genHTMLResult(
                 View::render4Data(AKARI_PATH . "views/traceback.phtml", [
                     'ex' => $ex,
+                    'filePath' => $filePath,
                     'fileLine' => $fileLines,
                     'line' => $ex->getLine(),
                     'trace' => $trace

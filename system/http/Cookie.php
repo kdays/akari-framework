@@ -41,10 +41,10 @@ class Cookie extends Injectable {
         $name = $prefix . $name;
 
         if ($value === FALSE) {
-            setcookie($name, '', TIMESTAMP - 3600, $path, $domain);
+            setcookie($name, '', TIMESTAMP - 3600, $path, $domain, false, $options['http_only'] ?? FALSE);
             unset($this->_values[$name]);
         } else {
-            setcookie($name, $value, $time, $path, $domain);
+            setcookie($name, $value, $time, $path, $domain, false, $options['http_only'] ?? FALSE);
             $this->_values[$name] = $value;
         }
     }

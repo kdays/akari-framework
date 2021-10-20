@@ -59,6 +59,14 @@ class ExceptionUtil {
         $response->send();
     }
 
+    public static function friendlyPath(string $path) {
+        $path = str_replace(Core::$appDir, 'App:', $path);
+        $path = str_replace(AKARI_PATH, 'Core:/', $path);
+        $path = str_replace(Core::$baseDir, 'Base:', $path);
+
+        return $path;
+    }
+
     public static function getCrashDebugInfo(string $file, int $line, array $trace) {
         $count = count($trace);
         $padLen = strlen($count);
@@ -67,7 +75,7 @@ class ExceptionUtil {
                 $call['file'] = 'Internal Location';
                 $call['line'] = 'N/A';
             }else{
-                $call['file'] = str_replace(Core::$appDir, '', $call['file']);
+                $call['file'] = self::friendlyPath($call['file']);
             }
             $traceLine = '#' . str_pad(($count - $key), $padLen, "0", STR_PAD_LEFT) . ' ' . self::getCallLine(
                     $call);
@@ -122,8 +130,9 @@ class ExceptionUtil {
                         $arg = strval($arg);
                     $call_signature .= $arg . ',';
                 }
-                $call_signature = trim($call_signature, ',') . ")</span>";
+                $call_signature = trim($call_signature, ',') . ")";
             }
+            $call_signature .= "</span>";
         }
 
         return $call_signature;
