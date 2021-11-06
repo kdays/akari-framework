@@ -98,18 +98,10 @@ class Dispatcher extends Injectable {
         $actionName = $this->getActionName();
         $actionMethod = $this->getActionMethod() . $this->getActionMethodSuffix();
 
-        try {
-            if (!class_exists($actionName)) {
-                return FALSE;
-            }
-        } catch (LoaderClassNotExists $e) {
-            if ($e->getClass() != $actionName) {
-                throw $e;
-            }
-
+        if (!class_exists($actionName)) {
             throw new ActionNotFound("Action not exists");
         }
-
+        
         return $this->doAction($actionName, $actionMethod);
     }
 
