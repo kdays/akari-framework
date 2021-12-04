@@ -22,6 +22,7 @@ class VerifyCSRFToken extends Injectable {
 
     const DATA_KEY = 'Security:CSRF';
     protected $requestName;
+    protected static $skipped = false;
 
     public function __construct() {
         $this->requestName = $this->_getConfigValue('csrfTokenName', '_akari');
@@ -29,6 +30,10 @@ class VerifyCSRFToken extends Injectable {
 
     public function getRequestName() {
         return $this->requestName;
+    }
+
+    public static function skip() {
+        self::$skipped = true;
     }
 
     public function makeToken() {
@@ -73,7 +78,7 @@ class VerifyCSRFToken extends Injectable {
     }
 
     public function verifyToken() {
-        if ($this->getServerToken() != $this->getRequestToken()) {
+        if (!self::$skipped && $this->getServerToken() != $this->getRequestToken()) {
             throw new CSRFVerifyError();
         }
     }
