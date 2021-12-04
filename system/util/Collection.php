@@ -157,6 +157,10 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
         return ArrayUtil::isAssoc($this->items);
     }
 
+    public function usort($callback) {
+        usort($this->items, $callback);
+    }
+
     protected function getArrayableItems($items) {
         if (is_array($items)) {
             return $items;

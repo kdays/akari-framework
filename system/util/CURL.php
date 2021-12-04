@@ -16,6 +16,7 @@ class CURL {
     protected $handler;
     protected $options = [
         CURLOPT_RETURNTRANSFER => TRUE,
+        CURLOPT_FOLLOWLOCATION => TRUE,
         CURLOPT_TIMEOUT => 5,
         CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
         CURLOPT_USERAGENT => "Akari/1.0",
