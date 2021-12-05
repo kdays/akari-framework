@@ -77,6 +77,7 @@ abstract class RequestMap extends Injectable {
             $baseKey = substr($key, 0, $startPos);
             $subKey =  substr($key, $startPos + 1, -1);
 
+            // 这里是从数组里 必定是true
             $values = $this->requestValue($baseKey, $method, $defaultValue);
             if (array_key_exists($subKey, $values)) {
                 return $values[$subKey];
@@ -95,7 +96,7 @@ abstract class RequestMap extends Injectable {
 
         // 调用接口来处理
         if ($this->valueRetCall !== NULL) {
-            return call_user_func($this->valueRetCall, $key, $this->getFilter($key), $defaultValue);
+            return call_user_func($this->valueRetCall, $key, $this->getFilter($key), $defaultValue, $this->allowArray($key));
         }
 
         $callMap = [
@@ -105,7 +106,7 @@ abstract class RequestMap extends Injectable {
             NULL => 'get'
         ];
 
-        $value = $this->request->{$callMap[$method]}($key, $this->getFilter($key), $defaultValue);
+        $value = $this->request->{$callMap[$method]}($key, $this->getFilter($key), $defaultValue, $this->allowArray($key));
         if ($value === $defaultValue) return $defaultValue;
 
         return $value;
@@ -113,6 +114,10 @@ abstract class RequestMap extends Injectable {
 
     public function getFilter(string $key) {
         return 'default';
+    }
+
+    public function allowArray(string $key) {
+        return FALSE;
     }
 
     /**

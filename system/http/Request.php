@@ -261,23 +261,45 @@ class Request {
         return $this->hasPost($key) || $this->hasQuery($key);
     }
 
+    protected function _filterValue($key, $values, $filter, $defaultValue, $allowArray) {
+        if ($key === NULL) {
+            $result = [];
+            foreach ($values as $key => $value) {
+                // 取全部值的时候只有明确FALSE才禁止array
+                if ($allowArray === FALSE && is_array($value)) {
+                    $value = NULL;
+                }
+
+                $result[$key] = FilterFactory::doFilter($key, $value);
+            }
+
+            return $result;
+        }
+
+        if (array_key_exists($key, $values)) {
+            if (($allowArray === NULL || $allowArray === FALSE) && is_array($values[$key])) {
+                return $defaultValue;
+            }
+
+            return FilterFactory::doFilter($values[$key], $filter);
+        }
+
+        return $defaultValue;
+    }
 
     /**
      * 获得REQUEST(GET或者POST)下的参数
      *
      * @param string|NULL $key
-     * @param mixed $defaultValue
+     * @param string|NULL $defaultValue
      * @param string $filter
+     * @param bool $allowArray 是否允许数组传入 不允许的话则传入数组时直接返回defaultValue
      * @return mixed
      */
-    public function get($key, $filter = "default", $defaultValue = NULL) {
+    public function get($key, $filter = "default", $defaultValue = NULL, $allowArray = NULL) {
         $allValues = array_merge($_POST, $_GET);
-        if ($key == NULL) return $allValues;
-        if (array_key_exists($key, $allValues)) {
-            return FilterFactory::doFilter($allValues[$key], $filter);
-        }
 
-        return $defaultValue;
+        return $this->_filterValue($key, $allValues, $filter, $defaultValue, $allowArray);
     }
 
     /**
@@ -296,15 +318,11 @@ class Request {
      * @param string|NULL $key
      * @param mixed $defaultValue
      * @param string $filter
+     * @param bool $allowArray 是否允许数组传入 不允许的话则传入数组时直接返回defaultValue
      * @return mixed
      */
-    public function getPost($key, $filter = "default", $defaultValue = NULL) {
-        if ($key == NULL) return $_POST;
-        if (array_key_exists($key, $_POST)) {
-            return FilterFactory::doFilter($_POST[$key], $filter);
-        }
-
-        return $defaultValue;
+    public function getPost($key, $filter = "default", $defaultValue = NULL, $allowArray = NULL) {
+        return $this->_filterValue($key, $_POST, $filter, $defaultValue, $allowArray);
     }
 
     public function hasQuery($key) {
@@ -317,15 +335,11 @@ class Request {
      * @param string|NULL $key
      * @param string $filter
      * @param mixed $defaultValue
+     * @param bool $allowArray 是否允许数组传入 不允许的话则传入数组时直接返回defaultValue
      * @return mixed
      */
-    public function getQuery($key, $filter = "default", $defaultValue = NULL) {
-        if ($key == NULL) return $_GET;
-        if (array_key_exists($key, $_GET)) {
-            return FilterFactory::doFilter($_GET[$key], $filter);
-        }
-
-        return $defaultValue;
+    public function getQuery($key, $filter = "default", $defaultValue = NULL, $allowArray = NULL) {
+        return $this->_filterValue($key, $_GET, $filter, $defaultValue, $allowArray);
     }
 
     /**
