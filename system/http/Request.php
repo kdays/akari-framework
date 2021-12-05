@@ -270,7 +270,7 @@ class Request {
                     $value = NULL;
                 }
 
-                $result[$key] = FilterFactory::doFilter($key, $value);
+                $result[$key] = FilterFactory::doFilter($value, $filter);
             }
 
             return $result;
