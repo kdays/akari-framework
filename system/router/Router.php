@@ -356,6 +356,7 @@ class Router extends Injectable {
                 if ($pResult && $pResult instanceof Result) {
                     $that->processor->process($pResult);
                     $that->response->send();
+                    die;
                 }
             }
         });
@@ -369,6 +370,7 @@ class Router extends Injectable {
                 if ($pResult && $pResult instanceof Result) {
                     $that->processor->process($pResult);
                     $that->response->send();
+                    die;
                 }
             }
         });
