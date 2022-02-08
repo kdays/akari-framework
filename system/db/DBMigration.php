@@ -46,7 +46,7 @@ class DBMigration {
 
     public function rename(string $fromName, string $toName) {
         $sql = sprintf("RENAME TABLE `%s` TO `%s`", $fromName, $toName);
-        $result = $this - $this->connection->query($sql);
+        $result = $this->connection->query($sql);
 
         $this->initBasic();
 
@@ -100,7 +100,6 @@ class Table {
 
             $this->columns[ $columnField->name ] = $columnField;
         }
-
 
         $this->isNew = empty($cols);
         if (!$this->isNew) {
@@ -189,7 +188,7 @@ class Table {
 
     public function increments(string $columnName) {
         $col = $this->_handleFieldType(TableColumn::TYPE_INT, $columnName);
-        $col->modifyField('primary', 1);
+        $col->modifyField('primary', TRUE);
         $col->autoIncrement();
 
         return $col;
@@ -232,6 +231,7 @@ class Table {
             $column = $this->columns[$colName];
             if ($column->type != $type) {
                 $column->type = $type;
+                $column->length = NULL;
                 $column->modifyFields[] = "type";
             }
         }
@@ -377,10 +377,15 @@ class Table {
                 $sql .= ",";
             }
 
+            $fieldSql = [];
+            foreach ($index->fields as $field) {
+                $fieldSql[] = '`' . $field . '`';
+            }
+
             $sql .= sprintf('ADD %s `%s` (%s) comment "%s"',
                 $typeMap[$index->type],
                 $index->name,
-                implode(",", $index->fields),
+                implode(",", $fieldSql),
                 $index->comment
             );
 
@@ -392,7 +397,6 @@ class Table {
 
     public function execute() {
         $sqls = $this->sqls();
-
         if (empty($sqls)) {
             return TRUE;
         }
@@ -468,6 +472,7 @@ class TableColumn {
             $stub = $this;
             $stub->name = $column['COLUMN_NAME'];
             $stub->type = $column['DATA_TYPE'];
+
             if (!empty($column['CHARACTER_MAXIMUM_LENGTH'])) {
                 $stub->length = (int) $column['CHARACTER_MAXIMUM_LENGTH'];
             } else {
@@ -477,13 +482,18 @@ class TableColumn {
 
                     $stub->enumFields = $matches;
                 } else {
-                    preg_match('/(\d+)/', $column['COLUMN_TYPE'], $matches);
-                    $stub->length = (int) ($matches[0] ?? 0);
+                    if (TextUtil::exists($column['COLUMN_TYPE'], '(')) {
+                        $stub->length = substr($column['COLUMN_TYPE'], strpos($column['COLUMN_TYPE'], '(') + 1, -1);
+                    } else {
+                        preg_match('/(\d+)/', $column['COLUMN_TYPE'], $matches);
+                        $stub->length = (int) ($matches[0] ?? 0);
+                    }
                 }
             }
+
             $stub->remark = $column['COLUMN_COMMENT'];
             $stub->primary = $column['COLUMN_KEY'] == 'PRI';
-            $stub->extraFields = $column['EXTRA'];
+            $stub->extra = $column['EXTRA'];
             $stub->oldName = $stub->name;
             $stub->defaultValue = $column['COLUMN_DEFAULT'];
 
@@ -497,8 +507,11 @@ class TableColumn {
     }
 
     public function modifyField(string $fieldName, $value) {
-        if ($this->$fieldName != $value) {
+        if (strtolower($this->$fieldName) != strtolower($value)) {
             $this->modifyFields[] = $fieldName;
+            if ($fieldName === 'type') {
+                $this->length = NULL;
+            }
         }
 
         $this->$fieldName = $value;
@@ -584,8 +597,10 @@ class TableIndex {
     public $modifyFields = [];
 
     public function setFields(...$fields) {
-        $this->fields = $fields;
-        $this->modifyFields[] = 'fields';
+        if ($this->fields != $fields)  {
+            $this->fields = $fields;
+            $this->modifyFields[] = 'fields';
+        }
 
         return $this;
     }
