@@ -31,7 +31,7 @@ class Cookie extends Injectable {
         if (is_numeric($time)) {
             $time += TIMESTAMP;
         } else {
-            $time = $time == 'now' ? 0 : strtotime($time);
+            $time = (empty($time) || $time == 'now') ? 0 : strtotime($time);
         }
 
         $path = $options['path'] ?? $this->_getConfigValue("cookiePath", '/');
