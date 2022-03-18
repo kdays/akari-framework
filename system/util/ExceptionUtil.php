@@ -23,7 +23,7 @@ class ExceptionUtil {
     public static function dispatchException(\Throwable $ex) {
         static $fired = FALSE;
 
-        if (CLI_MODE) {
+        if (Core::inConsole()) {
             echo "\n-------\n\033[31;49;1m" . $ex->getMessage() . "\n" . get_class($ex) . "\033[39;49;0m";
 
             echo "\n\n" . $ex->getTraceAsString() . "\n";

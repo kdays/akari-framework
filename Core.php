@@ -13,6 +13,7 @@ use Akari\exception\PHPFatalException;
 class Core extends Injectable {
 
     protected static $fkInstance = NULL;
+    protected static $cliMode = NULL;
 
     /**
      * @var BaseConfig
@@ -31,6 +32,18 @@ class Core extends Injectable {
             return $parent[join('.', $keys)] ?? $defaultValue;
         }
         return self::$appConfig->$key ?? $defaultValue;
+    }
+
+    public static function inConsole() {
+        if (defined('CLI_MODE')) {
+            return CLI_MODE;
+        }
+
+        if (self::$cliMode === NULL) {
+            self::$cliMode = php_sapi_name() === 'cli';
+        }
+
+        return self::$cliMode;
     }
 
     public static function initApp(string $baseDir, string $appNs, BaseConfig $config = NULL, string $appEntryFolderName = 'app') {
@@ -102,7 +115,7 @@ class Core extends Injectable {
         $uri = $uri ?? $this->router->resolveURI();
 
         if ($outputBuffer)  ob_start();
-        if (!CLI_MODE) {
+        if (!Core::inConsole()) {
             $uri = $this->router->getUrlFromRule($uri, NULL);
         } else {
             $this->dispatcher->setActionNameSuffix('Task');

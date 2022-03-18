@@ -78,7 +78,7 @@ class Dispatcher extends Injectable {
     }
 
     public function getAppActionNs() {
-        if (CLI_MODE) {
+        if (Core::inConsole()) {
             return Core::$appNs . NAMESPACE_SEPARATOR . 'task';
         }
 

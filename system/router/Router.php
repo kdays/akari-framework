@@ -8,6 +8,7 @@
 
 namespace Akari\system\router;
 
+use Akari\Core;
 use Akari\system\event\Event;
 use Akari\system\result\Result;
 use Akari\system\util\TextUtil;
@@ -56,7 +57,7 @@ class Router extends Injectable {
     }
 
     public function getParameters() {
-        if (CLI_MODE) {
+        if (Core::inConsole()) {
             $toParameters = $_SERVER['argv'] ?? [];
             array_shift($toParameters);
 

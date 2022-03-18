@@ -2,6 +2,7 @@
 
 namespace Akari\system\util;
 
+use Akari\Core;
 use Akari\system\db\SQLBuilder;
 use Akari\system\cache\handler\ICacheHandler;
 
@@ -11,7 +12,7 @@ class AkariDebugUtil {
     protected static $caches = [];
 
     public static function pushSqlBuilder(SQLBuilder $builder, $query, array $map) {
-        if (APP_DEBUG == 1 && !CLI_MODE) {
+        if (APP_DEBUG == 1 && !Core::inConsole()) {
             $track = debug_backtrace();
             self::$sqls[] = [
                 'sql' => $builder->generate($query, $map),

@@ -14,7 +14,7 @@ $di->setShared('processor', \Akari\system\result\Processor::class);
 $di->setShared('assets', \Akari\system\view\assets\AssetsManager::class);
 $di->setShared("lang", \Akari\system\util\I18n::class);
 
-if (CLI_MODE) {
+if (\Akari\Core::inConsole()) {
     $di->setShared('input', \Akari\system\console\Input::class);
     $di->setShared('output', \Akari\system\console\Output::class);
 }
