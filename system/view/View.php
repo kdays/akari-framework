@@ -89,6 +89,10 @@ class View extends Injectable {
         return $this->vars[$key] ?? NULL;
     }
 
+    public function resetVars() {
+        $this->vars = [];
+    }
+
     public function setLayout($layoutName) {
         $this->layoutName = $layoutName;
     }
@@ -212,6 +216,10 @@ class View extends Injectable {
     public function registerEngine(string $extension, $engine) {
         if ($extension[0] != '.') {
             $extension = "." . $extension;
+        }
+
+        if (isset(self::$_registerExtensions[$extension])) {
+            return ;
         }
 
         if (is_callable($engine)) {

@@ -96,4 +96,8 @@ class AssetsManager {
         return $this->collection(self::DEFAULT_COLLECTION_NAME)->setPrefix($prefix);
     }
 
+    public function reset() {
+        $this->collections = [];
+    }
+
 }

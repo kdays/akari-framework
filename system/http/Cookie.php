@@ -75,6 +75,8 @@ class Cookie extends Injectable {
         return $this->set($key, FALSE, NULL, ['prefix' => $prefix]);
     }
 
-
+    public function reset() {
+        $this->_values = [];
+    }
 
 }

@@ -54,6 +54,10 @@ class DI {
         return $this->instances[$name];
     }
 
+    public function getSharedInstances() {
+        return $this->instances;
+    }
+
     protected function getFn($call) {
         if (is_callable($call)) {
             return call_user_func_array($call, [$this]);

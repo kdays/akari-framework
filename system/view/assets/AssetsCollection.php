@@ -31,19 +31,27 @@ class AssetsCollection {
     }
 
     public function addJs($path) {
-        $this->_js[] = self::PREFIX_FILE . $this->_prefix . $path;
+        $path = self::PREFIX_FILE . $this->_prefix . $path;
+        if (!in_array($path, $this->_js)) {
+            $this->_js[] = $path;
+        }
 
         return $this;
     }
 
     public function addCss($path) {
-        $this->_css[] = self::PREFIX_FILE . $this->_prefix . $path;
+        $path = self::PREFIX_FILE . $this->_prefix . $path;
+        if (!in_array($path, $this->_css)) {
+            $this->_css[] = $path;
+        }
 
         return $this;
     }
 
     public function addBehaviour($cls) {
-        $this->_behaviour[] = $cls;
+        if (!in_array($cls, $this->_behaviour)) {
+            $this->_behaviour[] = $cls;
+        }
 
         return $this;
     }
@@ -86,6 +94,14 @@ class AssetsCollection {
 
     public function addInlineJs($inlineJs) {
         $this->_js[] = self::PREFIX_INLINE . $inlineJs;
+    }
+
+    public function resetCss() {
+        $this->_css = [];
+    }
+
+    public function resetJs() {
+        $this->_js = [];
     }
 
 }

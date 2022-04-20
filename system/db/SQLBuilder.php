@@ -23,6 +23,11 @@ class SQLBuilder {
     protected $inAction = FALSE;
     public $debug = FALSE;
 
+    public function reset() {
+        $this->guid = 0;
+        $this->logs = [];
+    }
+
     public function setIsReadQuery($isReadQuery) {
         $this->queryWrite = !$isReadQuery;
     }
