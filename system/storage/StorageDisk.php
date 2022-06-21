@@ -19,6 +19,10 @@ class StorageDisk {
         $this->handler = $handler;
     }
 
+    public function append(string $path, $content) {
+        return $this->handler->append($path, $content);
+    }
+
     public function put(string $path, $content) {
         return $this->handler->put($path, $content);
     }
@@ -47,4 +51,7 @@ class StorageDisk {
         return $this->handler->items($path, $options);
     }
 
+    public function getHandler() {
+        return $this->handler;
+    }
 }

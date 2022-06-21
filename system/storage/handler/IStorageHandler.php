@@ -51,5 +51,7 @@ interface IStorageHandler {
 
     public function items(string $dirName, array $options = []);
 
+    public function append(string $path, string $content);
+
 
 }
