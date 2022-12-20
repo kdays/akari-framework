@@ -30,6 +30,15 @@ class FileStorageHandler extends BaseStorageHandler implements IStorageHandler {
         return file_put_contents($savePath, $content);
     }
 
+    public function append(string $path, $content) {
+        $savePath = $this->formatPath($path);
+
+        if (!is_dir(dirname($savePath))) {
+            mkdir(dirname($savePath), 0777, TRUE);
+        }
+        return file_put_contents($savePath, $content, FILE_APPEND);
+    }
+
     /**
      * @param string $path
      * @return mixed
@@ -124,5 +133,16 @@ class FileStorageHandler extends BaseStorageHandler implements IStorageHandler {
         }
 
         return $result;
+    }
+
+    public function md5(string $path) {
+        if (!$this->exists($path)) {
+            return NULL;
+        }
+        return md5_file( $this->formatPath($path) );
+    }
+
+    public function getRealPath(string $path) {
+        return $this->formatPath($path);
     }
 }

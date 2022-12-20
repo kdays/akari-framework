@@ -18,6 +18,10 @@ class Event {
 
     const ON_FRAMEWORK_BEFORE = 'fkBefore.';
 
+    public static function reset() {
+        self::$listeners = [];
+    }
+
     public static function register(string $event, callable $callback, $priority = 0) {
         list($gloEvent, $subEvent) = explode(".", $event);
 

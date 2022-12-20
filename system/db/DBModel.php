@@ -36,6 +36,8 @@ abstract class DBModel {
         $builder = static::getSQLBuilder();
         $data = $builder->select(static::getTableName(), $join, $columns, $where);
 
+        $builder->reset();
+
         return Collection::make($data);
     }
 
@@ -63,6 +65,8 @@ abstract class DBModel {
             $data[$key] = $model;
         }
 
+        $builder->reset();
+
         return Collection::make($data);
     }
 
@@ -76,6 +80,7 @@ abstract class DBModel {
 
         $builder = static::getSQLBuilder();
         $data = $builder->get(static::getTableName(), $join, $columns, $where);
+        $builder->reset();
 
         if (empty($data)) {
             return NULL;
@@ -99,19 +104,26 @@ abstract class DBModel {
         }
 
         $result->closeCursor();
+        $builder->reset();
         return TRUE;
     }
 
     public static function update($where, $data) {
         $builder = static::getSQLBuilder();
 
-        return $builder->update(static::getTableName(), $data, $where);
+        $result = $builder->update(static::getTableName(), $data, $where);
+        $builder->reset();
+
+        return $result;
     }
 
     public static function delete($where) {
         $builder = static::getSQLBuilder();
 
-        return $builder->delete(static::getTableName(), $where);
+        $result = $builder->delete(static::getTableName(), $where);
+        $builder->reset();
+
+        return $result;
     }
 
     public static function count($join = NULL, $column = NULL, $where = NULL) {
@@ -120,7 +132,9 @@ abstract class DBModel {
             $join = $join['conditions'];
         }
 
-        return $builder->count(static::getTableName(), $join, $column, $where);
+        $result = $builder->count(static::getTableName(), $join, $column, $where);
+        $builder->reset();
+        return $result;
     }
 
     /**
