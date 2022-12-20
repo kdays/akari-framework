@@ -144,12 +144,11 @@ abstract class DBModel {
 
     public function remove() {
         $pk = static::getPrimaryKey();
+        $mKey = $this->columnMap()[$pk] ?? $pk;
 
-        if (empty($this->$pk)) {
+        if (empty($this->$mKey)) {
             throw new DBException("No Primary Id");
         }
-
-        $mKey = $this->columnMap()[$pk] ?? $pk;
 
         return static::delete([$pk => $this->$mKey]);
     }
@@ -184,11 +183,13 @@ abstract class DBModel {
 
     public function getId() {
         $pk = static::getPrimaryKey();
-        if (empty($this->$pk)) {
+        $mKey = $this->columnMap()[$pk] ?? $pk;
+
+        if (empty($this->$mKey)) {
             return static::getSQLBuilder()->id(); // maybe insert?
         }
 
-        return $this->$pk;
+        return $this->$mKey;
     }
 
     public static function getTableName() {
