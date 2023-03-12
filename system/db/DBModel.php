@@ -108,6 +108,18 @@ abstract class DBModel {
         return TRUE;
     }
 
+    public function updateBy($data) {
+        $pk = static::getPrimaryKey();
+
+        if (empty($this->$pk)) {
+            throw new DBException("No Primary Id");
+        }
+
+        $mKey = $this->columnMap()[$pk] ?? $pk;
+
+        return static::update([$pk => $this->$mKey], $data);
+    }
+
     public static function update($where, $data) {
         $builder = static::getSQLBuilder();
 

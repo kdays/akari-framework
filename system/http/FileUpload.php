@@ -122,6 +122,29 @@ class FileUpload extends Injectable {
         return $hashFn($rawData['tmp_name']);
     }
 
+    public function getBody() {
+        if (array_key_exists("data", $this->upload)) {
+            return $this->upload['data'];
+        }
+
+        return file_get_contents($this->getTempPath());
+    }
+
+    public function getImageSize() {
+        $allowExt = ['png', 'jpg', 'gif', 'jpeg'];
+        if (!in_array($this->getExtension(), $allowExt)) {
+            return FALSE;
+        }
+
+        if (array_key_exists("data", $this->upload)) {
+            $size = getimagesizefromstring($this->upload['data']);
+        } else {
+            $size = getimagesize($this->getTempPath());
+        }
+
+        return $size;
+    }
+
     public function isImage() {
         $allowExt = ['png', 'jpg', 'gif', 'jpeg'];
         if (!in_array($this->getExtension(), $allowExt)) {

@@ -16,6 +16,11 @@ function env(string $key, $defaultValue = NULL) {
     return \Akari\Core::env($key, $defaultValue);
 }
 
+function dd($vars) {
+    var_dump($vars);
+    die;
+}
+
 /**
  * @return \Akari\system\http\Request
  * @throws \Akari\exception\AkariException
