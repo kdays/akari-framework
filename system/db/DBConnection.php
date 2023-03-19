@@ -11,14 +11,15 @@ namespace Akari\system\db;
 use Akari\Core;
 use Akari\exception\DBException;
 use Akari\system\util\Collection;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class DBConnection {
 
     protected $options;
     protected $inTrans = FALSE;
 
-    protected $readConnection;
-    protected $writeConnection;
+    protected $capsule;
+    protected $id;
 
     protected static $instances = [];
 
@@ -28,56 +29,44 @@ class DBConnection {
      */
     public static function init(string $config = 'default') {
         if (!isset(self::$instances[$config])) {
-            self::$instances[$config] = new self( Core::env('database')[$config] );
+            self::$instances[$config] = new self( $config, Core::env('database')[$config] );;
         }
 
         return self::$instances[$config];
     }
 
-    public function __construct(array $options) {
+    public function __construct(string $id, array $options) {
         $this->options = $options;
+        $this->id = $id;
+
+        $this->connect($options);
     }
 
     public function connect(array $options) {
-        if (!extension_loaded("pdo")) {
-            throw new DBException("need PDO");
-        }
+        $capsule = new Capsule();
 
-        try {
-            if (!empty($options['dsn'])) {
-                $dsn = $options['dsn'];
-            } else {
-                $dsn = $options['type'] . ":host=" . $options['host'] . ";port=" . $options['port'] . ";dbname=" . $options['database'];
-            }
+        $capsule->addConnection([
+            'driver' => $options['type'] ?? 'mysql',
+            'host' => $options['host'] . ($options['port'] ? ':' . $options['port'] : ''),
+            'database' => $options['database'],
+            'username' => $options['username'],
+            'password' => $options['password'],
+            'charset' => 'utf8mb4'
+        ], $this->id);
 
-            return new \PDO($dsn, $options['username'], $options['password'], $options['options']);
-        } catch (\PDOException $e) {
-            throw new DBException("Connect Failed: " . $e->getMessage());
-        }
+        $capsule->setAsGlobal();
+        $capsule->bootEloquent();
 
-    }
-
-    public function getReadConnection() {
-        if (empty($this->readConnection)) {
-            $options = $this->options;
-
-            if (array_key_exists("slaves", $options)) {
-                $this->readConnection = $this->connect( $options['slaves'][array_rand($options['slaves'])] );
-            } else {
-                $this->readConnection = $this->connect( $options );
-            }
-        }
-
-        return $this->readConnection;
+        return $capsule;
     }
 
     public function getWriteConnection() {
-        if (!$this->writeConnection) {
+        if (!$this->capsule) {
             $opts = $this->options;
-            $this->writeConnection = $this->connect($opts);
+            $this->capsule = $this->connect($opts);
         }
 
-        return $this->writeConnection;
+        return $this->capsule;
     }
 
     /**
@@ -88,7 +77,7 @@ class DBConnection {
     public function beginTransaction() {
         $this->inTrans = TRUE;
 
-        return $this->getWriteConnection()->beginTransaction();
+        return $this->getWriteConnection()->getConnection()->beginTransaction();
     }
 
     /**
@@ -99,7 +88,7 @@ class DBConnection {
     public function commit() {
         $this->inTrans = FALSE;
 
-        return $this->getWriteConnection()->commit();
+        return $this->getWriteConnection()->getConnection()->commit();
     }
 
     /**
@@ -110,7 +99,7 @@ class DBConnection {
     public function rollback() {
         $this->inTrans = FALSE;
 
-        return $this->getWriteConnection()->rollBack();
+        return $this->getWriteConnection()->getConnection()->rollBack();
     }
 
     /**
@@ -119,142 +108,31 @@ class DBConnection {
      * @return bool
      */
     public function inTransaction() {
-        return !!$this->getWriteConnection()->inTransaction();
-    }
-
-    protected function closeCollection(\PDOStatement $st) {
-        $st->closeCursor();
-    }
-
-    protected function throwErr(\PDOStatement $st, $madeSQL = NULL) {
-        $errorInfo = $st->errorInfo();
-
-        $ex = new DBException("Query Failed: " . $errorInfo[0] . " " . $errorInfo[2]);
-        $ex->setQueryString($madeSQL ?? $st->queryString ?? '');
-        throw $ex;
-    }
-
-    protected function prepare(\PDO $connection, string $sql, array $values) {
-        $st = $connection->prepare($sql);
-        foreach ($values as $key => $value) {
-            $st->bindValue($key, $value);
-        }
-
-        return $st;
+        return $this->getWriteConnection()->getConnection()->transactionLevel() > 0;
     }
 
     public function getDbType() {
-        if (!empty($this->options['dsn'])) {
-            list($type, $_options) = explode(":", $this->options['dsn']);
-
-            return strtolower($type);
-        }
-
         return strtolower($this->options['type']);
     }
 
     public function getDbName() {
-        if (!empty($this->options['dsn'])) {
-            list($type, $_options) = explode(":", $this->options['dsn']);
-            $options = [];
-
-            foreach (explode(";", $_options) as $v) {
-                parse_str($v, $v);
-                $options = array_merge($options, $v);
-            }
-
-            return $options['dbname'];
-        }
-
         return $this->options['database'];
     }
 
-
     /**
-     * <b>这是一个底层方法</b>
-     * 执行SQL
-     *
-     * @param string $sql
-     * @param array $values
-     * @param bool $returnLastInsertId 是否返回最近插入的ID
-     * @return bool|int
+     * @param string $table
+     * @return \Illuminate\Database\Query\Builder
      */
-    public function query($sql, $values = [], $returnLastInsertId = FALSE) {
+    public function query(string $table) {
         $writeConn = $this->getWriteConnection();
-        $st = $this->prepare($writeConn, $sql, $values);
-
-        if ($st->execute()) {
-            $result = $returnLastInsertId ? $writeConn->lastInsertId() : $st->rowCount();
-            $this->closeCollection($st);
-
-            return $result;
-        }
-
-        $this->throwErr($st, $sql);
+        return $writeConn->getConnection()->table($table);
     }
 
     /**
-     * <b>这是一个底层方法</b>
-     * 会调用PDO的fetchAll
-     *
-     * @param string $sql
-     * @param array $values
-     * @param int $fetchMode see \PDO::FETCH_*
-     * @return array
-     * @throws DBException
+     * @return \Illuminate\Database\Schema\Builder
      */
-    public function fetch($sql, $values = [], $fetchMode = \PDO::FETCH_ASSOC) {
-        $conn = $this->inTrans ? $this->getWriteConnection() : $this->getReadConnection();
-        $st = $this->prepare($conn, $sql, $values);
-
-        if ($st->execute()) {
-            $result = $st->fetchAll($fetchMode);
-            $this->closeCollection($st);
-
-            return $result;
-        }
-
-        $this->throwErr($st);
-    }
-
-    public function fetchOne($sql, $values = [], $fetchMode = \PDO::FETCH_ASSOC) {
-        $conn = $this->inTrans ? $this->getWriteConnection() : $this->getReadConnection();
-        $st = $this->prepare($conn, $sql, $values);
-        if ($st->execute()) {
-            $result = $st->fetch($fetchMode);
-            $this->closeCollection($st);
-
-            return $result;
-        }
-
-        $this->throwErr($st);
-    }
-
-    /**
-     * <b>这是一个底层方法</b>
-     * 快速查询一列中的一个值
-     *
-     * @param string $sql
-     * @param array $values
-     * @param int $columnIdx 返回查询返回的第几个值
-     * @return bool|string
-     * @throws DBException
-     */
-    public function fetchValue($sql, $values = [], $columnIdx = 0) {
-        $conn = $this->inTrans ? $this->getWriteConnection() : $this->getReadConnection();
-        $st = $this->prepare($conn, $sql, $values);
-        if ($st->execute()) {
-            $result = $st->fetchColumn($columnIdx);
-            $this->closeCollection($st);
-
-            return $result;
-        }
-
-        $this->throwErr($st);
-    }
-
     public function migration() {
-        return new DBMigration($this);
+        return Capsule::schema($this->id);
     }
 
 }

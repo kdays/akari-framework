@@ -59,7 +59,7 @@ class ArrayUtil {
         return $result;
     }
 
-    public static function index(array $items, string $indexKey) {
+    public static function index( $items, string $indexKey) {
         $result = [];
         foreach ($items as $item) {
             $key = is_array($item) ? $item[$indexKey] : $item->$indexKey;
