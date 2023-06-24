@@ -9,8 +9,6 @@
 namespace Akari\system\db;
 
 use Akari\Core;
-use Akari\exception\DBException;
-use Akari\system\util\Collection;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 class DBConnection {
@@ -18,7 +16,8 @@ class DBConnection {
     protected $options;
     protected $inTrans = FALSE;
 
-    protected $capsule;
+    /** @var Capsule */
+    protected static $capsule;
     protected $id;
 
     protected static $instances = [];
@@ -43,7 +42,8 @@ class DBConnection {
     }
 
     public function connect(array $options) {
-        $capsule = new Capsule();
+        $isInit = empty(self::$capsule);
+        $capsule = self::$capsule ?? new Capsule();
 
         $capsule->addConnection([
             'driver' => $options['type'] ?? 'mysql',
@@ -54,19 +54,19 @@ class DBConnection {
             'charset' => 'utf8mb4'
         ], $this->id);
 
-        $capsule->setAsGlobal();
-        $capsule->bootEloquent();
+        if ($isInit) {
+            $capsule->setAsGlobal();
+            $capsule->bootEloquent();
 
-        return $capsule;
+            self::$capsule = $capsule;
+        }
     }
 
-    public function getWriteConnection() {
-        if (!$this->capsule) {
-            $opts = $this->options;
-            $this->capsule = $this->connect($opts);
-        }
-
-        return $this->capsule;
+    /**
+     * @return \Illuminate\Database\Connection
+     */
+    public function getConn() {
+        return self::$capsule->getConnection($this->id);
     }
 
     /**
@@ -77,7 +77,7 @@ class DBConnection {
     public function beginTransaction() {
         $this->inTrans = TRUE;
 
-        return $this->getWriteConnection()->getConnection()->beginTransaction();
+        return $this->getConn()->beginTransaction();
     }
 
     /**
@@ -88,7 +88,7 @@ class DBConnection {
     public function commit() {
         $this->inTrans = FALSE;
 
-        return $this->getWriteConnection()->getConnection()->commit();
+        return $this->getConn()->commit();
     }
 
     /**
@@ -99,7 +99,7 @@ class DBConnection {
     public function rollback() {
         $this->inTrans = FALSE;
 
-        return $this->getWriteConnection()->getConnection()->rollBack();
+        return $this->getConn()->rollBack();
     }
 
     /**
@@ -108,7 +108,7 @@ class DBConnection {
      * @return bool
      */
     public function inTransaction() {
-        return $this->getWriteConnection()->getConnection()->transactionLevel() > 0;
+        return $this->getConn()->transactionLevel() > 0;
     }
 
     public function getDbType() {
@@ -120,19 +120,10 @@ class DBConnection {
     }
 
     /**
-     * @param string $table
-     * @return \Illuminate\Database\Query\Builder
-     */
-    public function query(string $table) {
-        $writeConn = $this->getWriteConnection();
-        return $writeConn->getConnection()->table($table);
-    }
-
-    /**
      * @return \Illuminate\Database\Schema\Builder
      */
     public function migration() {
-        return Capsule::schema($this->id);
+        return $this->getConn()->getSchemaBuilder();
     }
 
 }

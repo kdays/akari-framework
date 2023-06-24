@@ -109,14 +109,13 @@ class CURL {
      */
     public function send($url, $method, $params = array()) {
         $method = strtoupper($method);
-        $params = empty($params) ? NULL : http_build_query($params);
 
         $options = array();
 
         if($method == 'GET' || $method == 'HEAD'){
             if ($params) {
                 $url .= strpos($url, "?") ? "&" : "?";
-                $url .= $params;
+                $url .= is_array($params) ? http_build_query($params) : $params;
             }
 
             if($method == 'GET'){
@@ -211,7 +210,7 @@ class CURL {
      * @return CURLResponse 结果数组中header为头部信息 info为curl的信息 body为内容
      * @throws CURLException
      */
-    public static function post($url, array $params, $opts = []) {
+    public static function post($url, $params, $opts = []) {
         return self::getHandler($opts)->send($url, 'POST', $params);
     }
 

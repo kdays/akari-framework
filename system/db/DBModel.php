@@ -12,6 +12,10 @@ use Illuminate\Database\Eloquent\Model;
 
 abstract class DBModel extends Model {
 
+    public static function raw($value) {
+        return new \Illuminate\Database\Query\Expression($value);
+    }
+
     public static function findFirst($conditions) {
         $builder = static::query();
 
