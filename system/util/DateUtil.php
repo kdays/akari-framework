@@ -8,18 +8,25 @@
 
 namespace Akari\system\util;
 
+use Carbon\Carbon;
+
 class DateUtil {
 
     public static function friendlyTime($unixTime, string $overFormat = 'Y-m-d H:i') {
-        if (!is_numeric($unixTime)) $unixTime = strtotime($unixTime);
-        if ($unixTime == TIMESTAMP) return L('df.now');
+        if ($unixTime instanceof Carbon) {
+            $diff = $unixTime->diff();
+            $prefix = $unixTime->isBefore(Carbon::now()) ?  'df.' : 'df.after.';
+        } else {
+            if (!is_numeric($unixTime)) $unixTime = strtotime($unixTime);
+            if ($unixTime == TIMESTAMP) return L('df.now');
 
-        $prefix = $unixTime < TIMESTAMP ?  'df.' : 'df.after.';
+            $prefix = $unixTime < TIMESTAMP ?  'df.' : 'df.after.';
 
-        $now = new \DateTime();
-        $last = self::getDateTime($unixTime, FALSE);
+            $now = new \DateTime();
+            $last = self::getDateTime($unixTime, FALSE);
 
-        $diff = $now->diff($last);
+            $diff = $now->diff($last);
+        }
 
         if ($diff->y < 1 && $diff->m < 1) {
             $formats = ['d', 'h', 'i', 's'];
