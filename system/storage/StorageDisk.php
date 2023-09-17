@@ -15,12 +15,15 @@ class StorageDisk {
 
     protected $handler;
 
+    const PUT_MODE_OVERWRITE = NULL;
+    const PUT_MODE_APPEND = 'APPEND';
+
     public function __construct(IStorageHandler $handler) {
         $this->handler = $handler;
     }
 
-    public function put(string $path, $content) {
-        return $this->handler->put($path, $content);
+    public function put(string $path, $content, $mode = self::PUT_MODE_OVERWRITE) {
+        return $this->handler->put($path, $content, $mode);
     }
 
     public function get(string $path) {

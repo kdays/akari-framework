@@ -11,6 +11,7 @@ namespace Akari\system\storage\handler;
 
 use Akari\Core;
 use Akari\exception\AkariException;
+use Akari\system\storage\StorageDisk;
 use Akari\system\util\TextUtil;
 
 class FileStorageHandler extends BaseStorageHandler implements IStorageHandler {
@@ -21,11 +22,15 @@ class FileStorageHandler extends BaseStorageHandler implements IStorageHandler {
      * @return mixed
      * @throws AkariException
      */
-    public function put(string $path, $content) {
+    public function put(string $path, $content, $mode = NULL) {
         $savePath = $this->formatPath($path);
 
         if (!is_dir(dirname($savePath))) {
             mkdir(dirname($savePath), 0777, TRUE);
+        }
+
+        if ($mode === StorageDisk::PUT_MODE_APPEND) {
+            return file_put_contents($savePath, $content, FILE_APPEND);
         }
         return file_put_contents($savePath, $content);
     }

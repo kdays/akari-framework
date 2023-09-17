@@ -14,9 +14,10 @@ interface IStorageHandler {
     /**
      * @param string $path
      * @param resource|mixed $content
+     * @param string|null $mode 写入模式 see StorageDisk::PUT_MODE_*
      * @return mixed
      */
-    public function put(string $path, $content);
+    public function put(string $path, $content, $mode = NULL);
 
     /**
      * @param string $path
