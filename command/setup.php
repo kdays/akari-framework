@@ -58,6 +58,8 @@ class CommandSetup {
                 $values = explode("=", substr($value, 2));
                 $commandName = array_shift($values);
                 $params[$commandName] = implode("=", $values);
+            } else {
+                $params[$key - 2] = $value;
             }
         }
 
@@ -66,8 +68,18 @@ class CommandSetup {
 }
 
 $setup = new CommandSetup();
-$setup->register("ide:model", \Akari\command\IDEModelCommand::class);
-$setup->register("cache:forget", \Akari\command\CacheForgetCommand::class);
+
+foreach (scandir(__DIR__) as $path) {
+    if ($path == 'setup.php') continue;
+    $cls = implode(NAMESPACE_SEPARATOR, ['Akari', 'command', trim($path, '.php')]);
+
+    if (class_exists($cls)) {
+        $setup->register($cls::$command, $cls);
+    }
+}
+
+//$setup->register("ide:model", \Akari\command\IDEModelCommand::class);
+//$setup->register("cache:forget", \Akari\command\CacheForgetCommand::class);
 
 $setup->app();
 
@@ -78,7 +90,7 @@ if (empty($argCommand)) {
     $output->write("Akari Framework Console Commands");
 
     foreach ($setup->commands as $command => $taskCls) {
-        $output->write("<info>" . $command . "</info> \t" . $taskCls::$description);
+        $output->write("<info>" . $command . "</info> \t" . trim($taskCls::$description));
     }
 } else {
     if (isset($setup->commands[$argCommand])) {
