@@ -21,14 +21,19 @@ class DatabaseMigrateCommand extends BaseTask {
     protected $batchIDMap = [];
 
     protected function initConnection($name) {
-        if (isset($this->connections[$name])) return false;
+        if (!isset($this->connections[$name])) {
+            $connection = DBConnection::init($name)->getConn();
 
-        $connection = DBConnection::init($name)->getConn();
-
-        $this->connections[$name] = $connection;
-        $this->migrations[$name] = $connection->select("SELECT * FROM migrations");
+            $this->connections[$name] = $connection;
+            $this->reloadMigrations($name);
+        }
 
         return $this->connections[$name];
+    }
+
+    protected function reloadMigrations($name) {
+        $connection = $this->initConnection($name);
+        $this->migrations[$name] = $connection->select("SELECT * FROM migrations");
     }
 
     protected function _existsMigrate($name, $migrateName) {
