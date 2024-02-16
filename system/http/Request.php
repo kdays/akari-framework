@@ -448,6 +448,9 @@ class Request {
 
     public function isXhr() {
         $serverVar = $this->getServer('HTTP_X_REQUESTED_WITH');
+        if (empty($serverVar)) {
+            return false;
+        }
 
         return strtolower($serverVar) == 'xmlhttprequest';
     }
