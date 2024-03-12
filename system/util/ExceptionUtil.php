@@ -86,16 +86,17 @@ class ExceptionUtil {
         $fileLines = array();
         if (is_file($file)) {
             $currentLine = $line - 1;
-
-            $fileLines = explode("\n", file_get_contents($file, NULL, NULL, 0, 10000000));
+            
+            $fileLines = explode("\n", file_get_contents($file, FALSE, NULL, 0, 10000000));
             $topLine = $currentLine - 5;
             $fileLines = array_slice($fileLines, $topLine > 0 ? $topLine : 0, 10, TRUE);
 
             if (($count = count($fileLines)) > 0) {
                 $padLen = strlen($count);
                 foreach ($fileLines as $line => $fileLine){
-                    $fileLine = " <b>" . str_pad($line + 1, $padLen, "0", STR_PAD_LEFT) . "</b> " . htmlspecialchars(str_replace("\t",
-                            "    ", rtrim($fileLine)), NULL, 'UTF-8');
+
+                    $fileLine = htmlspecialchars(str_replace("\t",  "    ", rtrim($fileLine)));
+                    $fileLine = " <b>" . str_pad($line + 1, $padLen, "0", STR_PAD_LEFT) . "</b> " . $fileLine;
                     $fileLines[$line] = $fileLine;
                 }
             }
