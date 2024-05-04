@@ -86,7 +86,7 @@ class ExceptionUtil {
         $fileLines = array();
         if (is_file($file)) {
             $currentLine = $line - 1;
-            
+
             $fileLines = explode("\n", file_get_contents($file, FALSE, NULL, 0, 10000000));
             $topLine = $currentLine - 5;
             $fileLines = array_slice($fileLines, $topLine > 0 ? $topLine : 0, 10, TRUE);

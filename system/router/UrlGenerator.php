@@ -8,6 +8,7 @@
 
 namespace Akari\system\router;
 
+use Akari\Core;
 use Akari\system\ioc\Injectable;
 use Akari\system\util\helper\AppValueTrait;
 use Akari\system\security\helper\VerifyCSRFToken;
@@ -35,6 +36,33 @@ class UrlGenerator extends Injectable {
         }
 
         return $path . (!empty($args) ? ("?" . http_build_query($args)) : '');
+    }
+
+    public function getApiUrl(string $class, string $method) {
+        $class = str_replace(Core::$appNs, '', $class);
+        $pathNames = [];
+        foreach (explode(NAMESPACE_SEPARATOR, $class) as $part) {
+            if (empty($part)) continue;
+            if ($part == 'action') continue;
+
+            $part[0] = strtolower($part[0]);
+
+            foreach (['Api', 'Action'] as $suffix) {
+                if (substr($part, -strlen($suffix)) === $suffix) {
+                    $part = substr($part, 0, -strlen($suffix));
+                }
+            }
+
+            $pathNames[] = $part;
+        }
+
+        foreach (['Action'] as $suffix) {
+            if (substr($method, -strlen($suffix)) === $suffix) {
+                $method = substr($method, 0, -strlen($suffix));
+            }
+        }
+
+        return implode('/', $pathNames) . "/" . $method;
     }
 
 }

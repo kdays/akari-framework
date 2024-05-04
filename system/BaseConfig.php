@@ -26,6 +26,8 @@ abstract class BaseConfig {
     public $timeOffset = 0;
     public $timeZone = 'Asia/shanghai';
 
+    public $apiDocs = false;
+
     public $storage = [
         Storage::KEY_DEFAULT => [
             'handler' => FileStorageHandler::class,
