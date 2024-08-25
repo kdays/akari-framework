@@ -9,7 +9,7 @@ use Akari\system\db\DBConnection;
 class IDEModelCommand extends BaseTask {
 
     public static $command = 'ide:model';
-    public static $description = "根据数据库配置，更新模型的注入注释\n\t\t--db=数据库设置名(默认default) --table=表名(不指定则为确定模型生成)";
+    public static $description = "根据数据库配置，更新模型的注入注释\n--db=数据库设置名(默认default) --table=表名(不指定则为确定模型生成)";
 
     public function handle($params) {
         $db = DBConnection::init($params['db'] ?? 'default');

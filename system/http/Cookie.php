@@ -40,11 +40,24 @@ class Cookie extends Injectable {
 
         $name = $prefix . $name;
 
+        $cookieOptions = [
+            'path' => $path,
+            'domain' => $domain,
+            'expires' => $time,
+            'httponly' => $options['http_only'] ?? FALSE,
+        ];
+
+        if (isset($options['samesite'])) $cookieOptions['samesite'] = $options['samesite'];
+        if (isset($options['secure'])) $cookieOptions['secure'] = $options['secure'];
+
         if ($value === FALSE) {
-            setcookie($name, '', TIMESTAMP - 3600, $path, $domain, false, $options['http_only'] ?? FALSE);
+            $cookieOptions['expires'] = TIMESTAMP - 3600;
+
+            setcookie($name, '', $cookieOptions);
+            //setcookie($name, '', TIMESTAMP - 3600, $path, $domain, false, $options['http_only'] ?? FALSE);
             unset($this->_values[$name]);
         } else {
-            setcookie($name, $value, $time, $path, $domain, false, $options['http_only'] ?? FALSE);
+            setcookie($name, $value, $cookieOptions);
             $this->_values[$name] = $value;
         }
     }

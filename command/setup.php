@@ -69,12 +69,14 @@ class CommandSetup {
 
 $setup = new CommandSetup();
 
+$maxCmdLen = 12;
 foreach (scandir(__DIR__) as $path) {
     if ($path == 'setup.php') continue;
     $cls = implode(NAMESPACE_SEPARATOR, ['Akari', 'command', trim($path, '.php')]);
 
     if (class_exists($cls)) {
         $setup->register($cls::$command, $cls);
+        $maxCmdLen = max($maxCmdLen, strlen($cls::$command));
     }
 }
 
@@ -90,7 +92,13 @@ if (empty($argCommand)) {
     $output->write("Akari Framework Console Commands");
 
     foreach ($setup->commands as $command => $taskCls) {
-        $output->write("<info>" . $command . "</info> \t" . trim($taskCls::$description));
+        $descriptions = explode("\n", trim($taskCls::$description));
+        $descriptionTxt = array_shift($descriptions);
+        foreach ($descriptions as $description) {
+            $descriptionTxt .= "\n" . str_pad("", $maxCmdLen) . "\t" . $description;
+        }
+
+        $output->write("<info>" . str_pad($command, $maxCmdLen). "\t</info>" . $descriptionTxt);
     }
 } else {
     if (isset($setup->commands[$argCommand])) {
