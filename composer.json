@@ -1,6 +1,9 @@
 {
   "name": "kdays/akari-framework",
   "description": "KDays Akari Framework",
+  "require": {
+    "illuminate/database": "^10"
+  },
   "autoload": {
     "files": [
       "consts.php",
