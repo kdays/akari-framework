@@ -33,18 +33,3 @@ function router() {
     return $di->getShared('router');
 }
 
-/**
- * @param array $items
- * @return \Akari\system\util\Collection
- */
-function collection($items) {
-    if ($items instanceof \Akari\system\util\Collection) {
-        return $items;
-    }
-
-    return new \Akari\system\util\Collection($items);
-}
-
-function e(string $message) {
-    throw new \Akari\exception\AkariException($message);
-}
