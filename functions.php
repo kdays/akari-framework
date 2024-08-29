@@ -12,9 +12,6 @@ function L(string $name, array $L = [], string $prefix = '') {
     return $di->getShared('lang')->get($name, $L, $prefix);
 }
 
-function env(string $key, $defaultValue = NULL) {
-    return \Akari\Core::env($key, $defaultValue);
-}
 
 /**
  * @return \Akari\system\http\Request
