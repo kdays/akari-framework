@@ -134,7 +134,7 @@ class Core extends Injectable {
         $this->response->send();
     }
 
-    public static function initConsole() {
+    public static function initConsole($argv) {
         require(__DIR__ . '/command/setup.php');
     }
 
