@@ -8,6 +8,7 @@
 
 namespace Akari\system\http;
 
+use Akari\exception\ValidateFailed;
 use Akari\system\util\TextUtil;
 use Akari\system\util\ArrayUtil;
 use Akari\system\security\FilterFactory;
@@ -453,5 +454,50 @@ class Request {
         }
 
         return strtolower($serverVar) == 'xmlhttprequest';
+    }
+
+    public function getContentType() {
+        return $this->getServer('HTTP_CONTENT_TYPE');
+    }
+
+    public function validate(array $params) {
+        $result = [];
+        $isJsonBody = TextUtil::exists($this->getContentType(), "javascript");
+        $body = $isJsonBody ? $this->getJsonRawBody() : $this->get(NULL);
+
+        foreach ($params as $key => $filters) {
+            $filters = is_array($filters) ? $filters : explode("|", $filters);
+            $toValue = ArrayUtil::dot_get($body, $key) ?? NULL;
+
+            foreach ($filters as $filter) {
+                if ($filter == 'required') {
+                    if ($toValue === NULL) {
+                        throw new ValidateFailed("$key is required");
+                    }
+
+                    continue;
+                } elseif ($filter == 'nullable') {
+                    continue;
+                } elseif ($filter == 'array') {
+                    if (empty($toValue) || !is_array($toValue)) {
+                        $toValue = [];
+                    }
+
+                    continue;
+                }
+
+                $toValue = FilterFactory::doFilter($toValue, $filter);
+            }
+
+            $key = explode(".", $key);
+            if (count($key) == 1) {
+                $result[$key[0]] = $toValue;
+            } else {
+                $toValue = ArrayUtil::generateArrayFromPath($key, $toValue);
+                $result = ArrayUtil::deepMerge($result, $toValue);
+            }
+        }
+
+        return $result;
     }
 }
