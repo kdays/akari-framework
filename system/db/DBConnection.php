@@ -9,6 +9,7 @@
 namespace Akari\system\db;
 
 use Akari\Core;
+use Akari\exception\DBException;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 class DBConnection {
@@ -124,6 +125,83 @@ class DBConnection {
      */
     public function migration() {
         return $this->getConn()->getSchemaBuilder();
+    }
+
+    /**
+     * <b>这是一个底层方法</b>
+     * 执行SQL
+     *
+     * @param string $sql
+     * @param array $values
+     * @param bool $returnLastInsertId 是否返回最近插入的ID
+     * @return bool|int
+     */
+    public function query($sql, $values = [], $returnLastInsertId = FALSE) {
+        $writeConn = $this->getConn()->getPdo();
+        $st = $this->prepare($writeConn, $sql, $values);
+
+        if ($st->execute()) {
+            $result = $returnLastInsertId ? $writeConn->lastInsertId() : $st->rowCount();
+            $this->closeCollection($st);
+
+            return $result;
+        }
+
+        $this->_throwInternalErr($st, $sql);
+    }
+
+    /**
+     * <b>这是一个底层方法</b>
+     * 会调用PDO的fetchAll
+     *
+     * @param string $sql
+     * @param array $values
+     * @param int $fetchMode see \PDO::FETCH_*
+     * @return array
+     * @throws DBException
+     */
+    public function fetch($sql, $values = [], $fetchMode = \PDO::FETCH_ASSOC) {
+        $conn = $this->getConn()->getReadPdo();
+        $st = $this->prepare($conn, $sql, $values);
+
+        if ($st->execute()) {
+            $result = $st->fetchAll($fetchMode);
+            $st->closeCursor();
+
+            return $result;
+        }
+
+        $this->throwErr($st);
+    }
+
+    public function fetchOne($sql, $values = [], $fetchMode = \PDO::FETCH_ASSOC) {
+        $conn = $this->getConn()->getReadPdo();
+        $st = $this->prepare($conn, $sql, $values);
+        if ($st->execute()) {
+            $result = $st->fetch($fetchMode);
+            $st->closeCursor();
+
+            return $result;
+        }
+
+        $this->throwErr($st);
+    }
+
+    protected function prepare(\PDO $connection, string $sql, array $values) {
+        $st = $connection->prepare($sql);
+        foreach ($values as $key => $value) {
+            $st->bindValue($key, $value);
+        }
+
+        return $st;
+    }
+
+    protected function _throwInternalErr(\PDOStatement $st, $madeSQL = NULL) {
+        $errorInfo = $st->errorInfo();
+
+        $ex = new DBException("Query Failed: " . $errorInfo[0] . " " . $errorInfo[2]);
+        $ex->setQueryString($madeSQL ?? $st->queryString ?? '');
+        throw $ex;
     }
 
 }

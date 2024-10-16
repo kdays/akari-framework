@@ -107,7 +107,7 @@ if (empty($argCommand)) {
         $taskCls = new $setup->commands[$argCommand]();
         $taskCls->handle($params);
     }  else {
-        $core = Core::initApp(__DIR__, KOKORO_NS);
+        $core = Core::initApp(__DIR__, $appCmdNs);
         $core->run($argv[1]);
     }
 }

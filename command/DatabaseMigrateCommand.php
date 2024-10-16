@@ -65,11 +65,19 @@ class DatabaseMigrateCommand extends BaseTask {
 
         $dirScanner = new \DirectoryIterator(Core::$baseDir . '/database/migrate/');
         $count = 0;
+
+        $files = [];
         foreach ($dirScanner as $path) {
             if ($path->isDot()) continue;
             $base = $path->getBaseName('.php');
 
-            $cls = require($path->getPathName());
+            $files[$base] = $path->getPathName();
+        }
+
+        ksort($files);
+
+        foreach ($files as $base => $clsPath) {
+            $cls = require($clsPath);
             $cls = new $cls();
 
             $conn = $this->initConnection($cls->connection);
