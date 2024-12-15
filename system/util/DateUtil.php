@@ -8,6 +8,7 @@
 
 namespace Akari\system\util;
 
+use Akari\Core;
 use Carbon\Carbon;
 
 class DateUtil {
@@ -41,7 +42,7 @@ class DateUtil {
     }
 
     public static function getTimeOffset() {
-        return env('timeOffset', 0);
+        return Core::env('timeOffset', 0);
     }
 
     public static function getDateTime($unixTime, $addOffset = FALSE) {
