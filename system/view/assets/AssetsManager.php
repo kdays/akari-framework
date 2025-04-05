@@ -42,7 +42,7 @@ class AssetsManager {
             $resultItem = $collection->execBehaviour($assetItem);
             if ($assetItem->type == AssetsManager::TYPE_JS) {
                 $el = $dom->createElement("script");
-                $el->setAttribute("href", $resultItem->content);
+                $el->setAttribute("src", $resultItem->content);
                 $el->setAttribute("type", "text/javascript");
 
                 foreach ($resultItem->htmlOptions as $key => $value) {
