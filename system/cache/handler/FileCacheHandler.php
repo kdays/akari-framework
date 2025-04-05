@@ -118,7 +118,7 @@ class FileCacheHandler implements ICacheHandler{
         if ($this->isInTransaction) {
             $this->transaction[] = ['set', $key, $value, $timeout, $raw];
         } else {
-            $this->_set($key, $value, $timeout, TRUE);
+            $this->_set($key, $value, $timeout, TRUE, $raw);
         }
 
         return TRUE;

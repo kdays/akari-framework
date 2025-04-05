@@ -70,6 +70,10 @@ class VerifyCSRFToken extends Injectable {
             $uToken = $this->request->getServer('HTTP_X_CSRF_TOKEN');
         }
 
+        if ($this->request->hasServer('HTTP_X_XSRF_TOKEN')) {
+            $uToken = $this->request->getServer('HTTP_X_XSRF_TOKEN');
+        }
+
         if ($this->request->has($tokenName)) {
             $uToken = $this->request->get($tokenName);
         }

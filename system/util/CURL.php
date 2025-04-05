@@ -151,7 +151,7 @@ class CURL {
 
 
     protected static function buildCookies($data) {
-        $cookie = '';
+        $cookie = [];
         foreach( $data as $k => $v ) {
             $cookie[] = $k . '=' . $v;
         }

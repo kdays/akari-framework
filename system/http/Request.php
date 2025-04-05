@@ -323,6 +323,10 @@ class Request {
      * @return mixed
      */
     public function getPost($key, $filter = "default", $defaultValue = NULL, $allowArray = NULL) {
+        if ($this->getContentType() == 'application/json') {
+            return $this->jsonParam($key, $filter, $defaultValue, $allowArray);
+        }
+
         return $this->_filterValue($key, $_POST, $filter, $defaultValue, $allowArray);
     }
 
@@ -352,6 +356,15 @@ class Request {
 
     public function getJsonRawBody($assoc = TRUE) {
         return json_decode($this->getRawBody(), $assoc);
+    }
+
+    public function jsonParam($key, $filter = "default", $defaultValue = NULL, $allowArray = NULL) {
+        $body = $this->getJsonRawBody();
+        if (empty($body)) {
+            return $defaultValue;
+        }
+
+        return $this->_filterValue($key, $body, $filter, $defaultValue, $allowArray);
     }
 
     public function hasServer($key) {
@@ -448,6 +461,10 @@ class Request {
     }
 
     public function isXhr() {
+        if ($this->getContentType() == 'application/json') {
+            return true;
+        }
+
         $serverVar = $this->getServer('HTTP_X_REQUESTED_WITH');
         if (empty($serverVar)) {
             return false;
@@ -459,12 +476,12 @@ class Request {
     public function getContentType() {
         return $this->getServer('HTTP_CONTENT_TYPE');
     }
-
     public function validate(array $params) {
         $result = [];
-        $isJsonBody = TextUtil::exists($this->getContentType(), "javascript");
+        $isJsonBody = TextUtil::exists($this->getContentType(), ["javascript", "json"]);
         $body = $isJsonBody ? $this->getJsonRawBody() : $this->get(NULL);
 
+        $onlyMatchesArray = [];
         foreach ($params as $key => $filters) {
             $filters = is_array($filters) ? $filters : explode("|", $filters);
             $toValue = ArrayUtil::dot_get($body, $key) ?? NULL;
@@ -486,16 +503,23 @@ class Request {
                     continue;
                 }
 
+                if ($filter == 'string') $filter = 'str';
+                if ($filter == 'integer') $filter = 'int';
+
                 $toValue = FilterFactory::doFilter($toValue, $filter);
             }
 
-            $key = explode(".", $key);
-            if (count($key) == 1) {
-                $result[$key[0]] = $toValue;
+            $parts = explode(".", $key);
+            if (count($parts) == 1) {
+                $result[$parts[0]] = $toValue;
             } else {
-                $toValue = ArrayUtil::generateArrayFromPath($key, $toValue);
-                $result = ArrayUtil::deepMerge($result, $toValue);
+                $toValue = ArrayUtil::generateArrayFromPath($parts, $toValue);
+                $onlyMatchesArray = ArrayUtil::deepMerge($onlyMatchesArray, $toValue);
             }
+        }
+
+        foreach ($onlyMatchesArray as $key => $value) {
+            $result[$key] = $value;
         }
 
         return $result;

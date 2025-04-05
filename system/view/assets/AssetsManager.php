@@ -35,48 +35,69 @@ class AssetsManager {
 
     public function outputJs($name = 'default') {
         $collection = $this->collection($name);
-        $result = '';
-        foreach ($collection->getJsPaths() as $path) {
-            $prefix = substr($path, 0, 1);
-            $data = substr($path, 1);
 
-            if ($prefix == AssetsCollection::PREFIX_FILE) {
-                $result .= sprintf(
-                    "<script src=\"%s\" type=\"text/javascript\"></script>\n",
-                    $collection->execBehaviour($data, self::TYPE_JS)
-                );
-            } elseif ($prefix == AssetsCollection::PREFIX_INLINE) {
-                $result .=
-                    "<script type=\"text/javascript\">" .
-                    $collection->execBehaviour($data, self::TYPE_JS_INLINE)
-                    . "</script>\n";
+        $dom = new \DOMDocument();
+        foreach ($collection->getItems([self::TYPE_JS, self::TYPE_JS_INLINE]) as $assetItem) {
+
+            $resultItem = $collection->execBehaviour($assetItem);
+            if ($assetItem->type == AssetsManager::TYPE_JS) {
+                $el = $dom->createElement("script");
+                $el->setAttribute("href", $resultItem->content);
+                $el->setAttribute("type", "text/javascript");
+
+                foreach ($resultItem->htmlOptions as $key => $value) {
+                    $el->setAttribute($key, $value);
+                }
+
+                $dom->appendChild($el);
+            } elseif ($assetItem->type == AssetsManager::TYPE_JS_INLINE) {
+                $el = $dom->createElement("script");
+                $el->textContent = $resultItem->content;
+
+                foreach ($resultItem->htmlOptions as $key => $value) {
+                    $el->setAttribute($key, $value);
+                }
+
+                $dom->appendChild($el);
             }
         }
 
-        return $result;
+
+        return $dom->saveHTML();
     }
 
     public function outputCss($name = 'default') {
         $collection = $this->collection($name);
-        $result = '';
-        foreach ($collection->getCssPaths() as $path) {
-            $prefix = substr($path, 0, 1);
-            $data = substr($path, 1);
 
-            if ($prefix == AssetsCollection::PREFIX_FILE) {
-                $result .= sprintf(
-                    "<link rel=\"stylesheet\" href=\"%s\" type=\"text/css\" />\n",
-                    $collection->execBehaviour($data, self::TYPE_CSS)
-                );
-            } elseif ($prefix == AssetsCollection::PREFIX_INLINE) {
-                $result .=
-                    "<style>" .
-                    $collection->execBehaviour($data, self::TYPE_CSS_INLINE)
-                    . "</style>\n";
+        $dom = new \DOMDocument();
+        foreach ($collection->getItems([self::TYPE_CSS, self::TYPE_CSS_INLINE]) as $assetItem) {
+            $resultItem = $collection->execBehaviour($assetItem);
+            if ($assetItem->type == AssetsManager::TYPE_CSS) {
+                $el = $dom->createElement("link");
+                $el->setAttribute("rel", "stylesheet");
+                $el->setAttribute("href", $resultItem->content);
+                $el->setAttribute("type", "text/css");
+
+                foreach ($resultItem->htmlOptions as $key => $value) {
+                    $el->setAttribute($key, $value);
+                }
+
+                $dom->appendChild($el);
+            } elseif ($assetItem->type == AssetsManager::TYPE_CSS_INLINE) {
+                $el = $dom->createElement("style");
+                $el->textContent = $resultItem->content;
+                $el->setAttribute("type", "text/css");
+
+                foreach ($resultItem->htmlOptions as $key => $value) {
+                    $el->setAttribute($key, $value);
+                }
+
+                $dom->appendChild($el);
             }
         }
 
-        return $result;
+
+        return $dom->saveHTML();
     }
 
 
@@ -84,12 +105,20 @@ class AssetsManager {
         return $this->collection(self::DEFAULT_COLLECTION_NAME)->addBehaviour($item);
     }
 
-    public function addJs($path) {
-        return $this->collection(self::DEFAULT_COLLECTION_NAME)->addJs($path);
+    public function addJs($path, $options = []) {
+        return $this->collection(self::DEFAULT_COLLECTION_NAME)->addJs($path, $options);
     }
 
-    public function addCss($path) {
-        return $this->collection(self::DEFAULT_COLLECTION_NAME)->addCss($path);
+    public function addCss($path, $options = []) {
+        return $this->collection(self::DEFAULT_COLLECTION_NAME)->addCss($path, $options);
+    }
+
+    public function addInlineCss($content, $options = []) {
+        return $this->collection(self::DEFAULT_COLLECTION_NAME)->addInlineCss($content, $options);
+    }
+
+    public function addInlineJs($content, $options = []) {
+        return $this->collection(self::DEFAULT_COLLECTION_NAME)->addInlineJs($content, $options);
     }
 
     public function setPrefix($prefix) {

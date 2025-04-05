@@ -19,7 +19,7 @@ class BoolFilter extends BaseFilter {
             return $data;
         }
 
-        if ($data || $data === '0' || strtolower($data) === 'true') {
+        if ($data || $data == '1' || strtolower($data) === 'true') {
             return true;
         }
 

@@ -129,27 +129,41 @@ class ArrayUtil {
 
         return $results;
     }
-
     public static function generateArrayFromPath($path, $value) {
         $pathParts = is_array($path) ? $path : explode('.', $path);
         $result = [];
-        $lastKey = array_pop($pathParts);
+        $lastKey = array_pop($pathParts);  // 获取路径的最后一个部分
 
+        // 指向当前数组引用
         $current = &$result;
+
+        // 遍历路径的每个部分，除了最后一个
         foreach ($pathParts as $part) {
             if ($part === '*') {
+                // 如果是通配符，直接设置为空数组
                 $current = [];
             } else {
-                $current[$part] = [];
+                // 如果不是通配符，创建该键并继续深入
+                if (!isset($current[$part])) {
+                    $current[$part] = [];
+                }
                 $current = &$current[$part];
             }
         }
 
+        // 处理最后一部分，决定是填充数据还是用索引
         if ($lastKey === '*') {
+            // 如果是通配符，直接填充值
             $current = $value;
         } else {
-            foreach ($value as $index => $val) {
-                $current[$index][$lastKey] = $val;
+            // 否则按键合并
+            if (is_array($value)) {
+                foreach ($value as $index => $val) {
+                    $current[$index][$lastKey] = $val;
+                }
+            } else {
+                // 直接将值赋给对应的key
+                $current[$lastKey] = $value;
             }
         }
 

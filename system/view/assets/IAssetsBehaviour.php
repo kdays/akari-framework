@@ -10,6 +10,6 @@ namespace Akari\system\view\assets;
 
 interface IAssetsBehaviour {
 
-    public static function execute($content, $type);
+    public static function execute(AssetContent $content);
 
 }

@@ -11,8 +11,9 @@ namespace Akari\system\view\assets;
 class AssetsCollection {
 
     private $_id;
-    private $_css = [];
-    private $_js = [];
+
+    protected $items = [];
+
     private $_prefix = '';
 
     const PREFIX_FILE = 'F';
@@ -30,20 +31,24 @@ class AssetsCollection {
         return $this;
     }
 
-    public function addJs($path) {
-        $path = self::PREFIX_FILE . $this->_prefix . $path;
-        if (!in_array($path, $this->_js)) {
-            $this->_js[] = $path;
+    public function addJs($path, $options = []) {
+        foreach ($this->items as $item) {
+            if ($item->type == AssetsManager::TYPE_JS && $item->content == $path) {
+                return $this; // 直接不重复添加
+            }
         }
+        $this->items[] = AssetContent::init(AssetsManager::TYPE_JS, $path, $options);
 
         return $this;
     }
 
-    public function addCss($path) {
-        $path = self::PREFIX_FILE . $this->_prefix . $path;
-        if (!in_array($path, $this->_css)) {
-            $this->_css[] = $path;
+    public function addCss($path, $options = []) {
+        foreach ($this->items as $item) {
+            if ($item->type == AssetsManager::TYPE_CSS && $item->content == $path) {
+                return $this; // 直接不重复添加
+            }
         }
+        $this->items[] = AssetContent::init(AssetsManager::TYPE_CSS, $path, $options);
 
         return $this;
     }
@@ -56,52 +61,51 @@ class AssetsCollection {
         return $this;
     }
 
-    public function execBehaviour($path, $type) {
+    public function execBehaviour(AssetContent $content) {
+        $targetResult = clone $content;
+
         foreach ($this->_behaviour as $item) {
             if (is_callable($item)) {
-                $path = $item($path, $type);
+                $item($targetResult);
             } else {
                 /** @var IAssetsBehaviour $item */
-                $path = $item::execute($path, $type);
+                $item::execute($targetResult);
             }
         }
 
-        return $path;
+        return $targetResult;
+    }
+
+
+    public function addInlineCss($inlineCss, $options = []) {
+        $this->items[] = AssetContent::init(AssetsManager::TYPE_CSS_INLINE, $inlineCss, $options);
+        return $this;
+    }
+
+    public function addInlineJs($inlineJs, $options = []) {
+        $this->items[] = AssetContent::init(AssetsManager::TYPE_JS_INLINE, $inlineJs, $options);
+        return $this;
     }
 
     /**
-     * @return array
+     * @param $types
+     * @return \Generator
      */
-    public function getCssPaths() {
-        return $this->_css;
+    public function getItems($types = []) {
+        foreach ($this->items as $item) {
+            if (empty($types) || in_array($item->type, $types)) {
+                /** @var AssetContent $item */
+                yield $item;
+            }
+        }
     }
 
-    public function getJsPaths() {
-        return $this->_js;
+    public function reset() {
+        $this->items = [];
     }
 
-    public function setCssPaths($paths) {
-        $this->_css = $paths;
-    }
-
-    public function setJsPaths($paths) {
-        $this->_js = $paths;
-    }
-
-    public function addInlineCss($inlineCss) {
-        $this->_css[] = self::PREFIX_INLINE . $inlineCss;
-    }
-
-    public function addInlineJs($inlineJs) {
-        $this->_js[] = self::PREFIX_INLINE . $inlineJs;
-    }
-
-    public function resetCss() {
-        $this->_css = [];
-    }
-
-    public function resetJs() {
-        $this->_js = [];
+    public function updateItems($items) {
+        $this->items = $items;
     }
 
 }
