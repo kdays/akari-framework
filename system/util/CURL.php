@@ -163,6 +163,10 @@ class CURL {
         return '';
     }
 
+    public static function customSend($method, $url, $params, $options = []) {
+        return self::getHandler($options)->send($url, $method, $params);
+    }
+
     protected static function getHandler(array $opts) {
         $handler = new self();
 
