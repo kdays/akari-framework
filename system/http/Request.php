@@ -478,7 +478,8 @@ class Request {
     }
     public function validate(array $params) {
         $result = [];
-        $isJsonBody = TextUtil::exists($this->getContentType(), ["javascript", "json"]);
+        $contentType = $this->getContentType() ?? '';
+        $isJsonBody = TextUtil::exists($contentType, ["javascript", "json"]);
         $body = $isJsonBody ? $this->getJsonRawBody() : $this->get(NULL);
 
         $onlyMatchesArray = [];

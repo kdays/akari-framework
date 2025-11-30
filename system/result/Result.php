@@ -32,7 +32,7 @@ class Result {
     public $meta;
     public $contentType;
 
-    public function __construct($type, $data, $meta, $contentType = self::CONTENT_HTML, callable $callback = NULL) {
+    public function __construct($type, $data, $meta, $contentType = self::CONTENT_HTML, ?callable $callback = NULL) {
         $this->type = $type;
         $this->data = $data;
         $this->meta = $meta;
