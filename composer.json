@@ -4,7 +4,8 @@
   "require": {
     "illuminate/database": "^10",
     "ext-imagick": "*",
-    "ext-dom": "*"
+    "ext-dom": "*",
+    "ext-curl": "*"
   },
   "autoload": {
     "files": [

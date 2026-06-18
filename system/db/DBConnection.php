@@ -142,7 +142,7 @@ class DBConnection {
 
         if ($st->execute()) {
             $result = $returnLastInsertId ? $writeConn->lastInsertId() : $st->rowCount();
-            $this->closeCollection($st);
+            $st->closeCursor();
 
             return $result;
         }
