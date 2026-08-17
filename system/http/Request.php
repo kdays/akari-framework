@@ -168,13 +168,18 @@ class Request {
             $isInternal = TRUE;
         }
 
-        // 如果确定是内网IP的话 再检查X-FORWARDED-FOR字段,避免伪造
-        if ($isInternal && isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $onlineIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        // 内网入口只信反代写入的客户端 IP，不读可被请求方伪造的 X-Forwarded-For。
+        if ($isInternal) {
+            foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_X_REAL_IP'] as $trustedHeader) {
+                if (empty($_SERVER[$trustedHeader])) {
+                    continue;
+                }
 
-            if ($onlineIp && strstr($onlineIp, ',')) {
-                $x = explode(',', $onlineIp);
-                $onlineIp = end($x);
+                $forwardedIp = trim((string)$_SERVER[$trustedHeader]);
+                if (filter_var($forwardedIp, FILTER_VALIDATE_IP)) {
+                    $onlineIp = $forwardedIp;
+                    break;
+                }
             }
         }
 

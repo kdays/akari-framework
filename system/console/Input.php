@@ -23,8 +23,13 @@ class Input {
         }
     }
 
-    public function getInput() {
-        return trim(fgets($this->input));
+    public function getInput(): ?string {
+        $input = fgets($this->input);
+        if ($input === FALSE) {
+            return NULL;
+        }
+
+        return trim($input);
     }
 
 

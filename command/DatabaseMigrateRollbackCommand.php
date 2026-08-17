@@ -13,7 +13,7 @@ class DatabaseMigrateRollbackCommand extends BaseTask {
         if (APP_ENV == ENV_PROD) {
             $envProdTip = $this->ask('你当前运行在生产环境下，确定要执行数据库迁移回滚吗', ['y', 'n']);
 
-            if ($envProdTip == 'n') return false;
+            if ($envProdTip !== 'y') return false;
         }
 
         $db = DBConnection::init($params['db'] ?? 'default');
