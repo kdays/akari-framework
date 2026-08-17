@@ -41,6 +41,11 @@ abstract class BaseTask extends Injectable {
         if (!empty($options)) {
             while (TRUE) {
                 $result = $this->input->getInput();
+                if ($result === NULL) {
+                    $this->msg("<error>标准输入已关闭，操作已取消</error>");
+                    return NULL;
+                }
+
                 if (!in_array($result, $options)) {
                     $this->msg("<info>请在规定范围内选择</info>");
                 } else {

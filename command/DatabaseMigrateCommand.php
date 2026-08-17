@@ -60,7 +60,7 @@ class DatabaseMigrateCommand extends BaseTask {
         if (APP_ENV == ENV_PROD) {
             $envProdTip = $this->ask('你当前运行在生产环境下，确定要执行数据库迁移吗', ['y', 'n']);
 
-            if ($envProdTip == 'n') return false;
+            if ($envProdTip !== 'y') return false;
         }
 
         $dirScanner = new \DirectoryIterator(Core::$baseDir . '/database/migrate/');
