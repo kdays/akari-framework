@@ -100,7 +100,17 @@ class FileStorageHandler extends BaseStorageHandler implements IStorageHandler {
         $baseDir = str_replace('//', '/', $baseDir);
 
         $path = $baseDir . $path;
-        $path = str_replace('//', '/', $path);
+        $path = str_replace(['\\', '//'], ['/', '/'], $path);
+        $normalizedBase = rtrim(str_replace('\\', '/', $baseDir), '/');
+        $normalizedPath = str_replace('\\', '/', $path);
+
+        if (strpos($normalizedPath, '..') !== FALSE) {
+            throw new AkariException("BasePath Error");
+        }
+
+        if ($normalizedPath !== $normalizedBase && strpos($normalizedPath, $normalizedBase . '/') !== 0) {
+            throw new AkariException("BasePath Error");
+        }
 
         if (!TextUtil::exists(dirname($path), dirname($baseDir))) {
             throw new AkariException("BasePath Error");
